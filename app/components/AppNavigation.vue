@@ -75,14 +75,18 @@
 </template>
 
 <script setup lang="ts">
+import type { Profile } from '~/types'
+
 // Composables
 const user = useSupabaseUser()
 const { signOut } = useAuth()
+const { getCurrentProfile } = useProfile()
 
 // User menu state
 const userMenuOpen = ref(false)
 const userMenuRef = ref()
 const signingOut = ref(false)
+const userProfile = ref<Profile | null>(null)
 
 // User menu functions
 const toggleUserMenu = () => {

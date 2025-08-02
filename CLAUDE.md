@@ -51,3 +51,9 @@ A webapp for controlling orders. The tech stach must be nuxtjs+shadcn+supabase
 
 Make sure to lock the scope - agents should not add features beyond what you define. Give explicit instructions for file management and agent collaboration.
 ```
+
+## AGENTS
+Use the available agents whenever you can.
+
+# MCP
+Use the available MCP servers and tools.

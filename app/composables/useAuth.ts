@@ -1,4 +1,6 @@
 // Authentication composable for Supabase
+import type { Profile } from '~/types'
+
 export const useAuth = () => {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
@@ -82,12 +84,54 @@ export const useAuth = () => {
 
   const isAuthenticated = computed(() => !!user.value)
 
+  // Get current user profile
+  const getCurrentUserProfile = async (): Promise<Profile | null> => {
+    if (!user.value) return null
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          user_id,
+          first_name,
+          last_name,
+          user_role,
+          created_at,
+          updated_at
+        `)
+        .eq('user_id', user.value.id)
+        .single()
+
+      if (error) {
+        console.error('Error fetching user profile:', error)
+        return null
+      }
+
+      // Add computed fields
+      if (data) {
+        const profile: Profile = {
+          ...data,
+          full_name: `${data.first_name} ${data.last_name}`,
+          email: user.value.email || ''
+        }
+        return profile
+      }
+
+      return null
+    } catch (error) {
+      console.error('Error in getCurrentUserProfile:', error)
+      return null
+    }
+  }
+
   return {
     user: readonly(user),
     signIn,
     signOut,
     resetPassword,
     updatePassword,
-    isAuthenticated
+    isAuthenticated,
+    getCurrentUserProfile
   }
 }

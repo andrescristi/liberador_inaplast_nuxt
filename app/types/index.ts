@@ -1,5 +1,37 @@
 // Database entity types based on project specification
 
+// Profile and authentication types
+export type ProfileRole = 'Admin' | 'Inspector' | 'Supervisor'
+
+export interface Profile {
+  id: string
+  user_id: string
+  first_name: string
+  last_name: string
+  user_role: ProfileRole
+  created_at: string
+  updated_at: string
+  full_name?: string // Computed field
+  email?: string // Populated from auth.users
+}
+
+export interface CreateProfileForm {
+  first_name: string
+  last_name: string
+  user_role: ProfileRole
+}
+
+export interface UpdateProfileForm {
+  first_name?: string
+  last_name?: string
+  user_role?: ProfileRole
+}
+
+export interface ProfileFilters {
+  search?: string
+  role_filter?: ProfileRole
+}
+
 export interface Customer {
   id: string
   name: string
