@@ -2,9 +2,31 @@
 
 ## Overview
 
-This document describes the database schema for the Order Management System built with Supabase PostgreSQL.
+This document describes the database schema for the Order Management System built with Supabase PostgreSQL. The system includes user authentication via Supabase Auth and business data management through custom tables.
 
-## Tables
+## Authentication System
+
+### Supabase Auth Tables
+
+The authentication system uses Supabase's built-in auth schema:
+
+- **auth.users** - Core user accounts with email, encrypted password, and metadata
+- **auth.sessions** - Active user sessions and tokens
+- **auth.refresh_tokens** - JWT refresh tokens for session management
+
+#### User Management
+- Users are created through the Supabase dashboard (registration disabled in app)
+- Email/password authentication is the primary method
+- Password reset functionality uses Supabase's email system
+- Sessions are automatically managed and persist across browser restarts
+
+#### Security Features
+- Passwords are automatically hashed and salted by Supabase
+- JWT tokens are used for API authentication
+- Row Level Security (RLS) can be configured for data access
+- Rate limiting is built into Supabase Auth
+
+## Business Data Tables
 
 ### customers
 

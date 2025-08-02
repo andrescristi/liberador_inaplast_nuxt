@@ -20,6 +20,10 @@ import type {
 
 // Database query utilities
 export class SupabaseAPI {
+  private get client() {
+    return useSupabaseClient()
+  }
+
   private getClient() {
     return useSupabaseClient()
   }

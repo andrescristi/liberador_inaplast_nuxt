@@ -55,8 +55,29 @@
             <button class="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
               <Icon name="lucide:settings" class="w-5 h-5" />
             </button>
-            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-              <Icon name="lucide:user" class="w-4 h-4 text-white" />
+            <div class="relative">
+              <button 
+                @click="showUserMenu = !showUserMenu"
+                class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors"
+              >
+                <Icon name="lucide:user" class="w-4 h-4 text-white" />
+              </button>
+              
+              <!-- User Dropdown -->
+              <div v-if="showUserMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-slate-200 z-50">
+                <div class="py-1">
+                  <div v-if="user" class="px-4 py-2 text-sm text-slate-600 border-b border-slate-100">
+                    {{ user.email }}
+                  </div>
+                  <button 
+                    @click="handleLogout"
+                    class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 flex items-center"
+                  >
+                    <Icon name="lucide:log-out" class="w-4 h-4 mr-2" />
+                    Cerrar Sesión
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -162,12 +183,36 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  middleware: 'auth'
+})
+
+const { user, signOut } = useAuth()
 const mobileMenuOpen = ref(false)
+const showUserMenu = ref(false)
 
 // Close mobile menu when route changes
 watch(() => useRoute().path, () => {
   mobileMenuOpen.value = false
 })
+
+// Close user menu when clicking outside
+onMounted(() => {
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement
+    if (!target.closest('.relative')) {
+      showUserMenu.value = false
+    }
+  })
+})
+
+const handleLogout = async () => {
+  try {
+    await signOut()
+  } catch (error) {
+    console.error('Error signing out:', error)
+  }
+}
 </script>
 
 <style scoped>

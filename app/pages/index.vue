@@ -289,6 +289,11 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString()
 }
 
+// Authentication
+definePageMeta({
+  middleware: 'auth'
+})
+
 // SEO
 useSeoMeta({
   title: 'Dashboard - Order Management',
