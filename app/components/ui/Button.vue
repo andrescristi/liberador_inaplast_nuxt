@@ -5,11 +5,11 @@
     :disabled="disabled || loading"
     v-bind="$attrs"
     @click="handleClick"
+    ref="buttonRef"
   >
-    <Icon 
+    <div 
       v-if="loading" 
-      name="lucide:loader-2" 
-      class="w-4 h-4 animate-spin mr-2" 
+      class="spinner-magical mr-2" 
     />
     <Icon 
       v-else-if="icon" 
@@ -22,13 +22,15 @@
 
 <script setup lang="ts">
 interface Props {
-  variant?: 'primary' | 'secondary' | 'destructive' | 'ghost' | 'outline'
+  variant?: 'primary' | 'secondary' | 'destructive' | 'ghost' | 'outline' | 'magical'
   size?: 'sm' | 'md' | 'lg'
   loading?: boolean
   disabled?: boolean
   icon?: string
   iconOnly?: boolean
   tag?: string
+  ripple?: boolean
+  sparkle?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -37,22 +39,27 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   disabled: false,
   iconOnly: false,
-  tag: 'button'
+  tag: 'button',
+  ripple: true,
+  sparkle: false
 })
+
+const buttonRef = ref<HTMLElement>()
 
 const emit = defineEmits<{
   click: [event: Event]
 }>()
 
 const buttonClasses = computed(() => {
-  const baseClasses = 'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-3 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
+  const baseClasses = 'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-3 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden'
   
   const variants = {
-    primary: 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white shadow-sm hover:shadow-md focus:ring-blue-200',
-    secondary: 'bg-white hover:bg-blue-50 text-blue-600 border-2 border-blue-200 hover:border-blue-300 focus:ring-blue-200',
-    destructive: 'bg-red-500 hover:bg-red-600 active:bg-red-700 text-white shadow-sm focus:ring-red-200',
-    ghost: 'hover:bg-slate-100 text-slate-600 hover:text-slate-900 focus:ring-slate-200',
-    outline: 'border-2 border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-600 focus:ring-slate-200'
+    primary: 'btn-glass-primary',
+    secondary: 'btn-glass-secondary', 
+    destructive: 'btn-destructive-glass',
+    ghost: 'hover:bg-glass-light text-glass-secondary hover:text-glass focus:ring-glass-border',
+    outline: 'border-2 border-glass-border hover:border-glass-border-strong bg-glass hover:bg-glass-light text-glass focus:ring-glass-border',
+    magical: 'btn-glass-sparkle'
   }
   
   const sizes = {
@@ -75,7 +82,76 @@ const iconClasses = computed(() => {
 
 const handleClick = (event: Event) => {
   if (!props.disabled && !props.loading) {
+    // Add ripple effect
+    if (props.ripple && buttonRef.value) {
+      createRipple(event)
+    }
+    
+    // Add sparkle effect for magical variant
+    if (props.sparkle || props.variant === 'magical') {
+      createSparkle()
+    }
+    
     emit('click', event)
+  }
+}
+
+const createRipple = (event: Event) => {
+  const button = buttonRef.value
+  if (!button) return
+  
+  const mouseEvent = event as MouseEvent
+  const rect = button.getBoundingClientRect()
+  const size = Math.max(rect.width, rect.height)
+  const x = mouseEvent.clientX - rect.left - size / 2
+  const y = mouseEvent.clientY - rect.top - size / 2
+  
+  const ripple = document.createElement('span')
+  ripple.style.cssText = `
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple-animation 0.6s linear;
+    background-color: rgba(255, 255, 255, 0.3);
+    width: ${size}px;
+    height: ${size}px;
+    left: ${x}px;
+    top: ${y}px;
+    pointer-events: none;
+  `
+  
+  button.appendChild(ripple)
+  
+  setTimeout(() => {
+    ripple.remove()
+  }, 600)
+}
+
+const createSparkle = () => {
+  const button = buttonRef.value
+  if (!button) return
+  
+  // Create multiple sparkles
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => {
+      const sparkle = document.createElement('span')
+      sparkle.innerHTML = '✨'
+      sparkle.style.cssText = `
+        position: absolute;
+        top: ${Math.random() * 100}%;
+        left: ${Math.random() * 100}%;
+        font-size: 0.8rem;
+        animation: sparkle-burst 1s ease-out forwards;
+        pointer-events: none;
+        z-index: 10;
+      `
+      
+      button.appendChild(sparkle)
+      
+      setTimeout(() => {
+        sparkle.remove()
+      }, 1000)
+    }, i * 100)
   }
 }
 </script>
