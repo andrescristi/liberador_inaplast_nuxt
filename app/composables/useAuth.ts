@@ -36,13 +36,28 @@ export const useAuth = () => {
   }
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    
-    if (error) {
-      throw new Error(error.message)
-    }
+    try {
+      console.log('Signing out user...')
+      
+      const { error } = await supabase.auth.signOut()
+      
+      if (error) {
+        console.error('Sign out error:', error)
+        throw new Error(error.message)
+      }
 
-    await navigateTo('/auth/login')
+      console.log('Sign out successful, redirecting to login...')
+      
+      // Clear any client-side state
+      await nextTick()
+      
+      // Navigate to login page
+      await navigateTo('/auth/login')
+      
+    } catch (error) {
+      console.error('Unexpected sign out error:', error)
+      throw error
+    }
   }
 
   const resetPassword = async (email: string) => {
