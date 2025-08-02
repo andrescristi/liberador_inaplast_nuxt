@@ -240,7 +240,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 // Composables
 const supabase = useSupabaseClient()
 

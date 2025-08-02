@@ -1,9 +1,9 @@
+/* Import Inter font for elegant typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import Inter font for elegant typography */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* Glassmorphism Design System */
 :root {
@@ -630,7 +630,7 @@ body::after {
   
   /* Magical navigation links */
   .nav-link-magical {
-    @apply nav-link;
+    @apply text-glass-secondary hover:text-glass hover:bg-glass-light px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200;
     position: relative;
     overflow: hidden;
   }
@@ -849,7 +849,6 @@ body::after {
     opacity: 0;
     transform: scale(0.5) rotate(360deg) translateY(-20px);
   }
-}
 }
 
 /* Enhanced Loading Animations */

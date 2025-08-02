@@ -12,7 +12,7 @@ export const useAuth = () => {
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim(),
       password
     })
 
@@ -20,7 +20,16 @@ export const useAuth = () => {
 
     if (error) {
       console.error('Supabase auth error:', error)
-      throw new Error(error.message)
+      // Provide more user-friendly error messages
+      let errorMessage = error.message
+      if (error.message.includes('Invalid login credentials')) {
+        errorMessage = 'Credenciales incorrectas. Verifica tu email y contraseña.'
+      } else if (error.message.includes('Email not confirmed')) {
+        errorMessage = 'Por favor confirma tu email antes de iniciar sesión.'
+      } else if (error.message.includes('Too many requests')) {
+        errorMessage = 'Demasiados intentos. Intenta de nuevo en unos minutos.'
+      }
+      throw new Error(errorMessage)
     }
 
     return data
