@@ -6,7 +6,9 @@ export const useAuth = () => {
   const user = useSupabaseUser()
 
   const signIn = async (email: string, password: string) => {
-    console.log('useAuth signIn called with:', { email, passwordLength: password?.length })
+    if (process.env.NODE_ENV === 'development') {
+      console.log('useAuth signIn called with:', { email, passwordLength: password?.length })
+    }
     
     // Validate parameters
     if (!email || !password) {
@@ -18,7 +20,12 @@ export const useAuth = () => {
       password
     })
 
-    console.log('Supabase auth response:', { data, error })
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Supabase auth response:', { 
+        data: data ? { user: { id: data.user?.id, email: data.user?.email } } : null, 
+        error: error?.message 
+      })
+    }
 
     if (error) {
       console.error('Supabase auth error:', error)
@@ -72,13 +79,27 @@ export const useAuth = () => {
     }
   }
 
-  const updatePassword = async (password: string) => {
-    const { error } = await supabase.auth.updateUser({
-      password
-    })
+  const updatePassword = async (newPassword: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
 
-    if (error) {
-      throw new Error(error.message)
+      if (error) {
+        // Provide more user-friendly error messages
+        let errorMessage = error.message
+        if (error.message.includes('weak')) {
+          errorMessage = 'La contraseña no cumple con los requisitos de seguridad.'
+        } else if (error.message.includes('same')) {
+          errorMessage = 'La nueva contraseña debe ser diferente a la actual.'
+        } else if (error.message.includes('invalid')) {
+          errorMessage = 'La contraseña actual es incorrecta.'
+        }
+        throw new Error(errorMessage)
+      }
+    } catch (error) {
+      console.error('Password update error:', error)
+      throw error
     }
   }
 
@@ -111,7 +132,13 @@ export const useAuth = () => {
       // Add computed fields
       if (data) {
         const profile: Profile = {
-          ...data,
+          id: data.id,
+          user_id: data.user_id,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          user_role: data.user_role,
+          created_at: data.created_at,
+          updated_at: data.updated_at,
           full_name: `${data.first_name} ${data.last_name}`,
           email: user.value.email || ''
         }

@@ -55,5 +55,8 @@ Make sure to lock the scope - agents should not add features beyond what you def
 ## AGENTS
 Use the available agents whenever you can.
 
-# MCP
+## MCP
 Use the available MCP servers and tools.
+
+## Playwright
+Whenever you need to take an screenshot, save it in the screenshot folder, in the project's root path  

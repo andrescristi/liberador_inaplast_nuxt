@@ -55,6 +55,14 @@
                   <div class="px-3 py-2 text-xs text-glass-muted border-b border-glass-light">
                     {{ user?.email }}
                   </div>
+                  <NuxtLink
+                    to="/profile"
+                    @click="userMenuOpen = false"
+                    class="w-full flex items-center space-x-2 px-3 py-2 text-sm text-glass-secondary hover:text-glass hover:bg-glass-light rounded-lg transition-all duration-200 group"
+                  >
+                    <Icon name="lucide:user" class="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+                    <span>Mi Perfil</span>
+                  </NuxtLink>
                   <button
                     @click="handleSignOut"
                     class="w-full flex items-center space-x-2 px-3 py-2 text-sm text-glass-secondary hover:text-glass hover:bg-glass-light rounded-lg transition-all duration-200 group"
@@ -75,18 +83,14 @@
 </template>
 
 <script setup lang="ts">
-import type { Profile } from '~/types'
-
 // Composables
 const user = useSupabaseUser()
 const { signOut } = useAuth()
-const { getCurrentProfile } = useProfile()
 
 // User menu state
 const userMenuOpen = ref(false)
 const userMenuRef = ref()
 const signingOut = ref(false)
-const userProfile = ref<Profile | null>(null)
 
 // User menu functions
 const toggleUserMenu = () => {
