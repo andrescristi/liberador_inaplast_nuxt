@@ -4,9 +4,12 @@ A modern web application for managing orders, customers, and products built with
 
 ## Features
 
-### 🔐 Authentication
+### 🔐 Authentication & User Management
 - **Secure Login System** - Email/password authentication via Supabase Auth
 - **Password Reset** - Forgot password functionality with email verification
+- **User Profiles** - Complete profile management with role-based access
+- **Role-Based Access Control** - Admin, Supervisor, and Inspector roles
+- **Password Change** - Secure password update with strength validation
 - **Protected Routes** - All application routes require authentication
 - **User Session Management** - Automatic login/logout handling
 - **User Menu** - Access to user profile and logout functionality
@@ -39,7 +42,14 @@ A modern web application for managing orders, customers, and products built with
 
 ## Recent Updates
 
-### ✅ Authentication System (Latest)
+### ✅ User Profile System (Latest)
+- **Complete Profile Page**: Role-based profile management with glassmorphism design
+- **Password Security**: Advanced password change with strength validation
+- **Role-Based UI**: Different interface elements based on user roles (Admin/Supervisor/Inspector)
+- **Mobile Responsive**: Optimized for field workers and mobile devices
+- **Spanish Localization**: Full Spanish language support throughout
+
+### ✅ Authentication System
 - **Fully Implemented**: Complete Supabase authentication integration
 - **Form Issues Fixed**: Resolved UI component binding issues with native HTML inputs
 - **User Management**: Added user dropdown menu with logout functionality
@@ -117,6 +127,7 @@ app/
 │   │   └── reset-password.vue # Password reset page
 │   ├── confirm.vue            # Email confirmation handler
 │   ├── index.vue              # Dashboard
+│   ├── profile.vue            # User profile page
 │   ├── orders/                # Order management pages
 │   ├── customers/             # Customer management pages
 │   └── products/              # Product management pages
@@ -148,15 +159,44 @@ npm run preview      # Preview production build
 1. **Route Protection**: All routes use the `auth` middleware
 2. **Login Required**: Unauthenticated users are redirected to `/auth/login`
 3. **Session Persistence**: Supabase handles session management automatically
-4. **Logout**: Available through the user menu in the navigation
+4. **Profile Access**: Users can access their profile page via the navigation menu
+5. **Logout**: Available through the user menu in the navigation
+
+### User Profile Features
+
+**Profile Management:**
+- View and edit personal information (name, email)
+- Role-based interface that adapts to user permissions
+- Account creation date and activity summary
+
+**Security Features:**
+- Secure password change with real-time strength validation
+- Password requirements enforcement
+- Current password verification required
+
+**Role-Based Access:**
+- **Admin**: Gold accent colors, full system access indicators
+- **Supervisor**: Blue accent colors, global view capabilities  
+- **Inspector**: Green accent colors, personal data focus
+
+**Mobile Optimized:**
+- Touch-friendly interface for field workers
+- Responsive design works on all device sizes
+- Glassmorphism design with magical interactions
 
 ### Database Schema
 
 The application uses the following main tables:
+- `profiles` - User profiles with role-based access control
 - `customers` - Customer information
 - `products` - Product catalog
 - `orders` - Order records
 - `order_items` - Individual items within orders
+
+**User Roles:**
+- **Admin**: Full system access including user management
+- **Supervisor**: Global view with approval/rejection capabilities
+- **Inspector**: Limited access to personal data and assigned orders
 
 See `supabase/migrations/` for complete schema definitions.
 
@@ -201,12 +241,15 @@ npm run build
 ## Development Status
 
 - ✅ **Authentication System**: Complete with login/logout/password reset
+- ✅ **User Profile System**: Role-based profiles with security features
+- ✅ **Role-Based Access Control**: Admin, Supervisor, and Inspector roles implemented
 - ✅ **Route Protection**: All pages require authentication  
-- ✅ **User Interface**: Dashboard, orders, customers, products pages
-- ✅ **Database Schema**: Complete with migrations and functions
+- ✅ **User Interface**: Dashboard, orders, customers, products, and profile pages
+- ✅ **Database Schema**: Complete with migrations, functions, and RLS policies
+- ✅ **Mobile Responsive**: Optimized for field workers and mobile devices
 - ✅ **Documentation**: Setup guides and API documentation
 - 🔄 **Testing**: Form validation and authentication flow tested
-- 📋 **Next Steps**: Add user roles and permissions
+- 📋 **Next Steps**: Advanced reporting and analytics features
 
 ## Contributing
 
