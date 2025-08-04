@@ -1,76 +1,92 @@
 <template>
-  <nav class="glass-nav sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <nav class="nav sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 lg:px-6">
       <div class="flex justify-between h-16">
         <div class="flex items-center">
-          <div class="flex items-center space-x-3">
-            <div class="glass-icon-container w-10 h-10">
-              <svg class="w-6 h-6 text-glass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
-              </svg>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+              <Icon name="lucide:layers" class="w-4 h-4 text-primary" />
             </div>
-            <NuxtLink to="/" class="text-xl font-semibold text-glass hover:text-white transition-colors duration-200">
-              Order Management
+            <NuxtLink to="/" class="text-lg font-semibold text-gray-900 hover:text-primary transition-colors">
+              Inaplast
             </NuxtLink>
           </div>
         </div>
-        <div class="flex items-center space-x-2">
-          <NuxtLink to="/orders" class="nav-link-magical">
+        <div class="flex items-center gap-1">
+          <NuxtLink to="/orders" class="nav-link">
             Orders
           </NuxtLink>
-          <NuxtLink to="/customers" class="nav-link-magical">
+          <NuxtLink to="/customers" class="nav-link">
             Customers
           </NuxtLink>
-          <NuxtLink to="/products" class="nav-link-magical">
+          <NuxtLink to="/products" class="nav-link">
             Products
           </NuxtLink>
           
           <!-- User Menu -->
-          <div class="relative ml-6" ref="userMenuRef">
+          <div class="relative ml-8" ref="userMenuRef">
             <button
               @click="toggleUserMenu"
-              class="flex items-center space-x-2 text-glass-secondary hover:text-glass hover:bg-glass-light px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group"
+              :aria-expanded="userMenuOpen"
+              aria-haspopup="true"
+              :aria-label="`User menu for ${user?.email?.split('@')[0] || 'User'}`"
+              class="btn-secondary flex items-center gap-2"
             >
-              <div class="glass-icon-container w-8 h-8 group-hover:scale-110 transition-transform duration-200">
-                <Icon name="lucide:user" class="w-4 h-4" />
+              <div class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
+                <Icon name="lucide:user" class="w-4 h-4 text-gray-600" />
               </div>
-              <span>{{ user?.email?.split('@')[0] || 'Usuario' }}</span>
-              <Icon name="lucide:chevron-down" class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': userMenuOpen }" />
+              <span class="hidden sm:inline font-medium">{{ user?.email?.split('@')[0] || 'User' }}</span>
+              <Icon 
+                name="lucide:chevron-down" 
+                class="w-3 h-3 transition-transform" 
+                :class="{ 'rotate-180': userMenuOpen }" 
+              />
             </button>
             
             <!-- Dropdown Menu -->
             <Transition
-              enter-active-class="transition duration-200 ease-out"
+              enter-active-class="transition duration-150 ease-out"
               enter-from-class="transform scale-95 opacity-0"
               enter-to-class="transform scale-100 opacity-100"
-              leave-active-class="transition duration-150 ease-in"
+              leave-active-class="transition duration-100 ease-in"
               leave-from-class="transform scale-100 opacity-100"
               leave-to-class="transform scale-95 opacity-0"
             >
               <div
                 v-if="userMenuOpen"
-                class="absolute right-0 mt-2 w-48 glass-card rounded-lg shadow-glass-xl z-50"
+                class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                role="menu"
+                :aria-hidden="!userMenuOpen"
               >
-                <div class="p-2 space-y-1">
-                  <div class="px-3 py-2 text-xs text-glass-muted border-b border-glass-light">
-                    {{ user?.email }}
+                <div class="py-1">
+                  <!-- User info header -->
+                  <div class="px-3 py-2 border-b border-gray-100 mb-1">
+                    <p class="text-sm font-medium text-gray-900 truncate">{{ user?.email?.split('@')[0] || 'User' }}</p>
+                    <p class="text-xs text-gray-500 truncate">{{ user?.email }}</p>
                   </div>
+                  
+                  <!-- Menu items -->
                   <NuxtLink
                     to="/profile"
                     @click="userMenuOpen = false"
-                    class="w-full flex items-center space-x-2 px-3 py-2 text-sm text-glass-secondary hover:text-glass hover:bg-glass-light rounded-lg transition-all duration-200 group"
+                    class="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors focus:outline-none focus:bg-gray-50"
+                    role="menuitem"
                   >
-                    <Icon name="lucide:user" class="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                    <span>Mi Perfil</span>
+                    <Icon name="lucide:user" class="w-4 h-4" />
+                    <span>Profile</span>
                   </NuxtLink>
+                  
                   <button
                     @click="handleSignOut"
-                    class="w-full flex items-center space-x-2 px-3 py-2 text-sm text-glass-secondary hover:text-glass hover:bg-glass-light rounded-lg transition-all duration-200 group"
+                    class="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     :disabled="signingOut"
+                    role="menuitem"
                   >
-                    <Icon name="lucide:log-out" class="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                    <span v-if="signingOut" class="animate-pulse">Cerrando sesión...</span>
-                    <span v-else>Cerrar Sesión</span>
+                    <Icon 
+                      :name="signingOut ? 'lucide:loader-2' : 'lucide:log-out'" 
+                      :class="['w-4 h-4', { 'animate-spin': signingOut }]" 
+                    />
+                    <span>{{ signingOut ? 'Signing out...' : 'Sign Out' }}</span>
                   </button>
                 </div>
               </div>
@@ -103,30 +119,69 @@ const handleSignOut = async () => {
     userMenuOpen.value = false
     
     // Add a small delay for smooth UX with loading state
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise(resolve => setTimeout(resolve, 300))
     
     await signOut()
+    
+    // Success feedback could be added here
     
   } catch (error) {
     console.error('Sign out error:', error)
     signingOut.value = false
-    // Could add a toast notification here
+    
+    // Show error feedback
+    const { toastError } = useDaisyComponents()
+    toastError('Error signing out. Please try again.')
+    
+    // Re-open menu to allow retry
+    userMenuOpen.value = true
   }
 }
 
-// Close user menu when clicking outside
+// Enhanced click outside handling with better performance
 const handleClickOutside = (event: Event) => {
   if (userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
     userMenuOpen.value = false
   }
 }
 
+// Keyboard navigation support
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (userMenuOpen.value) {
+    switch (event.key) {
+      case 'Escape':
+        userMenuOpen.value = false
+        // Focus back to trigger button
+        const triggerButton = userMenuRef.value?.querySelector('button')
+        if (triggerButton) triggerButton.focus()
+        break
+      case 'Tab':
+        // Let browser handle tab navigation within menu
+        break
+      case 'ArrowDown':
+      case 'ArrowUp':
+        event.preventDefault()
+        const menuItems = userMenuRef.value?.querySelectorAll('[role="menuitem"]')
+        if (menuItems && menuItems.length > 0) {
+          const currentIndex = Array.from(menuItems).findIndex(item => item === document.activeElement)
+          const nextIndex = event.key === 'ArrowDown' 
+            ? (currentIndex + 1) % menuItems.length
+            : currentIndex <= 0 ? menuItems.length - 1 : currentIndex - 1
+          ;(menuItems[nextIndex] as HTMLElement).focus()
+        }
+        break
+    }
+  }
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  document.addEventListener('keydown', handleKeyDown)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('keydown', handleKeyDown)
 })
 
 // Close menu on route change
