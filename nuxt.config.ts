@@ -11,8 +11,16 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase',
     '@vueuse/nuxt',
     '@nuxt/icon',
-    '@vee-validate/nuxt'
+    '@vee-validate/nuxt',
+    '@nuxt/eslint'
   ],
+  
+  // Tailwind CSS configuration
+  tailwindcss: {
+    configPath: '~/tailwind.config.js',
+    exposeConfig: true,
+    viewer: true, // Enable Tailwind viewer in dev mode
+  },
   css: ['~/assets/css/main.css'],
   supabase: {
     url: process.env.SUPABASE_URL,
@@ -20,7 +28,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/auth/login',
       callback: '/confirm',
-      exclude: ['/']
+      exclude: ['/', '/daisy-test-no-auth', '/demo-daisy', '/demo-daisy-optimized', '/test-daisy', '/showcase-components', '/design-system']
     }
   },
   runtimeConfig: {

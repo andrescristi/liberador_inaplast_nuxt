@@ -1,151 +1,133 @@
 <template>
-  <!-- Magical Particles Background -->
-  <MagicalParticles :enabled="!loading" />
-  
-  <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative z-10">
-    <div class="max-w-md w-full space-y-8 glass-card-magical p-8 animate-float" :class="{ 'glass-error': hasError, 'glass-success': showSuccess }">
-      <div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-glass">
-          Iniciar Sesión
-        </h2>
-        <p class="mt-2 text-center text-sm text-glass-secondary">
-          Accede a tu cuenta de Inaplast
-        </p>
-      </div>
-      
-      <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
-        <div class="space-y-6">
-          <div>
-            <label for="email" class="form-label-glass">
-              Email
-            </label>
-            <input
-              id="email"
-              v-model="form.email"
-              type="email"
-              autocomplete="email"
-              required
-              class="form-input-magical"
-              placeholder="tu@email.com"
-              @focus="onInputFocus"
-              @blur="onInputBlur"
-            />
+  <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full">
+      <DaisyCard padding="lg" class="animate-fade-in">
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <div class="glass-icon-container w-16 h-16 mx-auto mb-4">
+            <Icon name="lucide:layers" class="w-8 h-8 text-primary-400" />
+          </div>
+          <h1 class="text-2xl font-semibold text-glass mb-2">
+            Iniciar Sesión
+          </h1>
+          <p class="text-glass-secondary">
+            Accede a tu cuenta de Inaplast
+          </p>
+        </div>
+        
+        <!-- Login Form -->
+        <DaisyForm 
+          :loading="loading"
+          :disabled="loading"
+          spacing="lg"
+          @submit="handleLogin"
+        >
+          <DaisyInput
+            v-model="form.email"
+            type="email"
+            label="Email"
+            placeholder="tu@email.com"
+            left-icon="lucide:mail"
+            autocomplete="email"
+            required
+            :error="fieldErrors.email"
+            @blur="validateEmail"
+          />
+          
+          <DaisyInput
+            v-model="form.password"
+            type="password"
+            label="Contraseña"
+            placeholder="Ingresa tu contraseña"
+            autocomplete="current-password"
+            required
+            :error="fieldErrors.password"
+            @blur="validatePassword"
+          />
+          
+          <!-- Forgot Password -->
+          <div class="flex justify-end">
+            <button
+              type="button"
+              class="text-sm text-glass-secondary hover:text-glass transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-400/50 rounded"
+              @click="showResetPassword = true"
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
           </div>
           
-          <div>
-            <label for="password" class="form-label-glass">
-              Contraseña
-            </label>
-            <input
-              id="password"
-              v-model="form.password"
-              type="password"
-              autocomplete="current-password"
-              required
-              class="form-input-magical"
-              placeholder="••••••••"
-              @focus="onInputFocus"
-              @blur="onInputBlur"
-              @keydown.enter="handleLogin"
-            />
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <button
-            type="button"
-            class="text-sm text-glass-secondary hover:text-glass transition-colors duration-200"
-            @click="showResetPassword = true"
-          >
-            ¿Olvidaste tu contraseña?
-          </button>
-        </div>
-
-        <div>
-          <button
+          <!-- Submit Button -->
+          <DaisyButton
             type="submit"
-            class="w-full btn-glass-sparkle btn-ripple disabled:opacity-50 disabled:cursor-not-allowed"
-            :disabled="loading"
-            @click="onButtonClick"
+            :loading="loading"
+            :disabled="!isFormValid"
+            full-width
+            size="lg"
           >
-            <span v-if="loading" class="flex items-center justify-center">
-              <div class="spinner-magical mr-2"></div>
-              <span class="animate-pulse">Iniciando sesión...</span>
-            </span>
-            <span v-else class="flex items-center justify-center">
-              <Icon name="lucide:sparkles" class="w-4 h-4 mr-2" />
-              Iniciar Sesión
-            </span>
-          </button>
-        </div>
-
-        <transition name="error-shake">
-          <div v-if="error" class="bg-glass border border-error-border rounded-glass p-4 backdrop-filter backdrop-blur-sm glass-error relative">
-            <div class="flex items-center">
-              <Icon name="lucide:alert-circle" class="w-5 h-5 text-red-400 mr-2 animate-bounce" />
-              <p class="text-sm text-red-300">{{ error }}</p>
-            </div>
-            <div class="absolute top-1 right-1 text-red-400 animate-ping">💥</div>
-          </div>
-        </transition>
-      </form>
-
-      <!-- Reset Password Modal -->
-      <div v-if="showResetPassword" class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-          <div class="fixed inset-0 transition-opacity" @click="showResetPassword = false">
-            <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
-          </div>
+            Iniciar Sesión
+          </DaisyButton>
           
-          <div class="inline-block align-bottom glass-card px-6 pt-6 pb-6 text-left overflow-hidden shadow-glass-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div>
-              <h3 class="text-lg font-semibold text-glass mb-6">
-                Restablecer Contraseña
-              </h3>
-          <form @submit.prevent="handleResetPassword">
-            <div class="space-y-4">
-              <div>
-                <label for="reset-email" class="form-label-glass">
-                  Email
-                </label>
-                <input
-                  id="reset-email"
-                  v-model="resetEmail"
-                  type="email"
-                  required
-                  class="form-input-glass"
-                  placeholder="tu@email.com"
-                />
+          <!-- Error Message -->
+          <div v-if="error" class="animate-slide-up">
+            <div class="bg-error-glass border border-error-border rounded-lg p-4">
+              <div class="flex items-center gap-3">
+                <Icon name="lucide:alert-triangle" class="w-5 h-5 text-red-400 flex-shrink-0" />
+                <p class="text-sm text-red-300">{{ error }}</p>
               </div>
             </div>
+          </div>
+        </DaisyForm>
+      </DaisyCard>
+      
+      <!-- Reset Password Modal -->
+      <div v-if="showResetPassword" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <DaisyCard padding="lg" class="max-w-md w-full animate-fade-in">
+          <div class="text-center mb-6">
+            <div class="glass-icon-container w-12 h-12 mx-auto mb-3">
+              <Icon name="lucide:mail" class="w-6 h-6 text-primary-400" />
+            </div>
+            <h3 class="text-lg font-semibold text-glass mb-2">
+              Restablecer Contraseña
+            </h3>
+            <p class="text-sm text-glass-secondary">
+              Te enviaremos un enlace para restablecer tu contraseña
+            </p>
+          </div>
+          
+          <DaisyForm 
+            :loading="resetLoading"
+            @submit="handleResetPassword"
+          >
+            <DaisyInput
+              v-model="resetEmail"
+              type="email"
+              label="Email"
+              placeholder="tu@email.com"
+              left-icon="lucide:mail"
+              required
+              :error="resetEmailError"
+            />
             
-            <div class="mt-8 flex justify-end space-x-3">
-              <button
+            <div class="flex gap-3">
+              <DaisyButton
                 type="button"
-                class="btn-glass-secondary btn-ripple"
-                @click="showResetPassword = false"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                class="btn-glass-sparkle disabled:opacity-50"
+                variant="secondary"
+                full-width
+                @click="cancelReset"
                 :disabled="resetLoading"
               >
-                <span v-if="resetLoading" class="flex items-center">
-                  <div class="spinner-magical mr-2"></div>
-                  Enviando...
-                </span>
-                <span v-else class="flex items-center">
-                  <Icon name="lucide:mail" class="w-4 h-4 mr-2" />
-                  Enviar
-                </span>
-              </button>
+                Cancelar
+              </DaisyButton>
+              <DaisyButton
+                type="submit"
+                :loading="resetLoading"
+                full-width
+              >
+                Enviar Enlace
+              </DaisyButton>
             </div>
-              </form>
-            </div>
-          </div>
-        </div>
+          </DaisyForm>
+        </DaisyCard>
       </div>
     </div>
   </div>
@@ -159,6 +141,7 @@ definePageMeta({
 
 const { signIn, resetPassword } = useAuth()
 
+// Form state
 const form = reactive({
   email: '',
   password: ''
@@ -169,110 +152,155 @@ const loading = ref(false)
 const resetLoading = ref(false)
 const error = ref('')
 const showResetPassword = ref(false)
-const showSuccess = ref(false)
-const hasError = ref(false)
+const resetEmailError = ref('')
 
-// Add some delightful interactions
-const onInputFocus = () => {
-  // Add subtle sparkle effect on focus
-  console.log('✨ Input focused')
-}
+// Form validation
+const fieldErrors = reactive({
+  email: '',
+  password: ''
+})
 
-const onInputBlur = () => {
-  // Remove focus effects
-  console.log('👋 Input blurred')
-}
+const isFormValid = computed(() => {
+  return form.email && 
+         form.password && 
+         !fieldErrors.email && 
+         !fieldErrors.password
+})
 
-const onButtonClick = (event: Event) => {
-  // Add ripple effect
-  const button = event.target as HTMLElement
-  const ripple = document.createElement('span')
-  const rect = button.getBoundingClientRect()
-  const size = Math.max(rect.width, rect.height)
-  const x = event.clientX - rect.left - size / 2
-  const y = event.clientY - rect.top - size / 2
-  
-  ripple.style.width = ripple.style.height = size + 'px'
-  ripple.style.left = x + 'px'
-  ripple.style.top = y + 'px'
-  ripple.classList.add('ripple-effect')
-  
-  button.appendChild(ripple)
-  
-  setTimeout(() => {
-    ripple.remove()
-  }, 600)
-}
-
-const handleLogin = async () => {
-  loading.value = true
-  error.value = ''
-
-  // Debug: Log form values
-  console.log('Form data:', { email: form.email, password: form.password })
-  
-  // Validate form data before sending
-  if (!form.email || !form.password) {
-    error.value = 'Por favor completa todos los campos'
-    loading.value = false
+// Form validation methods
+const validateEmail = () => {
+  if (!form.email) {
+    fieldErrors.email = ''
     return
   }
+  
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(form.email)) {
+    fieldErrors.email = 'Ingresa un email válido'
+  } else {
+    fieldErrors.email = ''
+  }
+}
 
-  if (!form.email.includes('@')) {
-    error.value = 'Por favor ingresa un email válido'
+const validatePassword = () => {
+  if (!form.password) {
+    fieldErrors.password = ''
+    return
+  }
+  
+  if (form.password.length < 6) {
+    fieldErrors.password = 'La contraseña debe tener al menos 6 caracteres'
+  } else {
+    fieldErrors.password = ''
+  }
+}
+
+// Form handlers
+const handleLogin = async (event: Event, formData: FormData) => {
+  loading.value = true
+  error.value = ''
+  
+  // Final validation
+  validateEmail()
+  validatePassword()
+  
+  if (!isFormValid.value) {
     loading.value = false
     return
   }
 
   try {
-    console.log('Attempting to sign in with:', form.email)
     await signIn(form.email.trim(), form.password)
-    console.log('Sign in successful, redirecting...')
     
-    // Show success state with celebration
-    showSuccess.value = true
-    hasError.value = false
-    
-    // Add a small delay for the success animation
-    setTimeout(async () => {
-      await navigateTo('/')
-    }, 800)
+    // Success - redirect with delay for smooth UX
+    await new Promise(resolve => setTimeout(resolve, 500))
+    await navigateTo('/')
     
   } catch (err: any) {
     console.error('Login error:', err)
-    error.value = err.message || 'Error al iniciar sesión'
-    hasError.value = true
-    showSuccess.value = false
+    error.value = err.message || 'Error al iniciar sesión. Verifica tus credenciales.'
     
     // Auto-clear error after 5 seconds
     setTimeout(() => {
       error.value = ''
-      hasError.value = false
     }, 5000)
   } finally {
     loading.value = false
   }
 }
 
-const handleResetPassword = async () => {
+const handleResetPassword = async (event: Event, formData: FormData) => {
   resetLoading.value = true
+  resetEmailError.value = ''
+  
+  // Validate reset email
+  if (!resetEmail.value) {
+    resetEmailError.value = 'Ingresa tu email'
+    resetLoading.value = false
+    return
+  }
+  
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(resetEmail.value)) {
+    resetEmailError.value = 'Ingresa un email válido'
+    resetLoading.value = false
+    return
+  }
 
   try {
     await resetPassword(resetEmail.value)
+    
+    // Success - close modal and show success message
     showResetPassword.value = false
     resetEmail.value = ''
-    // Show success state
-    showSuccess.value = true
-    setTimeout(() => {
-      showSuccess.value = false
-    }, 2000)
     
-    // You could replace this with a toast notification
-    alert('✨ Se ha enviado un enlace de restablecimiento a tu email')
+    // Show success notification (you could replace with a toast)
+    alert('Se ha enviado un enlace de restablecimiento a tu email')
+    
   } catch (err: any) {
-    alert(err.message || 'Error al enviar el enlace de restablecimiento')
+    resetEmailError.value = err.message || 'Error al enviar el enlace'
   } finally {
     resetLoading.value = false
   }
 }
+
+const cancelReset = () => {
+  showResetPassword.value = false
+  resetEmail.value = ''
+  resetEmailError.value = ''
+}
+
+// Clear errors when form values change
+watch(() => form.email, () => {
+  if (fieldErrors.email) validateEmail()
+})
+
+watch(() => form.password, () => {
+  if (fieldErrors.password) validatePassword()
+})
+
+// SEO
+useSeoMeta({
+  title: 'Iniciar Sesión - Inaplast',
+  description: 'Accede a tu cuenta de Inaplast para gestionar pedidos y clientes con nuestro sistema minimalista y eficiente.'
+})
 </script>
+
+<style scoped>
+/* Custom transitions for smooth UX */
+.error-shake-enter-active {
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+/* Modal backdrop blur enhancement */
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+</style>

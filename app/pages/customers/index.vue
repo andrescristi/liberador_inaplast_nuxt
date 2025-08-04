@@ -3,45 +3,45 @@
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
       <div>
-        <h1 class="text-3xl font-bold text-slate-900">Customers</h1>
-        <p class="text-slate-600 mt-2">Manage your customer database and relationships</p>
+        <h1 class="text-3xl font-semibold text-glass">Customers</h1>
+        <p class="text-glass-secondary mt-2">Manage your customer database and relationships</p>
       </div>
-      <Button class="mt-4 sm:mt-0" @click="navigateTo('/customers/new')">
-        <Icon name="lucide:user-plus" class="w-4 h-4 mr-2" />
+      <DaisyButton @click="navigateTo('/customers/new')" icon="lucide:user-plus" class="mt-4 sm:mt-0">
         Add Customer
-      </Button>
+      </DaisyButton>
     </div>
 
     <!-- Search and Filters -->
-    <Card class="mb-6">
+    <DaisyCard padding="lg" class="mb-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Input
+        <DaisyInput
           v-model="filters.search"
           placeholder="Search customers..."
-          icon="lucide:search"
+          left-icon="lucide:search"
+          clearable
           @input="debouncedSearch"
         />
         <div></div> <!-- Spacer for future filters -->
-        <div class="text-sm text-slate-600 flex items-center">
+        <div class="text-sm text-glass-secondary flex items-center">
           Showing {{ customersStore.customers.length }} of {{ customersStore.pagination.total }} customers
         </div>
       </div>
-    </Card>
+    </DaisyCard>
 
     <!-- Loading State -->
     <div v-if="customersStore.loading">
-      <Card>
-        <div class="space-y-4">
-          <div v-for="n in 5" :key="n" class="flex items-center space-x-4 p-4">
-            <div class="skeleton h-12 w-12 rounded-full"></div>
+      <DaisyCard padding="lg">
+        <div class="space-y-6">
+          <div v-for="n in 5" :key="n" class="flex items-center space-x-4">
+            <div class="skeleton-glass h-12 w-12 rounded-full"></div>
             <div class="flex-1 space-y-2">
-              <div class="skeleton h-4 w-full"></div>
-              <div class="skeleton h-3 w-3/4"></div>
+              <div class="skeleton-glass h-4 w-full rounded"></div>
+              <div class="skeleton-glass h-3 w-3/4 rounded"></div>
             </div>
-            <div class="skeleton h-8 w-16"></div>
+            <div class="skeleton-glass h-8 w-16 rounded"></div>
           </div>
         </div>
-      </Card>
+      </DaisyCard>
     </div>
 
     <!-- Customers Content -->
@@ -60,34 +60,35 @@
 
       <!-- Customers Grid -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card
+        <DaisyCard
           v-for="customer in customersStore.customers"
           :key="customer.id"
+          padding="lg"
+          interactive
           hover
           @click="navigateTo(`/customers/${customer.id}`)"
         >
           <div class="flex items-start space-x-4">
-            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <Icon name="lucide:user" class="w-6 h-6 text-blue-600" />
+            <div class="glass-icon-container w-12 h-12 flex-shrink-0">
+              <Icon name="lucide:user" class="w-6 h-6 text-primary-400" />
             </div>
             <div class="flex-1 min-w-0">
-              <h3 class="text-lg font-semibold text-slate-900 truncate">{{ customer.name }}</h3>
-              <p class="text-sm text-slate-600 truncate">{{ customer.email }}</p>
-              <p class="text-sm text-slate-500">{{ customer.phone }}</p>
-              <div class="mt-3 flex items-center text-xs text-slate-500">
+              <h3 class="text-lg font-semibold text-glass truncate">{{ customer.name }}</h3>
+              <p class="text-sm text-glass-secondary truncate">{{ customer.email }}</p>
+              <p class="text-sm text-glass-muted">{{ customer.phone }}</p>
+              <div class="mt-3 flex items-center text-xs text-glass-muted">
                 <Icon name="lucide:calendar" class="w-3 h-3 mr-1" />
                 Added {{ formatDate(customer.created_at) }}
               </div>
             </div>
-            <Button
+            <DaisyButton
               variant="ghost"
               size="sm"
-              icon-only
               icon="lucide:more-horizontal"
               @click.stop="showCustomerActions(customer)"
             />
           </div>
-        </Card>
+        </DaisyCard>
       </div>
 
       <!-- Pagination -->

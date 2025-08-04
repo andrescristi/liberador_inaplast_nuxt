@@ -1,14 +1,7 @@
 <template>
   <div>
     <!-- Page Header -->
-    <div class="card mb-6 text-center">
-      <h1 class="text-3xl font-semibold text-gray-900 mb-2">
-        Inaplast Dashboard
-      </h1>
-      <p class="text-gray-600">
-        Welcome back! Here's what's happening with your orders today.
-      </p>
-    </div>
+    <AppNavigation />
 
     <!-- Metrics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -144,6 +137,8 @@
 </template>
 
 <script setup lang="ts">
+import AppNavigation from '~/components/core/AppNavigation.vue'
+
 // Composables
 const supabase = useSupabaseClient()
 

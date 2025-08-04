@@ -4,7 +4,7 @@
  */
 
 // Enhanced type definitions for better developer experience with #799EFF integration
-export type DaisyTheme = 'glassmorphism' | 'light_primary' | 'dark_primary' | 'light' | 'dark'
+export type DaisyUITheme = 'glassmorphism' | 'light_primary' | 'dark_primary' | 'light' | 'dark'
 export type DaisyComponent = 
   | 'btn' 
   | 'card' 
@@ -26,7 +26,7 @@ export type DaisyComponent =
 export type ClassPriority = 'daisy' | 'glass'
 
 export interface DaisyUIConfig {
-  defaultTheme?: DaisyTheme
+  defaultTheme?: DaisyUITheme
   enableGlassEffects?: boolean
   enableAnimations?: boolean
   enablePrimaryColors?: boolean

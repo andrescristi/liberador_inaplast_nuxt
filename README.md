@@ -1,6 +1,6 @@
 # Liberador Inaplast - Order Management System
 
-A modern web application for managing orders, customers, and products built with Nuxt.js, Supabase, and TailwindCSS.
+A modern web application for managing orders, customers, and products built with Nuxt.js, DaisyUI, and Supabase.
 
 ## Features
 
@@ -8,11 +8,8 @@ A modern web application for managing orders, customers, and products built with
 - **Secure Login System** - Email/password authentication via Supabase Auth
 - **Password Reset** - Forgot password functionality with email verification
 - **User Profiles** - Complete profile management with role-based access
-- **Role-Based Access Control** - Admin, Supervisor, and Inspector roles
-- **Password Change** - Secure password update with strength validation
 - **Protected Routes** - All application routes require authentication
 - **User Session Management** - Automatic login/logout handling
-- **User Menu** - Access to user profile and logout functionality
 
 ### 📊 Order Management
 - **Dashboard** - Overview of key metrics and recent activity
@@ -23,38 +20,19 @@ A modern web application for managing orders, customers, and products built with
 ### 👥 Customer Management
 - **Customer Directory** - Comprehensive customer database
 - **Customer Profiles** - Detailed customer information and order history
-- **Customer Analytics** - Track customer spending and order patterns
 
 ### 📦 Product Management
 - **Product Catalog** - Manage product inventory and pricing
-- **Stock Tracking** - Monitor stock levels and low inventory alerts
-- **Product Analytics** - Track product performance and sales
+- **Stock Tracking** - Monitor stock levels and alerts
 
 ## Tech Stack
 
 - **Frontend**: Nuxt.js 3, Vue.js 3, TailwindCSS
+- **UI Framework**: DaisyUI
 - **Backend**: Supabase (PostgreSQL, Auth, Real-time)
-- **UI Components**: Custom component library with shadcn/ui inspiration
 - **State Management**: Pinia
-- **Form Validation**: VeeValidate with Zod schemas
 - **Icons**: Lucide Vue
 - **Deployment**: Ready for Vercel/Netlify deployment
-
-## Recent Updates
-
-### ✅ User Profile System (Latest)
-- **Complete Profile Page**: Role-based profile management with glassmorphism design
-- **Password Security**: Advanced password change with strength validation
-- **Role-Based UI**: Different interface elements based on user roles (Admin/Supervisor/Inspector)
-- **Mobile Responsive**: Optimized for field workers and mobile devices
-- **Spanish Localization**: Full Spanish language support throughout
-
-### ✅ Authentication System
-- **Fully Implemented**: Complete Supabase authentication integration
-- **Form Issues Fixed**: Resolved UI component binding issues with native HTML inputs
-- **User Management**: Added user dropdown menu with logout functionality
-- **Route Protection**: All pages now require authentication
-- **Documentation**: Complete setup guide and troubleshooting documentation
 
 ## Quick Start
 
@@ -117,26 +95,32 @@ Since user registration is disabled, you'll need to create users through the Sup
 
 ```
 app/
+├── components/
+│   ├── business/              # Business-specific components
+│   ├── core/                  # Core app components (navigation)
+│   ├── data/                  # Data display components
+│   ├── feedback/              # User feedback components
+│   ├── forms/                 # Form components
+│   ├── modals/                # Modal components
+│   └── ui/                    # UI components (DaisyUI-based)
 ├── composables/
-│   └── useAuth.ts              # Authentication composable
+│   ├── useAuth.ts             # Authentication composable
+│   ├── useDaisyComponents.ts  # DaisyUI component utilities
+│   └── useDaisyUI.ts          # DaisyUI configuration
+├── layouts/
+│   └── default.vue            # Main layout with navigation
 ├── middleware/
-│   └── auth.ts                 # Route protection middleware
+│   └── auth.ts                # Route protection middleware
 ├── pages/
 │   ├── auth/
 │   │   ├── login.vue          # Login page
 │   │   └── reset-password.vue # Password reset page
+│   ├── customers/             # Customer management pages
+│   ├── orders/                # Order management pages
+│   ├── products/              # Product management pages
 │   ├── confirm.vue            # Email confirmation handler
 │   ├── index.vue              # Dashboard
-│   ├── profile.vue            # User profile page
-│   ├── orders/                # Order management pages
-│   ├── customers/             # Customer management pages
-│   └── products/              # Product management pages
-├── layouts/
-│   └── default.vue            # Main layout with auth-aware navigation
-├── components/
-│   ├── ui/                    # Reusable UI components
-│   ├── forms/                 # Form components
-│   └── tables/                # Table components
+│   └── profile.vue            # User profile page
 ├── stores/                    # Pinia stores
 ├── types/                     # TypeScript type definitions
 └── utils/
@@ -162,41 +146,14 @@ npm run preview      # Preview production build
 4. **Profile Access**: Users can access their profile page via the navigation menu
 5. **Logout**: Available through the user menu in the navigation
 
-### User Profile Features
-
-**Profile Management:**
-- View and edit personal information (name, email)
-- Role-based interface that adapts to user permissions
-- Account creation date and activity summary
-
-**Security Features:**
-- Secure password change with real-time strength validation
-- Password requirements enforcement
-- Current password verification required
-
-**Role-Based Access:**
-- **Admin**: Gold accent colors, full system access indicators
-- **Supervisor**: Blue accent colors, global view capabilities  
-- **Inspector**: Green accent colors, personal data focus
-
-**Mobile Optimized:**
-- Touch-friendly interface for field workers
-- Responsive design works on all device sizes
-- Glassmorphism design with magical interactions
-
 ### Database Schema
 
 The application uses the following main tables:
-- `profiles` - User profiles with role-based access control
+- `profiles` - User profiles and information
 - `customers` - Customer information
 - `products` - Product catalog
 - `orders` - Order records
 - `order_items` - Individual items within orders
-
-**User Roles:**
-- **Admin**: Full system access including user management
-- **Supervisor**: Global view with approval/rejection capabilities
-- **Inspector**: Limited access to personal data and assigned orders
 
 See `supabase/migrations/` for complete schema definitions.
 
@@ -228,28 +185,15 @@ npm run build
 - **Environment Variables**: Sensitive data stored in environment variables
 - **Session Management**: Secure session handling via Supabase Auth
 
-## Known Issues & Solutions
-
-### Authentication Working ✅
-- **Issue**: "Invalid login credentials" error
-- **Solution**: User must exist in Supabase Auth. Create users through Supabase dashboard.
-
-### UI Components ✅  
-- **Issue**: Input/Button component warnings resolved
-- **Solution**: Replaced custom components with native HTML inputs for better compatibility.
-
 ## Development Status
 
 - ✅ **Authentication System**: Complete with login/logout/password reset
-- ✅ **User Profile System**: Role-based profiles with security features
-- ✅ **Role-Based Access Control**: Admin, Supervisor, and Inspector roles implemented
+- ✅ **User Profile System**: Profile management with security features
 - ✅ **Route Protection**: All pages require authentication  
 - ✅ **User Interface**: Dashboard, orders, customers, products, and profile pages
-- ✅ **Database Schema**: Complete with migrations, functions, and RLS policies
-- ✅ **Mobile Responsive**: Optimized for field workers and mobile devices
-- ✅ **Documentation**: Setup guides and API documentation
-- 🔄 **Testing**: Form validation and authentication flow tested
-- 📋 **Next Steps**: Advanced reporting and analytics features
+- ✅ **Database Schema**: Complete with migrations and RLS policies
+- ✅ **DaisyUI Integration**: Modern UI components with responsive design
+- 🔄 **Core Features**: Order, customer, and product management in development
 
 ## Contributing
 

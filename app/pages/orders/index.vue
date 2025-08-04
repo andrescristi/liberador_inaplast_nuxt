@@ -3,71 +3,79 @@
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
       <div>
-        <h1 class="text-3xl font-bold text-slate-900">Orders</h1>
-        <p class="text-slate-600 mt-2">Manage and track all your customer orders</p>
+        <h1 class="text-3xl font-semibold text-glass">Orders</h1>
+        <p class="text-glass-secondary mt-2">Manage and track all your customer orders</p>
       </div>
-      <Button class="mt-4 sm:mt-0" @click="navigateTo('/orders/new')">
-        <Icon name="lucide:plus" class="w-4 h-4 mr-2" />
+      <DaisyButton @click="navigateTo('/orders/new')" icon="lucide:plus" class="mt-4 sm:mt-0">
         New Order
-      </Button>
+      </DaisyButton>
     </div>
 
     <!-- Filters -->
-    <Card class="mb-6">
+    <DaisyCard padding="lg" class="mb-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Input
+        <DaisyInput
           v-model="filters.search"
           placeholder="Search orders..."
-          icon="lucide:search"
+          left-icon="lucide:search"
+          clearable
           @input="debouncedSearch"
         />
-        <Select
-          v-model="filters.status"
-          :options="statusOptions"
-          placeholder="Filter by status"
-          @change="applyFilters"
-        />
-        <Input
+        <div class="space-y-2">
+          <label class="form-label-glass">Status</label>
+          <select
+            v-model="filters.status"
+            class="form-input-glass"
+            @change="applyFilters"
+          >
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <DaisyInput
           v-model="filters.date_from"
           type="date"
           label="From Date"
           @change="applyFilters"
         />
-        <Input
+        <DaisyInput
           v-model="filters.date_to"
           type="date"
           label="To Date"
           @change="applyFilters"
         />
       </div>
-      <div class="mt-4 flex justify-between items-center">
-        <div class="text-sm text-slate-600">
+      <div class="mt-6 flex justify-between items-center">
+        <div class="text-sm text-glass-secondary">
           Showing {{ ordersStore.orders.length }} of {{ ordersStore.pagination.total }} orders
         </div>
-        <Button
+        <DaisyButton
           v-if="hasActiveFilters"
           variant="ghost"
           size="sm"
           @click="clearFilters"
         >
           Clear Filters
-        </Button>
+        </DaisyButton>
       </div>
-    </Card>
+    </DaisyCard>
 
     <!-- Loading State -->
     <div v-if="ordersStore.loading">
-      <Card>
-        <div class="space-y-4">
-          <div v-for="n in 5" :key="n" class="flex items-center space-x-4 p-4">
-            <div class="skeleton h-4 w-20"></div>
-            <div class="skeleton h-4 w-32 flex-1"></div>
-            <div class="skeleton h-6 w-20"></div>
-            <div class="skeleton h-4 w-16"></div>
-            <div class="skeleton h-4 w-24"></div>
+      <DaisyCard padding="lg">
+        <div class="space-y-6">
+          <div v-for="n in 5" :key="n" class="flex items-center space-x-4">
+            <div class="skeleton-glass h-4 w-20 rounded"></div>
+            <div class="skeleton-glass h-4 flex-1 rounded"></div>
+            <div class="skeleton-glass h-6 w-20 rounded-full"></div>
+            <div class="skeleton-glass h-4 w-16 rounded"></div>
+            <div class="skeleton-glass h-4 w-24 rounded"></div>
           </div>
         </div>
-      </Card>
+      </DaisyCard>
     </div>
 
     <!-- Orders Content -->
@@ -85,82 +93,81 @@
       </div>
 
       <!-- Orders Table (Desktop) -->
-      <Card v-else class="hidden md:block">
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead class="bg-slate-50 border-b border-slate-200">
+      <DaisyCard v-else padding="none" class="hidden md:block">
+        <div class="data-table overflow-x-auto">
+          <table class="min-w-full">
+            <thead>
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">
+                <th class="px-6 py-4 text-left text-sm font-medium text-glass">
                   <button
-                    class="flex items-center space-x-1 hover:text-slate-900"
+                    class="flex items-center space-x-1 hover:text-white transition-colors duration-200"
                     @click="toggleSort('id')"
                   >
                     <span>Order ID</span>
                     <Icon name="lucide:arrow-up-down" class="w-4 h-4" />
                   </button>
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Customer</th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Status</th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">
+                <th class="px-6 py-4 text-left text-sm font-medium text-glass">Customer</th>
+                <th class="px-6 py-4 text-left text-sm font-medium text-glass">Status</th>
+                <th class="px-6 py-4 text-left text-sm font-medium text-glass">
                   <button
-                    class="flex items-center space-x-1 hover:text-slate-900"
+                    class="flex items-center space-x-1 hover:text-white transition-colors duration-200"
                     @click="toggleSort('total_amount')"
                   >
                     <span>Amount</span>
                     <Icon name="lucide:arrow-up-down" class="w-4 h-4" />
                   </button>
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">
+                <th class="px-6 py-4 text-left text-sm font-medium text-glass">
                   <button
-                    class="flex items-center space-x-1 hover:text-slate-900"
+                    class="flex items-center space-x-1 hover:text-white transition-colors duration-200"
                     @click="toggleSort('created_at')"
                   >
                     <span>Date</span>
                     <Icon name="lucide:arrow-up-down" class="w-4 h-4" />
                   </button>
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Actions</th>
+                <th class="px-6 py-4 text-left text-sm font-medium text-glass">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
               <tr
                 v-for="order in ordersStore.orders"
                 :key="order.id"
-                class="hover:bg-slate-50 transition-colors duration-150"
+                class="hover:bg-glass-bg-light transition-colors duration-200"
               >
-                <td class="px-6 py-4 text-sm font-mono text-slate-900">{{ order.id }}</td>
+                <td class="px-6 py-4 text-sm font-mono text-glass">{{ order.id }}</td>
                 <td class="px-6 py-4">
                   <div>
-                    <div class="text-sm font-medium text-slate-900">{{ order.customer?.name }}</div>
-                    <div class="text-sm text-slate-500">{{ order.customer?.email }}</div>
+                    <div class="text-sm font-medium text-glass">{{ order.customer?.name }}</div>
+                    <div class="text-sm text-glass-muted">{{ order.customer?.email }}</div>
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <Badge :variant="order.status">{{ order.status }}</Badge>
+                  <span :class="`status-badge status-${order.status}`">{{ order.status }}</span>
                 </td>
-                <td class="px-6 py-4 text-sm font-semibold text-slate-900">{{ formatCurrency(order.total_amount) }}</td>
-                <td class="px-6 py-4 text-sm text-slate-500">{{ formatDate(order.created_at) }}</td>
+                <td class="px-6 py-4 text-sm font-semibold text-glass">{{ formatCurrency(order.total_amount) }}</td>
+                <td class="px-6 py-4 text-sm text-glass-secondary">{{ formatDate(order.created_at) }}</td>
                 <td class="px-6 py-4">
                   <div class="flex items-center space-x-2">
-                    <Button
+                    <DaisyButton
                       variant="ghost"
                       size="sm"
                       @click="navigateTo(`/orders/${order.id}`)"
                     >
                       View
-                    </Button>
-                    <Button
+                    </DaisyButton>
+                    <DaisyButton
                       v-if="order.status === 'pending'"
                       variant="ghost"
                       size="sm"
                       @click="navigateTo(`/orders/${order.id}/edit`)"
                     >
                       Edit
-                    </Button>
-                    <Button
+                    </DaisyButton>
+                    <DaisyButton
                       variant="ghost"
                       size="sm"
-                      icon-only
                       icon="lucide:more-horizontal"
                       @click="showOrderActions(order)"
                     />
@@ -170,31 +177,33 @@
             </tbody>
           </table>
         </div>
-      </Card>
+      </DaisyCard>
 
       <!-- Orders Cards (Mobile) -->
       <div v-else class="md:hidden space-y-4">
-        <div
+        <DaisyCard
           v-for="order in ordersStore.orders"
           :key="order.id"
-          class="order-card"
+          padding="md"
+          interactive
+          hover
           @click="navigateTo(`/orders/${order.id}`)"
         >
           <div class="flex justify-between items-start mb-3">
-            <div class="text-sm font-mono text-slate-600">{{ order.id }}</div>
-            <Badge :variant="order.status" size="sm">{{ order.status }}</Badge>
+            <div class="text-sm font-mono text-glass-secondary">{{ order.id }}</div>
+            <span :class="`status-badge status-${order.status}`">{{ order.status }}</span>
           </div>
           <div class="space-y-2">
             <div class="flex justify-between items-center">
-              <div class="font-medium text-slate-900">{{ order.customer?.name }}</div>
-              <div class="text-lg font-semibold text-slate-900">{{ formatCurrency(order.total_amount) }}</div>
+              <div class="font-medium text-glass">{{ order.customer?.name }}</div>
+              <div class="text-lg font-semibold text-glass">{{ formatCurrency(order.total_amount) }}</div>
             </div>
-            <div class="flex justify-between items-center text-sm text-slate-500">
+            <div class="flex justify-between items-center text-sm text-glass-secondary">
               <div>{{ order.customer?.email }}</div>
               <div>{{ formatDate(order.created_at) }}</div>
             </div>
           </div>
-        </div>
+        </DaisyCard>
       </div>
 
       <!-- Pagination -->
