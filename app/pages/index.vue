@@ -228,25 +228,72 @@ const toast = useToast()
 
 // Reactive data
 const loading = ref(true)
+const userName = ref('Usuario') // This should come from auth
+const currentDayDate = ref('')
 const metrics = ref({
-  pending: 0,
-  completed: 0,
-  revenue: 0,
-  customers: 0
+  pending: 25,
+  completed: 120,
+  revenue: 15000,
+  customers: 45
 })
-const recentOrders = ref<any[]>([])
 
-// Table configuration
-const tableColumns = [
+const activityChart = ref([
+  { date: '22/07/25', total: 45, accepted: 40, rejected: 5, acceptedPercentage: 89, rejectedPercentage: 11 },
+  { date: '21/07/25', total: 42, accepted: 38, rejected: 4, acceptedPercentage: 90, rejectedPercentage: 10 },
+  { date: '20/07/25', total: 43, accepted: 42, rejected: 1, acceptedPercentage: 98, rejectedPercentage: 2 }
+])
+const recentOrders = ref([])
+const tableColumns = ref([
   { key: 'order', label: 'Order' },
   { key: 'customer', label: 'Customer' },
   { key: 'status', label: 'Status' },
   { key: 'amount', label: 'Amount' },
   { key: 'date', label: 'Date' }
-]
+])
+const recentInspections = ref([
+  {
+    id: 1,
+    product_name: 'Envases 25 Lts',
+    status: 'approved',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 2,
+    product_name: 'Envases 1LT',
+    status: 'rejected',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 3,
+    product_name: 'Envases 2LT',
+    status: 'approved',
+    created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString()
+  },
+  {
+    id: 4,
+    product_name: 'Envases 3 LT',
+    status: 'approved',
+    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+  }
+])
+
+// Initialize current date
+function initializeDate() {
+  const now = new Date()
+  const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+  const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+  
+  const dayName = days[now.getDay()]
+  const day = now.getDate()
+  const month = months[now.getMonth()]
+  const year = now.getFullYear()
+  
+  currentDayDate.value = `${dayName}, ${day} de ${month} de ${year}`
+}
 
 // Fetch data on mount
 onMounted(async () => {
+  initializeDate()
   await loadDashboardData()
 })
 
@@ -254,38 +301,11 @@ async function loadDashboardData() {
   try {
     loading.value = true
 
-    // Fetch metrics in parallel
-    const [ordersData, customersData] = await Promise.all([
-      supabase.from('orders').select('status, total_amount'),
-      supabase.from('customers').select('id')
-    ])
-
-    // Calculate metrics
-    if (ordersData.data) {
-      const orders = ordersData.data as any[]
-      metrics.value.pending = orders.filter(o => o.status === 'pending').length
-      metrics.value.completed = orders.filter(o => o.status === 'completed').length
-      metrics.value.revenue = parseFloat(orders
-        .filter(o => o.status === 'completed')
-        .reduce((sum, o) => sum + parseFloat(o.total_amount), 0)
-        .toFixed(2))
-    }
-
-    if (customersData.data) {
-      metrics.value.customers = customersData.data.length
-    }
-
-    // Fetch recent orders
-    const { data: orders } = await supabase
-      .from('orders')
-      .select(`
-        *,
-        customers(name, email)
-      `)
-      .order('created_at', { ascending: false })
-      .limit(5)
-
-    recentOrders.value = orders || []
+    // For now, we'll use mock data
+    // In the future, fetch real data from Supabase
+    
+    // Simulate loading time
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
   } catch (error) {
     console.error('Error loading dashboard data:', error)
@@ -297,10 +317,28 @@ async function loadDashboardData() {
 }
 
 // Helper functions
+function getInspectionStatusColor(status: string): 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink' {
+  const colors: Record<string, 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink'> = {
+    approved: 'green',
+    rejected: 'red',
+    pending: 'yellow'
+  }
+  return colors[status] || 'gray'
+}
+
+function getInspectionStatusText(status: string): string {
+  const texts: Record<string, string> = {
+    approved: 'Aprobado',
+    rejected: 'Rechazado',
+    pending: 'Pendiente'
+  }
+  return texts[status] || status
+}
+
 function getStatusColor(status: string): 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink' {
   const colors: Record<string, 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink'> = {
     pending: 'yellow',
-    processing: 'blue', 
+    processing: 'blue',
     completed: 'green',
     cancelled: 'red'
   }
@@ -308,11 +346,37 @@ function getStatusColor(status: string): 'gray' | 'red' | 'yellow' | 'green' | '
 }
 
 function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString()
+  const date = new Date(dateString)
+  return date.toLocaleDateString('es-ES')
 }
 
-function onOrderClick(row: any) {
-  navigateTo(`/orders/${row.id}`)
+function onOrderClick(order: any) {
+  navigateTo(`/orders/${order.id}`)
+}
+
+function formatInspectionDate(dateString: string) {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+  
+  if (diffInHours < 1) {
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+    return `Hace ${diffInMinutes} minutos`
+  } else if (diffInHours < 24) {
+    const hours = date.getHours()
+    const minutes = date.getMinutes()
+    const period = hours >= 12 ? 'PM' : 'AM'
+    const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours
+    return `Hoy, ${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`
+  } else if (diffInHours < 48) {
+    const hours = date.getHours()
+    const minutes = date.getMinutes()
+    const period = hours >= 12 ? 'PM' : 'AM'
+    const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours
+    return `Ayer, ${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`
+  } else {
+    return date.toLocaleDateString('es-ES')
+  }
 }
 
 // Authentication
