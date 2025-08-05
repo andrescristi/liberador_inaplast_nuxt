@@ -1,218 +1,284 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full">
-      <DaisyCard padding="lg" class="animate-fade-in">
+  <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-indigo-50 to-white">
+    <div class="max-w-md w-full space-y-8">
+      <UiBaseCard class="backdrop-blur-sm shadow-xl">
         <!-- Header -->
         <div class="text-center mb-8">
-          <div class="glass-icon-container w-16 h-16 mx-auto mb-4">
-            <Icon name="lucide:layers" class="w-8 h-8 text-primary-400" />
+          <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <BuildingOfficeIcon class="w-8 h-8 text-white" />
           </div>
-          <h1 class="text-2xl font-semibold text-glass mb-2">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">
             Iniciar Sesión
           </h1>
-          <p class="text-glass-secondary">
+          <p class="text-gray-600">
             Accede a tu cuenta de Inaplast
           </p>
         </div>
         
         <!-- Login Form -->
-        <DaisyForm 
-          :loading="loading"
-          :disabled="loading"
-          spacing="lg"
-          @submit="handleLogin"
-        >
-          <DaisyInput
-            v-model="form.email"
-            type="email"
-            label="Email"
-            placeholder="tu@email.com"
-            left-icon="lucide:mail"
-            autocomplete="email"
-            required
-            :error="fieldErrors.email"
-            @blur="validateEmail"
-          />
+        <form class="space-y-6" @submit.prevent="handleLogin">
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <UiBaseInput
+              id="email"
+              v-model="formState.email"
+              type="email"
+              placeholder="tu@email.com"
+              :leading-icon="EnvelopeIcon"
+              size="lg"
+              :disabled="loading"
+              autocomplete="email"
+              :error="!!emailError"
+            />
+            <p v-if="emailError" class="mt-1 text-sm text-red-600">{{ emailError }}</p>
+          </div>
           
-          <DaisyInput
-            v-model="form.password"
-            type="password"
-            label="Contraseña"
-            placeholder="Ingresa tu contraseña"
-            autocomplete="current-password"
-            required
-            :error="fieldErrors.password"
-            @blur="validatePassword"
-          />
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+              Contraseña
+            </label>
+            <UiBaseInput
+              id="password"
+              v-model="formState.password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="Ingresa tu contraseña"
+              size="lg"
+              :disabled="loading"
+              autocomplete="current-password"
+              :error="!!passwordError"
+            >
+              <template #trailing>
+                <button
+                  v-show="formState.password !== ''"
+                  type="button"
+                  class="text-gray-400 hover:text-gray-500"
+                  @click="showPassword = !showPassword"
+                >
+                  <component :is="showPassword ? EyeSlashIcon : EyeIcon" class="h-5 w-5" />
+                </button>
+              </template>
+            </UiBaseInput>
+            <p v-if="passwordError" class="mt-1 text-sm text-red-600">{{ passwordError }}</p>
+          </div>
           
           <!-- Forgot Password -->
           <div class="flex justify-end">
-            <button
-              type="button"
-              class="text-sm text-glass-secondary hover:text-glass transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-400/50 rounded"
+            <UiBaseButton
+              variant="link"
+              color="primary"
+              size="sm"
               @click="showResetPassword = true"
+              :disabled="loading"
             >
               ¿Olvidaste tu contraseña?
-            </button>
+            </UiBaseButton>
           </div>
           
           <!-- Submit Button -->
-          <DaisyButton
+          <UiBaseButton
             type="submit"
+            block
+            size="lg"
             :loading="loading"
             :disabled="!isFormValid"
-            full-width
-            size="lg"
+            class="font-medium"
+            :leading-icon="!loading ? ArrowRightOnRectangleIcon : undefined"
           >
-            Iniciar Sesión
-          </DaisyButton>
+            {{ loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+          </UiBaseButton>
           
-          <!-- Error Message -->
-          <div v-if="error" class="animate-slide-up">
-            <div class="bg-error-glass border border-error-border rounded-lg p-4">
-              <div class="flex items-center gap-3">
-                <Icon name="lucide:alert-triangle" class="w-5 h-5 text-red-400 flex-shrink-0" />
-                <p class="text-sm text-red-300">{{ error }}</p>
-              </div>
-            </div>
-          </div>
-        </DaisyForm>
-      </DaisyCard>
+          <!-- Error Alert -->
+          <UiBaseAlert
+            v-if="error"
+            variant="error"
+            title="Error de autenticación"
+            :description="error"
+            closable
+            @close="error = ''"
+          />
+        </form>
+      </UiBaseCard>
       
       <!-- Reset Password Modal -->
-      <div v-if="showResetPassword" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-        <DaisyCard padding="lg" class="max-w-md w-full animate-fade-in">
-          <div class="text-center mb-6">
-            <div class="glass-icon-container w-12 h-12 mx-auto mb-3">
-              <Icon name="lucide:mail" class="w-6 h-6 text-primary-400" />
+      <UiBaseModal :show="showResetPassword" @close="cancelReset">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                <EnvelopeIcon class="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">
+                  Restablecer Contraseña
+                </h3>
+                <p class="text-sm text-gray-500">
+                  Te enviaremos un enlace para restablecer tu contraseña
+                </p>
+              </div>
             </div>
-            <h3 class="text-lg font-semibold text-glass mb-2">
-              Restablecer Contraseña
-            </h3>
-            <p class="text-sm text-glass-secondary">
-              Te enviaremos un enlace para restablecer tu contraseña
-            </p>
+            <UiBaseButton
+              variant="ghost"
+              color="gray"
+              :leading-icon="XMarkIcon"
+              @click="cancelReset"
+            />
+          </div>
+        </template>
+        
+        <form class="space-y-4" @submit.prevent="handleResetPassword">
+          <div>
+            <label for="reset-email" class="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <UiBaseInput
+              id="reset-email"
+              v-model="resetState.email"
+              type="email"
+              placeholder="tu@email.com"
+              :leading-icon="EnvelopeIcon"
+              size="lg"
+              :disabled="resetLoading"
+              :error="!!resetEmailError"
+            />
+            <p v-if="resetEmailError" class="mt-1 text-sm text-red-600">{{ resetEmailError }}</p>
           </div>
           
-          <DaisyForm 
-            :loading="resetLoading"
-            @submit="handleResetPassword"
-          >
-            <DaisyInput
-              v-model="resetEmail"
-              type="email"
-              label="Email"
-              placeholder="tu@email.com"
-              left-icon="lucide:mail"
-              required
-              :error="resetEmailError"
-            />
-            
-            <div class="flex gap-3">
-              <DaisyButton
-                type="button"
-                variant="secondary"
-                full-width
-                @click="cancelReset"
-                :disabled="resetLoading"
-              >
-                Cancelar
-              </DaisyButton>
-              <DaisyButton
-                type="submit"
-                :loading="resetLoading"
-                full-width
-              >
-                Enviar Enlace
-              </DaisyButton>
-            </div>
-          </DaisyForm>
-        </DaisyCard>
-      </div>
+          <div class="flex gap-3 pt-4">
+            <UiBaseButton
+              variant="outline"
+              block
+              @click="cancelReset"
+              :disabled="resetLoading"
+            >
+              Cancelar
+            </UiBaseButton>
+            <UiBaseButton
+              type="submit"
+              block
+              :loading="resetLoading"
+            >
+              Enviar Enlace
+            </UiBaseButton>
+          </div>
+        </form>
+      </UiBaseModal>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { z } from 'zod'
+import {
+  BuildingOfficeIcon,
+  EnvelopeIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  ArrowRightOnRectangleIcon,
+  XMarkIcon
+} from '@heroicons/vue/24/outline'
+
 definePageMeta({
   layout: false,
   auth: false
 })
 
 const { signIn, resetPassword } = useAuth()
+const toast = useToast()
+
+// Form schemas
+const loginSchema = z.object({
+  email: z.string().email('Ingresa un email válido'),
+  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres')
+})
+
+const resetSchema = z.object({
+  email: z.string().email('Ingresa un email válido')
+})
 
 // Form state
-const form = reactive({
+const formState = reactive({
   email: '',
   password: ''
 })
 
-const resetEmail = ref('')
+const resetState = reactive({
+  email: ''
+})
+
+// Component state
 const loading = ref(false)
 const resetLoading = ref(false)
 const error = ref('')
 const showResetPassword = ref(false)
+const showPassword = ref(false)
+
+// Validation errors
+const emailError = ref('')
+const passwordError = ref('')
 const resetEmailError = ref('')
 
-// Form validation
-const fieldErrors = reactive({
-  email: '',
-  password: ''
-})
-
+// Computed
 const isFormValid = computed(() => {
-  return form.email && 
-         form.password && 
-         !fieldErrors.email && 
-         !fieldErrors.password
+  try {
+    loginSchema.parse(formState)
+    return true
+  } catch {
+    return false
+  }
 })
 
-// Form validation methods
-const validateEmail = () => {
-  if (!form.email) {
-    fieldErrors.email = ''
-    return
-  }
+// Validation
+const validateForm = () => {
+  emailError.value = ''
+  passwordError.value = ''
   
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(form.email)) {
-    fieldErrors.email = 'Ingresa un email válido'
-  } else {
-    fieldErrors.email = ''
+  try {
+    loginSchema.parse(formState)
+    return true
+  } catch (err: any) {
+    err.errors?.forEach((error: any) => {
+      if (error.path[0] === 'email') {
+        emailError.value = error.message
+      } else if (error.path[0] === 'password') {
+        passwordError.value = error.message
+      }
+    })
+    return false
   }
 }
 
-const validatePassword = () => {
-  if (!form.password) {
-    fieldErrors.password = ''
-    return
-  }
+const validateResetForm = () => {
+  resetEmailError.value = ''
   
-  if (form.password.length < 6) {
-    fieldErrors.password = 'La contraseña debe tener al menos 6 caracteres'
-  } else {
-    fieldErrors.password = ''
+  try {
+    resetSchema.parse(resetState)
+    return true
+  } catch (err: any) {
+    err.errors?.forEach((error: any) => {
+      if (error.path[0] === 'email') {
+        resetEmailError.value = error.message
+      }
+    })
+    return false
   }
 }
 
 // Form handlers
-const handleLogin = async (event: Event, formData: FormData) => {
+const handleLogin = async () => {
+  if (!validateForm()) return
+  
   loading.value = true
   error.value = ''
-  
-  // Final validation
-  validateEmail()
-  validatePassword()
-  
-  if (!isFormValid.value) {
-    loading.value = false
-    return
-  }
 
   try {
-    await signIn(form.email.trim(), form.password)
+    await signIn(formState.email.trim(), formState.password)
     
-    // Success - redirect with delay for smooth UX
+    // Success toast
+    toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente')
+    
+    // Smooth redirect
     await new Promise(resolve => setTimeout(resolve, 500))
     await navigateTo('/')
     
@@ -229,36 +295,22 @@ const handleLogin = async (event: Event, formData: FormData) => {
   }
 }
 
-const handleResetPassword = async (event: Event, formData: FormData) => {
+const handleResetPassword = async () => {
+  if (!validateResetForm()) return
+  
   resetLoading.value = true
-  resetEmailError.value = ''
-  
-  // Validate reset email
-  if (!resetEmail.value) {
-    resetEmailError.value = 'Ingresa tu email'
-    resetLoading.value = false
-    return
-  }
-  
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(resetEmail.value)) {
-    resetEmailError.value = 'Ingresa un email válido'
-    resetLoading.value = false
-    return
-  }
 
   try {
-    await resetPassword(resetEmail.value)
+    await resetPassword(resetState.email)
     
-    // Success - close modal and show success message
+    // Success
+    toast.success('Enlace enviado', 'Se ha enviado un enlace de restablecimiento a tu email')
+    
     showResetPassword.value = false
-    resetEmail.value = ''
-    
-    // Show success notification (you could replace with a toast)
-    alert('Se ha enviado un enlace de restablecimiento a tu email')
+    resetState.email = ''
     
   } catch (err: any) {
-    resetEmailError.value = err.message || 'Error al enviar el enlace'
+    toast.error('Error', err.message || 'Error al enviar el enlace')
   } finally {
     resetLoading.value = false
   }
@@ -266,41 +318,13 @@ const handleResetPassword = async (event: Event, formData: FormData) => {
 
 const cancelReset = () => {
   showResetPassword.value = false
-  resetEmail.value = ''
+  resetState.email = ''
   resetEmailError.value = ''
 }
-
-// Clear errors when form values change
-watch(() => form.email, () => {
-  if (fieldErrors.email) validateEmail()
-})
-
-watch(() => form.password, () => {
-  if (fieldErrors.password) validatePassword()
-})
 
 // SEO
 useSeoMeta({
   title: 'Iniciar Sesión - Inaplast',
-  description: 'Accede a tu cuenta de Inaplast para gestionar pedidos y clientes con nuestro sistema minimalista y eficiente.'
+  description: 'Accede a tu cuenta de Inaplast para gestionar pedidos y clientes con nuestro sistema moderno y eficiente.'
 })
 </script>
-
-<style scoped>
-/* Custom transitions for smooth UX */
-.error-shake-enter-active {
-  animation: shake 0.5s;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-  20%, 40%, 60%, 80% { transform: translateX(2px); }
-}
-
-/* Modal backdrop blur enhancement */
-.modal-backdrop {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-</style>

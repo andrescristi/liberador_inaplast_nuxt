@@ -1,288 +1,36 @@
-/* Import Minimalist Design System */
-@import './minimalist-system.css';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Simple body styling - clean and minimal */
-body {
-  background-color: #F9FAFB;
-  color: #111827;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* Remove all complex animations and effects */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-/* Clean transitions only where needed */
-a, button, input, select, textarea {
-  transition: all 150ms ease;
-}
-
-/* Focus states - simple and clean */
-button:focus,
-input:focus,
-select:focus,
-textarea:focus,
-a:focus {
-  outline: 2px solid #4F46E5;
-  outline-offset: 2px;
-}
-
-/* Remove all glassmorphism and complex effects */
-.glass-card,
-.glass-nav,
-.glass-metric-card,
-.btn-glass-primary,
-.btn-glass-secondary,
-.form-input-glass {
-  background: white;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-/* Simplified hover states */
-.glass-card:hover,
-.card:hover {
-  border-color: #D1D5DB;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transform: none;
-}
-
-/* Clean button styles */
-.btn-glass-primary,
-.btn-primary {
-  background-color: #4F46E5;
-  color: white;
-  border: 1px solid #4F46E5;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 500;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.btn-glass-primary:hover,
-.btn-primary:hover {
-  background-color: #3730A3;
-  border-color: #3730A3;
-  transform: none;
-}
-
-.btn-glass-secondary,
-.btn-secondary {
-  background-color: white;
-  color: #374151;
-  border: 1px solid #D1D5DB;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 500;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.btn-glass-secondary:hover,
-.btn-secondary:hover {
-  background-color: #F9FAFB;
-  border-color: #9CA3AF;
-  transform: none;
-}
-
-/* Simple form inputs */
-.form-input-glass,
-.form-input {
-  background-color: white;
-  border: 1px solid #D1D5DB;
-  border-radius: 6px;
-  padding: 0.75rem;
-  width: 100%;
-  color: #111827;
-}
-
-.form-input-glass:focus,
-.form-input:focus {
-  border-color: #4F46E5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-  outline: none;
-}
-
-/* Simple navigation */
-.glass-nav,
-.nav {
-  background-color: white;
-  border-bottom: 1px solid #E5E7EB;
-  padding: 1rem;
-}
-
-.nav-link-minimal,
-.nav-link {
-  color: #6B7280;
-  text-decoration: none;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  font-weight: 500;
-}
-
-.nav-link-minimal:hover,
-.nav-link:hover {
-  color: #111827;
-  background-color: #F3F4F6;
-}
-
-.nav-link-minimal.router-link-active,
-.nav-link.active {
-  color: #4F46E5;
-  background-color: rgba(79, 70, 229, 0.1);
-}
-
-/* Status badges - clean and simple */
-.status-badge,
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.status-pending {
-  background-color: rgba(245, 158, 11, 0.1);
-  color: #D97706;
-}
-
-.status-processing {
-  background-color: rgba(59, 130, 246, 0.1);
-  color: #2563EB;
-}
-
-.status-completed {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: #059669;
-}
-
-.status-cancelled {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: #DC2626;
-}
-
-/* Simple table styles */
-.data-table,
-.table {
-  background-color: white;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  overflow: hidden;
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th,
-.table th {
-  background-color: #F9FAFB;
-  color: #374151;
-  padding: 0.75rem 1rem;
-  text-align: left;
-  font-weight: 600;
-  border-bottom: 1px solid #E5E7EB;
-}
-
-.data-table td,
-.table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #F3F4F6;
-  color: #6B7280;
-}
-
-.data-table tr:hover,
-.table tbody tr:hover {
-  background-color: #F9FAFB;
-}
-
-/* Remove all complex animations */
-@keyframes none {}
-
-/* Simple loading spinner */
-.spinner,
-.spinner-glass {
-  border: 2px solid #F3F4F6;
-  border-top: 2px solid #4F46E5;
-  border-radius: 50%;
-  width: 1.5rem;
-  height: 1.5rem;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Clean utility classes */
-.text-glass { color: #111827; }
-.text-glass-secondary { color: #6B7280; }
-.text-glass-muted { color: #9CA3AF; }
-
-/* Remove all whimsical and complex effects */
-.glass-card-magical,
-.btn-glass-sparkle,
-.glass-success,
-.glass-error,
-.glass-fab,
-.spinner-magical,
-.glass-card-hover,
-.nav-link-magical,
-.btn-ripple,
-.particles-container,
-.status-indicator,
-.form-input-magical,
-.loading-magical,
-.confetti,
-.tooltip-magical,
-.konami-activated {
-  /* Reset all to simple styles */
-  animation: none;
-  transform: none;
-  filter: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-/* Responsive design - mobile first */
-@media (max-width: 768px) {
-  .container {
-    padding: 0 1rem;
+/* Custom animations */
+@layer utilities {
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
   }
   
-  .nav {
-    padding: 0.75rem;
+  .animate-slide-down {
+    animation: slideDown 0.3s ease-out;
   }
-  
-  .card,
-  .glass-card {
-    padding: 1rem;
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
   }
-  
-  .btn-primary,
-  .btn-secondary,
-  .btn-glass-primary,
-  .btn-glass-secondary {
-    padding: 0.75rem 1rem;
-    width: 100%;
-    justify-content: center;
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
