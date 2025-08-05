@@ -1,6 +1,6 @@
 # Liberador Inaplast - Order Management System
 
-A modern web application for managing orders, customers, and products built with Nuxt.js, DaisyUI, and Supabase.
+A modern web application for managing orders, customers, and products built with Nuxt.js, TailwindCSS, and Supabase.
 
 ## Features
 
@@ -28,29 +28,32 @@ A modern web application for managing orders, customers, and products built with
 ## Tech Stack
 
 - **Frontend**: Nuxt.js 3, Vue.js 3, TailwindCSS
-- **UI Framework**: DaisyUI
+- **UI Components**: Custom component system with Headless UI
 - **Backend**: Supabase (PostgreSQL, Auth, Real-time)
 - **State Management**: Pinia
-- **Icons**: Lucide Vue
+- **Icons**: Heroicons
+- **Package Manager**: pnpm
 - **Deployment**: Ready for Vercel/Netlify deployment
 
 ## Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
-- npm or yarn
+- pnpm (recommended) or npm
 - Supabase account
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/andrescristi/liberador_inaplast_nuxt.git
    cd liberador_inaplast_nuxt
    ```
 
 2. **Install dependencies**
    ```bash
+   pnpm install
+   # or
    npm install
    ```
 
@@ -76,6 +79,8 @@ A modern web application for managing orders, customers, and products built with
 
 5. **Start Development Server**
    ```bash
+   pnpm dev
+   # or
    npm run dev
    ```
 
@@ -96,35 +101,39 @@ Since user registration is disabled, you'll need to create users through the Sup
 ```
 app/
 ├── components/
-│   ├── business/              # Business-specific components
 │   ├── core/                  # Core app components (navigation)
-│   ├── data/                  # Data display components
-│   ├── feedback/              # User feedback components
-│   ├── forms/                 # Form components
-│   ├── modals/                # Modal components
-│   └── ui/                    # UI components (DaisyUI-based)
+│   └── ui/                    # Custom UI components (TailwindCSS-based)
+│       ├── BaseAlert.vue      # Alert/notification component
+│       ├── BaseBadge.vue      # Status badges
+│       ├── BaseButton.vue     # Button component with variants
+│       ├── BaseCard.vue       # Card component
+│       ├── BaseDropdown.vue   # Dropdown menu
+│       ├── BaseInput.vue      # Form input component
+│       ├── BaseModal.vue      # Modal dialog
+│       ├── BaseTable.vue      # Data table component
+│       ├── ToastContainer.vue # Toast notification container
+│       └── ToastNotification.vue # Individual toast notifications
 ├── composables/
 │   ├── useAuth.ts             # Authentication composable
-│   ├── useDaisyComponents.ts  # DaisyUI component utilities
-│   └── useDaisyUI.ts          # DaisyUI configuration
+│   └── useToast.ts            # Toast notification management
 ├── layouts/
 │   └── default.vue            # Main layout with navigation
 ├── middleware/
 │   └── auth.ts                # Route protection middleware
 ├── pages/
 │   ├── auth/
-│   │   ├── login.vue          # Login page
-│   │   └── reset-password.vue # Password reset page
-│   ├── customers/             # Customer management pages
-│   ├── orders/                # Order management pages
-│   ├── products/              # Product management pages
+│   │   └── login.vue          # Login page with password reset
+│   ├── customers.vue          # Customer management
+│   ├── orders.vue             # Order management
+│   ├── products.vue           # Product management
 │   ├── confirm.vue            # Email confirmation handler
 │   ├── index.vue              # Dashboard
 │   └── profile.vue            # User profile page
-├── stores/                    # Pinia stores
 ├── types/                     # TypeScript type definitions
-└── utils/
-    └── supabase.ts            # Supabase API utilities
+└── assets/
+    ├── css/
+    │   └── main.css           # Global styles and utilities
+    └── images/                # Application images
 ```
 
 ## Development
@@ -132,11 +141,27 @@ app/
 ### Available Scripts
 
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run generate     # Generate static site
-npm run preview      # Preview production build
+pnpm dev             # Start development server
+pnpm build           # Build for production
+pnpm generate        # Generate static site
+pnpm preview         # Preview production build
 ```
+
+### Custom UI Component System
+
+This project uses a custom component system built with TailwindCSS and Headless UI:
+
+- **BaseButton**: Multi-variant button (solid, outline, ghost, link) with loading states
+- **BaseCard**: Flexible card with header, body, and footer slots
+- **BaseInput**: Form input with validation states and icon support
+- **BaseModal**: Modal dialogs with smooth transitions
+- **BaseAlert**: Notification alerts with multiple variants
+- **BaseDropdown**: Dropdown menus with keyboard navigation
+- **BaseBadge**: Status badges with color variants
+- **BaseTable**: Data tables with selection support
+- **Toast System**: Global notification management
+
+All components are auto-imported and include full TypeScript support.
 
 ### Authentication Flow
 
@@ -172,7 +197,7 @@ SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ```bash
 # Build the application
-npm run build
+pnpm build
 
 # The .output directory contains the built application
 # Deploy the .output directory to your hosting platform
@@ -188,12 +213,13 @@ npm run build
 ## Development Status
 
 - ✅ **Authentication System**: Complete with login/logout/password reset
-- ✅ **User Profile System**: Profile management with security features
+- ✅ **Custom UI System**: Modern component library with TailwindCSS + Headless UI
 - ✅ **Route Protection**: All pages require authentication  
-- ✅ **User Interface**: Dashboard, orders, customers, products, and profile pages
-- ✅ **Database Schema**: Complete with migrations and RLS policies
-- ✅ **DaisyUI Integration**: Modern UI components with responsive design
+- ✅ **User Interface**: Dashboard, navigation, and responsive design
+- ✅ **Toast Notifications**: Global notification system
+- ✅ **Component Architecture**: 10 base components with TypeScript support
 - 🔄 **Core Features**: Order, customer, and product management in development
+- 🔄 **Database Integration**: Supabase integration for CRUD operations
 
 ## Contributing
 
