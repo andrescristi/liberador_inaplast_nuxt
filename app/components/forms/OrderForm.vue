@@ -4,7 +4,7 @@
       <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Create New Order</h1>
     </div>
 
-    <form @submit.prevent="handleSubmit" class="space-y-4 sm:space-y-6">
+    <form class="space-y-4 sm:space-y-6" @submit.prevent="handleSubmit">
       <!-- Customer Selection -->
       <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
         <h2 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Customer Information</h2>
@@ -25,12 +25,14 @@
               />
               
               <!-- Customer Dropdown - Mobile Optimized -->
-              <div v-if="customerOptions.length > 0 && customerSearch" 
+              <div
+v-if="customerOptions.length > 0 && customerSearch" 
                    class="absolute z-20 mt-1 w-full bg-white shadow-xl max-h-64 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto">
-                <div v-for="customer in customerOptions" 
+                <div
+v-for="customer in customerOptions" 
                      :key="customer.id"
-                     @click="selectCustomer(customer)"
-                     class="cursor-pointer select-none relative py-3 px-4 hover:bg-indigo-600 hover:text-white active:bg-indigo-700 transition-colors">
+                     class="cursor-pointer select-none relative py-3 px-4 hover:bg-indigo-600 hover:text-white active:bg-indigo-700 transition-colors"
+                     @click="selectCustomer(customer)">
                   <div class="flex flex-col sm:flex-row sm:items-center">
                     <span class="font-medium truncate">{{ customer.name }}</span>
                     <span class="text-gray-500 hover:text-indigo-200 text-sm sm:ml-2 truncate">{{ customer.email }}</span>
@@ -67,10 +69,10 @@
           <h2 class="text-base sm:text-lg font-semibold text-gray-900">Order Items</h2>
           <UiBaseButton 
             type="button" 
-            @click="addOrderItem" 
             variant="outline" 
-            size="md"
+            size="md" 
             class="w-full sm:w-auto"
+            @click="addOrderItem"
           >
             <PlusIcon class="w-4 h-4 mr-2" />
             Add Item
@@ -78,7 +80,8 @@
         </div>
 
         <div class="space-y-4">
-          <div v-for="(item, index) in orderItems" 
+          <div
+v-for="(item, index) in orderItems" 
                :key="index"
                class="border border-gray-200 rounded-lg p-3 sm:p-4">
             
@@ -97,12 +100,14 @@
                 />
                 
                 <!-- Product Dropdown - Mobile Optimized -->
-                <div v-if="item.productOptions.length > 0 && item.productSearch" 
+                <div
+v-if="item.productOptions.length > 0 && item.productSearch" 
                      class="absolute z-20 mt-1 w-full bg-white shadow-xl max-h-64 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto">
-                  <div v-for="product in item.productOptions" 
+                  <div
+v-for="product in item.productOptions" 
                        :key="product.id"
-                       @click="selectProduct(index, product)"
-                       class="cursor-pointer select-none relative py-3 px-4 hover:bg-indigo-600 hover:text-white active:bg-indigo-700 transition-colors">
+                       class="cursor-pointer select-none relative py-3 px-4 hover:bg-indigo-600 hover:text-white active:bg-indigo-700 transition-colors"
+                       @click="selectProduct(index, product)">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                       <div class="flex-1 min-w-0">
                         <span class="font-medium truncate block">{{ product.name }}</span>
@@ -166,15 +171,16 @@
                 type="button" 
                 variant="outline" 
                 size="md"
-                @click="removeOrderItem(index)"
-                class="text-red-600 hover:text-red-700 hover:border-red-300 w-10 h-10 p-0">
+                class="text-red-600 hover:text-red-700 hover:border-red-300 w-10 h-10 p-0"
+                @click="removeOrderItem(index)">
                 <TrashIcon class="w-4 h-4" />
               </UiBaseButton>
             </div>
           </div>
 
           <!-- Add Item Placeholder -->
-          <div v-if="orderItems.length === 0" 
+          <div
+v-if="orderItems.length === 0" 
                class="border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 text-center">
             <CubeIcon class="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p class="text-gray-500 text-sm sm:text-base">No items added yet. Click "Add Item" to start.</p>
@@ -267,8 +273,8 @@ const searchCustomers = debounce(async () => {
   customerSearchLoading.value = true
   try {
     customerOptions.value = await customersStore.searchCustomers(customerSearch.value)
-  } catch (error) {
-    console.error('Error searching customers:', error)
+  } catch {
+    // Handle customer search error silently
   } finally {
     customerSearchLoading.value = false
   }
@@ -296,8 +302,8 @@ const searchProducts = debounce(async (itemIndex: number) => {
   
   try {
     item.productOptions = await productsStore.searchProducts(item.productSearch)
-  } catch (error) {
-    console.error('Error searching products:', error)
+  } catch {
+    // Handle product search error silently
     item.productOptions = []
   }
 }, 300)
@@ -361,8 +367,8 @@ const handleSubmit = async () => {
     
     // Show success message and redirect
     await router.push('/orders')
-  } catch (error) {
-    console.error('Error creating order:', error)
+  } catch {
+    // Handle order creation error silently
     // Show error message
   } finally {
     loading.value = false

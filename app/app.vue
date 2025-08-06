@@ -1,6 +1,10 @@
 <template>
   <div>
-    <NuxtPage />
+    <CoreAppNavigation />
+    <NuxtLayout>
+      
+      <NuxtPage />
+    </NuxtLayout>
     <UiToastContainer />
   </div>
 </template>

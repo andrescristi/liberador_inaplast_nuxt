@@ -18,12 +18,15 @@
       leave-to-class="transform opacity-0 scale-95"
     >
       <MenuItems :class="menuClasses">
-        <div v-for="(section, sectionIndex) in items" :key="sectionIndex" class="py-1">
+        <div
+v-for="(section, sectionIndex) in items"
+:key="sectionIndex"
+class="py-1">
           <template v-for="(item, itemIndex) in section" :key="itemIndex">
             <MenuItem 
               v-if="!item.slot" 
-              :as="item.to ? 'template' : 'div'"
               v-slot="{ active, close }"
+              :as="item.to ? 'template' : 'div'"
             >
               <NuxtLink
                 v-if="item.to"
@@ -35,8 +38,14 @@
                 ]"
                 @click="close"
               >
-                <slot :name="item.key || `item-${sectionIndex}-${itemIndex}`" :item="item" :active="active">
-                  <component v-if="item.icon" :is="item.icon" class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                <slot
+:name="item.key || `item-${sectionIndex}-${itemIndex}`"
+:item="item"
+:active="active">
+                  <component
+:is="item.icon"
+v-if="item.icon"
+class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
                   {{ item.label }}
                 </slot>
               </NuxtLink>
@@ -50,8 +59,14 @@
                 :disabled="item.disabled"
                 @click="item.click && item.click(); close()"
               >
-                <slot :name="item.key || `item-${sectionIndex}-${itemIndex}`" :item="item" :active="active">
-                  <component v-if="item.icon" :is="item.icon" class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                <slot
+:name="item.key || `item-${sectionIndex}-${itemIndex}`"
+:item="item"
+:active="active">
+                  <component
+:is="item.icon"
+v-if="item.icon"
+class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
                   {{ item.label }}
                 </slot>
               </button>
@@ -73,7 +88,7 @@ import { ChevronDownIcon } from '@heroicons/vue/20/solid'
 
 interface DropdownItem {
   label?: string
-  icon?: any
+  icon?: object
   to?: string
   click?: () => void
   disabled?: boolean

@@ -20,7 +20,10 @@
     <!-- Trailing icon or button -->
     <div v-if="trailingIcon || $slots.trailing" class="absolute inset-y-0 right-0 pr-3 flex items-center">
       <slot name="trailing">
-        <component v-if="trailingIcon" :is="trailingIcon" class="h-5 w-5 text-gray-400" />
+        <component
+:is="trailingIcon"
+v-if="trailingIcon"
+class="h-5 w-5 text-gray-400" />
       </slot>
     </div>
   </div>
@@ -34,15 +37,29 @@ interface Props {
   disabled?: boolean
   error?: boolean
   size?: 'sm' | 'md' | 'lg'
-  leadingIcon?: any
-  trailingIcon?: any
+  leadingIcon?: object | Function
+  trailingIcon?: object | Function
   rows?: number
+  min?: string | number
+  max?: string | number
+  step?: string | number
   mobileOptimized?: boolean // New prop for mobile-specific styling
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  modelValue: '',
   type: 'text',
-  size: 'md'
+  placeholder: '',
+  disabled: false,
+  error: false,
+  size: 'md',
+  leadingIcon: undefined,
+  trailingIcon: undefined,
+  rows: undefined,
+  min: undefined,
+  max: undefined,
+  step: undefined,
+  mobileOptimized: false
 })
 
 // Reactive state
@@ -61,7 +78,7 @@ const tag = computed(() => {
 })
 
 const inputAttrs = computed(() => {
-  const attrs: any = {}
+  const attrs: Record<string, string | number | undefined> = {}
   
   if (props.type !== 'textarea') {
     attrs.type = props.type
@@ -69,6 +86,18 @@ const inputAttrs = computed(() => {
   
   if (props.type === 'textarea' && props.rows) {
     attrs.rows = props.rows
+  }
+  
+  if (props.min !== undefined) {
+    attrs.min = props.min
+  }
+  
+  if (props.max !== undefined) {
+    attrs.max = props.max
+  }
+  
+  if (props.step !== undefined) {
+    attrs.step = props.step
   }
   
   return attrs
@@ -97,7 +126,7 @@ const inputClasses = computed(() => {
     classes.push('pl-10')
   }
   
-  if (props.trailingIcon || props.$slots?.trailing) {
+  if (props.trailingIcon) {
     classes.push('pr-10')
   }
   
@@ -142,7 +171,7 @@ const handleBlur = (event: FocusEvent) => {
 
 // Add mobile keyboard optimizations
 watch(() => props.type, (newType) => {
-  if (process.client && inputElement.value) {
+  if (import.meta.client && inputElement.value) {
     // Set appropriate input modes for mobile keyboards
     const inputModes: Record<string, string> = {
       email: 'email',

@@ -50,6 +50,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  description: '',
   type: 'info',
   duration: 5000
 })

@@ -106,7 +106,7 @@
             </div>
             
             <!-- Divider -->
-            <div class="border-t border-gray-200 my-4"></div>
+            <div class="border-t border-gray-200 my-4"/>
             
             <!-- User Section -->
             <div class="px-4 py-3 bg-gray-50 rounded-xl">
@@ -252,9 +252,8 @@ const handleSignOut = async () => {
     
     toast.success('Signed out successfully')
     
-  } catch (error) {
-    console.error('Sign out error:', error)
-    
+  } catch {
+    // Handle sign out error silently or use proper error reporting
     toast.error('Error signing out', 'Please try again.')
   } finally {
     signingOut.value = false
@@ -266,7 +265,7 @@ const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
   
   // Add haptic feedback simulation
-  if (process.client) {
+  if (import.meta.client) {
     // Trigger a subtle vibration on supported devices
     if ('vibrate' in navigator) {
       navigator.vibrate(50)

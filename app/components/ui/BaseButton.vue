@@ -35,8 +35,8 @@
         
         <!-- Leading Icon with bounce -->
         <component 
-          v-if="leadingIcon && !loading" 
           :is="leadingIcon" 
+          v-if="leadingIcon && !loading" 
           :class="[
             'w-4 h-4 mr-2 transition-transform duration-200',
             isPressed ? 'scale-90' : 'scale-100'
@@ -44,7 +44,8 @@
         />
         
         <!-- Content -->
-        <span :class="{
+        <span
+:class="{
           'transform transition-transform duration-150': true,
           'scale-95': isPressed
         }">
@@ -53,8 +54,8 @@
         
         <!-- Trailing Icon with bounce -->
         <component 
-          v-if="trailingIcon" 
           :is="trailingIcon" 
+          v-if="trailingIcon" 
           :class="[
             'w-4 h-4 ml-2 transition-transform duration-200',
             isPressed ? 'scale-90' : 'scale-100'
@@ -76,8 +77,8 @@ interface Props {
   disabled?: boolean
   loading?: boolean
   block?: boolean
-  leadingIcon?: any
-  trailingIcon?: any
+  leadingIcon?: object | Function
+  trailingIcon?: object | Function
   mobileOptimized?: boolean // New prop for mobile-specific styling
 }
 
@@ -85,7 +86,15 @@ const props = withDefaults(defineProps<Props>(), {
   variant: 'solid',
   color: 'primary',
   size: 'md',
-  type: 'button'
+  to: undefined,
+  href: undefined,
+  type: 'button',
+  disabled: false,
+  loading: false,
+  block: false,
+  leadingIcon: undefined,
+  trailingIcon: undefined,
+  mobileOptimized: false
 })
 
 const emit = defineEmits<{

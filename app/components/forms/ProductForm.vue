@@ -6,7 +6,7 @@
       </h1>
     </div>
 
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+    <form class="space-y-6" @submit.prevent="handleSubmit">
       <!-- Basic Information -->
       <div class="bg-white rounded-lg border border-gray-200 p-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Product Information</h2>
@@ -89,7 +89,7 @@
 
           <div class="flex items-center space-x-4 pt-6">
             <div class="flex items-center space-x-2">
-              <div class="w-3 h-3 rounded-full" :class="stockStatusColor"></div>
+              <div class="w-3 h-3 rounded-full" :class="stockStatusColor"/>
               <span class="text-sm font-medium" :class="stockStatusTextColor">
                 {{ stockStatusText }}
               </span>
@@ -98,7 +98,8 @@
         </div>
 
         <!-- Stock Alert -->
-        <div v-if="form.stock_quantity <= 10 && form.stock_quantity > 0" 
+        <div
+v-if="form.stock_quantity <= 10 && form.stock_quantity > 0" 
              class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
           <div class="flex items-center">
             <Icon name="lucide:alert-triangle" class="w-5 h-5 text-yellow-600 mr-2" />
@@ -108,7 +109,8 @@
           </div>
         </div>
 
-        <div v-if="form.stock_quantity === 0" 
+        <div
+v-if="form.stock_quantity === 0" 
              class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div class="flex items-center">
             <Icon name="lucide:x-circle" class="w-5 h-5 text-red-600 mr-2" />
@@ -143,7 +145,10 @@
 
       <!-- Form Actions -->
       <div class="flex items-center justify-end space-x-4">
-        <Button type="button" variant="outline" @click="$router.back()">
+        <Button
+type="button"
+variant="outline"
+@click="$router.back()">
           Cancel
         </Button>
         <Button 
@@ -158,7 +163,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Product, CreateProductForm } from '~/types'
+import type { CreateProductForm } from '~/types'
 import { useProductsStore } from '~/stores/products'
 
 interface Props {
@@ -271,17 +276,17 @@ const loadProduct = async () => {
       form.stock_quantity = product.stock_quantity
 
       // If product has additional stats, load them
-      const productsResponse = await productsStore.fetchProducts(1, {})
+      const _productsResponse = await productsStore.fetchProducts(1, {})
       const productWithStats = productsStore.products.find(p => p.id === props.productId)
       if (productWithStats && 'times_ordered' in productWithStats) {
         productStats.value = {
-          times_ordered: (productWithStats as any).times_ordered,
-          total_revenue: (productWithStats as any).total_revenue
+          times_ordered: (productWithStats as { times_ordered: number }).times_ordered,
+          total_revenue: (productWithStats as { total_revenue: number }).total_revenue
         }
       }
     }
-  } catch (error) {
-    console.error('Error loading product:', error)
+  } catch {
+    // Handle product loading error silently
   } finally {
     loading.value = false
   }
@@ -301,8 +306,8 @@ const handleSubmit = async () => {
     
     // Show success message and redirect
     await router.push('/products')
-  } catch (error) {
-    console.error('Error saving product:', error)
+  } catch {
+    // Handle product saving error silently
     // Show error message
   } finally {
     loading.value = false

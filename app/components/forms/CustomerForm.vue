@@ -6,7 +6,7 @@
       </h1>
     </div>
 
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+    <form class="space-y-6" @submit.prevent="handleSubmit">
       <!-- Basic Information -->
       <div class="bg-white rounded-lg border border-gray-200 p-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Customer Information</h2>
@@ -94,7 +94,10 @@
 
       <!-- Form Actions -->
       <div class="flex items-center justify-end space-x-4">
-        <Button type="button" variant="outline" @click="$router.back()">
+        <Button
+type="button"
+variant="outline"
+@click="$router.back()">
           Cancel
         </Button>
         <Button 
@@ -109,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Customer, CreateCustomerForm } from '~/types'
+import type { CreateCustomerForm } from '~/types'
 import { useCustomersStore } from '~/stores/customers'
 
 interface Props {
@@ -174,7 +177,7 @@ const validateForm = () => {
 
   // Phone validation (optional but if provided, should be valid)
   if (form.phone && form.phone.trim()) {
-    const phoneRegex = /^[\+]?[0-9\(\)\-\s]{10,}$/
+    const phoneRegex = /^[+]?[0-9()\-\s]{10,}$/
     if (!phoneRegex.test(form.phone.replace(/\s/g, ''))) {
       errors.phone = 'Please enter a valid phone number'
       isValid = false
@@ -204,17 +207,17 @@ const loadCustomer = async () => {
       form.address = customer.address
 
       // If customer has additional stats, load them
-      const customersResponse = await customersStore.fetchCustomers(1, {})
+      const _customersResponse = await customersStore.fetchCustomers(1, {})
       const customerWithStats = customersStore.customers.find(c => c.id === props.customerId)
       if (customerWithStats && 'orders_count' in customerWithStats) {
         customerStats.value = {
-          orders_count: (customerWithStats as any).orders_count,
-          total_spent: (customerWithStats as any).total_spent
+          orders_count: (customerWithStats as { orders_count: number }).orders_count,
+          total_spent: (customerWithStats as { total_spent: number }).total_spent
         }
       }
     }
-  } catch (error) {
-    console.error('Error loading customer:', error)
+  } catch {
+    // Handle customer loading error silently
   } finally {
     loading.value = false
   }
@@ -234,8 +237,8 @@ const handleSubmit = async () => {
     
     // Show success message and redirect
     await router.push('/customers')
-  } catch (error) {
-    console.error('Error saving customer:', error)
+  } catch {
+    // Handle customer saving error silently
     // Show error message
   } finally {
     loading.value = false
@@ -260,7 +263,7 @@ watch(() => form.name, () => {
 
 watch(() => form.phone, () => {
   if (errors.phone && form.phone) {
-    const phoneRegex = /^[\+]?[0-9\(\)\-\s]{10,}$/
+    const phoneRegex = /^[+]?[0-9()\-\s]{10,}$/
     if (phoneRegex.test(form.phone.replace(/\s/g, ''))) {
       errors.phone = ''
     }

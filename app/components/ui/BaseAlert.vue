@@ -47,6 +47,8 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   variant: 'info',
+  title: '',
+  description: '',
   closable: false
 })
 

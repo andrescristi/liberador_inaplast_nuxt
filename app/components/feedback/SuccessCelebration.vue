@@ -1,13 +1,17 @@
 <template>
   <div class="success-celebration-container fixed inset-0 pointer-events-none z-50" :class="{ 'active': isActive }">
     <!-- Enhanced Mobile-Optimized Confetti -->
-    <div v-for="(particle, index) in particles" :key="index" 
+    <div
+v-for="(particle, index) in particles"
+:key="index" 
          class="confetti-particle mobile-optimized" 
          :style="particle.style"
          :class="particle.class" />
     
     <!-- Floating Success Emojis -->
-    <div v-for="(emoji, index) in successEmojis" :key="'emoji-' + index"
+    <div
+v-for="(emoji, index) in successEmojis"
+:key="'emoji-' + index"
          class="floating-emoji"
          :style="emoji.style">
       {{ emoji.char }}
@@ -19,7 +23,10 @@
     <!-- Enhanced Success Message with Mobile Touch -->
     <transition name="success-message">
       <div v-if="showMessage" class="success-message-wrapper">
-        <div class="success-card" @touchstart="handleTouch" @click="handleTouch">
+        <div
+class="success-card"
+@touchstart="handleTouch"
+@click="handleTouch">
           <!-- Glow Effect -->
           <div class="success-glow" />
           
@@ -28,8 +35,16 @@
             <div class="checkmark-container">
               <div class="checkmark-circle">
                 <svg class="checkmark-svg" viewBox="0 0 52 52">
-                  <circle class="checkmark-circle-bg" cx="26" cy="26" r="25" fill="none"/>
-                  <path class="checkmark-check" fill="none" d="m14.1 27.2l7.1 7.2 16.7-16.8"/>
+                  <circle
+class="checkmark-circle-bg"
+cx="26"
+cy="26"
+r="25"
+fill="none"/>
+                  <path
+class="checkmark-check"
+fill="none"
+d="m14.1 27.2l7.1 7.2 16.7-16.8"/>
                 </svg>
               </div>
             </div>
@@ -224,7 +239,7 @@ const handleTouch = () => {
 }
 
 const triggerHapticFeedback = (type: 'light' | 'medium' | 'heavy' | 'success') => {
-  if (process.client && 'vibrate' in navigator) {
+  if (import.meta.client && 'vibrate' in navigator) {
     const patterns = {
       light: [50],
       medium: [100],
@@ -253,9 +268,9 @@ const playSuccessSound = () => {
     
     oscillator.start(audioContext.currentTime)
     oscillator.stop(audioContext.currentTime + 0.3)
-  } catch (error) {
+  } catch {
     // Silently fail if Web Audio API is not supported
-    console.log('🔇 Audio not available, visual celebration only')
+    // Audio not available, visual celebration only
   }
 }
 
