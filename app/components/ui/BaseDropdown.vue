@@ -20,23 +20,41 @@
       <MenuItems :class="menuClasses">
         <div v-for="(section, sectionIndex) in items" :key="sectionIndex" class="py-1">
           <template v-for="(item, itemIndex) in section" :key="itemIndex">
-            <MenuItem v-if="!item.slot" v-slot="{ active }">
-              <component
-                :is="item.to ? 'NuxtLink' : 'button'"
+            <MenuItem 
+              v-if="!item.slot" 
+              :as="item.to ? 'template' : 'div'"
+              v-slot="{ active, close }"
+            >
+              <NuxtLink
+                v-if="item.to"
                 :to="item.to"
                 :class="[
                   active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                   'group flex items-center px-4 py-2 text-sm w-full text-left',
                   item.disabled ? 'opacity-50 cursor-not-allowed' : ''
                 ]"
-                :disabled="item.disabled"
-                @click="item.click && item.click()"
+                @click="close"
               >
                 <slot :name="item.key || `item-${sectionIndex}-${itemIndex}`" :item="item" :active="active">
                   <component v-if="item.icon" :is="item.icon" class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
                   {{ item.label }}
                 </slot>
-              </component>
+              </NuxtLink>
+              <button
+                v-else
+                :class="[
+                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                  'group flex items-center px-4 py-2 text-sm w-full text-left',
+                  item.disabled ? 'opacity-50 cursor-not-allowed' : ''
+                ]"
+                :disabled="item.disabled"
+                @click="item.click && item.click(); close()"
+              >
+                <slot :name="item.key || `item-${sectionIndex}-${itemIndex}`" :item="item" :active="active">
+                  <component v-if="item.icon" :is="item.icon" class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                  {{ item.label }}
+                </slot>
+              </button>
             </MenuItem>
             <div v-else :class="item.class || 'px-4 py-2'">
               <slot :name="item.slot" :item="item" />
