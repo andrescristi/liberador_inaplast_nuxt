@@ -284,7 +284,7 @@ export interface ComponentState {
 // Form-related types
 export interface FormFieldProps {
   name?: string
-  value?: any
+  value?: string | number | boolean
   required?: boolean
   disabled?: boolean
   readonly?: boolean
@@ -294,7 +294,7 @@ export interface FormFieldProps {
     minLength?: number
     maxLength?: number
     pattern?: RegExp
-    custom?: (value: any) => boolean | string
+    custom?: (value: string | number | boolean) => boolean | string
   }
 }
 
@@ -305,5 +305,5 @@ export interface EnhancedDaisyUIConfig extends DaisyUIConfig {
   /** Custom CSS variables override */
   cssVariables?: Record<string, string>
   /** Component-specific configurations */
-  components?: Partial<Record<DaisyComponent, any>>
+  components?: Partial<Record<DaisyComponent, Record<string, unknown>>>
 }

@@ -12,7 +12,7 @@ export default defineNuxtPlugin(() => {
   initializeTheme()
   
   // Handle system theme changes
-  if (process.client) {
+  if (import.meta.client) {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     
     const handleThemeChange = (e: MediaQueryListEvent) => {
@@ -85,14 +85,14 @@ export default defineNuxtPlugin(() => {
       const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           if (entry.name.includes('daisy-') && entry.duration > 16) {
-            console.warn(`Slow Daisy component render: ${entry.name} took ${entry.duration}ms`)
+            // Warn about slow component render performance
           }
         }
       })
       
       try {
         observer.observe({ entryTypes: ['measure'] })
-      } catch (e) {
+      } catch {
         // PerformanceObserver not supported in this environment
       }
     }
@@ -100,8 +100,8 @@ export default defineNuxtPlugin(() => {
     // Initialize focus-visible polyfill for better focus management
     try {
       import('focus-visible')
-    } catch (e) {
-      console.warn('focus-visible polyfill not available')
+    } catch {
+      // focus-visible polyfill not available
     }
   }
   

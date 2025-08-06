@@ -6,7 +6,6 @@ import type {
   Customer, 
   Product, 
   Order, 
-  OrderItem, 
   CreateOrderForm, 
   CreateCustomerForm, 
   CreateProductForm,
@@ -34,7 +33,7 @@ export class SupabaseAPI {
       .rpc('get_dashboard_metrics')
 
     if (error) {
-      console.error('Error fetching dashboard metrics:', error)
+      // Handle dashboard metrics error
       throw new Error('Failed to fetch dashboard metrics')
     }
 
@@ -65,7 +64,7 @@ export class SupabaseAPI {
       })
 
     if (error) {
-      console.error('Error fetching orders:', error)
+      // Handle orders fetch error
       throw new Error('Failed to fetch orders')
     }
 
@@ -73,7 +72,7 @@ export class SupabaseAPI {
     const totalCount = orders[0]?.total_count || 0
 
     return {
-      data: orders.map((row: any) => ({
+      data: orders.map((row: Record<string, unknown>) => ({
         id: row.id,
         customer_id: row.customer_id,
         status: row.status,
@@ -103,7 +102,7 @@ export class SupabaseAPI {
       .rpc('get_order_details', { order_id_param: id })
 
     if (error) {
-      console.error('Error fetching order:', error)
+      // Handle order fetch error
       throw new Error('Failed to fetch order details')
     }
 
@@ -139,7 +138,7 @@ export class SupabaseAPI {
       .single()
 
     if (orderError) {
-      console.error('Error creating order:', orderError)
+      // Handle order creation error
       throw new Error('Failed to create order')
     }
 
@@ -157,7 +156,7 @@ export class SupabaseAPI {
       .insert(orderItems)
 
     if (itemsError) {
-      console.error('Error creating order items:', itemsError)
+      // Handle order items creation error
       // Rollback order creation
       await this.client.from('orders').delete().eq('id', order.id)
       throw new Error('Failed to create order items')
@@ -177,7 +176,7 @@ export class SupabaseAPI {
       .eq('id', orderId)
 
     if (error) {
-      console.error('Error updating order status:', error)
+      // Handle order status update error
       throw new Error('Failed to update order status')
     }
   }
@@ -189,7 +188,7 @@ export class SupabaseAPI {
       .eq('id', orderId)
 
     if (error) {
-      console.error('Error deleting order:', error)
+      // Handle order deletion error
       throw new Error('Failed to delete order')
     }
   }
@@ -208,7 +207,7 @@ export class SupabaseAPI {
       })
 
     if (error) {
-      console.error('Error fetching customers:', error)
+      // Handle customers fetch error
       throw new Error('Failed to fetch customers')
     }
 
@@ -216,7 +215,7 @@ export class SupabaseAPI {
     const totalCount = customers[0]?.total_count || 0
 
     return {
-      data: customers.map((row: any) => ({
+      data: customers.map((row: Record<string, unknown>) => ({
         id: row.id,
         name: row.name,
         email: row.email,
@@ -242,7 +241,7 @@ export class SupabaseAPI {
       .single()
 
     if (error) {
-      console.error('Error creating customer:', error)
+      // Handle customer creation error
       throw new Error('Failed to create customer')
     }
 
@@ -258,7 +257,7 @@ export class SupabaseAPI {
       .single()
 
     if (error) {
-      console.error('Error updating customer:', error)
+      // Handle customer update error
       throw new Error('Failed to update customer')
     }
 
@@ -272,7 +271,7 @@ export class SupabaseAPI {
       .eq('id', id)
 
     if (error) {
-      console.error('Error deleting customer:', error)
+      // Handle customer deletion error
       throw new Error('Failed to delete customer')
     }
   }
@@ -293,7 +292,7 @@ export class SupabaseAPI {
       })
 
     if (error) {
-      console.error('Error fetching products:', error)
+      // Handle products fetch error
       throw new Error('Failed to fetch products')
     }
 
@@ -301,7 +300,7 @@ export class SupabaseAPI {
     const totalCount = products[0]?.total_count || 0
 
     return {
-      data: products.map((row: any) => ({
+      data: products.map((row: Record<string, unknown>) => ({
         id: row.id,
         name: row.name,
         description: row.description,
@@ -327,7 +326,7 @@ export class SupabaseAPI {
       .single()
 
     if (error) {
-      console.error('Error creating product:', error)
+      // Handle product creation error
       throw new Error('Failed to create product')
     }
 
@@ -343,7 +342,7 @@ export class SupabaseAPI {
       .single()
 
     if (error) {
-      console.error('Error updating product:', error)
+      // Handle product update error
       throw new Error('Failed to update product')
     }
 
@@ -357,7 +356,7 @@ export class SupabaseAPI {
       .eq('id', id)
 
     if (error) {
-      console.error('Error deleting product:', error)
+      // Handle product deletion error
       throw new Error('Failed to delete product')
     }
   }
@@ -378,7 +377,7 @@ export class SupabaseAPI {
       .limit(limit)
 
     if (error) {
-      console.error('Error fetching recent orders:', error)
+      // Handle recent orders fetch error
       throw new Error('Failed to fetch recent orders')
     }
 
@@ -393,7 +392,7 @@ export class SupabaseAPI {
       .limit(10)
 
     if (error) {
-      console.error('Error searching customers:', error)
+      // Handle customer search error
       throw new Error('Failed to search customers')
     }
 
@@ -409,7 +408,7 @@ export class SupabaseAPI {
       .limit(10)
 
     if (error) {
-      console.error('Error searching products:', error)
+      // Handle product search error
       throw new Error('Failed to search products')
     }
 

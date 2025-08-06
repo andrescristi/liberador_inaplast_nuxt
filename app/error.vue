@@ -8,13 +8,17 @@
       <!-- Animated error icon -->
       <div class="relative mb-8">
         <div class="glass-icon-container w-24 h-24 mx-auto animate-bounce">
-          <div class="text-4xl" v-if="is404">🎭</div>
-          <div class="text-4xl" v-else>🔮</div>
+          <div v-if="is404" class="text-4xl">🎭</div>
+          <div v-else class="text-4xl">🔮</div>
         </div>
         
         <!-- Floating sparkles around icon -->
         <div class="absolute inset-0">
-          <div class="sparkle-orbit" v-for="i in 6" :key="i" :style="{ animationDelay: (i * 0.5) + 's' }">
+          <div
+v-for="i in 6"
+:key="i"
+class="sparkle-orbit"
+:style="{ animationDelay: (i * 0.5) + 's' }">
             ✨
           </div>
         </div>
@@ -52,9 +56,9 @@
           <Button
             variant="magical"
             size="lg"
-            @click="goHome"
             :sparkle="true"
             class="transform hover:scale-105"
+            @click="goHome"
           >
             <Icon name="lucide:home" class="w-5 h-5 mr-2" />
             Ir al inicio
@@ -63,8 +67,8 @@
           <Button
             variant="secondary"
             size="lg"
-            @click="goBack"
             class="transform hover:scale-105"
+            @click="goBack"
           >
             <Icon name="lucide:arrow-left" class="w-5 h-5 mr-2" />
             Volver atrás
@@ -74,11 +78,14 @@
         <!-- Fun reload button -->
         <Button
           variant="ghost"
-          @click="tryAgain"
           class="transform hover:scale-105"
           :loading="reloading"
+          @click="tryAgain"
         >
-          <Icon v-if="!reloading" name="lucide:refresh-cw" class="w-4 h-4 mr-2" />
+          <Icon
+v-if="!reloading"
+name="lucide:refresh-cw"
+class="w-4 h-4 mr-2" />
           {{ reloading ? 'Haciendo magia...' : 'Intentar de nuevo' }}
         </Button>
       </div>
@@ -86,8 +93,8 @@
       <!-- Easter egg counter -->
       <div class="mt-8">
         <button 
-          @click="handleEasterEgg"
           class="text-glass-muted hover:text-glass transition-colors text-sm"
+          @click="handleEasterEgg"
         >
           💫 ¿Necesitas un poco de magia? ({{ easterEggClicks }}/5)
         </button>
@@ -111,7 +118,7 @@ const props = defineProps<Props>()
 const confettiRef = ref()
 const reloading = ref(false)
 const easterEggClicks = ref(0)
-const isDev = process.dev
+const isDev = import.meta.dev
 
 const is404 = computed(() => props.error.statusCode === 404)
 
