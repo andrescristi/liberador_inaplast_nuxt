@@ -3,7 +3,7 @@
     <div class="max-w-md w-full space-y-8">
       <div class="text-center">
         <div v-if="loading" class="space-y-4">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"/>
           <h2 class="text-2xl font-bold text-gray-900">
             Confirmando...
           </h2>
@@ -22,7 +22,7 @@
           <p class="text-gray-600">
             {{ error }}
           </p>
-          <Button @click="$router.push('/auth/login')">
+          <Button @click="navigateTo('/auth/login')">
             Volver al Login
           </Button>
         </div>
@@ -37,7 +37,7 @@
           <p class="text-gray-600">
             Tu cuenta ha sido confirmada correctamente.
           </p>
-          <Button @click="$router.push('/')">
+          <Button @click="navigateTo('/')">
             Ir al Dashboard
           </Button>
         </div>
@@ -53,7 +53,6 @@ definePageMeta({
 })
 
 const route = useRoute()
-const router = useRouter()
 const supabase = useSupabaseClient()
 
 const loading = ref(true)
@@ -66,8 +65,8 @@ onMounted(async () => {
     if (authError) {
       error.value = authError.message
     }
-  } catch (err: any) {
-    error.value = err.message || 'Error durante la confirmación'
+  } catch (err: unknown) {
+    error.value = err instanceof Error ? err.message : 'Error durante la confirmación'
   } finally {
     loading.value = false
   }

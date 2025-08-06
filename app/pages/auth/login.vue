@@ -69,8 +69,8 @@
               variant="link"
               color="primary"
               size="sm"
-              @click="showResetPassword = true"
               :disabled="loading"
+              @click="showResetPassword = true"
             >
               ¿Olvidaste tu contraseña?
             </UiBaseButton>
@@ -149,8 +149,8 @@
             <UiBaseButton
               variant="outline"
               block
-              @click="cancelReset"
               :disabled="resetLoading"
+              @click="cancelReset"
             >
               Cancelar
             </UiBaseButton>
@@ -237,8 +237,9 @@ const validateForm = () => {
   try {
     loginSchema.parse(formState)
     return true
-  } catch (err: any) {
-    err.errors?.forEach((error: any) => {
+  } catch (err: unknown) {
+    const zodError = err as { errors?: Array<{ path: string[]; message: string }> }
+    zodError.errors?.forEach((error) => {
       if (error.path[0] === 'email') {
         emailError.value = error.message
       } else if (error.path[0] === 'password') {
@@ -255,8 +256,9 @@ const validateResetForm = () => {
   try {
     resetSchema.parse(resetState)
     return true
-  } catch (err: any) {
-    err.errors?.forEach((error: any) => {
+  } catch (err: unknown) {
+    const zodError = err as { errors?: Array<{ path: string[]; message: string }> }
+    zodError.errors?.forEach((error) => {
       if (error.path[0] === 'email') {
         resetEmailError.value = error.message
       }
@@ -282,9 +284,9 @@ const handleLogin = async () => {
     await new Promise(resolve => setTimeout(resolve, 500))
     await navigateTo('/')
     
-  } catch (err: any) {
-    console.error('Login error:', err)
-    error.value = err.message || 'Error al iniciar sesión. Verifica tus credenciales.'
+  } catch (err: unknown) {
+    // Handle login error silently or use proper error reporting
+    error.value = (err as { message?: string }).message || 'Error al iniciar sesión. Verifica tus credenciales.'
     
     // Auto-clear error after 5 seconds
     setTimeout(() => {
@@ -309,8 +311,8 @@ const handleResetPassword = async () => {
     showResetPassword.value = false
     resetState.email = ''
     
-  } catch (err: any) {
-    toast.error('Error', err.message || 'Error al enviar el enlace')
+  } catch (err: unknown) {
+    toast.error('Error', (err as { message?: string }).message || 'Error al enviar el enlace')
   } finally {
     resetLoading.value = false
   }

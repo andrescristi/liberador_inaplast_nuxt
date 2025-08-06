@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Order, OrderFilters, CreateOrderForm, PaginatedResponse, OrderStatus } from '~/types'
+import type { Order, OrderFilters, CreateOrderForm, OrderStatus } from '~/types'
 import { supabaseAPI } from '~/utils/supabase'
 
 interface OrdersState {

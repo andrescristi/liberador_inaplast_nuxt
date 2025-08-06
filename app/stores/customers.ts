@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Customer, CustomerFilters, CreateCustomerForm, PaginatedResponse } from '~/types'
+import type { Customer, CustomerFilters, CreateCustomerForm } from '~/types'
 import { supabaseAPI } from '~/utils/supabase'
 
 interface CustomersState {

@@ -6,9 +6,7 @@ export const useAuth = () => {
   const user = useSupabaseUser()
 
   const signIn = async (email: string, password: string) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('useAuth signIn called with:', { email, passwordLength: password?.length })
-    }
+    // Log auth attempt in development mode
     
     // Validate parameters
     if (!email || !password) {
@@ -20,15 +18,10 @@ export const useAuth = () => {
       password
     })
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Supabase auth response:', { 
-        data: data ? { user: { id: data.user?.id, email: data.user?.email } } : null, 
-        error: error?.message 
-      })
-    }
+    // Log auth response in development mode
 
     if (error) {
-      console.error('Supabase auth error:', error)
+      // Handle authentication error
       // Provide more user-friendly error messages
       let errorMessage = error.message
       if (error.message.includes('Invalid login credentials')) {
@@ -45,28 +38,22 @@ export const useAuth = () => {
   }
 
   const signOut = async () => {
-    try {
-      console.log('Signing out user...')
-      
-      const { error } = await supabase.auth.signOut()
-      
-      if (error) {
-        console.error('Sign out error:', error)
-        throw new Error(error.message)
-      }
-
-      console.log('Sign out successful, redirecting to login...')
-      
-      // Clear any client-side state
-      await nextTick()
-      
-      // Navigate to login page
-      await navigateTo('/auth/login')
-      
-    } catch (error) {
-      console.error('Unexpected sign out error:', error)
-      throw error
+    // Sign out user
+    
+    const { error } = await supabase.auth.signOut()
+    
+    if (error) {
+      // Handle sign out error
+      throw new Error(error.message)
     }
+
+    // Sign out successful, redirect to login
+    
+    // Clear any client-side state
+    await nextTick()
+    
+    // Navigate to login page
+    await navigateTo('/auth/login')
   }
 
   const resetPassword = async (email: string) => {
@@ -80,26 +67,21 @@ export const useAuth = () => {
   }
 
   const updatePassword = async (newPassword: string) => {
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
-      })
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    })
 
-      if (error) {
-        // Provide more user-friendly error messages
-        let errorMessage = error.message
-        if (error.message.includes('weak')) {
-          errorMessage = 'La contraseña no cumple con los requisitos de seguridad.'
-        } else if (error.message.includes('same')) {
-          errorMessage = 'La nueva contraseña debe ser diferente a la actual.'
-        } else if (error.message.includes('invalid')) {
-          errorMessage = 'La contraseña actual es incorrecta.'
-        }
-        throw new Error(errorMessage)
+    if (error) {
+      // Provide more user-friendly error messages
+      let errorMessage = error.message
+      if (error.message.includes('weak')) {
+        errorMessage = 'La contraseña no cumple con los requisitos de seguridad.'
+      } else if (error.message.includes('same')) {
+        errorMessage = 'La nueva contraseña debe ser diferente a la actual.'
+      } else if (error.message.includes('invalid')) {
+        errorMessage = 'La contraseña actual es incorrecta.'
       }
-    } catch (error) {
-      console.error('Password update error:', error)
-      throw error
+      throw new Error(errorMessage)
     }
   }
 
@@ -125,7 +107,7 @@ export const useAuth = () => {
         .single()
 
       if (error) {
-        console.error('Error fetching user profile:', error)
+        // Handle user profile fetch error
         return null
       }
 
@@ -146,8 +128,8 @@ export const useAuth = () => {
       }
 
       return null
-    } catch (error) {
-      console.error('Error in getCurrentUserProfile:', error)
+    } catch {
+      // Handle getCurrentUserProfile error
       return null
     }
   }

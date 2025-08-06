@@ -20,12 +20,14 @@ export const useDashboardStore = defineStore('dashboard', {
   getters: {
     totalOrders(): number {
       if (!this.metrics) return 0
-      return (this.metrics as any).total_orders || (this.metrics.pending_orders + this.metrics.completed_orders + this.metrics.cancelled_orders)
+      const metrics = this.metrics as DashboardMetrics & { total_orders?: number }
+      return metrics.total_orders || (this.metrics.pending_orders + this.metrics.completed_orders + this.metrics.cancelled_orders)
     },
 
     completionRate(): number {
       if (!this.metrics) return 0
-      return (this.metrics as any).completion_rate || Math.round((this.metrics.completed_orders / this.totalOrders) * 100)
+      const metrics = this.metrics as DashboardMetrics & { completion_rate?: number }
+      return metrics.completion_rate || Math.round((this.metrics.completed_orders / this.totalOrders) * 100)
     }
   },
 

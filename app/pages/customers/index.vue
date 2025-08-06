@@ -6,7 +6,10 @@
         <h1 class="text-3xl font-semibold text-glass">Customers</h1>
         <p class="text-glass-secondary mt-2">Manage your customer database and relationships</p>
       </div>
-      <DaisyButton @click="navigateTo('/customers/new')" icon="lucide:user-plus" class="mt-4 sm:mt-0">
+      <DaisyButton
+icon="lucide:user-plus"
+class="mt-4 sm:mt-0"
+@click="navigateTo('/customers/new')">
         Add Customer
       </DaisyButton>
     </div>
@@ -21,7 +24,7 @@
           clearable
           @input="debouncedSearch"
         />
-        <div></div> <!-- Spacer for future filters -->
+        <div/> <!-- Spacer for future filters -->
         <div class="text-sm text-glass-secondary flex items-center">
           Showing {{ customersStore.customers.length }} of {{ customersStore.pagination.total }} customers
         </div>
@@ -32,13 +35,16 @@
     <div v-if="customersStore.loading">
       <DaisyCard padding="lg">
         <div class="space-y-6">
-          <div v-for="n in 5" :key="n" class="flex items-center space-x-4">
-            <div class="skeleton-glass h-12 w-12 rounded-full"></div>
+          <div
+v-for="n in 5"
+:key="n"
+class="flex items-center space-x-4">
+            <div class="skeleton-glass h-12 w-12 rounded-full"/>
             <div class="flex-1 space-y-2">
-              <div class="skeleton-glass h-4 w-full rounded"></div>
-              <div class="skeleton-glass h-3 w-3/4 rounded"></div>
+              <div class="skeleton-glass h-4 w-full rounded"/>
+              <div class="skeleton-glass h-3 w-3/4 rounded"/>
             </div>
-            <div class="skeleton-glass h-8 w-16 rounded"></div>
+            <div class="skeleton-glass h-8 w-16 rounded"/>
           </div>
         </div>
       </DaisyCard>

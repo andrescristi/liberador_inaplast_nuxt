@@ -9,59 +9,49 @@ export const useProfile = () => {
   const getCurrentProfile = async (): Promise<Profile | null> => {
     if (!user.value) return null
 
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select(`
-          id,
-          user_id,
-          first_name,
-          last_name,
-          user_role,
-          created_at,
-          updated_at
-        `)
-        .eq('user_id', user.value.id)
-        .single()
+    const { data, error } = await supabase
+      .from('profiles')
+      .select(`
+        id,
+        user_id,
+        first_name,
+        last_name,
+        user_role,
+        created_at,
+        updated_at
+      `)
+      .eq('user_id', user.value.id)
+      .single()
 
-      if (error) {
-        console.error('Error fetching user profile:', error)
-        throw new Error('Failed to fetch user profile')
-      }
-
-      // Add computed fields
-      if (data) {
-        const profile: Profile = {
-          ...data,
-          full_name: `${data.first_name} ${data.last_name}`,
-          email: user.value.email || ''
-        }
-        return profile
-      }
-
-      return null
-    } catch (error) {
-      console.error('Error in getCurrentProfile:', error)
-      throw error
+    if (error) {
+      // Handle user profile fetch error
+      throw new Error('Failed to fetch user profile')
     }
+
+    // Add computed fields
+    if (data) {
+      const profile: Profile = {
+        ...data,
+        full_name: `${data.first_name} ${data.last_name}`,
+        email: user.value.email || ''
+      }
+      return profile
+    }
+
+    return null
   }
 
   // Get profile by user ID
   const getProfileByUserId = async (userId: string): Promise<Profile | null> => {
-    try {
-      const { data, error } = await supabase
-        .rpc('get_user_profile', { user_id_param: userId })
+    const { data, error } = await supabase
+      .rpc('get_user_profile', { user_id_param: userId })
 
-      if (error) {
-        console.error('Error fetching profile:', error)
-        throw new Error('Failed to fetch profile')
-      }
-
-      return data || null
-    } catch (error) {
-      console.error('Error in getProfileByUserId:', error)
-      throw error
+    if (error) {
+      // Handle profile fetch error
+      throw new Error('Failed to fetch profile')
     }
+
+    return data || null
   }
 
   // Update current user's profile
@@ -70,67 +60,52 @@ export const useProfile = () => {
       throw new Error('User not authenticated')
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(profileData)
-        .eq('user_id', user.value.id)
-        .select()
-        .single()
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(profileData)
+      .eq('user_id', user.value.id)
+      .select()
+      .single()
 
-      if (error) {
-        console.error('Error updating profile:', error)
-        throw new Error('Failed to update profile')
-      }
-
-      return data
-    } catch (error) {
-      console.error('Error in updateProfile:', error)
-      throw error
+    if (error) {
+      // Handle profile update error
+      throw new Error('Failed to update profile')
     }
+
+    return data
   }
 
   // Check if current user has specific role
   const hasRole = async (role: ProfileRole): Promise<boolean> => {
     if (!user.value) return false
 
-    try {
-      const { data, error } = await supabase
-        .rpc('user_has_role', { 
-          required_role: role, 
-          user_id_param: user.value.id 
-        })
+    const { data, error } = await supabase
+      .rpc('user_has_role', { 
+        required_role: role, 
+        user_id_param: user.value.id 
+      })
 
-      if (error) {
-        console.error('Error checking user role:', error)
-        return false
-      }
-
-      return data || false
-    } catch (error) {
-      console.error('Error in hasRole:', error)
+    if (error) {
+      // Handle user role check error
       return false
     }
+
+    return data || false
   }
 
   // Check if current user is admin
   const isAdmin = async (): Promise<boolean> => {
     if (!user.value) return false
 
-    try {
-      const { data, error } = await supabase
-        .rpc('is_admin', { user_id_param: user.value.id })
+    const { data, error } = await supabase
+      .rpc('is_admin', { user_id_param: user.value.id })
 
-      if (error) {
-        console.error('Error checking admin status:', error)
-        return false
-      }
-
-      return data || false
-    } catch (error) {
-      console.error('Error in isAdmin:', error)
+    if (error) {
+      // Handle admin status check error
       return false
     }
+
+    return data || false
   }
 
   // Get all profiles (admin only)
@@ -139,107 +114,87 @@ export const useProfile = () => {
     perPage = 20,
     filters: ProfileFilters = {}
   ): Promise<PaginatedResponse<Profile>> => {
-    try {
-      const { data, error } = await supabase
-        .rpc('get_all_profiles', {
-          search_term: filters.search || null,
-          role_filter: filters.role_filter || null,
-          page_num: page,
-          page_size: perPage
-        })
+    const { data, error } = await supabase
+      .rpc('get_all_profiles', {
+        search_term: filters.search || null,
+        role_filter: filters.role_filter || null,
+        page_num: page,
+        page_size: perPage
+      })
 
-      if (error) {
-        console.error('Error fetching all profiles:', error)
-        throw new Error('Failed to fetch profiles')
-      }
+    if (error) {
+      // Handle all profiles fetch error
+      throw new Error('Failed to fetch profiles')
+    }
 
-      const profiles = data || []
-      const totalCount = profiles[0]?.total_count || 0
+    const profiles = data || []
+    const totalCount = profiles[0]?.total_count || 0
 
-      return {
-        data: profiles.map((row: any) => ({
-          id: row.id,
-          user_id: row.user_id,
-          first_name: row.first_name,
-          last_name: row.last_name,
-          full_name: row.full_name,
-          user_role: row.user_role,
-          email: row.email,
-          created_at: row.created_at,
-          updated_at: row.updated_at
-        })),
-        total: totalCount,
-        page,
-        per_page: perPage,
-        total_pages: Math.ceil(totalCount / perPage)
-      }
-    } catch (error) {
-      console.error('Error in getAllProfiles:', error)
-      throw error
+    return {
+      data: profiles.map((row: Record<string, unknown>) => ({
+        id: row.id,
+        user_id: row.user_id,
+        first_name: row.first_name,
+        last_name: row.last_name,
+        full_name: row.full_name,
+        user_role: row.user_role,
+        email: row.email,
+        created_at: row.created_at,
+        updated_at: row.updated_at
+      })),
+      total: totalCount,
+      page,
+      per_page: perPage,
+      total_pages: Math.ceil(totalCount / perPage)
     }
   }
 
   // Create new profile (admin only)
   const createProfile = async (userId: string, profileData: CreateProfileForm): Promise<Profile> => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .insert({
-          user_id: userId,
-          ...profileData
-        })
-        .select()
-        .single()
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert({
+        user_id: userId,
+        ...profileData
+      })
+      .select()
+      .single()
 
-      if (error) {
-        console.error('Error creating profile:', error)
-        throw new Error('Failed to create profile')
-      }
-
-      return data
-    } catch (error) {
-      console.error('Error in createProfile:', error)
-      throw error
+    if (error) {
+      // Handle profile creation error
+      throw new Error('Failed to create profile')
     }
+
+    return data
   }
 
   // Update any profile (admin only)
   const updateAnyProfile = async (profileId: string, profileData: UpdateProfileForm): Promise<Profile> => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(profileData)
-        .eq('id', profileId)
-        .select()
-        .single()
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(profileData)
+      .eq('id', profileId)
+      .select()
+      .single()
 
-      if (error) {
-        console.error('Error updating profile:', error)
-        throw new Error('Failed to update profile')
-      }
-
-      return data
-    } catch (error) {
-      console.error('Error in updateAnyProfile:', error)
-      throw error
+    if (error) {
+      // Handle profile update error
+      throw new Error('Failed to update profile')
     }
+
+    return data
   }
 
   // Delete profile (admin only, cannot delete own profile)
   const deleteProfile = async (profileId: string): Promise<void> => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', profileId)
+    const { error } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', profileId)
 
-      if (error) {
-        console.error('Error deleting profile:', error)
-        throw new Error('Failed to delete profile')
-      }
-    } catch (error) {
-      console.error('Error in deleteProfile:', error)
-      throw error
+    if (error) {
+      // Handle profile deletion error
+      throw new Error('Failed to delete profile')
     }
   }
 
@@ -260,19 +215,14 @@ export const useProfile = () => {
 
   // Get available roles for current user to assign
   const getAssignableRoles = async (): Promise<ProfileRole[]> => {
-    try {
-      const profile = await getCurrentProfile()
-      if (!profile) return []
+    const profile = await getCurrentProfile()
+    if (!profile) return []
 
-      const currentLevel = getRoleLevel(profile.user_role)
-      const allRoles: ProfileRole[] = ['Inspector', 'Supervisor', 'Admin']
-      
-      // Users can only assign roles lower than their own
-      return allRoles.filter(role => getRoleLevel(role) < currentLevel)
-    } catch (error) {
-      console.error('Error getting assignable roles:', error)
-      return []
-    }
+    const currentLevel = getRoleLevel(profile.user_role)
+    const allRoles: ProfileRole[] = ['Inspector', 'Supervisor', 'Admin']
+    
+    // Users can only assign roles lower than their own
+    return allRoles.filter(role => getRoleLevel(role) < currentLevel)
   }
 
   return {

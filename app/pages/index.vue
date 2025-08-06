@@ -1,10 +1,6 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Navigation -->
-    <AppNavigation />
-
-    <!-- Page Content -->
-    <div class="@container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div>
+    <div class="@container">
       <!-- Page Header -->
       <div class="mb-6 sm:mb-8">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
@@ -205,21 +201,20 @@ import {
   CurrencyDollarIcon,
   UsersIcon,
   PlusIcon,
-  UserPlusIcon,
-  CubeIcon,
+  // UserPlusIcon,
+  // CubeIcon,
   ArrowRightIcon,
   ArrowPathIcon,
   InboxIcon
 } from '@heroicons/vue/24/outline'
-import AppNavigation from '~/components/core/AppNavigation.vue'
 
 // Composables
-const supabase = useSupabaseClient()
+const _supabase = useSupabaseClient()
 const toast = useToast()
 
 // Reactive data
 const loading = ref(true)
-const userName = ref('Usuario') // This should come from auth
+const _userName = ref('Usuario') // This should come from auth
 const currentDayDate = ref('')
 const metrics = ref({
   pending: 25,
@@ -228,7 +223,7 @@ const metrics = ref({
   customers: 45
 })
 
-const activityChart = ref([
+const _activityChart = ref([
   { date: '22/07/25', total: 45, accepted: 40, rejected: 5, acceptedPercentage: 89, rejectedPercentage: 11 },
   { date: '21/07/25', total: 42, accepted: 38, rejected: 4, acceptedPercentage: 90, rejectedPercentage: 10 },
   { date: '20/07/25', total: 43, accepted: 42, rejected: 1, acceptedPercentage: 98, rejectedPercentage: 2 }
@@ -241,7 +236,7 @@ const tableColumns = ref([
   { key: 'amount', label: 'Amount' },
   { key: 'date', label: 'Date' }
 ])
-const recentInspections = ref([
+const _recentInspections = ref([
   {
     id: 1,
     product_name: 'Envases 25 Lts',
@@ -308,7 +303,7 @@ async function loadDashboardData() {
 }
 
 // Helper functions
-function getInspectionStatusColor(status: string): 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink' {
+function _getInspectionStatusColor(status: string): 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink' {
   const colors: Record<string, 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink'> = {
     approved: 'green',
     rejected: 'red',
@@ -317,7 +312,7 @@ function getInspectionStatusColor(status: string): 'gray' | 'red' | 'yellow' | '
   return colors[status] || 'gray'
 }
 
-function getInspectionStatusText(status: string): string {
+function _getInspectionStatusText(status: string): string {
   const texts: Record<string, string> = {
     approved: 'Aprobado',
     rejected: 'Rechazado',
@@ -341,11 +336,13 @@ function formatDate(dateString: string) {
   return date.toLocaleDateString('es-ES')
 }
 
-function onOrderClick(order: any) {
-  navigateTo(`/orders/${order.id}`)
+function onOrderClick(row: Record<string, unknown>) {
+  if (row.id && typeof row.id === 'string') {
+    navigateTo(`/orders/${row.id}`)
+  }
 }
 
-function formatInspectionDate(dateString: string) {
+function _formatInspectionDate(dateString: string) {
   const date = new Date(dateString)
   const now = new Date()
   const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))

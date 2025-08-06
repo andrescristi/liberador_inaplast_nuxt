@@ -1,8 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <AppNavigation />
-    
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div>
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">Profile</h1>
         <p class="mt-2 text-gray-600">Manage your account settings and preferences</p>
@@ -19,12 +16,10 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
 import { UserCircleIcon } from '@heroicons/vue/24/outline'
-import AppNavigation from '~/components/core/AppNavigation.vue'
 
 const user = useSupabaseUser()
 

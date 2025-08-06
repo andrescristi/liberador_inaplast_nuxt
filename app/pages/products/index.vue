@@ -27,7 +27,7 @@
           placeholder="Stock level"
           @change="applyFilters"
         />
-        <div></div> <!-- Spacer -->
+        <div/> <!-- Spacer -->
         <div class="text-sm text-slate-600 flex items-center">
           Showing {{ productsStore.products.length }} of {{ productsStore.pagination.total }} products
         </div>
@@ -38,14 +38,17 @@
     <div v-if="productsStore.loading">
       <Card>
         <div class="space-y-4">
-          <div v-for="n in 5" :key="n" class="flex items-center space-x-4 p-4">
-            <div class="skeleton h-16 w-16 rounded-lg"></div>
+          <div
+v-for="n in 5"
+:key="n"
+class="flex items-center space-x-4 p-4">
+            <div class="skeleton h-16 w-16 rounded-lg"/>
             <div class="flex-1 space-y-2">
-              <div class="skeleton h-4 w-full"></div>
-              <div class="skeleton h-3 w-3/4"></div>
-              <div class="skeleton h-3 w-1/4"></div>
+              <div class="skeleton h-4 w-full"/>
+              <div class="skeleton h-3 w-3/4"/>
+              <div class="skeleton h-3 w-1/4"/>
             </div>
-            <div class="skeleton h-8 w-16"></div>
+            <div class="skeleton h-8 w-16"/>
           </div>
         </div>
       </Card>
@@ -137,7 +140,7 @@
       </Card>
 
       <!-- Products Grid (Mobile) -->
-      <div v-else class="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div v-if="productsStore.products.length > 0" class="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card
           v-for="product in productsStore.products"
           :key="product.id"

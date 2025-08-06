@@ -2,21 +2,21 @@
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Loading State -->
     <div v-if="ordersStore.loading" class="space-y-6">
-      <div class="skeleton h-8 w-64"></div>
+      <div class="skeleton h-8 w-64"/>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="card p-6">
-          <div class="skeleton h-6 w-32 mb-4"></div>
+          <div class="skeleton h-6 w-32 mb-4"/>
           <div class="space-y-2">
-            <div class="skeleton h-4 w-full"></div>
-            <div class="skeleton h-4 w-3/4"></div>
-            <div class="skeleton h-4 w-1/2"></div>
+            <div class="skeleton h-4 w-full"/>
+            <div class="skeleton h-4 w-3/4"/>
+            <div class="skeleton h-4 w-1/2"/>
           </div>
         </div>
         <div class="card p-6">
-          <div class="skeleton h-6 w-32 mb-4"></div>
+          <div class="skeleton h-6 w-32 mb-4"/>
           <div class="space-y-2">
-            <div class="skeleton h-4 w-full"></div>
-            <div class="skeleton h-4 w-3/4"></div>
+            <div class="skeleton h-4 w-full"/>
+            <div class="skeleton h-4 w-3/4"/>
           </div>
         </div>
       </div>
@@ -27,7 +27,10 @@
       <!-- Header -->
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" @click="navigateTo('/orders')">
+          <Button
+variant="ghost"
+size="sm"
+@click="navigateTo('/orders')">
             <Icon name="lucide:arrow-left" class="w-4 h-4 mr-2" />
             Back to Orders
           </Button>
@@ -241,7 +244,10 @@
       </Card>
 
       <!-- Danger Zone -->
-      <Card title="Danger Zone" variant="outlined" class="border-red-200">
+      <Card
+title="Danger Zone"
+variant="outlined"
+class="border-red-200">
         <div class="space-y-4">
           <p class="text-sm text-slate-600">
             These actions cannot be undone. Please be careful.
@@ -273,7 +279,7 @@
 
 <script setup lang="ts">
 import { useOrdersStore } from '~/stores/orders'
-import type { Order, OrderStatus, OrderItem, StatusTimelineItem } from '~/types'
+import type { OrderStatus, OrderItem, StatusTimelineItem } from '~/types'
 
 const route = useRoute()
 const ordersStore = useOrdersStore()

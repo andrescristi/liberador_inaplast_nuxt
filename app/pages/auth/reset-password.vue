@@ -95,8 +95,8 @@ const handleUpdatePassword = async () => {
   try {
     await updatePassword(form.password)
     await navigateTo('/')
-  } catch (err: any) {
-    error.value = err.message || 'Error al actualizar la contraseña'
+  } catch (err: unknown) {
+    error.value = err instanceof Error ? err.message : 'Error al actualizar la contraseña'
   } finally {
     loading.value = false
   }

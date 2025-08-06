@@ -6,7 +6,10 @@
         <h1 class="text-3xl font-semibold text-glass">Orders</h1>
         <p class="text-glass-secondary mt-2">Manage and track all your customer orders</p>
       </div>
-      <DaisyButton @click="navigateTo('/orders/new')" icon="lucide:plus" class="mt-4 sm:mt-0">
+      <DaisyButton
+icon="lucide:plus"
+class="mt-4 sm:mt-0"
+@click="navigateTo('/orders/new')">
         New Order
       </DaisyButton>
     </div>
@@ -67,12 +70,15 @@
     <div v-if="ordersStore.loading">
       <DaisyCard padding="lg">
         <div class="space-y-6">
-          <div v-for="n in 5" :key="n" class="flex items-center space-x-4">
-            <div class="skeleton-glass h-4 w-20 rounded"></div>
-            <div class="skeleton-glass h-4 flex-1 rounded"></div>
-            <div class="skeleton-glass h-6 w-20 rounded-full"></div>
-            <div class="skeleton-glass h-4 w-16 rounded"></div>
-            <div class="skeleton-glass h-4 w-24 rounded"></div>
+          <div
+v-for="n in 5"
+:key="n"
+class="flex items-center space-x-4">
+            <div class="skeleton-glass h-4 w-20 rounded"/>
+            <div class="skeleton-glass h-4 flex-1 rounded"/>
+            <div class="skeleton-glass h-6 w-20 rounded-full"/>
+            <div class="skeleton-glass h-4 w-16 rounded"/>
+            <div class="skeleton-glass h-4 w-24 rounded"/>
           </div>
         </div>
       </DaisyCard>
@@ -93,7 +99,11 @@
       </div>
 
       <!-- Orders Table (Desktop) -->
-      <DaisyCard v-else padding="none" class="hidden md:block">
+      <DaisyCard
+        v-else
+        padding="none"
+        class="hidden md:block"
+      >
         <div class="data-table overflow-x-auto">
           <table class="min-w-full">
             <thead>
@@ -180,7 +190,7 @@
       </DaisyCard>
 
       <!-- Orders Cards (Mobile) -->
-      <div v-else class="md:hidden space-y-4">
+      <div v-if="ordersStore.orders.length > 0" class="md:hidden space-y-4">
         <DaisyCard
           v-for="order in ordersStore.orders"
           :key="order.id"
@@ -287,15 +297,6 @@ const filters = reactive<OrderFilters>({
   date_from: '',
   date_to: ''
 })
-
-// Options for dropdowns
-const statusOptions = [
-  { value: '', label: 'All Statuses' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'processing', label: 'Processing' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'cancelled', label: 'Cancelled' }
-]
 
 // Computed
 const hasActiveFilters = computed(() => {
