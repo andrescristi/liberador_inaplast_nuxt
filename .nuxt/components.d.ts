@@ -12,25 +12,22 @@ type HydrationStrategies = {
 }
 type LazyComponent<T> = (T & DefineComponent<HydrationStrategies, {}, {}, {}, {}, {}, {}, { hydrated: () => void }>)
 interface _GlobalComponents {
-      'AppNavigation': typeof import("../app/components/AppNavigation.vue")['default']
-    'ConfettiCelebration': typeof import("../app/components/ConfettiCelebration.vue")['default']
-    'DelightfulToast': typeof import("../app/components/DelightfulToast.vue")['default']
-    'DelightfulTooltip': typeof import("../app/components/DelightfulTooltip.vue")['default']
-    'MagicalLoader': typeof import("../app/components/MagicalLoader.vue")['default']
-    'MagicalParticles': typeof import("../app/components/MagicalParticles.vue")['default']
-    'MetricCard': typeof import("../app/components/MetricCard.vue")['default']
-    'QuickActionCard': typeof import("../app/components/QuickActionCard.vue")['default']
-    'SuccessCelebration': typeof import("../app/components/SuccessCelebration.vue")['default']
+      'CoreAppNavigation': typeof import("../app/components/core/AppNavigation.vue")['default']
+    'FeedbackConfettiCelebration': typeof import("../app/components/feedback/ConfettiCelebration.vue")['default']
+    'FeedbackSuccessCelebration': typeof import("../app/components/feedback/SuccessCelebration.vue")['default']
     'FormsCustomerForm': typeof import("../app/components/forms/CustomerForm.vue")['default']
     'FormsOrderForm': typeof import("../app/components/forms/OrderForm.vue")['default']
     'FormsProductForm': typeof import("../app/components/forms/ProductForm.vue")['default']
-    'UiBadge': typeof import("../app/components/ui/Badge.vue")['default']
-    'UiButton': typeof import("../app/components/ui/Button.vue")['default']
-    'UiCard': typeof import("../app/components/ui/Card.vue")['default']
-    'UiInput': typeof import("../app/components/ui/Input.vue")['default']
-    'UiModal': typeof import("../app/components/ui/Modal.vue")['default']
-    'UiPagination': typeof import("../app/components/ui/Pagination.vue")['default']
-    'UiSelect': typeof import("../app/components/ui/Select.vue")['default']
+    'UiBaseAlert': typeof import("../app/components/ui/BaseAlert.vue")['default']
+    'UiBaseBadge': typeof import("../app/components/ui/BaseBadge.vue")['default']
+    'UiBaseButton': typeof import("../app/components/ui/BaseButton.vue")['default']
+    'UiBaseCard': typeof import("../app/components/ui/BaseCard.vue")['default']
+    'UiBaseDropdown': typeof import("../app/components/ui/BaseDropdown.vue")['default']
+    'UiBaseInput': typeof import("../app/components/ui/BaseInput.vue")['default']
+    'UiBaseModal': typeof import("../app/components/ui/BaseModal.vue")['default']
+    'UiBaseTable': typeof import("../app/components/ui/BaseTable.vue")['default']
+    'UiToastContainer': typeof import("../app/components/ui/ToastContainer.vue")['default']
+    'UiToastNotification': typeof import("../app/components/ui/ToastNotification.vue")['default']
     'NuxtWelcome': typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
     'NuxtLayout': typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
     'NuxtErrorBoundary': typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']
@@ -43,7 +40,6 @@ interface _GlobalComponents {
     'NuxtRouteAnnouncer': typeof import("../node_modules/nuxt/dist/app/components/nuxt-route-announcer")['default']
     'NuxtImg': typeof import("../node_modules/nuxt/dist/app/components/nuxt-stubs")['NuxtImg']
     'NuxtPicture': typeof import("../node_modules/nuxt/dist/app/components/nuxt-stubs")['NuxtPicture']
-    'Icon': typeof import("../node_modules/@nuxt/icon/dist/runtime/components/index")['default']
     'ErrorMessage': typeof import("vee-validate")['ErrorMessage']
     'Field': typeof import("vee-validate")['Field']
     'FieldArray': typeof import("vee-validate")['FieldArray']
@@ -60,25 +56,22 @@ interface _GlobalComponents {
     'Body': typeof import("../node_modules/nuxt/dist/head/runtime/components")['Body']
     'NuxtIsland': typeof import("../node_modules/nuxt/dist/app/components/nuxt-island")['default']
     'NuxtRouteAnnouncer': typeof import("../node_modules/nuxt/dist/app/components/server-placeholder")['default']
-      'LazyAppNavigation': LazyComponent<typeof import("../app/components/AppNavigation.vue")['default']>
-    'LazyConfettiCelebration': LazyComponent<typeof import("../app/components/ConfettiCelebration.vue")['default']>
-    'LazyDelightfulToast': LazyComponent<typeof import("../app/components/DelightfulToast.vue")['default']>
-    'LazyDelightfulTooltip': LazyComponent<typeof import("../app/components/DelightfulTooltip.vue")['default']>
-    'LazyMagicalLoader': LazyComponent<typeof import("../app/components/MagicalLoader.vue")['default']>
-    'LazyMagicalParticles': LazyComponent<typeof import("../app/components/MagicalParticles.vue")['default']>
-    'LazyMetricCard': LazyComponent<typeof import("../app/components/MetricCard.vue")['default']>
-    'LazyQuickActionCard': LazyComponent<typeof import("../app/components/QuickActionCard.vue")['default']>
-    'LazySuccessCelebration': LazyComponent<typeof import("../app/components/SuccessCelebration.vue")['default']>
+      'LazyCoreAppNavigation': LazyComponent<typeof import("../app/components/core/AppNavigation.vue")['default']>
+    'LazyFeedbackConfettiCelebration': LazyComponent<typeof import("../app/components/feedback/ConfettiCelebration.vue")['default']>
+    'LazyFeedbackSuccessCelebration': LazyComponent<typeof import("../app/components/feedback/SuccessCelebration.vue")['default']>
     'LazyFormsCustomerForm': LazyComponent<typeof import("../app/components/forms/CustomerForm.vue")['default']>
     'LazyFormsOrderForm': LazyComponent<typeof import("../app/components/forms/OrderForm.vue")['default']>
     'LazyFormsProductForm': LazyComponent<typeof import("../app/components/forms/ProductForm.vue")['default']>
-    'LazyUiBadge': LazyComponent<typeof import("../app/components/ui/Badge.vue")['default']>
-    'LazyUiButton': LazyComponent<typeof import("../app/components/ui/Button.vue")['default']>
-    'LazyUiCard': LazyComponent<typeof import("../app/components/ui/Card.vue")['default']>
-    'LazyUiInput': LazyComponent<typeof import("../app/components/ui/Input.vue")['default']>
-    'LazyUiModal': LazyComponent<typeof import("../app/components/ui/Modal.vue")['default']>
-    'LazyUiPagination': LazyComponent<typeof import("../app/components/ui/Pagination.vue")['default']>
-    'LazyUiSelect': LazyComponent<typeof import("../app/components/ui/Select.vue")['default']>
+    'LazyUiBaseAlert': LazyComponent<typeof import("../app/components/ui/BaseAlert.vue")['default']>
+    'LazyUiBaseBadge': LazyComponent<typeof import("../app/components/ui/BaseBadge.vue")['default']>
+    'LazyUiBaseButton': LazyComponent<typeof import("../app/components/ui/BaseButton.vue")['default']>
+    'LazyUiBaseCard': LazyComponent<typeof import("../app/components/ui/BaseCard.vue")['default']>
+    'LazyUiBaseDropdown': LazyComponent<typeof import("../app/components/ui/BaseDropdown.vue")['default']>
+    'LazyUiBaseInput': LazyComponent<typeof import("../app/components/ui/BaseInput.vue")['default']>
+    'LazyUiBaseModal': LazyComponent<typeof import("../app/components/ui/BaseModal.vue")['default']>
+    'LazyUiBaseTable': LazyComponent<typeof import("../app/components/ui/BaseTable.vue")['default']>
+    'LazyUiToastContainer': LazyComponent<typeof import("../app/components/ui/ToastContainer.vue")['default']>
+    'LazyUiToastNotification': LazyComponent<typeof import("../app/components/ui/ToastNotification.vue")['default']>
     'LazyNuxtWelcome': LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']>
     'LazyNuxtLayout': LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']>
     'LazyNuxtErrorBoundary': LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']>
@@ -91,7 +84,6 @@ interface _GlobalComponents {
     'LazyNuxtRouteAnnouncer': LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-route-announcer")['default']>
     'LazyNuxtImg': LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-stubs")['NuxtImg']>
     'LazyNuxtPicture': LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-stubs")['NuxtPicture']>
-    'LazyIcon': LazyComponent<typeof import("../node_modules/@nuxt/icon/dist/runtime/components/index")['default']>
     'LazyErrorMessage': LazyComponent<typeof import("vee-validate")['ErrorMessage']>
     'LazyField': LazyComponent<typeof import("vee-validate")['Field']>
     'LazyFieldArray': LazyComponent<typeof import("vee-validate")['FieldArray']>
@@ -114,25 +106,22 @@ declare module 'vue' {
   export interface GlobalComponents extends _GlobalComponents { }
 }
 
-export const AppNavigation: typeof import("../app/components/AppNavigation.vue")['default']
-export const ConfettiCelebration: typeof import("../app/components/ConfettiCelebration.vue")['default']
-export const DelightfulToast: typeof import("../app/components/DelightfulToast.vue")['default']
-export const DelightfulTooltip: typeof import("../app/components/DelightfulTooltip.vue")['default']
-export const MagicalLoader: typeof import("../app/components/MagicalLoader.vue")['default']
-export const MagicalParticles: typeof import("../app/components/MagicalParticles.vue")['default']
-export const MetricCard: typeof import("../app/components/MetricCard.vue")['default']
-export const QuickActionCard: typeof import("../app/components/QuickActionCard.vue")['default']
-export const SuccessCelebration: typeof import("../app/components/SuccessCelebration.vue")['default']
+export const CoreAppNavigation: typeof import("../app/components/core/AppNavigation.vue")['default']
+export const FeedbackConfettiCelebration: typeof import("../app/components/feedback/ConfettiCelebration.vue")['default']
+export const FeedbackSuccessCelebration: typeof import("../app/components/feedback/SuccessCelebration.vue")['default']
 export const FormsCustomerForm: typeof import("../app/components/forms/CustomerForm.vue")['default']
 export const FormsOrderForm: typeof import("../app/components/forms/OrderForm.vue")['default']
 export const FormsProductForm: typeof import("../app/components/forms/ProductForm.vue")['default']
-export const UiBadge: typeof import("../app/components/ui/Badge.vue")['default']
-export const UiButton: typeof import("../app/components/ui/Button.vue")['default']
-export const UiCard: typeof import("../app/components/ui/Card.vue")['default']
-export const UiInput: typeof import("../app/components/ui/Input.vue")['default']
-export const UiModal: typeof import("../app/components/ui/Modal.vue")['default']
-export const UiPagination: typeof import("../app/components/ui/Pagination.vue")['default']
-export const UiSelect: typeof import("../app/components/ui/Select.vue")['default']
+export const UiBaseAlert: typeof import("../app/components/ui/BaseAlert.vue")['default']
+export const UiBaseBadge: typeof import("../app/components/ui/BaseBadge.vue")['default']
+export const UiBaseButton: typeof import("../app/components/ui/BaseButton.vue")['default']
+export const UiBaseCard: typeof import("../app/components/ui/BaseCard.vue")['default']
+export const UiBaseDropdown: typeof import("../app/components/ui/BaseDropdown.vue")['default']
+export const UiBaseInput: typeof import("../app/components/ui/BaseInput.vue")['default']
+export const UiBaseModal: typeof import("../app/components/ui/BaseModal.vue")['default']
+export const UiBaseTable: typeof import("../app/components/ui/BaseTable.vue")['default']
+export const UiToastContainer: typeof import("../app/components/ui/ToastContainer.vue")['default']
+export const UiToastNotification: typeof import("../app/components/ui/ToastNotification.vue")['default']
 export const NuxtWelcome: typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
 export const NuxtLayout: typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
 export const NuxtErrorBoundary: typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']
@@ -145,7 +134,6 @@ export const NuxtTime: typeof import("../node_modules/nuxt/dist/app/components/n
 export const NuxtRouteAnnouncer: typeof import("../node_modules/nuxt/dist/app/components/nuxt-route-announcer")['default']
 export const NuxtImg: typeof import("../node_modules/nuxt/dist/app/components/nuxt-stubs")['NuxtImg']
 export const NuxtPicture: typeof import("../node_modules/nuxt/dist/app/components/nuxt-stubs")['NuxtPicture']
-export const Icon: typeof import("../node_modules/@nuxt/icon/dist/runtime/components/index")['default']
 export const ErrorMessage: typeof import("vee-validate")['ErrorMessage']
 export const Field: typeof import("vee-validate")['Field']
 export const FieldArray: typeof import("vee-validate")['FieldArray']
@@ -162,25 +150,22 @@ export const Html: typeof import("../node_modules/nuxt/dist/head/runtime/compone
 export const Body: typeof import("../node_modules/nuxt/dist/head/runtime/components")['Body']
 export const NuxtIsland: typeof import("../node_modules/nuxt/dist/app/components/nuxt-island")['default']
 export const NuxtRouteAnnouncer: typeof import("../node_modules/nuxt/dist/app/components/server-placeholder")['default']
-export const LazyAppNavigation: LazyComponent<typeof import("../app/components/AppNavigation.vue")['default']>
-export const LazyConfettiCelebration: LazyComponent<typeof import("../app/components/ConfettiCelebration.vue")['default']>
-export const LazyDelightfulToast: LazyComponent<typeof import("../app/components/DelightfulToast.vue")['default']>
-export const LazyDelightfulTooltip: LazyComponent<typeof import("../app/components/DelightfulTooltip.vue")['default']>
-export const LazyMagicalLoader: LazyComponent<typeof import("../app/components/MagicalLoader.vue")['default']>
-export const LazyMagicalParticles: LazyComponent<typeof import("../app/components/MagicalParticles.vue")['default']>
-export const LazyMetricCard: LazyComponent<typeof import("../app/components/MetricCard.vue")['default']>
-export const LazyQuickActionCard: LazyComponent<typeof import("../app/components/QuickActionCard.vue")['default']>
-export const LazySuccessCelebration: LazyComponent<typeof import("../app/components/SuccessCelebration.vue")['default']>
+export const LazyCoreAppNavigation: LazyComponent<typeof import("../app/components/core/AppNavigation.vue")['default']>
+export const LazyFeedbackConfettiCelebration: LazyComponent<typeof import("../app/components/feedback/ConfettiCelebration.vue")['default']>
+export const LazyFeedbackSuccessCelebration: LazyComponent<typeof import("../app/components/feedback/SuccessCelebration.vue")['default']>
 export const LazyFormsCustomerForm: LazyComponent<typeof import("../app/components/forms/CustomerForm.vue")['default']>
 export const LazyFormsOrderForm: LazyComponent<typeof import("../app/components/forms/OrderForm.vue")['default']>
 export const LazyFormsProductForm: LazyComponent<typeof import("../app/components/forms/ProductForm.vue")['default']>
-export const LazyUiBadge: LazyComponent<typeof import("../app/components/ui/Badge.vue")['default']>
-export const LazyUiButton: LazyComponent<typeof import("../app/components/ui/Button.vue")['default']>
-export const LazyUiCard: LazyComponent<typeof import("../app/components/ui/Card.vue")['default']>
-export const LazyUiInput: LazyComponent<typeof import("../app/components/ui/Input.vue")['default']>
-export const LazyUiModal: LazyComponent<typeof import("../app/components/ui/Modal.vue")['default']>
-export const LazyUiPagination: LazyComponent<typeof import("../app/components/ui/Pagination.vue")['default']>
-export const LazyUiSelect: LazyComponent<typeof import("../app/components/ui/Select.vue")['default']>
+export const LazyUiBaseAlert: LazyComponent<typeof import("../app/components/ui/BaseAlert.vue")['default']>
+export const LazyUiBaseBadge: LazyComponent<typeof import("../app/components/ui/BaseBadge.vue")['default']>
+export const LazyUiBaseButton: LazyComponent<typeof import("../app/components/ui/BaseButton.vue")['default']>
+export const LazyUiBaseCard: LazyComponent<typeof import("../app/components/ui/BaseCard.vue")['default']>
+export const LazyUiBaseDropdown: LazyComponent<typeof import("../app/components/ui/BaseDropdown.vue")['default']>
+export const LazyUiBaseInput: LazyComponent<typeof import("../app/components/ui/BaseInput.vue")['default']>
+export const LazyUiBaseModal: LazyComponent<typeof import("../app/components/ui/BaseModal.vue")['default']>
+export const LazyUiBaseTable: LazyComponent<typeof import("../app/components/ui/BaseTable.vue")['default']>
+export const LazyUiToastContainer: LazyComponent<typeof import("../app/components/ui/ToastContainer.vue")['default']>
+export const LazyUiToastNotification: LazyComponent<typeof import("../app/components/ui/ToastNotification.vue")['default']>
 export const LazyNuxtWelcome: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']>
 export const LazyNuxtLayout: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']>
 export const LazyNuxtErrorBoundary: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']>
@@ -193,7 +178,6 @@ export const LazyNuxtTime: LazyComponent<typeof import("../node_modules/nuxt/dis
 export const LazyNuxtRouteAnnouncer: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-route-announcer")['default']>
 export const LazyNuxtImg: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-stubs")['NuxtImg']>
 export const LazyNuxtPicture: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-stubs")['NuxtPicture']>
-export const LazyIcon: LazyComponent<typeof import("../node_modules/@nuxt/icon/dist/runtime/components/index")['default']>
 export const LazyErrorMessage: LazyComponent<typeof import("vee-validate")['ErrorMessage']>
 export const LazyField: LazyComponent<typeof import("vee-validate")['Field']>
 export const LazyFieldArray: LazyComponent<typeof import("vee-validate")['FieldArray']>

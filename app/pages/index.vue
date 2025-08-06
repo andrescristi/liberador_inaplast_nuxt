@@ -4,27 +4,27 @@
     <AppNavigation />
 
     <!-- Page Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="">
       <!-- Page Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p class="mt-2 text-gray-600">
+      <div class="mb-6 sm:mb-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p class="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
           Bienvenido a tu panel de control. Aquí puedes ver un resumen de tu actividad.
         </p>
       </div>
 
-      <!-- Metrics Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Metrics Cards - Mobile-First Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <UiBaseCard class="bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <ClockIcon class="w-6 h-6 text-yellow-600" />
+              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <ClockIcon class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
               </div>
             </div>
-            <div class="ml-4">
-              <dt class="text-sm font-medium text-yellow-800">Pending Orders</dt>
-              <dd class="text-2xl font-bold text-yellow-900">{{ metrics.pending }}</dd>
+            <div class="ml-3 sm:ml-4">
+              <dt class="text-xs sm:text-sm font-medium text-yellow-800">Pending Orders</dt>
+              <dd class="text-xl sm:text-2xl font-bold text-yellow-900">{{ metrics.pending }}</dd>
             </div>
           </div>
         </UiBaseCard>
@@ -32,13 +32,13 @@
         <UiBaseCard class="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <CheckCircleIcon class="w-6 h-6 text-green-600" />
+              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <CheckCircleIcon class="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
               </div>
             </div>
-            <div class="ml-4">
-              <dt class="text-sm font-medium text-green-800">Completed Orders</dt>
-              <dd class="text-2xl font-bold text-green-900">{{ metrics.completed }}</dd>
+            <div class="ml-3 sm:ml-4">
+              <dt class="text-xs sm:text-sm font-medium text-green-800">Completed Orders</dt>
+              <dd class="text-xl sm:text-2xl font-bold text-green-900">{{ metrics.completed }}</dd>
             </div>
           </div>
         </UiBaseCard>
@@ -46,13 +46,13 @@
         <UiBaseCard class="bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <CurrencyDollarIcon class="w-6 h-6 text-indigo-600" />
+              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                <CurrencyDollarIcon class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />
               </div>
             </div>
-            <div class="ml-4">
-              <dt class="text-sm font-medium text-indigo-800">Total Revenue</dt>
-              <dd class="text-2xl font-bold text-indigo-900">${{ metrics.revenue }}</dd>
+            <div class="ml-3 sm:ml-4">
+              <dt class="text-xs sm:text-sm font-medium text-indigo-800">Total Revenue</dt>
+              <dd class="text-xl sm:text-2xl font-bold text-indigo-900">${{ metrics.revenue }}</dd>
             </div>
           </div>
         </UiBaseCard>
@@ -60,75 +60,63 @@
         <UiBaseCard class="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <UsersIcon class="w-6 h-6 text-purple-600" />
+              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <UsersIcon class="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
               </div>
             </div>
-            <div class="ml-4">
-              <dt class="text-sm font-medium text-purple-800">Total Customers</dt>
-              <dd class="text-2xl font-bold text-purple-900">{{ metrics.customers }}</dd>
+            <div class="ml-3 sm:ml-4">
+              <dt class="text-xs sm:text-sm font-medium text-purple-800">Total Customers</dt>
+              <dd class="text-xl sm:text-2xl font-bold text-purple-900">{{ metrics.customers }}</dd>
             </div>
           </div>
         </UiBaseCard>
       </div>
 
-      <!-- Quick Actions -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Quick Actions - Mobile-First Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <UiBaseCard 
-          class="group hover:shadow-md transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-indigo-200"
+          class="group hover:shadow-md transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-indigo-200 active:scale-95"
           hover
           @click="navigateTo('/orders/new')"
         >
-          <div class="text-center">
-            <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-200 transition-colors">
-              <PlusIcon class="w-6 h-6 text-indigo-600" />
+          <div class="text-center py-2">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:bg-indigo-200 transition-colors">
+              <PlusIcon class="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600" />
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">New Order</h3>
-            <p class="text-gray-600">Create a new order for a customer</p>
+            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">Nueva Liberación</h3>
+            <p class="text-sm text-gray-600 leading-tight">Libera nuevos pedidos</p>
           </div>
         </UiBaseCard>
 
         <UiBaseCard 
-          class="group hover:shadow-md transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-green-200"
+          class="group hover:shadow-md transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-indigo-200 active:scale-95"
           hover
-          @click="navigateTo('/customers/new')"
+          @click="navigateTo('/orders/index')"
         >
-          <div class="text-center">
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
-              <UserPlusIcon class="w-6 h-6 text-green-600" />
+          <div class="text-center py-2">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:bg-indigo-200 transition-colors">
+              <PlusIcon class="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600" />
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Add Customer</h3>
-            <p class="text-gray-600">Register a new customer</p>
+            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">Historial de Liberaciones</h3>
+            <p class="text-sm text-gray-600 leading-tight">Libera nuevos pedidos</p>
           </div>
         </UiBaseCard>
 
-        <UiBaseCard 
-          class="group hover:shadow-md transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-purple-200"
-          hover
-          @click="navigateTo('/products/new')"
-        >
-          <div class="text-center">
-            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
-              <CubeIcon class="w-6 h-6 text-purple-600" />
-            </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Add Product</h3>
-            <p class="text-gray-600">Add a new product to inventory</p>
-          </div>
-        </UiBaseCard>
+        
       </div>
 
       <!-- Recent Orders -->
       <UiBaseCard padding="none">
         <template #header>
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">Recent Orders</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Liberaciones Recientes</h3>
             <UiBaseButton 
               :to="'/orders'" 
               variant="ghost" 
               color="gray"
               :trailing-icon="ArrowRightIcon"
             >
-              View all orders
+              Ir a historial
             </UiBaseButton>
           </div>
         </template>
@@ -139,7 +127,7 @@
             <div class="inline-flex items-center justify-center w-8 h-8 mb-4">
               <ArrowPathIcon class="w-6 h-6 text-indigo-600 animate-spin" />
             </div>
-            <p class="text-gray-600">Loading orders...</p>
+            <p class="text-gray-600">Cargando liberaciones...</p>
           </div>
         </div>
 
@@ -148,14 +136,14 @@
           <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
             <InboxIcon class="w-8 h-8 text-gray-400" />
           </div>
-          <h4 class="text-lg font-semibold text-gray-900 mb-2">No orders yet</h4>
-          <p class="text-gray-600 mb-6">Get started by creating your first order</p>
+          <h4 class="text-lg font-semibold text-gray-900 mb-2">Aún no hay liberaciones</h4>
+          <p class="text-gray-600 mb-6">Parte creando tu primera liberación</p>
           <UiBaseButton 
             :to="'/orders/new'" 
             :leading-icon="PlusIcon"
             size="lg"
           >
-            Create Order
+            Crear Liberación
           </UiBaseButton>
         </div>
 
@@ -204,6 +192,9 @@
         </div>
       </UiBaseCard>
     </div>
+    
+    <!-- Confetti Component -->
+    <FeedbackConfettiCelebration ref="confettiRef" />
   </div>
 </template>
 
@@ -390,3 +381,158 @@ useSeoMeta({
   description: 'View your order management dashboard with key metrics and recent activity.'
 })
 </script>
+
+<style scoped>
+/* Metric Cards Animation */
+.metric-card-wrapper {
+  animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: calc(var(--card-index) * 0.1s);
+}
+
+.metric-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.metric-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.metric-card:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+.metric-icon-wrapper {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.metric-card:hover .metric-icon-wrapper {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.metric-icon {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.metric-card:hover .metric-icon {
+  transform: scale(1.1);
+}
+
+.metric-value {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.metric-card:hover .metric-value {
+  transform: scale(1.05);
+}
+
+/* Metric card click celebration */
+.metric-card:active .metric-icon-wrapper {
+  animation: celebrationBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Quick Action Cards Enhancement */
+.quick-action-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.quick-action-card:hover {
+  transform: translateY(-2px);
+}
+
+.quick-action-card:active {
+  transform: translateY(0) scale(0.95);
+}
+
+/* Page Content Animation */
+.page-content {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* Animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes celebrationBounce {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.2) rotate(5deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(-3deg);
+  }
+  75% {
+    transform: scale(1.15) rotate(2deg);
+  }
+  100% {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .metric-card:hover {
+    transform: none;
+  }
+  
+  .metric-card:active {
+    transform: scale(0.95);
+  }
+  
+  .metric-card:hover .metric-icon-wrapper,
+  .metric-card:hover .metric-icon,
+  .metric-card:hover .metric-value {
+    transform: none;
+  }
+}
+
+/* Accessibility: Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .metric-card-wrapper,
+  .page-content {
+    animation: none;
+  }
+  
+  .metric-card,
+  .metric-icon-wrapper,
+  .metric-icon,
+  .metric-value,
+  .quick-action-card {
+    transition: none;
+  }
+  
+  .metric-card:hover,
+  .metric-card:active,
+  .quick-action-card:hover,
+  .quick-action-card:active {
+    transform: none;
+  }
+  
+  .metric-card:active .metric-icon-wrapper {
+    animation: none;
+  }
+}
+</style>

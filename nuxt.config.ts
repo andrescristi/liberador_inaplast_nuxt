@@ -2,7 +2,10 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   srcDir: 'app/',
-  css: ['~/assets/css/main.css'],
+  css: [
+    '~/assets/css/main.css',
+    '~/assets/css/mobile-optimizations.css'
+  ],
   typescript: {
     strict: true
   },

@@ -7,19 +7,61 @@
     :disabled="disabled || loading"
     :class="buttonClasses"
     @click="handleClick"
+    @touchstart="handleTouchStart"
+    @touchend="handleTouchEnd"
+    @mousedown="handleMouseDown"
+    @mouseup="handleMouseUp"
+    @mouseleave="handleMouseLeave"
   >
-    <div v-if="loading" class="animate-spin mr-2">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-        <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-      </svg>
+    <!-- Ripple Effect Container -->
+    <div class="relative overflow-hidden">
+      <!-- Ripple Animation -->
+      <div 
+        v-if="showRipple" 
+        class="ripple-effect"
+        :style="rippleStyle"
+      />
+      
+      <!-- Button Content -->
+      <div class="relative z-10 flex items-center justify-center">
+        <!-- Loading with enhanced animation -->
+        <div v-if="loading" class="mr-2">
+          <div class="loading-dots flex space-x-1">
+            <div class="loading-dot" />
+            <div class="loading-dot" style="animation-delay: 0.1s" />
+            <div class="loading-dot" style="animation-delay: 0.2s" />
+          </div>
+        </div>
+        
+        <!-- Leading Icon with bounce -->
+        <component 
+          v-if="leadingIcon && !loading" 
+          :is="leadingIcon" 
+          :class="[
+            'w-4 h-4 mr-2 transition-transform duration-200',
+            isPressed ? 'scale-90' : 'scale-100'
+          ]" 
+        />
+        
+        <!-- Content -->
+        <span :class="{
+          'transform transition-transform duration-150': true,
+          'scale-95': isPressed
+        }">
+          <slot />
+        </span>
+        
+        <!-- Trailing Icon with bounce -->
+        <component 
+          v-if="trailingIcon" 
+          :is="trailingIcon" 
+          :class="[
+            'w-4 h-4 ml-2 transition-transform duration-200',
+            isPressed ? 'scale-90' : 'scale-100'
+          ]" 
+        />
+      </div>
     </div>
-    
-    <component v-if="leadingIcon && !loading" :is="leadingIcon" class="w-4 h-4 mr-2" />
-    
-    <slot />
-    
-    <component v-if="trailingIcon" :is="trailingIcon" class="w-4 h-4 ml-2" />
   </component>
 </template>
 
@@ -36,6 +78,7 @@ interface Props {
   block?: boolean
   leadingIcon?: any
   trailingIcon?: any
+  mobileOptimized?: boolean // New prop for mobile-specific styling
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -57,8 +100,13 @@ const is = computed(() => {
 
 const htmlType = computed(() => is.value === 'button' ? props.type : undefined)
 
+// Touch interaction state
+const isPressed = ref(false)
+const showRipple = ref(false)
+const rippleStyle = ref({})
+
 const buttonClasses = computed(() => {
-  const base = 'inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none'
+  const base = 'relative inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none transform hover:scale-[1.02] active:scale-95 touch-manipulation select-none'
   
   const variants = {
     solid: {
@@ -96,11 +144,11 @@ const buttonClasses = computed(() => {
   }
   
   const sizes = {
-    xs: 'px-2.5 py-1.5 text-xs rounded',
-    sm: 'px-3 py-2 text-sm rounded-md',
-    md: 'px-4 py-2 text-sm rounded-md',
-    lg: 'px-4 py-2 text-base rounded-md',
-    xl: 'px-6 py-3 text-base rounded-md'
+    xs: 'px-2.5 py-1.5 text-xs rounded min-h-[32px]',
+    sm: 'px-3 py-2 text-sm rounded-md min-h-[36px]',
+    md: 'px-4 py-2.5 text-sm rounded-md min-h-[44px]', // Mobile-friendly 44px touch target
+    lg: 'px-5 py-3 text-base rounded-md min-h-[48px]',
+    xl: 'px-6 py-3.5 text-base rounded-md min-h-[52px]'
   }
   
   const classes = [
@@ -116,9 +164,143 @@ const buttonClasses = computed(() => {
   return classes.join(' ')
 })
 
+// Touch and mouse interaction handlers
+const handleTouchStart = (event: TouchEvent) => {
+  if (props.disabled || props.loading) return
+  isPressed.value = true
+  createRippleEffect(event.touches[0])
+}
+
+const handleTouchEnd = () => {
+  if (props.disabled || props.loading) return
+  setTimeout(() => {
+    isPressed.value = false
+  }, 150)
+}
+
+const handleMouseDown = (event: MouseEvent) => {
+  if (props.disabled || props.loading) return
+  isPressed.value = true
+  createRippleEffect(event)
+}
+
+const handleMouseUp = () => {
+  if (props.disabled || props.loading) return
+  setTimeout(() => {
+    isPressed.value = false
+  }, 150)
+}
+
+const handleMouseLeave = () => {
+  isPressed.value = false
+}
+
+const createRippleEffect = (event: TouchEvent['touches'][0] | MouseEvent) => {
+  const button = event.currentTarget as HTMLElement
+  const rect = button.getBoundingClientRect()
+  
+  const size = Math.max(rect.width, rect.height)
+  const x = 'clientX' in event ? event.clientX - rect.left - size / 2 : event.pageX - rect.left - size / 2
+  const y = 'clientY' in event ? event.clientY - rect.top - size / 2 : event.pageY - rect.top - size / 2
+  
+  rippleStyle.value = {
+    width: size + 'px',
+    height: size + 'px',
+    left: x + 'px',
+    top: y + 'px'
+  }
+  
+  showRipple.value = true
+  
+  setTimeout(() => {
+    showRipple.value = false
+  }, 600)
+}
+
 const handleClick = (event: Event) => {
   if (!props.disabled && !props.loading) {
+    // Add haptic feedback simulation with a subtle scale animation
+    const target = event.currentTarget as HTMLElement
+    target.style.transform = 'scale(0.95)'
+    
+    setTimeout(() => {
+      target.style.transform = ''
+    }, 100)
+    
     emit('click', event)
   }
 }
 </script>
+
+<style scoped>
+/* Ripple Effect Animation */
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  pointer-events: none;
+  animation: ripple 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Enhanced Loading Animation */
+.loading-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: currentColor;
+  animation: loading-bounce 1.4s ease-in-out infinite both;
+}
+
+@keyframes loading-bounce {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Mobile-specific touch optimizations */
+@media (hover: none) {
+  .ripple-effect {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Accessibility: Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .ripple-effect {
+    animation: none;
+    opacity: 0;
+  }
+  
+  .loading-dot {
+    animation: none;
+  }
+  
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+</style>

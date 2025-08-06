@@ -1,11 +1,11 @@
-/// <reference types="@pinia/nuxt" />
-/// <reference types="@nuxtjs/tailwindcss" />
-/// <reference types="@vee-validate/nuxt" />
-/// <reference types="@nuxt/icon" />
-/// <reference types="@nuxt/devtools" />
-/// <reference types="@nuxt/telemetry" />
-/// <reference types="@nuxtjs/supabase" />
 /// <reference types="@vueuse/nuxt" />
+/// <reference types="@nuxtjs/tailwindcss" />
+/// <reference types="@pinia/nuxt" />
+/// <reference types="@nuxtjs/supabase" />
+/// <reference types="@vee-validate/nuxt" />
+/// <reference types="@nuxt/telemetry" />
+/// <reference types="@nuxt/devtools" />
+/// <reference types="@nuxt/eslint" />
 /// <reference path="types/builder-env.d.ts" />
 /// <reference types="nuxt" />
 /// <reference path="types/app-defaults.d.ts" />
@@ -24,5 +24,6 @@
 /// <reference path="types/imports.d.ts" />
 /// <reference path="schema/nuxt.schema.d.ts" />
 /// <reference path="types/nitro.d.ts" />
+/// <reference path="./eslint-typegen.d.ts" />
 
 export {}

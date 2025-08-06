@@ -306,6 +306,7 @@ declare global {
   const usePreviewMode: typeof import('../../node_modules/nuxt/dist/app/composables/preview')['usePreviewMode']
   const usePrevious: typeof import('../../node_modules/@vueuse/core')['usePrevious']
   const useProductsStore: typeof import('../../app/stores/products')['useProductsStore']
+  const useProfile: typeof import('../../app/composables/useProfile')['useProfile']
   const useRafFn: typeof import('../../node_modules/@vueuse/core')['useRafFn']
   const useRefHistory: typeof import('../../node_modules/@vueuse/core')['useRefHistory']
   const useRequestEvent: typeof import('../../node_modules/nuxt/dist/app/composables/ssr')['useRequestEvent']
@@ -393,6 +394,7 @@ declare global {
   const useTitle: typeof import('../../node_modules/@vueuse/core')['useTitle']
   const useToNumber: typeof import('../../node_modules/@vueuse/core')['useToNumber']
   const useToString: typeof import('../../node_modules/@vueuse/core')['useToString']
+  const useToast: typeof import('../../app/composables/useToast')['useToast']
   const useToggle: typeof import('../../node_modules/@vueuse/core')['useToggle']
   const useTransition: typeof import('../../node_modules/@vueuse/core')['useTransition']
   const useTransitionState: typeof import('vue')['useTransitionState']
@@ -753,6 +755,7 @@ declare module 'vue' {
     readonly usePreviewMode: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/preview')['usePreviewMode']>
     readonly usePrevious: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['usePrevious']>
     readonly useProductsStore: UnwrapRef<typeof import('../../app/stores/products')['useProductsStore']>
+    readonly useProfile: UnwrapRef<typeof import('../../app/composables/useProfile')['useProfile']>
     readonly useRafFn: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['useRafFn']>
     readonly useRefHistory: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['useRefHistory']>
     readonly useRequestEvent: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/ssr')['useRequestEvent']>
@@ -840,6 +843,7 @@ declare module 'vue' {
     readonly useTitle: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['useTitle']>
     readonly useToNumber: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['useToNumber']>
     readonly useToString: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['useToString']>
+    readonly useToast: UnwrapRef<typeof import('../../app/composables/useToast')['useToast']>
     readonly useToggle: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['useToggle']>
     readonly useTransition: UnwrapRef<typeof import('../../node_modules/@vueuse/core')['useTransition']>
     readonly useTransitionState: UnwrapRef<typeof import('vue')['useTransitionState']>

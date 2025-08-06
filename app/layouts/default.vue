@@ -1,11 +1,14 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Simple Header -->
+    <!-- Navigation -->
     <AppNavigation />
 
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-6">
-      <slot />
+    <!-- Main Content with Mobile-First Padding -->
+    <main class="px-3 py-4 sm:px-4 sm:py-6 lg:px-8 pb-20 md:pb-6">
+      <!-- Mobile-optimized container -->
+      <div class="max-w-7xl mx-auto">
+        <slot />
+      </div>
     </main>
   </div>
 </template>

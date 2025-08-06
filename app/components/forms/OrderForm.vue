@@ -1,74 +1,86 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-4 sm:space-y-6">
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-900">Create New Order</h1>
+      <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Create New Order</h1>
     </div>
 
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+    <form @submit.prevent="handleSubmit" class="space-y-4 sm:space-y-6">
       <!-- Customer Selection -->
-      <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Customer Information</h2>
+      <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+        <h2 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Customer Information</h2>
         
-        <div class="space-y-4">
+        <div class="space-y-3 sm:space-y-4">
           <div>
             <label for="customer-search" class="block text-sm font-medium text-gray-700 mb-2">
               Search Customer
             </label>
             <div class="relative">
-              <Input
+              <UiBaseInput
                 id="customer-search"
                 v-model="customerSearch"
                 placeholder="Search by name or email..."
+                size="lg"
+                class="text-base"
                 @input="searchCustomers"
-                :loading="customerSearchLoading"
               />
               
-              <!-- Customer Dropdown -->
+              <!-- Customer Dropdown - Mobile Optimized -->
               <div v-if="customerOptions.length > 0 && customerSearch" 
-                   class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto">
+                   class="absolute z-20 mt-1 w-full bg-white shadow-xl max-h-64 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto">
                 <div v-for="customer in customerOptions" 
                      :key="customer.id"
                      @click="selectCustomer(customer)"
-                     class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white">
-                  <div class="flex items-center">
-                    <span class="font-normal truncate">{{ customer.name }}</span>
-                    <span class="text-gray-500 ml-2 truncate">{{ customer.email }}</span>
+                     class="cursor-pointer select-none relative py-3 px-4 hover:bg-indigo-600 hover:text-white active:bg-indigo-700 transition-colors">
+                  <div class="flex flex-col sm:flex-row sm:items-center">
+                    <span class="font-medium truncate">{{ customer.name }}</span>
+                    <span class="text-gray-500 hover:text-indigo-200 text-sm sm:ml-2 truncate">{{ customer.email }}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Selected Customer Display -->
+          <!-- Selected Customer Display - Mobile Optimized -->
           <div v-if="selectedCustomer" class="p-4 bg-indigo-50 rounded-lg">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="font-medium text-indigo-900">{{ selectedCustomer.name }}</h3>
-                <p class="text-sm text-indigo-700">{{ selectedCustomer.email }}</p>
-                <p class="text-sm text-indigo-700">{{ selectedCustomer.phone }}</p>
+            <div class="flex items-start justify-between">
+              <div class="flex-1 min-w-0">
+                <h3 class="font-medium text-indigo-900 truncate">{{ selectedCustomer.name }}</h3>
+                <p class="text-sm text-indigo-700 truncate">{{ selectedCustomer.email }}</p>
+                <p class="text-sm text-indigo-700 truncate">{{ selectedCustomer.phone }}</p>
               </div>
-              <Button variant="ghost" size="sm" @click="clearCustomerSelection">
-                <Icon name="lucide:x" class="w-4 h-4" />
-              </Button>
+              <UiBaseButton 
+                variant="ghost" 
+                size="sm" 
+                class="flex-shrink-0 ml-2 w-8 h-8 p-0"
+                @click="clearCustomerSelection"
+              >
+                <XMarkIcon class="w-4 h-4" />
+              </UiBaseButton>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Order Items -->
-      <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-900">Order Items</h2>
-          <Button type="button" @click="addOrderItem" variant="outline" size="sm">
-            <Icon name="lucide:plus" class="w-4 h-4 mr-2" />
+      <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <h2 class="text-base sm:text-lg font-semibold text-gray-900">Order Items</h2>
+          <UiBaseButton 
+            type="button" 
+            @click="addOrderItem" 
+            variant="outline" 
+            size="md"
+            class="w-full sm:w-auto"
+          >
+            <PlusIcon class="w-4 h-4 mr-2" />
             Add Item
-          </Button>
+          </UiBaseButton>
         </div>
 
         <div class="space-y-4">
           <div v-for="(item, index) in orderItems" 
                :key="index"
-               class="border border-gray-200 rounded-lg p-4">
+               class="border border-gray-200 rounded-lg p-3 sm:p-4">
             
             <!-- Product Search -->
             <div class="mb-4">
@@ -76,121 +88,138 @@
                 Search Product
               </label>
               <div class="relative">
-                <Input
+                <UiBaseInput
                   v-model="item.productSearch"
                   placeholder="Search products..."
+                  size="lg"
+                  class="text-base"
                   @input="searchProducts(index)"
                 />
                 
-                <!-- Product Dropdown -->
+                <!-- Product Dropdown - Mobile Optimized -->
                 <div v-if="item.productOptions.length > 0 && item.productSearch" 
-                     class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto">
+                     class="absolute z-20 mt-1 w-full bg-white shadow-xl max-h-64 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto">
                   <div v-for="product in item.productOptions" 
                        :key="product.id"
                        @click="selectProduct(index, product)"
-                       class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white">
-                    <div class="flex items-center justify-between">
-                      <div>
-                        <span class="font-normal truncate">{{ product.name }}</span>
-                        <p class="text-sm text-gray-500">Stock: {{ product.stock_quantity }}</p>
+                       class="cursor-pointer select-none relative py-3 px-4 hover:bg-indigo-600 hover:text-white active:bg-indigo-700 transition-colors">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                      <div class="flex-1 min-w-0">
+                        <span class="font-medium truncate block">{{ product.name }}</span>
+                        <p class="text-sm text-gray-500 hover:text-indigo-200">Stock: {{ product.stock_quantity }}</p>
                       </div>
-                      <span class="text-green-600 font-medium">${{ product.price.toFixed(2) }}</span>
+                      <span class="text-green-600 hover:text-green-300 font-medium text-lg mt-1 sm:mt-0">${{ product.price.toFixed(2) }}</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Selected Product Info -->
-            <div v-if="item.product" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="md:col-span-1">
-                <div class="p-3 bg-gray-50 rounded-lg">
-                  <h4 class="font-medium text-gray-900">{{ item.product.name }}</h4>
-                  <p class="text-sm text-gray-600">Price: ${{ item.product.price.toFixed(2) }}</p>
-                  <p class="text-sm text-gray-600">Stock: {{ item.product.stock_quantity }}</p>
+            <!-- Selected Product Info - Mobile-First Layout -->
+            <div v-if="item.product" class="space-y-4">
+              <div class="p-3 sm:p-4 bg-gray-50 rounded-lg">
+                <h4 class="font-medium text-gray-900 text-base sm:text-lg">{{ item.product.name }}</h4>
+                <div class="grid grid-cols-2 gap-4 mt-2 text-sm">
+                  <p class="text-gray-600">Price: <span class="font-medium">${{ item.product.price.toFixed(2) }}</span></p>
+                  <p class="text-gray-600">Stock: <span class="font-medium">{{ item.product.stock_quantity }}</span></p>
                 </div>
               </div>
 
-              <div class="grid grid-cols-2 gap-4 md:col-span-2">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
                     Quantity
                   </label>
-                  <Input
+                  <UiBaseInput
                     v-model.number="item.quantity"
                     type="number"
                     min="1"
                     :max="item.product.stock_quantity"
+                    size="lg"
+                    class="text-base text-center"
                     @input="updateItemTotal(index)"
                   />
                 </div>
 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
                     Unit Price
                   </label>
-                  <Input
+                  <UiBaseInput
                     v-model.number="item.unit_price"
                     type="number"
                     step="0.01"
                     min="0"
+                    size="lg"
+                    class="text-base text-center"
                     @input="updateItemTotal(index)"
                   />
                 </div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between mt-4">
-              <div class="text-lg font-semibold text-gray-900">
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
+              <div class="text-base sm:text-lg font-semibold text-gray-900">
                 Subtotal: ${{ item.subtotal.toFixed(2) }}
               </div>
-              <Button 
+              <UiBaseButton 
                 type="button" 
                 variant="outline" 
-                size="sm"
+                size="md"
                 @click="removeOrderItem(index)"
-                class="text-red-600 hover:text-red-700">
-                <Icon name="lucide:trash-2" class="w-4 h-4" />
-              </Button>
+                class="text-red-600 hover:text-red-700 hover:border-red-300 w-10 h-10 p-0">
+                <TrashIcon class="w-4 h-4" />
+              </UiBaseButton>
             </div>
           </div>
 
           <!-- Add Item Placeholder -->
           <div v-if="orderItems.length === 0" 
-               class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-            <Icon name="lucide:package" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p class="text-gray-500">No items added yet. Click "Add Item" to start.</p>
+               class="border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 text-center">
+            <CubeIcon class="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p class="text-gray-500 text-sm sm:text-base">No items added yet. Click "Add Item" to start.</p>
           </div>
         </div>
       </div>
 
       <!-- Order Summary -->
-      <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Order Summary</h2>
+      <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+        <h2 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Order Summary</h2>
         
-        <div class="space-y-2">
-          <div class="flex justify-between">
+        <div class="space-y-3">
+          <div class="flex justify-between items-center text-sm sm:text-base">
             <span class="text-gray-600">Items ({{ orderItems.length }})</span>
             <span class="font-medium">${{ orderTotal.toFixed(2) }}</span>
           </div>
-          <div class="flex justify-between text-lg font-semibold">
-            <span>Total</span>
-            <span>${{ orderTotal.toFixed(2) }}</span>
+          <div class="border-t border-gray-200 pt-3">
+            <div class="flex justify-between items-center text-lg sm:text-xl font-semibold">
+              <span>Total</span>
+              <span class="text-indigo-600">${{ orderTotal.toFixed(2) }}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Form Actions -->
-      <div class="flex items-center justify-end space-x-4">
-        <Button type="button" variant="outline" @click="$router.back()">
+      <!-- Form Actions - Mobile-First -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4">
+        <UiBaseButton 
+          type="button" 
+          variant="outline" 
+          size="lg"
+          class="order-2 sm:order-1"
+          @click="$router.back()"
+        >
           Cancel
-        </Button>
-        <Button 
+        </UiBaseButton>
+        <UiBaseButton 
           type="submit" 
+          size="lg"
+          class="order-1 sm:order-2"
           :loading="loading" 
-          :disabled="!isFormValid">
-          Create Order
-        </Button>
+          :disabled="!isFormValid"
+        >
+          {{ loading ? 'Creating...' : 'Create Order' }}
+        </UiBaseButton>
       </div>
     </form>
   </div>
@@ -202,6 +231,7 @@ import { useCustomersStore } from '~/stores/customers'
 import { useProductsStore } from '~/stores/products'
 import { useOrdersStore } from '~/stores/orders'
 import { debounce } from '~/utils/debounce'
+import { XMarkIcon, PlusIcon, TrashIcon, CubeIcon } from '@heroicons/vue/24/outline'
 
 interface OrderItem {
   product?: Product
