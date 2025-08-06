@@ -60,3 +60,7 @@ Use the available MCP servers and tools.
 
 ## Playwright
 Whenever you need to take an screenshot, save it in the screenshot folder, in the project's root path  
+
+
+## Commands
+Always use pnpm instead of npm. Example: Bash(pnpm run lint)

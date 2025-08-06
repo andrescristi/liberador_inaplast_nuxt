@@ -145,6 +145,8 @@ pnpm dev             # Start development server
 pnpm build           # Build for production
 pnpm generate        # Generate static site
 pnpm preview         # Preview production build
+pnpm lint            # Run ESLint to check code quality
+pnpm lint:fix        # Automatically fix ESLint issues
 ```
 
 ### Custom UI Component System
@@ -162,6 +164,16 @@ This project uses a custom component system built with TailwindCSS and Headless 
 - **Toast System**: Global notification management
 
 All components are auto-imported and include full TypeScript support.
+
+### Code Quality & Linting
+
+This project maintains high code quality standards with:
+
+- **ESLint Configuration**: Comprehensive rules for Vue.js, TypeScript, and Nuxt.js
+- **TypeScript Support**: Full type safety with proper prop definitions
+- **Component Prop Types**: Optimized for Heroicons compatibility (Function and Object types)
+- **Clean Code Standards**: Automated linting with `pnpm lint` and `pnpm lint:fix`
+- **Zero ESLint Errors**: All critical errors resolved, only development console warnings remain
 
 ### Authentication Flow
 
@@ -218,7 +230,11 @@ pnpm build
 - ✅ **User Interface**: Dashboard, navigation, and responsive design with Spanish localization
 - ✅ **Navigation System**: Streamlined navigation with improved user experience
 - ✅ **Toast Notifications**: Global notification system
-- ✅ **Component Architecture**: 10 base components with TypeScript support
+- ✅ **Component Architecture**: 12+ base components with TypeScript support
+- ✅ **Code Quality**: ESLint configuration with comprehensive linting rules
+- ✅ **Vue Component Optimization**: Fixed prop type issues and component resolution
+- ✅ **Icon System**: Fully compatible with Heroicons (Function-based components)
+- ✅ **Package Management**: Clean dependencies with pnpm, resolved version conflicts
 - 🔄 **Core Features**: Order, customer, and product management in development
 - 🔄 **Database Integration**: Supabase integration for CRUD operations
 
