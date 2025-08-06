@@ -34,8 +34,8 @@
         </div>
         
         <!-- Leading Icon with bounce -->
-        <component 
-          :is="leadingIcon" 
+        <Icon 
+          :name="leadingIcon" 
           v-if="leadingIcon && !loading" 
           :class="[
             'w-4 h-4 mr-2 transition-transform duration-200',
@@ -53,8 +53,8 @@
         </span>
         
         <!-- Trailing Icon with bounce -->
-        <component 
-          :is="trailingIcon" 
+        <Icon 
+          :name="trailingIcon" 
           v-if="trailingIcon" 
           :class="[
             'w-4 h-4 ml-2 transition-transform duration-200',
@@ -77,8 +77,8 @@ interface Props {
   disabled?: boolean
   loading?: boolean
   block?: boolean
-  leadingIcon?: object | Function
-  trailingIcon?: object | Function
+  leadingIcon?: string
+  trailingIcon?: string
   mobileOptimized?: boolean // New prop for mobile-specific styling
 }
 

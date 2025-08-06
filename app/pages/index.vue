@@ -10,16 +10,16 @@
       </div>
 
       <!-- Metrics Cards - Mobile-First Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <UiBaseCard class="bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <ClockIcon class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
+                <Icon name="bx:objects-horizontal-center" class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
               </div>
             </div>
             <div class="ml-3 sm:ml-4">
-              <dt class="text-xs sm:text-sm font-medium text-yellow-800">Pending Orders</dt>
+              <dt class="text-xs sm:text-sm font-medium text-yellow-800">Inspecciones Realizadas</dt>
               <dd class="text-xl sm:text-2xl font-bold text-yellow-900">{{ metrics.pending }}</dd>
             </div>
           </div>
@@ -29,11 +29,11 @@
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <CheckCircleIcon class="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+                <Icon name="bx:bxs-check-circle" class="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
               </div>
             </div>
             <div class="ml-3 sm:ml-4">
-              <dt class="text-xs sm:text-sm font-medium text-green-800">Completed Orders</dt>
+              <dt class="text-xs sm:text-sm font-medium text-green-800">Inspecciones Aceptadas</dt>
               <dd class="text-xl sm:text-2xl font-bold text-green-900">{{ metrics.completed }}</dd>
             </div>
           </div>
@@ -43,26 +43,12 @@
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <CurrencyDollarIcon class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />
+                <Icon name="bx:bxs-error" class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />
               </div>
             </div>
             <div class="ml-3 sm:ml-4">
-              <dt class="text-xs sm:text-sm font-medium text-indigo-800">Total Revenue</dt>
-              <dd class="text-xl sm:text-2xl font-bold text-indigo-900">${{ metrics.revenue }}</dd>
-            </div>
-          </div>
-        </UiBaseCard>
-
-        <UiBaseCard class="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <UsersIcon class="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
-              </div>
-            </div>
-            <div class="ml-3 sm:ml-4">
-              <dt class="text-xs sm:text-sm font-medium text-purple-800">Total Customers</dt>
-              <dd class="text-xl sm:text-2xl font-bold text-purple-900">{{ metrics.customers }}</dd>
+              <dt class="text-xs sm:text-sm font-medium text-indigo-800">Inspecciones Rechazadas</dt>
+              <dd class="text-xl sm:text-2xl font-bold text-indigo-900">{{ metrics.revenue }}</dd>
             </div>
           </div>
         </UiBaseCard>
@@ -77,7 +63,7 @@
         >
           <div class="text-center py-2">
             <div class="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:bg-indigo-200 transition-colors">
-              <PlusIcon class="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600" />
+              <Icon name="bx:bxs-plus-circle" class="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600" />
             </div>
             <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">Nueva Liberación</h3>
             <p class="text-sm text-gray-600 leading-tight">Libera nuevos pedidos</p>
@@ -91,7 +77,7 @@
         >
           <div class="text-center py-2">
             <div class="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:bg-indigo-200 transition-colors">
-              <ClockIcon class="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600" />
+              <Icon name="bx:history" class="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600" />
             </div>
             <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">Historial de Liberaciones</h3>
             <p class="text-sm text-gray-600 leading-tight">Ver liberaciones anteriores</p>
@@ -110,7 +96,7 @@
               :to="'/orders'" 
               variant="ghost" 
               color="gray"
-              :trailing-icon="ArrowRightIcon"
+              trailing-icon="bx:bxs-right-arrow-alt"
             >
               Ir a historial
             </UiBaseButton>
@@ -121,7 +107,7 @@
         <div v-if="loading" class="flex items-center justify-center py-12">
           <div class="text-center">
             <div class="inline-flex items-center justify-center w-8 h-8 mb-4">
-              <ArrowPathIcon class="w-6 h-6 text-indigo-600 animate-spin" />
+              <Icon name="bx:loader-circle" class="w-6 h-6 text-indigo-600 animate-spin" />
             </div>
             <p class="text-gray-600">Cargando liberaciones...</p>
           </div>
@@ -130,13 +116,13 @@
         <!-- Empty State -->
         <div v-else-if="recentOrders.length === 0" class="text-center py-12">
           <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <InboxIcon class="w-8 h-8 text-gray-400" />
+            <Icon name="bx:bxs-inbox" class="w-8 h-8 text-gray-400" />
           </div>
           <h4 class="text-lg font-semibold text-gray-900 mb-2">Aún no hay liberaciones</h4>
           <p class="text-gray-600 mb-6">Parte creando tu primera liberación</p>
           <UiBaseButton 
             :to="'/orders/new'" 
-            :leading-icon="PlusIcon"
+            leading-icon="bx:bxs-plus-circle"
             size="lg"
           >
             Crear Liberación
@@ -195,18 +181,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ClockIcon,
-  CheckCircleIcon,
-  CurrencyDollarIcon,
-  UsersIcon,
-  PlusIcon,
-  // UserPlusIcon,
-  // CubeIcon,
-  ArrowRightIcon,
-  ArrowPathIcon,
-  InboxIcon
-} from '@heroicons/vue/24/outline'
+// Icons are now provided by @nuxt/icon
 
 // Composables
 const _supabase = useSupabaseClient()

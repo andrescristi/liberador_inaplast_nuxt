@@ -6,7 +6,7 @@
   >
     <div class="flex">
       <div class="flex-shrink-0">
-        <component :is="iconComponent" :class="iconClasses" />
+        <Icon :name="iconName" :class="iconClasses" />
       </div>
       <div class="ml-3">
         <p class="text-sm font-medium text-gray-900">
@@ -24,7 +24,7 @@
             @click.stop="close"
           >
             <span class="sr-only">Dismiss</span>
-            <XMarkIcon class="h-5 w-5" />
+            <Icon name="heroicons:x-mark-24-outline" class="h-5 w-5" />
           </button>
         </div>
       </div>
@@ -33,13 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-  XCircleIcon,
-  XMarkIcon
-} from '@heroicons/vue/24/outline'
+// Icons are now provided by @nuxt/icon
 
 interface Props {
   id: string
@@ -61,12 +55,12 @@ const emit = defineEmits<{
 
 const visible = ref(true)
 
-const iconComponent = computed(() => {
+const iconName = computed(() => {
   const icons = {
-    success: CheckCircleIcon,
-    error: XCircleIcon,
-    warning: ExclamationTriangleIcon,
-    info: InformationCircleIcon
+    success: 'heroicons:check-circle-24-outline',
+    error: 'heroicons:x-circle-24-outline',
+    warning: 'heroicons:exclamation-triangle-24-outline',
+    info: 'heroicons:information-circle-24-outline'
   }
   return icons[props.type]
 })

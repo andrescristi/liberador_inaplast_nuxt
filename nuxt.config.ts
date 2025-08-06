@@ -15,7 +15,8 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase',
     '@vueuse/nuxt',
     '@vee-validate/nuxt',
-    '@nuxt/eslint'
+    '@nuxt/eslint',
+    '@nuxt/icon'
   ],
   supabase: {
     url: process.env.SUPABASE_URL,

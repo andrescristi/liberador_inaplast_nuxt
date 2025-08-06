@@ -14,14 +14,14 @@
     
     <!-- Leading icon -->
     <div v-if="leadingIcon" class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-      <component :is="leadingIcon" class="h-5 w-5 text-gray-400" />
+      <Icon :name="leadingIcon" class="h-5 w-5 text-gray-400" />
     </div>
     
     <!-- Trailing icon or button -->
     <div v-if="trailingIcon || $slots.trailing" class="absolute inset-y-0 right-0 pr-3 flex items-center">
       <slot name="trailing">
-        <component
-:is="trailingIcon"
+        <Icon
+:name="trailingIcon"
 v-if="trailingIcon"
 class="h-5 w-5 text-gray-400" />
       </slot>
@@ -37,8 +37,8 @@ interface Props {
   disabled?: boolean
   error?: boolean
   size?: 'sm' | 'md' | 'lg'
-  leadingIcon?: object | Function
-  trailingIcon?: object | Function
+  leadingIcon?: string
+  trailingIcon?: string
   rows?: number
   min?: string | number
   max?: string | number

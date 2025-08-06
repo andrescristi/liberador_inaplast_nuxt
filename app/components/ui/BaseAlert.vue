@@ -2,7 +2,7 @@
   <div :class="alertClasses">
     <div class="flex">
       <div class="flex-shrink-0">
-        <component :is="iconComponent" :class="iconClasses" />
+        <Icon :name="iconName" :class="iconClasses" />
       </div>
       <div class="ml-3">
         <h3 v-if="title" :class="titleClasses">
@@ -21,7 +21,7 @@
             @click="$emit('close')"
           >
             <span class="sr-only">Dismiss</span>
-            <XMarkIcon class="h-5 w-5" />
+            <Icon name="heroicons:x-mark-24-outline" class="h-5 w-5" />
           </button>
         </div>
       </div>
@@ -30,13 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-  XCircleIcon,
-  XMarkIcon
-} from '@heroicons/vue/24/outline'
+// Icons are now provided by @nuxt/icon
 
 interface Props {
   variant?: 'success' | 'error' | 'warning' | 'info'
@@ -56,12 +50,12 @@ defineEmits<{
   close: []
 }>()
 
-const iconComponent = computed(() => {
+const iconName = computed(() => {
   const icons = {
-    success: CheckCircleIcon,
-    error: XCircleIcon,
-    warning: ExclamationTriangleIcon,
-    info: InformationCircleIcon
+    success: 'heroicons:check-circle-24-outline',
+    error: 'heroicons:x-circle-24-outline',
+    warning: 'heroicons:exclamation-triangle-24-outline',
+    info: 'heroicons:information-circle-24-outline'
   }
   return icons[props.variant]
 })

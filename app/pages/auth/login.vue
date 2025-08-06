@@ -5,7 +5,7 @@
         <!-- Header -->
         <div class="text-center mb-8">
           <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <BuildingOfficeIcon class="w-8 h-8 text-white" />
+            <Icon name="bx:bxs-factory" class="w-8 h-8 text-white" />
           </div>
           <h1 class="text-3xl font-bold text-gray-900 mb-2">
             Iniciar Sesión
@@ -26,7 +26,7 @@
               v-model="formState.email"
               type="email"
               placeholder="tu@email.com"
-              :leading-icon="EnvelopeIcon"
+              leading-icon="heroicons:envelope-24-outline"
               size="lg"
               :disabled="loading"
               autocomplete="email"
@@ -56,7 +56,7 @@
                   class="text-gray-400 hover:text-gray-500"
                   @click="showPassword = !showPassword"
                 >
-                  <component :is="showPassword ? EyeSlashIcon : EyeIcon" class="h-5 w-5" />
+                  <Icon :name="showPassword ? 'heroicons:eye-slash-24-outline' : 'heroicons:eye-24-outline'" class="h-5 w-5" />
                 </button>
               </template>
             </UiBaseInput>
@@ -84,7 +84,7 @@
             :loading="loading"
             :disabled="!isFormValid"
             class="font-medium"
-            :leading-icon="!loading ? ArrowRightOnRectangleIcon : undefined"
+            :leading-icon="!loading ? 'heroicons:arrow-right-on-rectangle-24-outline' : undefined"
           >
             {{ loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
           </UiBaseButton>
@@ -107,7 +107,7 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <EnvelopeIcon class="w-5 h-5 text-indigo-600" />
+                <Icon name="heroicons:envelope-24-outline" class="w-5 h-5 text-indigo-600" />
               </div>
               <div>
                 <h3 class="text-lg font-semibold text-gray-900">
@@ -121,7 +121,7 @@
             <UiBaseButton
               variant="ghost"
               color="gray"
-              :leading-icon="XMarkIcon"
+              leading-icon="heroicons:x-mark-24-outline"
               @click="cancelReset"
             />
           </div>
@@ -137,7 +137,7 @@
               v-model="resetState.email"
               type="email"
               placeholder="tu@email.com"
-              :leading-icon="EnvelopeIcon"
+              leading-icon="heroicons:envelope-24-outline"
               size="lg"
               :disabled="resetLoading"
               :error="!!resetEmailError"
@@ -170,14 +170,7 @@
 
 <script setup lang="ts">
 import { z } from 'zod'
-import {
-  BuildingOfficeIcon,
-  EnvelopeIcon,
-  EyeIcon,
-  EyeSlashIcon,
-  ArrowRightOnRectangleIcon,
-  XMarkIcon
-} from '@heroicons/vue/24/outline'
+// Icons are now provided by @nuxt/icon
 
 definePageMeta({
   layout: false,

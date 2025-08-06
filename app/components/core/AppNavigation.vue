@@ -7,7 +7,7 @@
         <div class="flex items-center">
           <div class="flex items-center space-x-2 sm:space-x-3">
             <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
-              <BuildingOfficeIcon class="w-4 h-4 sm:w-6 sm:h-6 text-white" />
+              <Icon name="bx:bxs-factory" class="w-4 h-4 sm:w-6 sm:h-6 text-white" />
             </div>
             <NuxtLink to="/" class="text-lg sm:text-xl font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
               Inaplast
@@ -36,10 +36,10 @@
             <template #button>
               <div class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors min-h-[44px]">
                 <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <UserIcon class="w-4 h-4 text-white" />
+                  <Icon name="bx:bxs-user" class="w-4 h-4 text-white" />
                 </div>
                 <span class="hidden lg:inline">{{ user?.email?.split('@')[0] || 'User' }}</span>
-                <ChevronDownIcon class="w-4 h-4" />
+                <Icon name="bx:bxs-chevron-down" class="w-4 h-4" />
               </div>
             </template>
             
@@ -112,7 +112,7 @@
             <div class="px-4 py-3 bg-gray-50 rounded-xl">
               <div class="flex items-center space-x-3 mb-3">
                 <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <UserIcon class="w-5 h-5 text-white" />
+                  <Icon name="heroicons:user-24-outline" class="w-5 h-5 text-white" />
                 </div>
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium text-gray-900 truncate">
@@ -130,7 +130,7 @@
                   variant="ghost"
                   color="gray"
                   class="w-full justify-start text-sm py-2 px-3 rounded-lg"
-                  :leading-icon="UserCircleIcon"
+                  :leading-icon="'heroicons:user-circle-24-outline'"
                   @click="closeMobileMenu"
                 >
                   Perfil
@@ -140,7 +140,7 @@
                   variant="ghost"
                   color="gray"
                   class="w-full justify-start text-sm py-2 px-3 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50"
-                  :leading-icon="ArrowRightOnRectangleIcon"
+                  :leading-icon="'heroicons:arrow-right-on-rectangle-24-outline'"
                   :disabled="signingOut"
                   @click="handleSignOut"
                 >
@@ -181,16 +181,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  BuildingOfficeIcon,
-  UserIcon,
-  ChevronDownIcon,
-  UserCircleIcon,
-  ArrowRightOnRectangleIcon,
-  HomeIcon,
-  PlusIcon,
-  ClockIcon
-} from '@heroicons/vue/24/outline'
+// Icons are now provided by @nuxt/icon
 
 // Composables
 const user = useSupabaseUser()
@@ -203,22 +194,22 @@ const mobileMenuOpen = ref(false)
 
 // Navigation items data
 const navigationItems = [
-  { to: '/', label: 'Inicio', icon: HomeIcon },
-  { to: '/orders/new', label: 'Nueva Liberación', icon: PlusIcon },
-  { to: '/orders', label: 'Historial', icon: ClockIcon }
+  { to: '/', label: 'Inicio', icon: 'bx:home-alt-2' },
+  { to: '/orders/new', label: 'Nueva Liberación', icon: 'bx:bxs-plus-square' },
+  { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus' }
 ]
 
 const bottomNavItems = [
-  { to: '/', label: 'Inicio', icon: HomeIcon },
+  { to: '/', label: 'Inicio', icon: 'bx:home-alt-2' },
   { 
     to: '/orders/new', 
     label: 'Nueva Liberación', 
-    icon: PlusIcon, 
+    icon: 'bx:bxs-plus-square', 
     variant: 'solid', 
     color: 'primary',
     special: true 
   },
-  { to: '/orders', label: 'Historial', icon: ClockIcon }
+  { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus' }
 ]
 
 // User menu items
@@ -229,12 +220,12 @@ const userMenuItems = computed(() => [
   }], 
   [{
     label: 'Profile',
-    icon: UserCircleIcon,
+    icon: 'bx:user-circle',
     to: '/profile'
   }], 
   [{
     label: signingOut.value ? 'Signing out...' : 'Sign Out',
-    icon: ArrowRightOnRectangleIcon,
+    icon: 'bx:exit',
     click: handleSignOut,
     disabled: signingOut.value
   }]

@@ -18,7 +18,7 @@
           </span>
         </span>
         <span class="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
-          <ChevronUpDownIcon class="h-5 w-5 text-gray-400" />
+          <Icon name="heroicons:chevron-up-down-20-solid" class="h-5 w-5 text-gray-400" />
         </span>
       </ListboxButton>
 
@@ -63,7 +63,7 @@
                   'absolute inset-y-0 right-0 flex items-center pr-4'
                 ]"
               >
-                <CheckIcon class="h-5 w-5" />
+                <Icon name="heroicons:check-20-solid" class="h-5 w-5" />
               </span>
             </li>
           </ListboxOption>
@@ -80,7 +80,7 @@ import {
   ListboxOptions,
   ListboxOption,
 } from '@headlessui/vue'
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
+// Icons are now provided by @nuxt/icon
 
 export interface SelectOption {
   value: string | number

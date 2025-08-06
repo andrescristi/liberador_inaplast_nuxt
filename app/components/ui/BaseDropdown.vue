@@ -4,7 +4,7 @@
       <MenuButton :class="buttonClasses">
         <slot name="button">
           <span>Options</span>
-          <ChevronDownIcon class="-mr-1 ml-2 h-5 w-5" />
+          <Icon name="heroicons:chevron-down-20-solid" class="-mr-1 ml-2 h-5 w-5" />
         </slot>
       </MenuButton>
     </div>
@@ -42,8 +42,8 @@ class="py-1">
 :name="item.key || `item-${sectionIndex}-${itemIndex}`"
 :item="item"
 :active="active">
-                  <component
-:is="item.icon"
+                  <Icon
+:name="item.icon"
 v-if="item.icon"
 class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
                   {{ item.label }}
@@ -63,8 +63,8 @@ class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
 :name="item.key || `item-${sectionIndex}-${itemIndex}`"
 :item="item"
 :active="active">
-                  <component
-:is="item.icon"
+                  <Icon
+:name="item.icon"
 v-if="item.icon"
 class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
                   {{ item.label }}
@@ -84,11 +84,11 @@ class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
 
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { ChevronDownIcon } from '@heroicons/vue/20/solid'
+// Icons are now provided by @nuxt/icon
 
 interface DropdownItem {
   label?: string
-  icon?: object
+  icon?: string
   to?: string
   click?: () => void
   disabled?: boolean
