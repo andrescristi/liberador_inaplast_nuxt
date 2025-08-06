@@ -18,33 +18,15 @@
         <!-- Navigation Links (Desktop Only) -->
         <div class="hidden md:flex items-center space-x-1">
           <UiBaseButton
-            :to="'/orders'"
+            v-for="item in navigationItems"
+            :key="item.to"
+            :to="item.to"
             variant="ghost"
             color="gray"
             class="font-medium"
-            :leading-icon="ShoppingCartIcon"
+            :leading-icon="item.icon"
           >
-            Liberaciones
-          </UiBaseButton>
-          
-          <UiBaseButton
-            :to="'/customers'"
-            variant="ghost"
-            color="gray"
-            class="font-medium"
-            :leading-icon="UsersIcon"
-          >
-            Clientes
-          </UiBaseButton>
-          
-          <UiBaseButton
-            :to="'/products'"
-            variant="ghost"
-            color="gray"
-            class="font-medium"
-            :leading-icon="CubeIcon"
-          >
-            Productos
+            {{ item.label }}
           </UiBaseButton>
         </div>
 
@@ -151,7 +133,7 @@
                   :leading-icon="UserCircleIcon"
                   @click="closeMobileMenu"
                 >
-                  Profile
+                  Perfil
                 </UiBaseButton>
                 
                 <UiBaseButton
@@ -201,17 +183,13 @@
 <script setup lang="ts">
 import {
   BuildingOfficeIcon,
-  ShoppingCartIcon,
-  UsersIcon,
-  CubeIcon,
   UserIcon,
   ChevronDownIcon,
-  Bars3Icon,
-  XMarkIcon,
   UserCircleIcon,
   ArrowRightOnRectangleIcon,
   HomeIcon,
-  PlusIcon
+  PlusIcon,
+  ClockIcon
 } from '@heroicons/vue/24/outline'
 
 // Composables
@@ -225,24 +203,22 @@ const mobileMenuOpen = ref(false)
 
 // Navigation items data
 const navigationItems = [
-  { to: '/orders', label: 'Orders', icon: ShoppingCartIcon },
-  { to: '/customers', label: 'Customers', icon: UsersIcon },
-  { to: '/products', label: 'Products', icon: CubeIcon }
+  { to: '/', label: 'Inicio', icon: HomeIcon },
+  { to: '/orders/new', label: 'Nueva Liberación', icon: PlusIcon },
+  { to: '/orders', label: 'Historial', icon: ClockIcon }
 ]
 
 const bottomNavItems = [
-  { to: '/', label: 'Home', icon: HomeIcon },
-  { to: '/orders', label: 'Orders', icon: ShoppingCartIcon },
+  { to: '/', label: 'Inicio', icon: HomeIcon },
   { 
     to: '/orders/new', 
-    label: 'New', 
+    label: 'Nueva Liberación', 
     icon: PlusIcon, 
     variant: 'solid', 
     color: 'primary',
     special: true 
   },
-  { to: '/customers', label: 'Customers', icon: UsersIcon },
-  { to: '/products', label: 'Products', icon: CubeIcon }
+  { to: '/orders', label: 'Historial', icon: ClockIcon }
 ]
 
 // User menu items

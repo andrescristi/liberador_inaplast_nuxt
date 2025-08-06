@@ -4,7 +4,7 @@
     <AppNavigation />
 
     <!-- Page Content -->
-    <div class="">
+    <div class="@container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <!-- Page Header -->
       <div class="mb-6 sm:mb-8">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
@@ -91,14 +91,14 @@
         <UiBaseCard 
           class="group hover:shadow-md transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-indigo-200 active:scale-95"
           hover
-          @click="navigateTo('/orders/index')"
+          @click="navigateTo('/orders')"
         >
           <div class="text-center py-2">
             <div class="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:bg-indigo-200 transition-colors">
-              <PlusIcon class="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600" />
+              <ClockIcon class="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600" />
             </div>
             <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">Historial de Liberaciones</h3>
-            <p class="text-sm text-gray-600 leading-tight">Libera nuevos pedidos</p>
+            <p class="text-sm text-gray-600 leading-tight">Ver liberaciones anteriores</p>
           </div>
         </UiBaseCard>
 
