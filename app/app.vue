@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CoreAppNavigation />
+    <CoreAppNavigation v-if="user" />
     <NuxtLayout>
       
       <NuxtPage />
@@ -11,4 +11,5 @@
 
 <script setup lang="ts">
 // Import global styles if needed
+const user = useSupabaseUser()
 </script>
