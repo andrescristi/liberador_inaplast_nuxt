@@ -6,10 +6,10 @@
         <!-- Logo and Brand -->
         <div class="flex items-center">
           <div class="flex items-center space-x-2 sm:space-x-3">
-            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-lg flex items-center justify-center shadow-sm">
               <Icon name="bx:bxs-factory" class="w-4 h-4 sm:w-6 sm:h-6 text-white" />
             </div>
-            <NuxtLink to="/" class="text-lg sm:text-xl font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
+            <NuxtLink to="/" class="text-lg sm:text-xl font-semibold text-gray-900 hover:text-primary-600 transition-colors">
               Inaplast
             </NuxtLink>
           </div>
@@ -35,7 +35,7 @@
           <UiBaseDropdown :items="userMenuItems">
             <template #button>
               <div class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors min-h-[44px]">
-                <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-full flex items-center justify-center">
                   <Icon name="bx:bxs-user" class="w-4 h-4 text-white" />
                 </div>
                 <span class="hidden lg:inline">{{ user?.email?.split('@')[0] || 'User' }}</span>
@@ -111,8 +111,8 @@
             <!-- User Section -->
             <div class="px-4 py-3 bg-gray-50 rounded-xl">
               <div class="flex items-center space-x-3 mb-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <Icon name="heroicons:user-24-outline" class="w-5 h-5 text-white" />
+                <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-full flex items-center justify-center">
+                  <Icon name="bx:bxs-user" class="w-5 h-5 text-white" />
                 </div>
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium text-gray-900 truncate">
@@ -130,7 +130,7 @@
                   variant="ghost"
                   color="gray"
                   class="w-full justify-start text-sm py-2 px-3 rounded-lg"
-                  :leading-icon="'heroicons:user-circle-24-outline'"
+                  :leading-icon="'bx:bxs-user'"
                   @click="closeMobileMenu"
                 >
                   Perfil
@@ -140,7 +140,7 @@
                   variant="ghost"
                   color="gray"
                   class="w-full justify-start text-sm py-2 px-3 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50"
-                  :leading-icon="'heroicons:arrow-right-on-rectangle-24-outline'"
+                  :leading-icon="'bx:log-out'"
                   :disabled="signingOut"
                   @click="handleSignOut"
                 >
@@ -165,8 +165,8 @@
       >
         <UiBaseButton
           :to="item.to"
-          :variant="item.variant || 'ghost'"
-          :color="item.color || 'gray'"
+          :variant="item.variant"
+          :color="item.color"
           :class="[
             'flex-1 flex-col py-2 px-1 text-xs rounded-lg min-h-[56px] bottom-nav-btn',
             item.special ? 'mx-1 scale-110' : ''
@@ -200,16 +200,16 @@ const navigationItems = [
 ]
 
 const bottomNavItems = [
-  { to: '/', label: 'Inicio', icon: 'bx:home-alt-2' },
+  { to: '/', label: 'Inicio', icon: 'bx:home-alt-2', variant: 'ghost' as const, color: 'gray' as const },
   { 
     to: '/orders/new', 
     label: 'Nueva Liberación', 
     icon: 'bx:bxs-plus-square', 
-    variant: 'solid', 
-    color: 'primary',
+    variant: 'solid' as const, 
+    color: 'primary' as const,
     special: true 
   },
-  { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus' }
+  { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus', variant: 'ghost' as const, color: 'gray' as const }
 ]
 
 // User menu items
@@ -327,7 +327,10 @@ watch(() => useRoute().path, () => {
 
 .mobile-nav-btn:hover {
   transform: translateX(8px);
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.1), 
+    rgba(14, 165, 233, 0.1)
+  );
 }
 
 .mobile-nav-btn:active {
@@ -369,7 +372,12 @@ watch(() => useRoute().path, () => {
   position: absolute;
   inset: -2px;
   border-radius: inherit;
-  background: linear-gradient(45deg, #6366f1, #8b5cf6, #06b6d4, #10b981);
+  background: linear-gradient(45deg, 
+    #2563eb, 
+    #0284c7, 
+    #60a5fa, 
+    #38bdf8
+  );
   background-size: 400% 400%;
   animation: gradient-shift 3s ease infinite;
   z-index: -1;
