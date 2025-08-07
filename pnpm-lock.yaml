@@ -69,12 +69,6 @@ importers:
       '@iconify-json/bx':
         specifier: ^1.2.2
         version: 1.2.2
-      '@iconify-json/heroicons':
-        specifier: ^1.2.2
-        version: 1.2.2
-      '@iconify-json/uiw':
-        specifier: ^1.2.1
-        version: 1.2.1
       '@playwright/test':
         specifier: ^1.54.2
         version: 1.54.2
@@ -743,12 +737,6 @@ packages:
 
   '@iconify-json/bx@1.2.2':
     resolution: {integrity: sha512-hZVx6LMEkYckScdRdUuQWcmv8Lm2au6Cnf799TLoR6YgiAfFvaJ4M5ElwcnExvCu8ntsS7jW89r0W5LwBAfZXQ==}
-
-  '@iconify-json/heroicons@1.2.2':
-    resolution: {integrity: sha512-qoW4pXr5kTTL6juEjgTs83OJIwpePu7q1tdtKVEdj+i0zyyVHgg/dd9grsXJQnpTpBt6/VwNjrXBvFjRsKPENg==}
-
-  '@iconify-json/uiw@1.2.1':
-    resolution: {integrity: sha512-q1FyY9N2hkKeisjkHYVoSLv8E9Gg5oHxcVo4VPy4EY7e0RVJAH93dnHyCkTcU4OXp8ExZcgzuevcdldnLQBFjA==}
 
   '@iconify/collections@1.0.576':
     resolution: {integrity: sha512-qUDT6dLCPy4d5Hel4ZH5BoK3tnkxIqxFVJOao8m5/gq/+544zesdnbEfwOTGxHhCn7Gu8YspY/QnQx0vI9FkPQ==}
@@ -6248,14 +6236,6 @@ snapshots:
   '@humanwhocodes/retry@0.4.3': {}
 
   '@iconify-json/bx@1.2.2':
-    dependencies:
-      '@iconify/types': 2.0.0
-
-  '@iconify-json/heroicons@1.2.2':
-    dependencies:
-      '@iconify/types': 2.0.0
-
-  '@iconify-json/uiw@1.2.1':
     dependencies:
       '@iconify/types': 2.0.0
 
