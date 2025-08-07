@@ -10,6 +10,7 @@ A modern web application for managing orders, customers, and products built with
 - **User Profiles** - Complete profile management with role-based access
 - **Protected Routes** - All application routes require authentication
 - **User Session Management** - Automatic login/logout handling
+- **Conditional Navigation** - Navigation only displays when user is authenticated
 
 ### 📊 Order Management
 - **Dashboard** - Overview of key metrics and recent activity with Spanish localization
@@ -179,9 +180,10 @@ This project maintains high code quality standards with:
 
 1. **Route Protection**: All routes use the `auth` middleware
 2. **Login Required**: Unauthenticated users are redirected to `/auth/login`
-3. **Session Persistence**: Supabase handles session management automatically
-4. **Profile Access**: Users can access their profile page via the navigation menu
-5. **Logout**: Available through the user menu in the navigation
+3. **Clean Auth Experience**: Navigation is hidden on login/auth pages for cleaner UX
+4. **Session Persistence**: Supabase handles session management automatically
+5. **Profile Access**: Users can access their profile page via the navigation menu
+6. **Logout**: Available through the user menu in the navigation
 
 ### Database Schema
 
@@ -224,7 +226,7 @@ pnpm build
 
 ## Development Status
 
-- ✅ **Authentication System**: Complete with login/logout/password reset
+- ✅ **Authentication System**: Complete with login/logout/password reset and conditional navigation
 - ✅ **Custom UI System**: Modern component library with TailwindCSS + Headless UI
 - ✅ **Route Protection**: All pages require authentication  
 - ✅ **User Interface**: Dashboard, navigation, and responsive design with Spanish localization
