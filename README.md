@@ -1,6 +1,6 @@
-# Liberador Inaplast - Order Management System
+# Liberador Inaplast - Product Release Quality Control System
 
-A modern web application for managing orders, customers, and products built with Nuxt.js, TailwindCSS, and Supabase.
+A modern web application for managing product release quality control workflows built with Nuxt.js, TailwindCSS, and Supabase.
 
 ## Features
 
@@ -12,19 +12,15 @@ A modern web application for managing orders, customers, and products built with
 - **User Session Management** - Automatic login/logout handling
 - **Conditional Navigation** - Navigation only displays when user is authenticated
 
-### 📊 Order Management
-- **Dashboard** - Overview of key metrics and recent activity with Spanish localization
-- **Nueva Liberación** - Create new order releases with streamlined interface
-- **Order Tracking** - View and manage order status
-- **Historial** - Complete order history with filtering and improved navigation
-
-### 👥 Customer Management
-- **Customer Directory** - Comprehensive customer database
-- **Customer Profiles** - Detailed customer information and order history
-
-### 📦 Product Management
-- **Product Catalog** - Manage product inventory and pricing
-- **Stock Tracking** - Monitor stock levels and alerts
+### 🏭 Product Release Management
+- **Dashboard** - Overview of inspections, approvals, and rejections with Spanish localization
+- **Nueva Liberación** - 4-step quality control workflow:
+  - Step 1: Initial data (label image upload, box quantity)
+  - Step 2: Product details (client, batch, order info, personnel, sampling levels)
+  - Step 3: Quality tests (dimensions, resistance, appearance)
+  - Step 4: Results summary and approval/rejection
+- **Release Tracking** - View and manage release status and quality test results
+- **Historial** - Complete release history with filtering and search capabilities
 
 ## Tech Stack
 
@@ -123,12 +119,14 @@ app/
 │   └── auth.ts                # Route protection middleware
 ├── pages/
 │   ├── auth/
-│   │   └── login.vue          # Login page with password reset
-│   ├── customers.vue          # Customer management
-│   ├── orders.vue             # Order management
-│   ├── products.vue           # Product management
-│   ├── confirm.vue            # Email confirmation handler
-│   ├── index.vue              # Dashboard
+│   │   ├── confirm.vue        # Email confirmation handler
+│   │   ├── login.vue          # Login page with password reset
+│   │   └── reset-password.vue # Password reset page
+│   ├── orders/
+│   │   ├── [id].vue           # Individual release details
+│   │   ├── index.vue          # Release history and management
+│   │   └── new.vue            # 4-step quality control workflow
+│   ├── index.vue              # Dashboard with metrics
 │   └── profile.vue            # User profile page
 ├── types/                     # TypeScript type definitions
 └── assets/
@@ -189,10 +187,8 @@ This project maintains high code quality standards with:
 
 The application uses the following main tables:
 - `profiles` - User profiles and information
-- `customers` - Customer information
-- `products` - Product catalog
-- `orders` - Order records
-- `order_items` - Individual items within orders
+- `orders` - Product release records with quality control data
+- `order_items` - Individual items and test results within releases
 
 See `supabase/migrations/` for complete schema definitions.
 
@@ -238,8 +234,9 @@ pnpm build
 - ✅ **Icon System**: Migrated from Heroicons to Boxicons via @nuxt/icon
 - ✅ **Package Management**: Clean dependencies with pnpm, resolved version conflicts
 - ✅ **Theme System**: Classic blue color palette with simplified theme management
-- 🔄 **Core Features**: Order, customer, and product management in development
-- 🔄 **Database Integration**: Supabase integration for CRUD operations
+- ✅ **Quality Control Workflow**: 4-step product release process with image upload
+- ✅ **Project Structure Optimization**: Removed unused customer/product management, focused on liberador workflow
+- 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing
 
