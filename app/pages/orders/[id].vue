@@ -73,14 +73,6 @@ size="sm"
               <label class="text-sm font-medium text-slate-700">Address</label>
               <p class="text-slate-900">{{ order.customer.address }}</p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              @click="navigateTo(`/customers/${order.customer.id}`)"
-            >
-              View Customer Profile
-              <Icon name="lucide:external-link" class="w-4 h-4 ml-2" />
-            </Button>
           </div>
         </Card>
 
