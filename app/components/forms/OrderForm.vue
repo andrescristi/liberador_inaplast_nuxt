@@ -56,7 +56,7 @@ v-for="customer in customerOptions"
                 class="flex-shrink-0 ml-2 w-8 h-8 p-0"
                 @click="clearCustomerSelection"
               >
-                <Icon name="heroicons:x-mark-24-outline" class="w-4 h-4" />
+                <Icon name="bx:x" class="w-4 h-4" />
               </UiBaseButton>
             </div>
           </div>
@@ -74,7 +74,7 @@ v-for="customer in customerOptions"
             class="w-full sm:w-auto"
             @click="addOrderItem"
           >
-            <Icon name="heroicons:plus-24-outline" class="w-4 h-4 mr-2" />
+            <Icon name="bx:plus" class="w-4 h-4 mr-2" />
             Add Item
           </UiBaseButton>
         </div>
@@ -173,7 +173,7 @@ v-for="product in item.productOptions"
                 size="md"
                 class="text-red-600 hover:text-red-700 hover:border-red-300 w-10 h-10 p-0"
                 @click="removeOrderItem(index)">
-                <Icon name="heroicons:trash-24-outline" class="w-4 h-4" />
+                <Icon name="bx:trash" class="w-4 h-4" />
               </UiBaseButton>
             </div>
           </div>
@@ -182,7 +182,7 @@ v-for="product in item.productOptions"
           <div
 v-if="orderItems.length === 0" 
                class="border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 text-center">
-            <Icon name="heroicons:cube-24-outline" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <Icon name="bx:cube" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p class="text-gray-500 text-sm sm:text-base">No items added yet. Click "Add Item" to start.</p>
           </div>
         </div>

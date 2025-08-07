@@ -18,7 +18,7 @@
           </span>
         </span>
         <span class="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
-          <Icon name="heroicons:chevron-up-down-20-solid" class="h-5 w-5 text-gray-400" />
+          <Icon name="bx:sort-alt-2" class="h-5 w-5 text-gray-400" />
         </span>
       </ListboxButton>
 
@@ -63,7 +63,7 @@
                   'absolute inset-y-0 right-0 flex items-center pr-4'
                 ]"
               >
-                <Icon name="heroicons:check-20-solid" class="h-5 w-5" />
+                <Icon name="bx:check" class="h-5 w-5" />
               </span>
             </li>
           </ListboxOption>

@@ -405,8 +405,10 @@ const formatDateTime = (dateString: string) => {
   })
 }
 
-// Fetch order data
-await ordersStore.fetchOrderById(route.params.id as string)
+// Fetch order data on client side
+onMounted(async () => {
+  await ordersStore.fetchOrderById(route.params.id as string)
+})
 
 // SEO
 useSeoMeta({

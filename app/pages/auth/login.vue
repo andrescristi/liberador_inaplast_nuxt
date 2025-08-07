@@ -26,7 +26,7 @@
               v-model="formState.email"
               type="email"
               placeholder="tu@email.com"
-              leading-icon="heroicons:envelope-24-outline"
+              leading-icon="bx:envelope"
               size="lg"
               :disabled="loading"
               autocomplete="email"
@@ -56,7 +56,7 @@
                   class="text-gray-400 hover:text-gray-500"
                   @click="showPassword = !showPassword"
                 >
-                  <Icon :name="showPassword ? 'heroicons:eye-slash-24-outline' : 'heroicons:eye-24-outline'" class="h-5 w-5" />
+                  <Icon :name="showPassword ? 'bx:hide' : 'bx:show'" class="h-5 w-5" />
                 </button>
               </template>
             </UiBaseInput>
@@ -84,7 +84,7 @@
             :loading="loading"
             :disabled="!isFormValid"
             class="font-medium"
-            :leading-icon="!loading ? 'heroicons:arrow-right-on-rectangle-24-outline' : undefined"
+            :leading-icon="!loading ? 'bx:log-in' : undefined"
           >
             {{ loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
           </UiBaseButton>
@@ -107,7 +107,7 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <Icon name="heroicons:envelope-24-outline" class="w-5 h-5 text-indigo-600" />
+                <Icon name="bx:envelope" class="w-5 h-5 text-indigo-600" />
               </div>
               <div>
                 <h3 class="text-lg font-semibold text-gray-900">
@@ -121,7 +121,7 @@
             <UiBaseButton
               variant="ghost"
               color="gray"
-              leading-icon="heroicons:x-mark-24-outline"
+              leading-icon="bx:x"
               @click="cancelReset"
             />
           </div>
@@ -137,7 +137,7 @@
               v-model="resetState.email"
               type="email"
               placeholder="tu@email.com"
-              leading-icon="heroicons:envelope-24-outline"
+              leading-icon="bx:envelope"
               size="lg"
               :disabled="resetLoading"
               :error="!!resetEmailError"

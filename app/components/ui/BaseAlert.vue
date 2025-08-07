@@ -21,7 +21,7 @@
             @click="$emit('close')"
           >
             <span class="sr-only">Dismiss</span>
-            <Icon name="heroicons:x-mark-24-outline" class="h-5 w-5" />
+            <Icon name="bx:x" class="h-5 w-5" />
           </button>
         </div>
       </div>
@@ -52,10 +52,10 @@ defineEmits<{
 
 const iconName = computed(() => {
   const icons = {
-    success: 'heroicons:check-circle-24-outline',
-    error: 'heroicons:x-circle-24-outline',
-    warning: 'heroicons:exclamation-triangle-24-outline',
-    info: 'heroicons:information-circle-24-outline'
+    success: 'bx:check-circle',
+    error: 'bx:x-circle',
+    warning: 'bx:error',
+    info: 'bx:info-circle'
   }
   return icons[props.variant]
 })

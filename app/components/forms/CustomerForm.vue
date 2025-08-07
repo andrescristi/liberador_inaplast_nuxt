@@ -76,7 +76,7 @@
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="text-center">
-            <div class="text-2xl font-bold text-indigo-600">{{ customerStats.orders_count }}</div>
+            <div class="text-2xl font-bold text-primary-600">{{ customerStats.orders_count }}</div>
             <div class="text-sm text-gray-600">Total Orders</div>
           </div>
           <div class="text-center">

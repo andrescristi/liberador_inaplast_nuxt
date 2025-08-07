@@ -35,8 +35,8 @@
         
         <!-- Leading Icon with bounce -->
         <Icon 
-          :name="leadingIcon" 
           v-if="leadingIcon && !loading" 
+          :name="leadingIcon" 
           :class="[
             'w-4 h-4 mr-2 transition-transform duration-200',
             isPressed ? 'scale-90' : 'scale-100'
@@ -54,8 +54,8 @@
         
         <!-- Trailing Icon with bounce -->
         <Icon 
-          :name="trailingIcon" 
           v-if="trailingIcon" 
+          :name="trailingIcon" 
           :class="[
             'w-4 h-4 ml-2 transition-transform duration-200',
             isPressed ? 'scale-90' : 'scale-100'

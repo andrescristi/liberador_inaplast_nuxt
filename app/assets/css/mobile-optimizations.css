@@ -14,8 +14,8 @@
   [role="button"],
   input[type="submit"],
   input[type="button"] {
-    -webkit-tap-highlight-color: rgba(79, 70, 229, 0.2);
-    tap-highlight-color: rgba(79, 70, 229, 0.2);
+    -webkit-tap-highlight-color: rgba(37, 99, 235, 0.2);
+    tap-highlight-color: rgba(37, 99, 235, 0.2);
   }
   
   /* Better form input handling on mobile */
@@ -142,7 +142,7 @@
 
 /* Focus improvements for keyboard navigation */
 .focus-visible:focus-visible {
-  outline: 2px solid #4f46e5;
+  outline: 2px solid #2563eb;
   outline-offset: 2px;
 }
 

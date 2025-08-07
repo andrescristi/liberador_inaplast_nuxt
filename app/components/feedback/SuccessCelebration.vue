@@ -92,16 +92,16 @@ const titleIndex = ref(0)
 const messageIndex = ref(0)
 const touchCount = ref(0)
 
-// Enhanced brand colors for particles
+// Enhanced theme colors for particles
 const brandColors = [
-  'bg-indigo-400',   // Primary
-  'bg-indigo-300',   // Light primary  
-  'bg-green-400',    // Success
-  'bg-emerald-400',  // Success variant
-  'bg-purple-400',   // Accent
-  'bg-blue-400',     // Blue accent
-  'bg-yellow-400',   // Warning/celebration
-  'bg-pink-400'      // Fun accent
+  'bg-primary-400',    // Primary
+  'bg-primary-300',    // Light primary  
+  'bg-secondary-400',  // Secondary
+  'bg-secondary-300',  // Light secondary
+  'bg-success-400',    // Success
+  'bg-success-300',    // Success variant
+  'bg-warning-400',    // Warning/celebration
+  'bg-danger-300'      // Fun accent
 ]
 
 const celebrate = (customMessage?: string) => {

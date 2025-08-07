@@ -4,7 +4,7 @@
       <MenuButton :class="buttonClasses">
         <slot name="button">
           <span>Options</span>
-          <Icon name="heroicons:chevron-down-20-solid" class="-mr-1 ml-2 h-5 w-5" />
+          <Icon name="bx:chevron-down" class="-mr-1 ml-2 h-5 w-5" />
         </slot>
       </MenuButton>
     </div>
@@ -43,8 +43,8 @@ class="py-1">
 :item="item"
 :active="active">
                   <Icon
-:name="item.icon"
 v-if="item.icon"
+:name="item.icon"
 class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
                   {{ item.label }}
                 </slot>
@@ -64,8 +64,8 @@ class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
 :item="item"
 :active="active">
                   <Icon
-:name="item.icon"
 v-if="item.icon"
+:name="item.icon"
 class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
                   {{ item.label }}
                 </slot>
