@@ -13,7 +13,5 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-  middleware: 'auth'
-})
+// Layout file - middleware should be defined in pages or globally
 </script>
