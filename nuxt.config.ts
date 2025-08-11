@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  compatibilityDate: '2025-08-11',
   srcDir: 'app/',
   css: [
     '~/assets/css/main.css',
@@ -23,8 +24,8 @@ export default defineNuxtConfig({
     key: process.env.SUPABASE_ANON_KEY,
     redirectOptions: {
       login: '/auth/login',
-      callback: '/confirm',
-      exclude: ['/', '/daisy-test-no-auth', '/demo-daisy', '/demo-daisy-optimized', '/test-daisy', '/showcase-components', '/design-system']
+      callback: '/auth/confirm',
+      exclude: ['/auth/login', '/auth/reset-password', '/auth/confirm']
     }
   },
   runtimeConfig: {
@@ -34,5 +35,41 @@ export default defineNuxtConfig({
         key: process.env.SUPABASE_ANON_KEY
       }
     }
+  },
+  
+  // Performance optimizations
+  experimental: {
+    payloadExtraction: false
+  },
+  
+  // SEO and meta configuration
+  app: {
+    head: {
+      title: 'Liberador Inaplast - Control de Calidad',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { 
+          name: 'description', 
+          content: 'Sistema de control de calidad para liberación de productos - Inaplast' 
+        },
+        { name: 'theme-color', content: '#4f46e5' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      ]
+    }
+  },
+  
+  // Component auto-import configuration
+  components: {
+    global: true,
+    dirs: [
+      '~/components',
+      '~/components/ui',
+      '~/components/core',
+      '~/components/feedback',
+      '~/components/forms'
+    ]
   }
 })
