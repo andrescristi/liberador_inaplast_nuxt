@@ -39,16 +39,16 @@
           </div>
         </UiBaseCard>
 
-        <UiBaseCard class="bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
+        <UiBaseCard class="bg-gradient-to-br from-red-50 to-blue-50 border-red-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <Icon name="bx:bxs-error" class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />
+              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <Icon name="bx:bxs-error" class="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
               </div>
             </div>
             <div class="ml-3 sm:ml-4">
-              <dt class="text-xs sm:text-sm font-medium text-indigo-800">Inspecciones Rechazadas</dt>
-              <dd class="text-xl sm:text-2xl font-bold text-indigo-900">{{ metrics.revenue }}</dd>
+              <dt class="text-xs sm:text-sm font-medium text-red-800">Inspecciones Rechazadas</dt>
+              <dd class="text-xl sm:text-2xl font-bold text-red-900">{{ metrics.rejected }}</dd>
             </div>
           </div>
         </UiBaseCard>
@@ -175,34 +175,20 @@
       </UiBaseCard>
     </div>
     
-    <!-- Confetti Component -->
-    <FeedbackConfettiCelebration ref="confettiRef" />
   </div>
 </template>
 
 <script setup lang="ts">
-// Icons are now provided by @nuxt/icon
-
-// Composables
-const _supabase = useSupabaseClient()
 const toast = useToast()
 
-// Reactive data
 const loading = ref(true)
-const _userName = ref('Usuario') // This should come from auth
-const currentDayDate = ref('')
 const metrics = ref({
   pending: 25,
   completed: 120,
-  revenue: 15000,
+  rejected: 8,
   customers: 45
 })
 
-const _activityChart = ref([
-  { date: '22/07/25', total: 45, accepted: 40, rejected: 5, acceptedPercentage: 89, rejectedPercentage: 11 },
-  { date: '21/07/25', total: 42, accepted: 38, rejected: 4, acceptedPercentage: 90, rejectedPercentage: 10 },
-  { date: '20/07/25', total: 43, accepted: 42, rejected: 1, acceptedPercentage: 98, rejectedPercentage: 2 }
-])
 const recentOrders = ref([])
 const tableColumns = ref([
   { key: 'order', label: 'Order' },
@@ -211,50 +197,8 @@ const tableColumns = ref([
   { key: 'amount', label: 'Amount' },
   { key: 'date', label: 'Date' }
 ])
-const _recentInspections = ref([
-  {
-    id: 1,
-    product_name: 'Envases 25 Lts',
-    status: 'approved',
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 2,
-    product_name: 'Envases 1LT',
-    status: 'rejected',
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 3,
-    product_name: 'Envases 2LT',
-    status: 'approved',
-    created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString()
-  },
-  {
-    id: 4,
-    product_name: 'Envases 3 LT',
-    status: 'approved',
-    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-  }
-])
 
-// Initialize current date
-function initializeDate() {
-  const now = new Date()
-  const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
-  const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
-  
-  const dayName = days[now.getDay()]
-  const day = now.getDate()
-  const month = months[now.getMonth()]
-  const year = now.getFullYear()
-  
-  currentDayDate.value = `${dayName}, ${day} de ${month} de ${year}`
-}
-
-// Fetch data on mount
 onMounted(async () => {
-  initializeDate()
   await loadDashboardData()
 })
 
@@ -275,25 +219,6 @@ async function loadDashboardData() {
   } finally {
     loading.value = false
   }
-}
-
-// Helper functions
-function _getInspectionStatusColor(status: string): 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink' {
-  const colors: Record<string, 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink'> = {
-    approved: 'green',
-    rejected: 'red',
-    pending: 'yellow'
-  }
-  return colors[status] || 'gray'
-}
-
-function _getInspectionStatusText(status: string): string {
-  const texts: Record<string, string> = {
-    approved: 'Aprobado',
-    rejected: 'Rechazado',
-    pending: 'Pendiente'
-  }
-  return texts[status] || status
 }
 
 function getStatusColor(status: string): 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink' {
@@ -317,31 +242,6 @@ function onOrderClick(row: Record<string, unknown>) {
   }
 }
 
-function _formatInspectionDate(dateString: string) {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
-  
-  if (diffInHours < 1) {
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
-    return `Hace ${diffInMinutes} minutos`
-  } else if (diffInHours < 24) {
-    const hours = date.getHours()
-    const minutes = date.getMinutes()
-    const period = hours >= 12 ? 'PM' : 'AM'
-    const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours
-    return `Hoy, ${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`
-  } else if (diffInHours < 48) {
-    const hours = date.getHours()
-    const minutes = date.getMinutes()
-    const period = hours >= 12 ? 'PM' : 'AM'
-    const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours
-    return `Ayer, ${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`
-  } else {
-    return date.toLocaleDateString('es-ES')
-  }
-}
-
 // Authentication
 definePageMeta({
   middleware: 'auth'
@@ -354,6 +254,3 @@ useSeoMeta({
 })
 </script>
 
-<style>
-@import '~/assets/css/dashboard.css';
-</style>
