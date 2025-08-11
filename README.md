@@ -24,7 +24,7 @@ A modern web application for managing product release quality control workflows 
 
 ## Tech Stack
 
-- **Frontend**: Nuxt.js 3, Vue.js 3, TailwindCSS
+- **Frontend**: Nuxt.js 4, Vue.js 3, TailwindCSS
 - **UI Components**: Custom component system with Headless UI
 - **Backend**: Supabase (PostgreSQL, Auth, Real-time)
 - **State Management**: Pinia
@@ -257,6 +257,7 @@ pnpm build
 - ✅ **Project Structure Optimization**: Removed unused customer/product management, focused on liberador workflow
 - ✅ **CSS Architecture**: Modular CSS with deduplication, performance optimization, and maintainable organization
 - ✅ **Configuration Management**: Updated nuxt.config.ts with SEO optimization, performance settings, and proper auth routing
+- ✅ **Framework Upgrade**: Successfully upgraded to Nuxt 4.0.3 with improved performance and type safety
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing
