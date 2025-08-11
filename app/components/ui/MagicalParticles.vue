@@ -1,5 +1,9 @@
 <template>
-  <div v-if="enabled" class="magical-particles">
+  <div 
+    v-if="enabled" 
+    class="magical-particles" 
+    style="z-index: var(--z-particles)"
+  >
     <div
       v-for="i in count"
       :key="i"
@@ -32,35 +36,3 @@ const getParticleStyle = (_index: number) => {
 }
 </script>
 
-<style scoped>
-.magical-particles {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.particle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: linear-gradient(45deg, #ffd700, #ff69b4);
-  border-radius: 50%;
-  animation: float 3s infinite ease-in-out;
-  opacity: 0.7;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 0;
-  }
-  50% {
-    transform: translateY(-20px) rotate(180deg);
-    opacity: 0.7;
-  }
-}
-</style>

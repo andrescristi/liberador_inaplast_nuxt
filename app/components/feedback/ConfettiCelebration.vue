@@ -1,6 +1,10 @@
 <template>
   <teleport to="body">
-    <div v-if="showConfetti" class="confetti-container">
+    <div 
+      v-if="showConfetti" 
+      class="confetti-container" 
+      style="z-index: var(--z-confetti)"
+    >
       <div
         v-for="piece in confettiPieces"
         :key="piece.id"
@@ -64,43 +68,3 @@ defineExpose({
 })
 </script>
 
-<style scoped>
-.confetti-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 9999;
-  overflow: hidden;
-}
-
-.confetti-piece {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  animation: confetti-fall linear forwards;
-}
-
-.confetti-piece:nth-child(odd) {
-  width: 6px;
-  height: 12px;
-}
-
-.confetti-piece:nth-child(3n) {
-  width: 10px;
-  height: 6px;
-}
-
-@keyframes confetti-fall {
-  0% {
-    transform: translateY(-100vh) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) rotate(720deg);
-    opacity: 0;
-  }
-}
-</style>
