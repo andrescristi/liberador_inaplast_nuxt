@@ -548,4 +548,9 @@ useSeoMeta({
   title: 'Orders - Order Management',
   description: 'Manage and track all your customer orders with filtering and search capabilities.'
 })
+
+// Page meta
+definePageMeta({
+  middleware: 'auth'
+})
 </script>

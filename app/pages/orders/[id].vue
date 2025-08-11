@@ -369,4 +369,9 @@ useSeoMeta({
   title: `Order ${route.params.id} - Order Management`,
   description: `View details for order ${route.params.id} including customer information, items, and status.`
 })
+
+// Page meta
+definePageMeta({
+  middleware: 'auth'
+})
 </script>
