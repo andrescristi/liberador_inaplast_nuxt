@@ -433,7 +433,7 @@ const statusOptions: StatusOption[] = [
   { value: 'cancelled', label: 'Cancelled' },
 ]
 
-// Initialize store only on client side
+// Store initialization
 const ordersStore = import.meta.client ? useOrdersStore() : null
 
 // Computed properties that are safe for SSR
@@ -442,11 +442,7 @@ const pagination = computed(() => ordersStore?.pagination || { total: 0, total_p
 const loading = computed(() => ordersStore?.loading || false)
 
 const hasActiveFilters = computed(() => {
-  try {
-    return filters.value?.search || filters.value?.status || filters.value?.date_from || filters.value?.date_to || false
-  } catch (error) {
-    return false
-  }
+  return !!(filters.value?.search || filters.value?.status || filters.value?.date_from || filters.value?.date_to)
 })
 
 // Methods
@@ -457,7 +453,7 @@ const loadOrders = async (page = 1) => {
 }
 
 const applyFilters = () => {
-  if (!import.meta.client) return
+  if (!import.meta.client || !ordersStore) return
   currentPage.value = 1
   loadOrders(1)
 }
@@ -472,15 +468,14 @@ const clearFilters = () => {
   applyFilters()
 }
 
-// Define debouncedSearch after filters are initialized
+// Debounced search function
 const debouncedSearch = debounce(() => {
-  if (import.meta.client) {
-    applyFilters()
-  }
+  applyFilters()
 }, 300)
 
-const toggleSort = (_field: string) => {
-  // TODO: Implement sorting logic
+const toggleSort = (field: string) => {
+  // Sorting functionality will be implemented when backend API supports it
+  console.log(`Sorting by ${field} - feature pending backend support`)
 }
 
 const showOrderActions = (order: Order) => {
@@ -497,9 +492,8 @@ const updateOrderStatus = async (status: OrderStatus) => {
     // Refresh the list
     await loadOrders(currentPage.value)
   } catch (error) {
-    // TODO: Implement proper error handling
-    // Placeholder to avoid unused variable warning
-    console.warn('Failed to update order status:', error)
+    console.error('Failed to update order status:', error)
+    // TODO: Show user-friendly error notification
   }
 }
 
@@ -513,9 +507,8 @@ const deleteOrder = async () => {
       // Refresh the list
       await loadOrders(currentPage.value)
     } catch (error) {
-      // TODO: Implement proper error handling  
-      // Placeholder to avoid unused variable warning
-      console.warn('Failed to delete order:', error)
+      console.error('Failed to delete order:', error)
+      // TODO: Show user-friendly error notification
     }
   }
 }
