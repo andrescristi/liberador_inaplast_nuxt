@@ -3,8 +3,8 @@
     <!-- Header Section -->
     <div class="relative">
       <!-- Background Pattern -->
-      <div class="absolute inset-0 bg-gradient-to-r from-indigo-600/10 via-blue-600/5 to-purple-600/10"></div>
-      <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.8) 1px, transparent 0); background-size: 32px 32px;"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-indigo-600/10 via-blue-600/5 to-purple-600/10"/>
+      <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.8) 1px, transparent 0); background-size: 32px 32px;"/>
       
       <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
         <div class="text-center">
@@ -31,7 +31,7 @@
             <div class="w-20 h-20 bg-gradient-to-r from-indigo-100 to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
               <Icon name="bx:loader" class="w-10 h-10 text-indigo-500 animate-spin" />
             </div>
-            <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 rounded-2xl blur-lg"></div>
+            <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 rounded-2xl blur-lg"/>
           </div>
           <h3 class="text-lg font-semibold text-gray-800 mb-2">Cargando información</h3>
           <p class="text-gray-600">Obteniendo los datos de tu perfil...</p>
@@ -57,9 +57,9 @@
         <div v-else-if="profile">
           <!-- Profile Header -->
           <div class="relative bg-gradient-to-r from-indigo-500 via-blue-500 to-purple-600 px-8 pt-12 pb-20">
-            <div class="absolute inset-0 bg-black/10"></div>
+            <div class="absolute inset-0 bg-black/10"/>
             <div class="absolute inset-0 opacity-10">
-              <div class="w-full h-full" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0); background-size: 20px 20px;"></div>
+              <div class="w-full h-full" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0); background-size: 20px 20px;"/>
             </div>
             
             <div class="relative text-center">
@@ -310,14 +310,16 @@ const error = ref<string | null>(null)
 const isEditing = ref(false)
 const saving = ref(false)
 
-// Delightful loading messages
-const loadingMessages = [
-  '🚀 Preparando tu perfil...',
-  '✨ Organizando tu información...',
-  '🎯 Casi listo...',
-  '💫 Últimos detalles...'
-]
-
+// Configuration for loading experience
+const LOADING_CONFIG = {
+  messages: [
+    '🚀 Preparando tu perfil...',
+    '✨ Organizando tu información...',
+    '🎯 Casi listo...',
+    '💫 Últimos detalles...'
+  ],
+  messageInterval: 800
+}
 
 const currentLoadingMessage = ref(0)
 
@@ -336,8 +338,8 @@ const loadProfile = async () => {
     
     // Cycle through loading messages for a delightful experience
     const messageInterval = setInterval(() => {
-      currentLoadingMessage.value = (currentLoadingMessage.value + 1) % loadingMessages.length
-    }, 800)
+      currentLoadingMessage.value = (currentLoadingMessage.value + 1) % LOADING_CONFIG.messages.length
+    }, LOADING_CONFIG.messageInterval)
     
     profile.value = await getCurrentProfile()
     
@@ -409,33 +411,47 @@ const saveProfile = async () => {
   }
 }
 
-// Celebration effect
-const triggerCelebration = () => {
-  // Create a simple confetti effect with DOM manipulation
-  const colors = ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b']
+// Celebration effect configuration
+const CELEBRATION_CONFIG = {
+  confettiCount: 50,
+  colors: ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b'],
+  duration: 3000,
+  delayBetweenConfetti: 50
+}
+
+const createConfettiElement = (color: string): HTMLElement => {
+  const confetti = document.createElement('div')
   
-  for (let i = 0; i < 50; i++) {
+  // Apply styles directly to avoid TypeScript issues
+  confetti.style.cssText = `
+    position: fixed;
+    top: 20%;
+    left: ${Math.random() * 100}%;
+    width: 8px;
+    height: 8px;
+    background: ${color};
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    animation: confetti-fall 3s ease-in-out forwards;
+  `
+  
+  return confetti
+}
+
+const triggerCelebration = () => {
+  for (let i = 0; i < CELEBRATION_CONFIG.confettiCount; i++) {
     setTimeout(() => {
-      const confetti = document.createElement('div')
-      confetti.style.cssText = `
-        position: fixed;
-        top: 20%;
-        left: ${Math.random() * 100}%;
-        width: 8px;
-        height: 8px;
-        background: ${colors[Math.floor(Math.random() * colors.length)]};
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9999;
-        animation: confetti-fall 3s ease-in-out forwards;
-      `
+      const randomIndex = Math.floor(Math.random() * CELEBRATION_CONFIG.colors.length)
+      const randomColor = CELEBRATION_CONFIG.colors[randomIndex]!
+      const confetti = createConfettiElement(randomColor)
       
       document.body.appendChild(confetti)
       
       setTimeout(() => {
         confetti.remove()
-      }, 3000)
-    }, i * 50)
+      }, CELEBRATION_CONFIG.duration)
+    }, i * CELEBRATION_CONFIG.delayBetweenConfetti)
   }
 }
 

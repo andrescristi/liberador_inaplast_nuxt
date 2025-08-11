@@ -170,7 +170,6 @@
 
 <script setup lang="ts">
 import { z } from 'zod'
-// Icons are now provided by @nuxt/icon
 
 definePageMeta({
   layout: false,
@@ -273,8 +272,9 @@ const handleLogin = async () => {
     // Success toast
     toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente')
     
-    // Smooth redirect
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // Smooth redirect with configurable delay
+    const NAVIGATION_DELAY = 500
+    await new Promise(resolve => setTimeout(resolve, NAVIGATION_DELAY))
     await navigateTo('/')
     
   } catch (err: unknown) {
@@ -313,7 +313,7 @@ const handleResetPassword = async () => {
 
 const cancelReset = () => {
   showResetPassword.value = false
-  resetState.email = ''
+  Object.assign(resetState, { email: '' })
   resetEmailError.value = ''
 }
 
