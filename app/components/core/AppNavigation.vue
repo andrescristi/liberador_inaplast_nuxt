@@ -185,51 +185,107 @@
 
 // Composables
 const user = useSupabaseUser()
-const { signOut } = useAuth()
+const { signOut, getCurrentUserProfile } = useAuth()
 const toast = useToast()
 
 // State
 const signingOut = ref(false)
 const mobileMenuOpen = ref(false)
+const userProfile = ref<any>(null)
+
+// Get user profile
+watchEffect(async () => {
+  if (user.value) {
+    try {
+      userProfile.value = await getCurrentUserProfile()
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+    }
+  } else {
+    userProfile.value = null
+  }
+})
 
 // Navigation items data
-const navigationItems = [
-  { to: '/', label: 'Inicio', icon: 'bx:home-alt-2' },
-  { to: '/orders/new', label: 'Nueva Liberación', icon: 'bx:bxs-plus-square' },
-  { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus' }
-]
+const navigationItems = computed(() => {
+  const baseItems = [
+    { to: '/', label: 'Inicio', icon: 'bx:home-alt-2' },
+    { to: '/orders/new', label: 'Nueva Liberación', icon: 'bx:bxs-plus-square' },
+    { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus' }
+  ]
 
-const bottomNavItems = [
-  { to: '/', label: 'Inicio', icon: 'bx:home-alt-2', variant: 'ghost' as const, color: 'gray' as const },
-  { 
-    to: '/orders/new', 
-    label: 'Nueva Liberación', 
-    icon: 'bx:bxs-plus-square', 
-    variant: 'solid' as const, 
-    color: 'primary' as const,
-    special: true 
-  },
-  { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus', variant: 'ghost' as const, color: 'gray' as const }
-]
+  // Add admin navigation for admin users
+  if (userProfile.value?.user_role === 'Admin') {
+    baseItems.push({
+      to: '/admin/users',
+      label: 'Administración',
+      icon: 'bx:bxs-cog'
+    })
+  }
+
+  return baseItems
+})
+
+const bottomNavItems = computed(() => {
+  const baseItems = [
+    { to: '/', label: 'Inicio', icon: 'bx:home-alt-2', variant: 'ghost' as const, color: 'gray' as const },
+    { 
+      to: '/orders/new', 
+      label: 'Nueva Liberación', 
+      icon: 'bx:bxs-plus-square', 
+      variant: 'solid' as const, 
+      color: 'primary' as const,
+      special: true 
+    },
+    { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus', variant: 'ghost' as const, color: 'gray' as const }
+  ]
+
+  // Add admin navigation for admin users in mobile
+  if (userProfile.value?.user_role === 'Admin') {
+    baseItems.push({
+      to: '/admin/users',
+      label: 'Admin',
+      icon: 'bx:bxs-cog',
+      variant: 'ghost' as const,
+      color: 'gray' as const
+    })
+  }
+
+  return baseItems
+})
 
 // User menu items
-const userMenuItems = computed(() => [
-  [{
-    slot: 'account',
-    disabled: true
-  }], 
-  [{
-    label: 'Profile',
-    icon: 'bx:user-circle',
-    to: '/profile'
-  }], 
-  [{
+const userMenuItems = computed(() => {
+  const menuItems = [
+    [{
+      slot: 'account',
+      disabled: true
+    }], 
+    [{
+      label: 'Profile',
+      icon: 'bx:user-circle',
+      to: '/profile'
+    }]
+  ]
+
+  // Add admin menu item for admin users
+  if (userProfile.value?.user_role === 'Admin') {
+    menuItems.push([{
+      label: 'Administración',
+      icon: 'bx:cog',
+      to: '/admin/users'
+    }])
+  }
+
+  menuItems.push([{
     label: signingOut.value ? 'Signing out...' : 'Sign Out',
     icon: 'bx:exit',
-    click: handleSignOut,
+    onClick: handleSignOut,
     disabled: signingOut.value
-  }]
-])
+  } as any])
+
+  return menuItems
+})
 
 // Sign out handler
 const handleSignOut = async () => {
