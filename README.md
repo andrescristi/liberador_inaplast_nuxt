@@ -11,6 +11,9 @@ A modern web application for managing product release quality control workflows 
 - **Protected Routes** - All application routes require authentication
 - **User Session Management** - Automatic login/logout handling
 - **Conditional Navigation** - Navigation only displays when user is authenticated
+- **Role-Based Access Control** - Three user roles: Admin, Supervisor, Inspector
+- **User Administration** - Complete admin panel for user management (Admin only)
+- **Activity Audit Trail** - Comprehensive logging of all user management actions
 
 ### 🏭 Product Release Management
 - **Dashboard** - Overview of inspections, approvals, and rejections with Spanish localization
@@ -21,6 +24,15 @@ A modern web application for managing product release quality control workflows 
   - Step 4: Results summary and approval/rejection
 - **Release Tracking** - View and manage release status and quality test results
 - **Historial** - Complete release history with filtering and search capabilities
+
+### 👥 Administrative Features
+- **User Management Dashboard** - Complete CRUD operations for user accounts
+- **Role Assignment** - Assign and modify user roles (Admin, Supervisor, Inspector)
+- **User Statistics** - Real-time metrics including user counts by role and activity
+- **Inspector Activity Tracking** - Monitor inspector performance with 7-day activity reports
+- **User Search & Filtering** - Advanced search and role-based filtering
+- **Account Security** - Password reset functionality and account management
+- **Audit Logging** - Complete activity trail of all administrative actions
 
 ## Tech Stack
 
@@ -83,21 +95,32 @@ A modern web application for managing product release quality control workflows 
 
 ### Creating Users
 
-Since user registration is disabled, you'll need to create users through the Supabase dashboard:
+#### Method 1: Admin Panel (Recommended)
+Once you have an admin user, you can create new users through the admin interface:
+1. Log in as an admin user
+2. Navigate to "Administración" in the navigation menu
+3. Click "Crear Usuario" 
+4. Fill in user details and assign a role
+5. The new user will receive an email confirmation automatically
 
+#### Method 2: Supabase Dashboard (Initial Setup)
+For creating your first admin user, use the Supabase dashboard:
 1. Go to your Supabase project dashboard
 2. Navigate to Authentication > Users
 3. Click "Add user" 
-4. Enter email and password (e.g., `user@example.com` / `123456`)
-5. The user can now log in to the application
+4. Enter email and password (e.g., `admin@example.com` / `123456`)
+5. In the Database > Profiles table, update the user's role to 'Admin'
 
-**Test Credentials**: Create a user with `user@example.com` and password `123456` for testing.
+**Test Credentials**: Create an admin user with `admin@example.com` and password `123456` for testing.
 
 ## Project Structure
 
 ```
 app/
 ├── components/
+│   ├── admin/                 # Admin panel components
+│   │   ├── UserCreateModal.vue # User creation modal form
+│   │   └── UserEditModal.vue   # User editing modal form
 │   ├── core/                  # Core app components (navigation)
 │   └── ui/                    # Custom UI components (TailwindCSS-based)
 │       ├── BaseAlert.vue      # Alert/notification component
@@ -112,12 +135,16 @@ app/
 │       └── ToastNotification.vue # Individual toast notifications
 ├── composables/
 │   ├── useAuth.ts             # Authentication composable
+│   ├── useUserAdministration.ts # User management composable
 │   └── useToast.ts            # Toast notification management
 ├── layouts/
 │   └── default.vue            # Main layout with navigation
 ├── middleware/
-│   └── auth.ts                # Route protection middleware
+│   ├── auth.ts                # Route protection middleware
+│   └── require-admin-role.ts  # Admin-only route protection
 ├── pages/
+│   ├── admin/
+│   │   └── users.vue          # User administration dashboard
 │   ├── auth/
 │   │   ├── confirm.vue        # Email confirmation handler
 │   │   ├── login.vue          # Login page with password reset
@@ -138,6 +165,20 @@ app/
     │   ├── profile.css                # Profile page micro-interactions
     │   └── mobile-optimizations.css    # Mobile-first responsive optimizations
     └── images/                # Application images
+
+server/
+└── api/
+    └── admin/
+        └── users/             # User management API endpoints
+            ├── index.get.ts   # List users with pagination
+            ├── index.post.ts  # Create new user
+            ├── [id].put.ts    # Update user details
+            ├── [id].delete.ts # Delete user account
+            └── stats.get.ts   # User statistics and activity
+
+supabase/
+└── migrations/
+    └── 20250811000001_add_user_activity_logs.sql # Audit trail system
 ```
 
 ## Development
@@ -210,11 +251,17 @@ The project uses a modular CSS architecture for maintainability and performance:
 ### Database Schema
 
 The application uses the following main tables:
-- `profiles` - User profiles and information
+- `profiles` - User profiles with role-based access control
+- `user_activity_logs` - Comprehensive audit trail for all user management actions
 - `orders` - Product release records with quality control data
 - `order_items` - Individual items and test results within releases
 
-See `supabase/migrations/` for complete schema definitions.
+**Role-Based Access Control:**
+- **Admin**: Full system access including user management
+- **Supervisor**: Can manage orders and view all data
+- **Inspector**: Can create and manage assigned orders
+
+See `supabase/migrations/` for complete schema definitions and security policies.
 
 ## Deployment
 
@@ -265,6 +312,9 @@ pnpm build
 - ✅ **Framework Upgrade**: Successfully upgraded to Nuxt 4.0.3 with improved performance and type safety
 - ✅ **Codebase Cleanup**: Comprehensive cleanup completed across all pages - removed unused code, dead functions, and duplicate utilities
 - ✅ **Shared Utilities**: Created centralized formatting utilities to eliminate code duplication and improve maintainability
+- ✅ **User Administration System**: Complete admin panel with role-based access control, user CRUD operations, and activity auditing
+- ✅ **Role-Based Security**: Three-tier role system (Admin/Supervisor/Inspector) with granular permissions and route protection
+- ✅ **Activity Audit Trail**: Comprehensive logging system tracking all user management actions with database triggers and functions
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing
