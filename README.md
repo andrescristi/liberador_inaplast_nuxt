@@ -131,7 +131,10 @@ app/
 ├── types/                     # TypeScript type definitions
 └── assets/
     ├── css/
-    │   └── main.css           # Global styles and utilities
+    │   ├── main.css                    # Global styles, animations, and utilities
+    │   ├── dashboard.css               # Dashboard-specific styles and animations
+    │   ├── profile.css                # Profile page micro-interactions
+    │   └── mobile-optimizations.css    # Mobile-first responsive optimizations
     └── images/                # Application images
 ```
 
@@ -173,6 +176,22 @@ This project maintains high code quality standards with:
 - **Component Prop Types**: Optimized for @nuxt/icon compatibility with Boxicons
 - **Clean Code Standards**: Automated linting with `pnpm lint` and `pnpm lint:fix`
 - **Zero ESLint Errors**: All critical errors resolved, only development console warnings remain
+
+### CSS Architecture & Organization
+
+The project uses a modular CSS architecture for maintainability and performance:
+
+- **Modular Structure**: Page-specific CSS files separated from global styles
+- **Duplicate Elimination**: Common animations and utilities consolidated in `main.css`
+- **Global Optimizations**: Universal transitions, reduced-motion preferences, and accessibility
+- **Performance Focused**: Minimized CSS redundancy and optimized loading
+- **Maintainable**: Clean separation of concerns between global and component-specific styles
+
+**CSS Files:**
+- `main.css` - Global styles, common animations (`fade-in-up`), accessibility features
+- `dashboard.css` - Dashboard metrics animations and hover effects
+- `profile.css` - Profile page micro-interactions and delightful animations
+- `mobile-optimizations.css` - Mobile-first responsive design and touch optimizations
 
 ### Authentication Flow
 
@@ -236,6 +255,7 @@ pnpm build
 - ✅ **Theme System**: Classic blue color palette with simplified theme management
 - ✅ **Quality Control Workflow**: 4-step product release process with image upload
 - ✅ **Project Structure Optimization**: Removed unused customer/product management, focused on liberador workflow
+- ✅ **CSS Architecture**: Modular CSS with deduplication, performance optimization, and maintainable organization
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing
