@@ -1,0 +1,94 @@
+/* Notification Components CSS */
+
+/* Toast Transitions */
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.toast-enter-to,
+.toast-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast-move {
+  transition: transform 0.3s ease;
+}
+
+/* Toast Container Positioning */
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  max-width: 24rem;
+}
+
+/* Toast Animation Variations */
+.toast-slide-left {
+  transform: translateX(-100%);
+}
+
+.toast-slide-right {
+  transform: translateX(100%);
+}
+
+.toast-slide-up {
+  transform: translateY(-100%);
+}
+
+.toast-slide-down {
+  transform: translateY(100%);
+}
+
+/* Toast Progress Bar Animation */
+.toast-progress {
+  height: 4px;
+  background: linear-gradient(90deg, #10b981, #06b6d4);
+  animation: toast-progress-fill var(--duration) linear forwards;
+}
+
+@keyframes toast-progress-fill {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
+  }
+}
+
+/* Mobile Toast Adaptations */
+@media (max-width: 640px) {
+  .toast-container {
+    top: auto;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+  }
+  
+  .toast-enter-from,
+  .toast-leave-to {
+    transform: translateY(100%);
+  }
+}
+
+/* Accessibility Support */
+@media (prefers-reduced-motion: reduce) {
+  .toast-enter-active,
+  .toast-leave-active,
+  .toast-move {
+    transition-duration: 0.1s;
+  }
+  
+  .toast-progress {
+    animation: none;
+  }
+}

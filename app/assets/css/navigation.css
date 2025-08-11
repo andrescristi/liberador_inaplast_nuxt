@@ -1,0 +1,111 @@
+/* Navigation Component CSS */
+
+/* Hamburger Menu Animation */
+.hamburger-line {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.hamburger-icon.open .hamburger-line:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.hamburger-icon.open .hamburger-line:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.hamburger-icon.open .hamburger-line:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Mobile Navigation Animations */
+.mobile-nav-item {
+  animation: slideInStagger 0.4s ease-out both;
+  animation-delay: calc(var(--item-index) * 0.1s + 0.1s);
+}
+
+@keyframes slideInStagger {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Bottom Navigation Animations */
+.bottom-nav-item {
+  animation: bounceInUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+  animation-delay: var(--item-delay);
+}
+
+@keyframes bounceInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.05);
+  }
+  80% {
+    transform: translateY(2px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Navigation Gradient Backgrounds */
+.nav-gradient-button {
+  background: linear-gradient(45deg, #6366f1, #8b5cf6, #06b6d4, #10b981);
+  background-size: 400% 400%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+.nav-gradient-button:hover {
+  animation-duration: 1.5s;
+}
+
+/* Mobile Touch Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .hamburger-icon {
+    padding: 12px;
+  }
+  
+  .mobile-nav-item {
+    animation-duration: 0.3s;
+  }
+  
+  .bottom-nav-item {
+    animation-duration: 0.4s;
+  }
+}
+
+/* Accessibility Support */
+@media (prefers-reduced-motion: reduce) {
+  .hamburger-line {
+    transition-duration: 0.1s;
+  }
+  
+  .mobile-nav-item,
+  .bottom-nav-item {
+    animation: none;
+  }
+  
+  .nav-gradient-button {
+    animation: none;
+    background: #6366f1;
+  }
+}
+
+/* Focus Management */
+.nav-focus-visible:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+  border-radius: 4px;
+}

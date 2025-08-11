@@ -1,0 +1,130 @@
+/* Visual Effects CSS */
+
+/* Confetti Celebration Styles */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  animation: confetti-fall 3s linear infinite;
+}
+
+.confetti-piece:nth-child(odd) {
+  background-color: #ff6b6b;
+  animation-delay: 0s;
+}
+
+.confetti-piece:nth-child(even) {
+  background-color: #4ecdc4;
+  animation-delay: -1.5s;
+}
+
+.confetti-piece:nth-child(3n) {
+  background-color: #45b7d1;
+  animation-delay: -0.5s;
+}
+
+.confetti-piece:nth-child(4n) {
+  background-color: #96ceb4;
+  animation-delay: -2s;
+}
+
+.confetti-piece:nth-child(5n) {
+  background-color: #feca57;
+  animation-delay: -1s;
+}
+
+.confetti-piece:nth-child(6n) {
+  background-color: #ff9ff3;
+  animation-delay: -2.5s;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Magical Particles Styles */
+.magical-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: linear-gradient(45deg, #ffd700, #ff69b4);
+  border-radius: 50%;
+  animation: float 3s infinite ease-in-out;
+  opacity: 0.7;
+}
+
+.particle:nth-child(odd) {
+  animation-delay: -1s;
+}
+
+.particle:nth-child(even) {
+  animation-delay: -2s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+/* Reduced Motion Support for Effects */
+@media (prefers-reduced-motion: reduce) {
+  .confetti-piece,
+  .particle {
+    animation-duration: 6s;
+    animation-timing-function: linear;
+  }
+  
+  @keyframes confetti-fall {
+    0% {
+      opacity: 1;
+      transform: translateY(-10vh);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(10vh);
+    }
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+}
