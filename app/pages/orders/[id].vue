@@ -151,7 +151,7 @@ size="sm"
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
-                <tr v-for="item in mockOrderItems" :key="item.id">
+                <tr v-for="item in orderItems" :key="item.id">
                   <td class="px-4 py-4">
                     <div>
                       <div class="text-sm font-medium text-slate-900">{{ item.product?.name }}</div>
@@ -169,7 +169,7 @@ size="sm"
           <!-- Mobile Cards -->
           <div class="md:hidden space-y-3">
             <div
-              v-for="item in mockOrderItems"
+              v-for="item in orderItems"
               :key="item.id"
               class="border border-slate-200 rounded-lg p-4"
             >
@@ -271,7 +271,8 @@ class="border-red-200">
 
 <script setup lang="ts">
 import { useOrdersStore } from '~/stores/orders'
-import type { OrderStatus, OrderItem, StatusTimelineItem } from '~/types'
+import type { OrderStatus, StatusTimelineItem } from '~/types'
+import { formatCurrency, formatDate, formatDateTime } from '~/utils/formatters'
 
 const route = useRoute()
 const ordersStore = useOrdersStore()
@@ -281,47 +282,14 @@ const updating = ref(false)
 // Get order from store or fetch it
 const order = computed(() => ordersStore.currentOrder)
 
-// Mock order items data (replace with real data from API)
-const mockOrderItems: OrderItem[] = [
-  {
-    id: '1',
-    order_id: route.params.id as string,
-    product_id: 'PROD-001',
-    quantity: 2,
-    unit_price: 50,
-    subtotal: 100,
-    product: {
-      id: 'PROD-001',
-      name: 'Premium Widget A',
-      description: 'High-quality professional grade widget',
-      price: 50,
-      stock_quantity: 150,
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-01T00:00:00Z'
-    }
-  },
-  {
-    id: '2',
-    order_id: route.params.id as string,
-    product_id: 'PROD-002',
-    quantity: 1,
-    unit_price: 125,
-    subtotal: 125,
-    product: {
-      id: 'PROD-002',
-      name: 'Professional Tool X',
-      description: 'Advanced tool for professional use',
-      price: 125,
-      stock_quantity: 25,
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-01T00:00:00Z'
-    }
-  }
-]
+// Order items will be loaded from the order data
+const orderItems = computed(() => {
+  return order.value?.order_items || []
+})
 
 // Computed values
 const orderSubtotal = computed(() => {
-  return mockOrderItems.reduce((sum, item) => sum + item.subtotal, 0)
+  return orderItems.value.reduce((sum, item) => sum + item.subtotal, 0)
 })
 
 const orderTax = computed(() => {
@@ -331,14 +299,32 @@ const orderTax = computed(() => {
 const statusTimeline = computed((): StatusTimelineItem[] => {
   if (!order.value) return []
   
+  const currentStatus = order.value.status
   const timeline: StatusTimelineItem[] = [
-    { status: 'pending', timestamp: order.value.created_at, completed: true },
-    { status: 'processing', timestamp: order.value.status !== 'pending' ? order.value.updated_at : '', completed: order.value.status === 'processing' || order.value.status === 'completed' },
-    { status: 'completed', timestamp: order.value.status === 'completed' ? order.value.updated_at : '', completed: order.value.status === 'completed' }
+    { 
+      status: 'pending', 
+      timestamp: order.value.created_at, 
+      completed: true 
+    },
+    { 
+      status: 'processing', 
+      timestamp: currentStatus !== 'pending' ? order.value.updated_at : '', 
+      completed: currentStatus === 'processing' || currentStatus === 'completed' 
+    },
+    { 
+      status: 'completed', 
+      timestamp: currentStatus === 'completed' ? order.value.updated_at : '', 
+      completed: currentStatus === 'completed' 
+    }
   ]
   
-  if (order.value.status === 'cancelled') {
-    timeline.push({ status: 'cancelled', timestamp: order.value.updated_at, completed: true })
+  // Add cancelled status if applicable
+  if (currentStatus === 'cancelled') {
+    timeline.push({ 
+      status: 'cancelled', 
+      timestamp: order.value.updated_at, 
+      completed: true 
+    })
   }
   
   return timeline
@@ -371,31 +357,7 @@ const deleteOrder = async () => {
   }
 }
 
-// Utility functions
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount)
-}
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
-
-const formatDateTime = (dateString: string) => {
-  return new Date(dateString).toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric'
-  })
-}
+// All formatting functions are now imported from ~/utils/formatters
 
 // Fetch order data on client side
 onMounted(async () => {
