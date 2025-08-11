@@ -1,3 +1,9 @@
+/* Import component-specific stylesheets */
+@import './ui-components.css';
+@import './navigation.css';
+@import './notifications.css';
+@import './effects.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -109,9 +115,3 @@
     animation: gradient-shift 3s ease infinite;
   }
 }
-
-/* Import component-specific stylesheets */
-@import './ui-components.css';
-@import './navigation.css';
-@import './notifications.css';
-@import './effects.css';
