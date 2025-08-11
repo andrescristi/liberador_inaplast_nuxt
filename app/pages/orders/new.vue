@@ -59,9 +59,9 @@
               </div>
               <div v-else class="space-y-3">
                 <img
-:src="formData.labelImagePreview"
-alt="Label preview"
-class="mx-auto max-w-32 max-h-32 object-cover rounded-lg">
+                :src="formData.labelImagePreview"
+                alt="Label preview"
+                class="mx-auto max-w-32 max-h-32 object-cover rounded-lg">
                 <p class="text-sm font-medium text-green-600">{{ formData.labelImage.name }}</p>
                 <button 
                   type="button" 
@@ -316,9 +316,9 @@ class="mx-auto max-w-32 max-h-32 object-cover rounded-lg">
               >
                 <option :value="null">Seleccionar cantidad</option>
                 <option
-v-for="quantity in samplingOptions"
-:key="quantity"
-:value="quantity">
+                  v-for="quantity in samplingOptions"
+                  :key="quantity"
+                  :value="quantity">
                   {{ quantity }} unidades
                 </option>
               </select>
@@ -585,9 +585,9 @@ v-for="quantity in samplingOptions"
                 <div v-if="formData.labelImage">
                   <span class="text-gray-600 block mb-2">Imagen de Etiqueta:</span>
                   <img
-:src="formData.labelImagePreview"
-alt="Label"
-class="w-24 h-24 object-cover rounded border">
+                    :src="formData.labelImagePreview"
+                    alt="Label"
+                    class="w-24 h-24 object-cover rounded border">
                 </div>
               </div>
             </div>
@@ -705,6 +705,8 @@ class="w-24 h-24 object-cover rounded border">
 </template>
 
 <script setup lang="ts">
+const toast = useToast()
+
 // Reactive state
 const currentStep = ref(1)
 const totalSteps = 4
@@ -821,8 +823,10 @@ const handleFileDrop = (event: DragEvent) => {
 }
 
 const processFile = (file: File) => {
-  if (file.size > 5 * 1024 * 1024) { // 5MB limit
-    alert('El archivo es demasiado grande. El límite es de 5MB.')
+  const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB limit
+  if (file.size > MAX_FILE_SIZE) {
+    const toast = useToast()
+    toast.error('Archivo muy grande', 'El límite es de 5MB')
     return
   }
   
@@ -874,20 +878,56 @@ const saveForm = async () => {
   isSaving.value = true
   
   try {
-    // Here you would normally save to a backend/database
-    // Save form data to backend/database
+    // Prepare form data for API submission
+    const orderData = {
+      // Basic information
+      boxQuantity: formData.boxQuantity,
+      labelImage: formData.labelImage,
+      
+      // Product details
+      client: formData.client,
+      batch: formData.batch,
+      order: formData.order,
+      product: formData.product,
+      units: formData.units,
+      purchaseOrder: formData.purchaseOrder,
+      machine: formData.machine,
+      manufacturingDate: formData.manufacturingDate,
+      shift: formData.shift,
+      
+      // Personnel
+      shiftManager: formData.shiftManager,
+      operator: formData.operator,
+      qualityInspector: formData.qualityInspector,
+      
+      // Quality control
+      samplingLevel: formData.samplingLevel,
+      actualSampling: formData.actualSampling,
+      test1: formData.test1,
+      test2: formData.test2,
+      test3: formData.test3,
+      
+      // Results
+      overallResult: overallResult.value,
+      createdAt: new Date().toISOString()
+    }
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    // Prepare data for API submission
+    // Note: API integration pending - currently logging for development
+    console.log('Order data prepared for API:', orderData)
     
-    // Show success message and redirect
-    alert(`¡Liberador guardado exitosamente!\n\nResultado: ${overallResult.value}\n\nRedirecting to dashboard...`)
+    // For now, simulate API call for development
+    await new Promise(resolve => setTimeout(resolve, 1500))
     
-    // Redirect to orders list or dashboard
+    // Show success notification
+    toast.success('¡Liberador guardado exitosamente!', `Resultado: ${overallResult.value}`)
+    
+    // Navigate to orders list
     await navigateTo('/orders')
     
-  } catch {
-    // Handle form save error silently
+  } catch (error) {
+    console.error('Error saving order:', error)
+    toast.error('Error al guardar', 'Por favor, intente nuevamente.')
   } finally {
     isSaving.value = false
   }
