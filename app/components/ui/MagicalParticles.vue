@@ -15,12 +15,9 @@ interface Props {
   enabled?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  count: 20,
-  enabled: true
-})
+const { count = 20, enabled = true } = defineProps<Props>()
 
-const getParticleStyle = (index: number) => {
+const getParticleStyle = (_index: number) => {
   const x = Math.random() * 100
   const y = Math.random() * 100
   const delay = Math.random() * 2
