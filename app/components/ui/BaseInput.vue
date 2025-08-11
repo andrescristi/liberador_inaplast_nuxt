@@ -1,7 +1,13 @@
 <template>
   <div class="relative">
+    <!-- Focus Ring Animation -->
+    <div 
+      v-if="isFocused && !props.error" 
+      class="input-focus-ring"
+    />
     <component
       :is="tag"
+      ref="inputElement"
       v-bind="inputAttrs"
       :value="modelValue"
       :class="inputClasses"
@@ -188,80 +194,3 @@ watch(() => props.type, (newType) => {
 })
 </script>
 
-<style scoped>
-/* Focus Ring Animation */
-.input-container {
-  position: relative;
-}
-
-.focus-ring {
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 0.5rem;
-  background: linear-gradient(45deg, #6366f1, #8b5cf6, #06b6d4, #10b981);
-  background-size: 400% 400%;
-  animation: gradient-shift 3s ease infinite, pulse-ring 2s ease-in-out infinite;
-  z-index: 0;
-  opacity: 0.6;
-}
-
-.focus-ring-error {
-  background: linear-gradient(45deg, #ef4444, #f97316, #eab308);
-  background-size: 400% 400%;
-}
-
-.focus-ring-success {
-  background: linear-gradient(45deg, #10b981, #06b6d4, #8b5cf6);
-  background-size: 400% 400%;
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes pulse-ring {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scale(1.02);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-}
-
-/* Mobile touch optimizations */
-@media (hover: none) {
-  .focus-ring {
-    animation-duration: 2s;
-  }
-}
-
-/* Accessibility: Respect reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  .focus-ring {
-    animation: none;
-    opacity: 0.3;
-  }
-  
-  * {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-  }
-}
-</style>

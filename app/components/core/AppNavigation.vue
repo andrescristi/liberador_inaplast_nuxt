@@ -1,6 +1,6 @@
 <template>
   <!-- Top Navigation -->
-  <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
+  <nav class="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-200" style="z-index: var(--z-sticky)">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
       <div class="flex justify-between h-14 sm:h-16">
         <!-- Logo and Brand -->
@@ -66,10 +66,10 @@
             @click="toggleMobileMenu"
           >
             <!-- Animated hamburger/X icon -->
-            <div class="hamburger-icon" :class="{ 'open': mobileMenuOpen }">
-              <span class="hamburger-line" />
-              <span class="hamburger-line" />
-              <span class="hamburger-line" />
+            <div class="hamburger-icon flex flex-col justify-around w-5 h-5 cursor-pointer" :class="{ 'open': mobileMenuOpen }">
+              <span class="hamburger-line block h-0.5 w-full bg-current rounded-sm" />
+              <span class="hamburger-line block h-0.5 w-full bg-current rounded-sm" />
+              <span class="hamburger-line block h-0.5 w-full bg-current rounded-sm" />
             </div>
           </UiBaseButton>
         </div>
@@ -155,7 +155,7 @@
   </nav>
 
   <!-- Bottom Navigation for Mobile with enhanced animations -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-t border-gray-200 px-2 py-2 mobile-bottom-nav">
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 px-2 py-2 mobile-bottom-nav" style="z-index: var(--z-fixed)">
     <div class="flex items-center justify-around">
       <div 
         v-for="(item, index) in bottomNavItems" 
@@ -169,7 +169,7 @@
           :color="item.color"
           :class="[
             'flex-1 flex-col py-2 px-1 text-xs rounded-lg min-h-[56px] bottom-nav-btn',
-            item.special ? 'mx-1 scale-110' : ''
+            item.special ? 'mx-1 scale-110 nav-gradient-button' : ''
           ]"
           :leading-icon="item.icon"
         >
@@ -330,192 +330,3 @@ watch(() => useRoute().path, () => {
 })
 </script>
 
-<style scoped>
-/* Animated Hamburger Icon */
-.hamburger-icon {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-}
-
-.hamburger-line {
-  display: block;
-  height: 2px;
-  width: 100%;
-  background-color: currentColor;
-  border-radius: 1px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: center;
-}
-
-.hamburger-icon.open .hamburger-line:nth-child(1) {
-  transform: translateY(6px) rotate(45deg);
-}
-
-.hamburger-icon.open .hamburger-line:nth-child(2) {
-  opacity: 0;
-  transform: scaleX(0);
-}
-
-.hamburger-icon.open .hamburger-line:nth-child(3) {
-  transform: translateY(-6px) rotate(-45deg);
-}
-
-/* Mobile Menu Content Animation */
-.mobile-menu-content {
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.mobile-nav-item {
-  animation: slideInStagger 0.4s ease-out both;
-  animation-delay: calc(var(--item-index) * 0.1s + 0.1s);
-}
-
-.mobile-nav-btn {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.mobile-nav-btn:hover {
-  transform: translateX(8px);
-  background: linear-gradient(135deg, 
-    rgba(59, 130, 246, 0.1), 
-    rgba(14, 165, 233, 0.1)
-  );
-}
-
-.mobile-nav-btn:active {
-  transform: translateX(8px) scale(0.98);
-}
-
-/* Bottom Navigation Enhancements */
-.mobile-bottom-nav {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(229, 231, 235, 0.8);
-}
-
-.bottom-nav-item {
-  animation: bounceInUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
-  animation-delay: var(--item-delay);
-}
-
-.bottom-nav-btn {
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.bottom-nav-btn:active {
-  transform: scale(0.9);
-}
-
-.bottom-nav-btn:hover {
-  transform: translateY(-2px);
-}
-
-/* Special new button animation */
-.bottom-nav-btn.scale-110 {
-  position: relative;
-}
-
-.bottom-nav-btn.scale-110::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: linear-gradient(45deg, 
-    #2563eb, 
-    #0284c7, 
-    #60a5fa, 
-    #38bdf8
-  );
-  background-size: 400% 400%;
-  animation: gradient-shift 3s ease infinite;
-  z-index: -1;
-  opacity: 0.3;
-}
-
-/* Animations */
-@keyframes slideInStagger {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes bounceInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(30px) scale(0.9);
-  }
-  60% {
-    opacity: 1;
-    transform: translateY(-5px) scale(1.05);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Mobile optimizations */
-@media (max-width: 640px) {
-  .mobile-nav-btn:hover {
-    transform: none;
-  }
-  
-  .mobile-nav-btn:active {
-    transform: scale(0.98);
-  }
-  
-  .bottom-nav-btn:hover {
-    transform: none;
-  }
-}
-
-/* Accessibility: Respect reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  .hamburger-line,
-  .mobile-nav-btn,
-  .bottom-nav-btn {
-    transition: none;
-  }
-  
-  .mobile-nav-item,
-  .bottom-nav-item {
-    animation: none;
-  }
-  
-  .bottom-nav-btn.scale-110::before {
-    animation: none;
-  }
-  
-  .mobile-nav-btn:hover,
-  .mobile-nav-btn:active,
-  .bottom-nav-btn:hover,
-  .bottom-nav-btn:active {
-    transform: none;
-  }
-}
-</style>

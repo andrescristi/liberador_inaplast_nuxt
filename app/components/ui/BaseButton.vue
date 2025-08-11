@@ -18,7 +18,7 @@
       <!-- Ripple Animation -->
       <div 
         v-if="showRipple" 
-        class="ripple-effect"
+        class="btn-ripple-effect"
         :style="rippleStyle"
       />
       
@@ -26,10 +26,10 @@
       <div class="relative z-10 flex items-center justify-center">
         <!-- Loading with enhanced animation -->
         <div v-if="loading" class="mr-2">
-          <div class="loading-dots flex space-x-1">
-            <div class="loading-dot" />
-            <div class="loading-dot" style="animation-delay: 0.1s" />
-            <div class="loading-dot" style="animation-delay: 0.2s" />
+          <div class="flex space-x-1">
+            <div class="btn-loading-dot" />
+            <div class="btn-loading-dot" />
+            <div class="btn-loading-dot" />
           </div>
         </div>
         
@@ -241,75 +241,3 @@ const handleClick = (event: Event) => {
 }
 </script>
 
-<style scoped>
-/* Ripple Effect Animation */
-.ripple-effect {
-  position: absolute;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.3);
-  pointer-events: none;
-  animation: ripple 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1;
-}
-
-@keyframes ripple {
-  0% {
-    transform: scale(0);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
-}
-
-/* Enhanced Loading Animation */
-.loading-dots {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.loading-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background-color: currentColor;
-  animation: loading-bounce 1.4s ease-in-out infinite both;
-}
-
-@keyframes loading-bounce {
-  0%, 80%, 100% {
-    transform: scale(0.8);
-    opacity: 0.5;
-  }
-  40% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Mobile-specific touch optimizations */
-@media (hover: none) {
-  .ripple-effect {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
-}
-
-/* Accessibility: Respect reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  .ripple-effect {
-    animation: none;
-    opacity: 0;
-  }
-  
-  .loading-dot {
-    animation: none;
-  }
-  
-  * {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-  }
-}
-</style>
