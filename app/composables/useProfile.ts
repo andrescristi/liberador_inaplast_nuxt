@@ -78,7 +78,13 @@ export const useProfile = () => {
       throw new Error('Failed to update profile')
     }
 
-    return data
+    // Add computed fields with the updated data
+    const profile: Profile = {
+      ...data,
+      full_name: `${data.first_name || ''} ${data.last_name || ''}`.trim(),
+      email: user.value.email || ''
+    }
+    return profile
   }
 
   // Check if current user has specific role
