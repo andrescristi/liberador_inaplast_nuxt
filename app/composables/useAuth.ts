@@ -39,7 +39,6 @@ export const useAuth = () => {
 
   const signOut = async () => {
     // Sign out user
-    
     const { error } = await supabase.auth.signOut()
     
     if (error) {

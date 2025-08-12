@@ -242,7 +242,7 @@ variant="outlined"
 class="border-red-200">
         <div class="space-y-4">
           <p class="text-sm text-slate-600">
-            These actions cannot be undone. Please be careful.
+            Estas acciones no se pueden deshacer. Por favor, ten cuidado.
           </p>
           <Button
             variant="destructive"
@@ -338,7 +338,7 @@ const updateStatus = async (newStatus: OrderStatus) => {
   try {
     await ordersStore.updateOrderStatus(order.value.id, newStatus)
   } catch (error) {
-    console.error('Failed to update order status:', error)
+    console.error('Error al actualizar estado de orden:', error)
   } finally {
     updating.value = false
   }
@@ -352,7 +352,7 @@ const deleteOrder = async () => {
       await ordersStore.deleteOrder(order.value.id)
       await navigateTo('/orders')
     } catch (error) {
-      console.error('Failed to delete order:', error)
+      console.error('Error al eliminar orden:', error)
     }
   }
 }

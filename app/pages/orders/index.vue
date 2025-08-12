@@ -492,7 +492,7 @@ const updateOrderStatus = async (status: OrderStatus) => {
     // Refresh the list
     await loadOrders(currentPage.value)
   } catch (error) {
-    console.error('Failed to update order status:', error)
+    console.error('Error al actualizar estado de orden:', error)
     // TODO: Show user-friendly error notification
   }
 }
@@ -507,7 +507,7 @@ const deleteOrder = async () => {
       // Refresh the list
       await loadOrders(currentPage.value)
     } catch (error) {
-      console.error('Failed to delete order:', error)
+      console.error('Error al eliminar orden:', error)
       // TODO: Show user-friendly error notification
     }
   }

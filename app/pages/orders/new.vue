@@ -926,7 +926,7 @@ const saveForm = async () => {
     await navigateTo('/orders')
     
   } catch (error) {
-    console.error('Error saving order:', error)
+    console.error('Error al guardar orden:', error)
     toast.error('Error al guardar', 'Por favor, intente nuevamente.')
   } finally {
     isSaving.value = false
