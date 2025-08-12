@@ -237,31 +237,31 @@ d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       <BaseCard v-if="!hasPermissionsError">
         <div class="px-4 py-5 sm:p-6">
           <BaseTable
-            :headers="tableHeaders"
-            :data="users"
-            :loading="loading"
+            :columns="tableHeaders"
+            :rows="users"
           >
-            <template #user_role="{ item }">
+            <template #user_role-data="{ row }">
               <BaseBadge
-                :variant="getRoleBadgeVariant(item.user_role)"
-                :label="getRoleLabel(item.user_role)"
-              />
+                :color="getRoleBadgeVariant((row as Profile).user_role)"
+              >
+                {{ getRoleLabel((row as Profile).user_role) }}
+              </BaseBadge>
             </template>
-            <template #created_at="{ item }">
-              {{ formatDate(item.created_at) }}
+            <template #created_at-data="{ row }">
+              {{ formatDate((row as Profile).created_at) }}
             </template>
-            <template #actions="{ item }">
+            <template #actions-data="{ row }">
               <div class="flex space-x-2">
                 <button
                   class="text-blue-600 hover:text-blue-900 text-sm font-medium"
-                  @click="editUser(item)"
+                  @click="editUser(row as Profile)"
                 >
                   Editar
                 </button>
                 <button
-                  v-if="item.user_role !== 'Admin'"
+                  v-if="(row as Profile).user_role !== 'Admin'"
                   class="text-red-600 hover:text-red-900 text-sm font-medium"
-                  @click="confirmDeleteUser(item)"
+                  @click="confirmDeleteUser(row as Profile)"
                 >
                   Eliminar
                 </button>
@@ -312,7 +312,7 @@ d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
 
     <!-- Delete Confirmation Modal -->
     <BaseModal
-      v-if="showDeleteModal"
+      :show="showDeleteModal"
       @close="showDeleteModal = false"
     >
       <div class="p-6">
@@ -326,7 +326,7 @@ d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           <BaseButton variant="outline" @click="showDeleteModal = false">
             Cancelar
           </BaseButton>
-          <BaseButton variant="danger" @click="deleteUser">
+          <BaseButton color="danger" @click="deleteUser">
             Eliminar
           </BaseButton>
         </div>
@@ -337,6 +337,16 @@ d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
 
 <script setup lang="ts">
 import type { Profile, ProfileRole } from '~/types'
+
+// Import components explicitly to fix SSR resolution issues
+import BaseButton from '~/components/ui/BaseButton.vue'
+import BaseInput from '~/components/ui/BaseInput.vue'
+import BaseCard from '~/components/ui/BaseCard.vue'
+import BaseBadge from '~/components/ui/BaseBadge.vue'
+import BaseTable from '~/components/ui/BaseTable.vue'
+import BaseModal from '~/components/ui/BaseModal.vue'
+import UserCreateModal from '~/components/admin/UserCreateModal.vue'
+import UserEditModal from '~/components/admin/UserEditModal.vue'
 
 definePageMeta({
   middleware: 'require-admin-role',
