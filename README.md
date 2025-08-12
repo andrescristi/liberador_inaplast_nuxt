@@ -24,6 +24,8 @@ A modern web application for managing product release quality control workflows 
   - Step 4: Results summary and approval/rejection
 - **Release Tracking** - View and manage release status and quality test results
 - **Historial** - Complete release history with filtering and search capabilities
+- **Order Management** - Full orders interface with SSR-compatible state management
+- **Status Management** - Simplified order states: "Aceptado" (Accepted) and "Rechazado" (Rejected)
 
 ### 👥 Administrative Features
 - **User Management Dashboard** - Complete CRUD operations for user accounts
@@ -341,6 +343,8 @@ pnpm build
 - ✅ **Error Handling**: Robust error handling with user-friendly Spanish error messages
 - ✅ **Permission Error Handling**: Intelligent error detection for access denied scenarios with user-friendly messaging
 - ✅ **Admin Security**: Protected admin routes with graceful permission error handling and clear user feedback
+- ✅ **SSR Compatibility**: Full server-side rendering support with Pinia state management
+- ✅ **Order Status System**: Simplified order management with "Aceptado/Rechazado" states
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing

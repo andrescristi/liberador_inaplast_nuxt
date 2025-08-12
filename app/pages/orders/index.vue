@@ -3,50 +3,53 @@
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
       <div>
-        <h1 class="text-3xl font-semibold text-glass">Orders</h1>
-        <p class="text-glass-secondary mt-2">Manage and track all your customer orders</p>
+        <h1 class="text-3xl font-semibold text-glass">Órdenes</h1>
+        <p class="text-glass-secondary mt-2">Gestiona y rastrea todas las órdenes de tus clientes</p>
       </div>
       <button
         class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         @click="navigateTo('/orders/new')"
       >
         <Icon name="lucide:plus" class="-ml-1 mr-2 h-5 w-5" />
-        New Order
+        Nueva Orden
       </button>
     </div>
 
     <!-- Filters -->
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+    <div class="bg-white shadow overflow-visible sm:rounded-lg mb-6">
       <div class="px-4 py-5 sm:p-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <!-- Search Input -->
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Icon name="lucide:search" class="h-5 w-5 text-gray-400" />
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Buscar</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Icon name="lucide:search" class="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                v-model="filters.search"
+                type="text"
+                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                placeholder="Buscar órdenes..."
+                @input="debouncedSearch"
+              >
+              <button
+                v-if="filters && filters.search"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                @click="filters.search = ''; applyFilters()"
+              >
+                <Icon name="lucide:x" class="h-5 w-5 text-gray-400 hover:text-gray-500" />
+              </button>
             </div>
-            <input
-              v-model="filters.search"
-              type="text"
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Search orders..."
-              @input="debouncedSearch"
-            >
-            <button
-              v-if="filters.search"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center"
-              @click="filters.search = ''; applyFilters()"
-            >
-              <Icon name="lucide:x" class="h-5 w-5 text-gray-400 hover:text-gray-500" />
-            </button>
           </div>
           
           <!-- Status Listbox -->
           <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">Status</label>
+            <label class="block text-sm font-medium text-gray-700">Estado</label>
             <Listbox :model-value="filters.status || ''" @update:model-value="(value: string) => { filters.status = (value as OrderStatus) || undefined; applyFilters() }">
               <div class="relative">
                 <ListboxButton class="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm border border-gray-300">
-                  <span class="block truncate">{{ statusOptions.find(option => option.value === (filters.status || ''))?.label || 'All Statuses' }}</span>
+                  <span class="block truncate">{{ statusOptions.find(option => option.value === (filters.status || ''))?.label || 'Todos los Estados' }}</span>
                   <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                     <Icon
                       name="lucide:chevron-down"
@@ -61,7 +64,7 @@
                   leave-from-class="opacity-100"
                   leave-to-class="opacity-0"
                 >
-                  <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                  <ListboxOptions class="absolute z-[9999] mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                     <ListboxOption
                       v-for="option in statusOptions"
                       :key="option.value"
@@ -100,7 +103,7 @@
           
           <!-- Date From Input -->
           <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">From Date</label>
+            <label class="block text-sm font-medium text-gray-700">Fecha Desde</label>
             <input
               v-model="filters.date_from"
               type="date"
@@ -111,7 +114,7 @@
           
           <!-- Date To Input -->
           <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">To Date</label>
+            <label class="block text-sm font-medium text-gray-700">Fecha Hasta</label>
             <input
               v-model="filters.date_to"
               type="date"
@@ -122,14 +125,14 @@
         </div>
         <div class="mt-6 flex justify-between items-center">
           <div class="text-sm text-gray-500">
-            Showing {{ orders.length }} of {{ pagination.total }} orders
+            Mostrando {{ orders.length }} de {{ pagination.total }} órdenes
           </div>
           <button
             v-if="hasActiveFilters"
             class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             @click="clearFilters"
           >
-            Clear Filters
+            Limpiar Filtros
           </button>
         </div>
       </div>
@@ -161,15 +164,15 @@
       <!-- Empty State -->
       <div v-if="orders.length === 0" class="text-center py-12">
         <Icon name="lucide:shopping-cart" class="mx-auto h-12 w-12 text-gray-400" />
-        <h3 class="mt-2 text-sm font-medium text-gray-900">No Orders Found</h3>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No se Encontraron Órdenes</h3>
         <p class="mt-1 text-sm text-gray-500">
-          {{ hasActiveFilters ? 'Try adjusting your filters to see more orders.' : 'Get started by creating your first order.' }}
+          {{ hasActiveFilters ? 'Intenta ajustar tus filtros para ver más órdenes.' : 'Comienza creando tu primera orden.' }}
         </p>
         <button
           class="mt-4 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           @click="hasActiveFilters ? clearFilters() : navigateTo('/orders/new')"
         >
-          {{ hasActiveFilters ? 'Clear Filters' : 'Create First Order' }}
+          {{ hasActiveFilters ? 'Limpiar Filtros' : 'Crear Primera Orden' }}
         </button>
       </div>
 
@@ -184,18 +187,18 @@
                     class="flex items-center space-x-1 hover:text-gray-700 transition-colors duration-200"
                     @click="toggleSort('id')"
                   >
-                    <span>Order ID</span>
+                    <span>ID de Orden</span>
                     <Icon name="lucide:arrow-up-down" class="w-4 h-4" />
                   </button>
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
                     class="flex items-center space-x-1 hover:text-gray-700 transition-colors duration-200"
                     @click="toggleSort('total_amount')"
                   >
-                    <span>Amount</span>
+                    <span>Monto</span>
                     <Icon name="lucide:arrow-up-down" class="w-4 h-4" />
                   </button>
                 </th>
@@ -204,11 +207,11 @@
                     class="flex items-center space-x-1 hover:text-gray-700 transition-colors duration-200"
                     @click="toggleSort('created_at')"
                   >
-                    <span>Date</span>
+                    <span>Fecha</span>
                     <Icon name="lucide:arrow-up-down" class="w-4 h-4" />
                   </button>
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -225,7 +228,7 @@
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <span :class="getStatusBadgeClass(order.status)">{{ order.status }}</span>
+                  <span :class="getStatusBadgeClass(order.status)">{{ getStatusLabel(order.status) }}</span>
                 </td>
                 <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ formatCurrency(order.total_amount) }}</td>
                 <td class="px-6 py-4 text-sm text-gray-500">{{ formatDate(order.created_at) }}</td>
@@ -235,14 +238,14 @@
                       class="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
                       @click="navigateTo(`/orders/${order.id}`)"
                     >
-                      View
+                      Ver
                     </button>
                     <button
                       v-if="order.status === 'pending'"
                       class="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
                       @click="navigateTo(`/orders/${order.id}/edit`)"
                     >
-                      Edit
+                      Editar
                     </button>
                     <Menu as="div" class="relative inline-block text-left">
                       <div>
@@ -269,7 +272,7 @@
                                 ]"
                                 @click="showOrderActions(order)"
                               >
-                                More Actions
+                                Más Acciones
                               </button>
                             </MenuItem>
                           </div>
@@ -294,7 +297,7 @@
         >
           <div class="flex justify-between items-start mb-3">
             <div class="text-sm font-mono text-gray-500">{{ order.id }}</div>
-            <span :class="getStatusBadgeClass(order.status)">{{ order.status }}</span>
+            <span :class="getStatusBadgeClass(order.status)">{{ getStatusLabel(order.status) }}</span>
           </div>
           <div class="space-y-2">
             <div class="flex justify-between items-center">
@@ -313,7 +316,7 @@
       <div v-if="pagination.total_pages > 1" class="mt-6">
         <div class="flex justify-center">
           <p class="text-sm text-gray-500">
-            Page {{ pagination.page }} of {{ pagination.total_pages }}
+            Página {{ pagination.page }} de {{ pagination.total_pages }}
           </p>
         </div>
       </div>
@@ -332,42 +335,35 @@
             <div>
               <div class="mt-3 text-center sm:mt-0 sm:text-left">
                 <DialogTitle as="h3" class="text-lg leading-6 font-medium text-gray-900">
-                  Order Actions
+                  Acciones de Orden
                 </DialogTitle>
                 <div v-if="selectedOrder" class="mt-4 space-y-4">
                   <div>
-                    <h4 class="font-medium text-gray-900 mb-2">Order {{ selectedOrder.id }}</h4>
-                    <p class="text-sm text-gray-600">Customer: {{ selectedOrder.customer?.name }}</p>
-                    <p class="text-sm text-gray-600">Status: <span :class="getStatusBadgeClass(selectedOrder.status)">{{ selectedOrder.status }}</span></p>
+                    <h4 class="font-medium text-gray-900 mb-2">Orden {{ selectedOrder.id }}</h4>
+                    <p class="text-sm text-gray-600">Cliente: {{ selectedOrder.customer?.name }}</p>
+                    <p class="text-sm text-gray-600">Estado: <span :class="getStatusBadgeClass(selectedOrder.status)">{{ getStatusLabel(selectedOrder.status) }}</span></p>
                   </div>
                   
                   <div class="space-y-2">
                     <button
                       v-if="selectedOrder.status !== 'completed'"
-                      class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                       @click="updateOrderStatus('completed')"
                     >
-                      Mark as Completed
-                    </button>
-                    <button
-                      v-if="selectedOrder.status === 'pending'"
-                      class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                      @click="updateOrderStatus('processing')"
-                    >
-                      Mark as Processing
+                      Marcar como Aceptado
                     </button>
                     <button
                       v-if="selectedOrder.status !== 'cancelled'"
                       class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                       @click="updateOrderStatus('cancelled')"
                     >
-                      Cancel Order
+                      Marcar como Rechazado
                     </button>
                     <button
-                      class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                       @click="deleteOrder"
                     >
-                      Delete Order
+                      Eliminar Orden
                     </button>
                   </div>
                 </div>
@@ -379,7 +375,7 @@
                 class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
                 @click="showActionsModal = false"
               >
-                Close
+                Cerrar
               </button>
             </div>
           </div>
@@ -407,11 +403,12 @@ import { useOrdersStore } from '~/stores/orders'
 import type { Order, OrderStatus, OrderFilters } from '~/types'
 import { debounce } from '~/utils/debounce'
 
-// Reactive state
+// Reactive state local
 const currentPage = ref(1)
 const showActionsModal = ref(false)
 const selectedOrder = ref<Order | null>(null)
 
+// Estado de filtros local
 const filters = ref<OrderFilters>({
   search: '',
   status: undefined,
@@ -426,34 +423,66 @@ type StatusOption = {
 }
 
 const statusOptions: StatusOption[] = [
-  { value: '', label: 'All Statuses' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'processing', label: 'Processing' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'cancelled', label: 'Cancelled' },
+  { value: '', label: 'Todos los Estados' },
+  { value: 'completed', label: 'Aceptado' },
+  { value: 'cancelled', label: 'Rechazado' },
 ]
 
-// Store initialization
-const ordersStore = import.meta.client ? useOrdersStore() : null
+// Store initialization - segura para SSR
+let ordersStore: ReturnType<typeof useOrdersStore>
 
-// Computed properties that are safe for SSR
-const orders = computed(() => ordersStore?.orders || [])
-const pagination = computed(() => ordersStore?.pagination || { total: 0, total_pages: 0, page: 1, per_page: 20 })
-const loading = computed(() => ordersStore?.loading || false)
+try {
+  if (import.meta.client) {
+    ordersStore = useOrdersStore()
+  } else {
+    // Durante SSR, crear una instancia mock del store
+    ordersStore = {
+      orders: [],
+      pagination: { total: 0, total_pages: 0, page: 1, per_page: 20 },
+      loading: false,
+      fetchOrders: async () => {},
+      updateOrderStatus: async () => {},
+      deleteOrder: async () => {}
+    } as unknown as ReturnType<typeof useOrdersStore>
+  }
+} catch {
+  // Fallback en caso de error
+  ordersStore = {
+    orders: [],
+    pagination: { total: 0, total_pages: 0, page: 1, per_page: 20 },
+    loading: false,
+    fetchOrders: async () => {},
+    updateOrderStatus: async () => {},
+    deleteOrder: async () => {}
+  } as unknown as ReturnType<typeof useOrdersStore>
+}
+
+// Computed properties
+const orders = computed(() => ordersStore.orders || [])
+const pagination = computed(() => ordersStore.pagination || { total: 0, total_pages: 0, page: 1, per_page: 20 })
+const loading = computed(() => ordersStore.loading || false)
 
 const hasActiveFilters = computed(() => {
-  return !!(filters.value?.search || filters.value?.status || filters.value?.date_from || filters.value?.date_to)
+  try {
+    const f = filters.value
+    if (!f) return false
+    return !!(f.search || f.status || f.date_from || f.date_to)
+  } catch {
+    return false
+  }
 })
 
 // Methods
 const loadOrders = async (page = 1) => {
-  if (!ordersStore) return
+  if (!ordersStore.fetchOrders) {
+    console.warn('Store not ready yet')
+    return
+  }
   currentPage.value = page
   await ordersStore.fetchOrders(page, { ...filters.value })
 }
 
 const applyFilters = () => {
-  if (!import.meta.client || !ordersStore) return
   currentPage.value = 1
   loadOrders(1)
 }
@@ -484,7 +513,7 @@ const showOrderActions = (order: Order) => {
 }
 
 const updateOrderStatus = async (status: OrderStatus) => {
-  if (!selectedOrder.value || !ordersStore) return
+  if (!selectedOrder.value || !ordersStore.updateOrderStatus) return
   
   try {
     await ordersStore.updateOrderStatus(selectedOrder.value.id, status)
@@ -498,9 +527,9 @@ const updateOrderStatus = async (status: OrderStatus) => {
 }
 
 const deleteOrder = async () => {
-  if (!selectedOrder.value || !ordersStore) return
+  if (!selectedOrder.value || !ordersStore.deleteOrder) return
   
-  if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+  if (confirm('¿Estás seguro de que quieres eliminar esta orden? Esta acción no se puede deshacer.')) {
     try {
       await ordersStore.deleteOrder(selectedOrder.value.id)
       showActionsModal.value = false
@@ -515,14 +544,14 @@ const deleteOrder = async () => {
 
 // Utility functions
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('es-MX', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'MXN'
   }).format(amount)
 }
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString()
+  return new Date(dateString).toLocaleDateString('es-MX')
 }
 
 const getStatusBadgeClass = (status: string) => {
@@ -530,23 +559,46 @@ const getStatusBadgeClass = (status: string) => {
   const statusClasses = {
     pending: 'bg-yellow-100 text-yellow-800',
     processing: 'bg-blue-100 text-blue-800',
-    completed: 'bg-green-100 text-green-800',
-    cancelled: 'bg-red-100 text-red-800',
+    completed: 'bg-green-100 text-green-800', // Aceptado - verde
+    cancelled: 'bg-red-100 text-red-800', // Rechazado - rojo
   }
   return `${baseClasses} ${statusClasses[status as keyof typeof statusClasses] || 'bg-gray-100 text-gray-800'}`
 }
 
+const getStatusLabel = (status: string) => {
+  const statusLabels = {
+    completed: 'Aceptado',
+    cancelled: 'Rechazado',
+  }
+  return statusLabels[status as keyof typeof statusLabels] || status
+}
+
 // Load initial data on client side
 onMounted(async () => {
-  if (ordersStore) {
+  // Usar nextTick para asegurar que Pinia esté completamente inicializado
+  await nextTick()
+  try {
+    // Re-initialize store on client side para asegurar funcionalidad completa
+    ordersStore = useOrdersStore()
     await loadOrders()
+  } catch (error) {
+    console.error('Error initializing orders store:', error)
+    // Retry after a short delay
+    setTimeout(async () => {
+      try {
+        ordersStore = useOrdersStore()
+        await loadOrders()
+      } catch (retryError) {
+        console.error('Retry failed:', retryError)
+      }
+    }, 100)
   }
 })
 
 // SEO
 useSeoMeta({
-  title: 'Orders - Order Management',
-  description: 'Manage and track all your customer orders with filtering and search capabilities.'
+  title: 'Órdenes - Gestión de Órdenes',
+  description: 'Gestiona y rastrea todas las órdenes de tus clientes con capacidades de filtrado y búsqueda.'
 })
 
 // Page meta
