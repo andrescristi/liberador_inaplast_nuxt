@@ -1,3 +1,5 @@
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+
 export default defineEventHandler(async (event) => {
   const userId = getRouterParam(event, 'id')
   const body = await readBody(event)
@@ -6,14 +8,14 @@ export default defineEventHandler(async (event) => {
   if (!userId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'User ID is required'
+      statusMessage: 'El ID del usuario es requerido'
     })
   }
 
   if (user_role && !['Admin', 'Supervisor', 'Inspector'].includes(user_role)) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Invalid user role. Must be Admin, Supervisor, or Inspector'
+      statusMessage: 'Rol de usuario inválido. Debe ser Admin, Supervisor o Inspector'
     })
   }
 
@@ -24,7 +26,7 @@ export default defineEventHandler(async (event) => {
     if (!user) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'Authentication required'
+        statusMessage: 'Autenticación requerida'
       })
     }
 
@@ -38,7 +40,7 @@ export default defineEventHandler(async (event) => {
     if (currentUserError || !currentUserProfile) {
       throw createError({
         statusCode: 403,
-        statusMessage: 'Unable to verify user permissions'
+        statusMessage: 'No se pueden verificar los permisos del usuario'
       })
     }
 
@@ -52,7 +54,7 @@ export default defineEventHandler(async (event) => {
     if (targetUserError || !targetUserProfile) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'Target user not found'
+        statusMessage: 'Usuario objetivo no encontrado'
       })
     }
 
@@ -68,7 +70,7 @@ export default defineEventHandler(async (event) => {
       if (user_role !== undefined) {
         throw createError({
           statusCode: 403,
-          statusMessage: 'You cannot change your own role'
+          statusMessage: 'No puedes cambiar tu propio rol'
         })
       }
     } else {
@@ -76,14 +78,14 @@ export default defineEventHandler(async (event) => {
       if (!isCurrentUserAdmin) {
         throw createError({
           statusCode: 403,
-          statusMessage: 'Only admins can update other users'
+          statusMessage: 'Solo los administradores pueden actualizar otros usuarios'
         })
       }
 
       if (isTargetUserAdmin) {
         throw createError({
           statusCode: 403,
-          statusMessage: 'Admins cannot update other admin accounts'
+          statusMessage: 'Los administradores no pueden actualizar otras cuentas de administrador'
         })
       }
     }
@@ -96,12 +98,12 @@ export default defineEventHandler(async (event) => {
       if (authError) {
         throw createError({
           statusCode: 400,
-          statusMessage: `Email update error: ${authError.message}`
+          statusMessage: `Error al actualizar email: ${authError.message}`
         })
       }
     }
 
-    const updateData: any = {}
+    const updateData: { first_name?: string; last_name?: string; user_role?: string; updated_at?: string } = {}
     if (first_name !== undefined) updateData.first_name = first_name
     if (last_name !== undefined) updateData.last_name = last_name
     if (user_role !== undefined && !isCurrentUser) updateData.user_role = user_role
@@ -109,7 +111,7 @@ export default defineEventHandler(async (event) => {
     if (Object.keys(updateData).length === 0) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'No fields to update'
+        statusMessage: 'No hay campos para actualizar'
       })
     }
 
@@ -125,7 +127,7 @@ export default defineEventHandler(async (event) => {
     if (error) {
       throw createError({
         statusCode: 500,
-        statusMessage: `Profile update error: ${error.message}`
+        statusMessage: `Error al actualizar perfil: ${error.message}`
       })
     }
 
@@ -142,10 +144,12 @@ export default defineEventHandler(async (event) => {
       full_name: `${data.first_name} ${data.last_name}`,
       email: authUser.user?.email || ''
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const statusCode = error && typeof error === 'object' && 'statusCode' in error ? (error.statusCode as number) : 500
+    const statusMessage = error && typeof error === 'object' && 'statusMessage' in error ? (error.statusMessage as string) : 'Error al actualizar usuario'
     throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || 'Failed to update user'
+      statusCode,
+      statusMessage
     })
   }
 })

@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     if (error) {
       throw createError({
         statusCode: 500,
-        statusMessage: `Database error: ${error.message}`
+        statusMessage: `Error de base de datos: ${error.message}`
       })
     }
 
@@ -35,16 +35,16 @@ export default defineEventHandler(async (event) => {
     }
 
     const total = data[0]?.total_count || 0
-    const profiles = data.map((item: any) => ({
-      id: item.id,
-      user_id: item.user_id,
-      first_name: item.first_name,
-      last_name: item.last_name,
-      user_role: item.user_role,
-      created_at: item.created_at,
-      updated_at: item.updated_at,
-      full_name: item.full_name,
-      email: item.email
+    const profiles = data.map((item: Record<string, unknown>) => ({
+      id: item.id as string,
+      user_id: item.user_id as string,
+      first_name: item.first_name as string,
+      last_name: item.last_name as string,
+      user_role: item.user_role as string,
+      created_at: item.created_at as string,
+      updated_at: item.updated_at as string,
+      full_name: item.full_name as string,
+      email: item.email as string
     }))
 
     return {
@@ -54,10 +54,12 @@ export default defineEventHandler(async (event) => {
       per_page: Number(pageSize),
       total_pages: Math.ceil(total / Number(pageSize))
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const statusCode = error && typeof error === 'object' && 'statusCode' in error ? (error.statusCode as number) : 500
+    const statusMessage = error && typeof error === 'object' && 'statusMessage' in error ? (error.statusMessage as string) : 'Error al obtener usuarios'
     throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || 'Failed to fetch users'
+      statusCode,
+      statusMessage
     })
   }
 })

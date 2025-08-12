@@ -1,10 +1,12 @@
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+
 export default defineEventHandler(async (event) => {
   const userId = getRouterParam(event, 'id')
 
   if (!userId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'User ID is required'
+      statusMessage: 'El ID del usuario es requerido'
     })
   }
 
@@ -15,7 +17,7 @@ export default defineEventHandler(async (event) => {
     if (!user) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'Authentication required'
+        statusMessage: 'Autenticación requerida'
       })
     }
 
@@ -29,7 +31,7 @@ export default defineEventHandler(async (event) => {
     if (currentUserError || !currentUserProfile) {
       throw createError({
         statusCode: 403,
-        statusMessage: 'Unable to verify user permissions'
+        statusMessage: 'No se pueden verificar los permisos del usuario'
       })
     }
 
@@ -37,7 +39,7 @@ export default defineEventHandler(async (event) => {
     if (currentUserProfile.user_role !== 'Admin') {
       throw createError({
         statusCode: 403,
-        statusMessage: 'Only admins can delete users'
+        statusMessage: 'Solo los administradores pueden eliminar usuarios'
       })
     }
 
@@ -45,7 +47,7 @@ export default defineEventHandler(async (event) => {
     if (user.id === userId) {
       throw createError({
         statusCode: 403,
-        statusMessage: 'Cannot delete your own account'
+        statusMessage: 'No puedes eliminar tu propia cuenta'
       })
     }
 
@@ -59,7 +61,7 @@ export default defineEventHandler(async (event) => {
     if (targetUserError) {
       throw createError({
         statusCode: 404,
-        statusMessage: 'Target user not found'
+        statusMessage: 'Usuario objetivo no encontrado'
       })
     }
 
@@ -67,7 +69,7 @@ export default defineEventHandler(async (event) => {
     if (targetUserProfile.user_role === 'Admin') {
       throw createError({
         statusCode: 403,
-        statusMessage: 'Cannot delete other admin accounts'
+        statusMessage: 'No se pueden eliminar otras cuentas de administrador'
       })
     }
 
@@ -77,15 +79,17 @@ export default defineEventHandler(async (event) => {
     if (error) {
       throw createError({
         statusCode: 500,
-        statusMessage: `Failed to delete user: ${error.message}`
+        statusMessage: `Error al eliminar usuario: ${error.message}`
       })
     }
 
-    return { success: true, message: 'User deleted successfully' }
-  } catch (error: any) {
+    return { success: true, message: 'Usuario eliminado exitosamente' }
+  } catch (error: unknown) {
+    const statusCode = error && typeof error === 'object' && 'statusCode' in error ? (error.statusCode as number) : 500
+    const statusMessage = error && typeof error === 'object' && 'statusMessage' in error ? (error.statusMessage as string) : 'Error al eliminar usuario'
     throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || 'Failed to delete user'
+      statusCode,
+      statusMessage
     })
   }
 })

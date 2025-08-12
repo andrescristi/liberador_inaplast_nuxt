@@ -5,14 +5,14 @@ export default defineEventHandler(async (event) => {
   if (!email || !password || !first_name || !last_name || !user_role) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Missing required fields: email, password, first_name, last_name, user_role'
+      statusMessage: 'Faltan campos requeridos: email, password, first_name, last_name, user_role'
     })
   }
 
   if (!['Admin', 'Supervisor', 'Inspector'].includes(user_role)) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Invalid user role. Must be Admin, Supervisor, or Inspector'
+      statusMessage: 'Rol de usuario inválido. Debe ser Admin, Supervisor o Inspector'
     })
   }
 
@@ -32,14 +32,14 @@ export default defineEventHandler(async (event) => {
     if (authError) {
       throw createError({
         statusCode: 400,
-        statusMessage: `Authentication error: ${authError.message}`
+        statusMessage: `Error de autenticación: ${authError.message}`
       })
     }
 
     if (!authData.user) {
       throw createError({
         statusCode: 500,
-        statusMessage: 'Failed to create user account'
+        statusMessage: 'Error al crear cuenta de usuario'
       })
     }
 
@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
       await supabase.auth.admin.deleteUser(authData.user.id)
       throw createError({
         statusCode: 500,
-        statusMessage: `Profile creation error: ${profileError.message}`
+        statusMessage: `Error al crear perfil: ${profileError.message}`
       })
     }
 
@@ -73,10 +73,12 @@ export default defineEventHandler(async (event) => {
       full_name: `${profileData.first_name} ${profileData.last_name}`,
       email: authData.user.email
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const statusCode = error && typeof error === 'object' && 'statusCode' in error ? (error.statusCode as number) : 500
+    const statusMessage = error && typeof error === 'object' && 'statusMessage' in error ? (error.statusMessage as string) : 'Error al crear usuario'
     throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || 'Failed to create user'
+      statusCode,
+      statusMessage
     })
   }
 })

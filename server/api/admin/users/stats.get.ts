@@ -1,3 +1,5 @@
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+
 export default defineEventHandler(async (event) => {
   try {
     const supabase = serverSupabaseServiceRole(event)
@@ -6,7 +8,7 @@ export default defineEventHandler(async (event) => {
     if (!user) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'Authentication required'
+        statusMessage: 'Autenticación requerida'
       })
     }
 
@@ -20,7 +22,7 @@ export default defineEventHandler(async (event) => {
     if (currentUserError || !currentUserProfile) {
       throw createError({
         statusCode: 403,
-        statusMessage: 'Unable to verify user permissions'
+        statusMessage: 'No se pueden verificar los permisos del usuario'
       })
     }
 
@@ -28,7 +30,7 @@ export default defineEventHandler(async (event) => {
     if (currentUserProfile.user_role !== 'Admin') {
       throw createError({
         statusCode: 403,
-        statusMessage: 'Only admins can view user statistics'
+        statusMessage: 'Solo los administradores pueden ver las estadísticas de usuarios'
       })
     }
 
@@ -40,7 +42,7 @@ export default defineEventHandler(async (event) => {
     if (profilesError) {
       throw createError({
         statusCode: 500,
-        statusMessage: `Database error: ${profilesError.message}`
+        statusMessage: `Error de base de datos: ${profilesError.message}`
       })
     }
 
@@ -68,7 +70,7 @@ export default defineEventHandler(async (event) => {
       .gte('created_at', sevenDaysAgo.toISOString())
 
     if (ordersError) {
-      console.warn('Could not fetch recent orders:', ordersError.message)
+      // Could not fetch recent orders - using empty array
     }
 
     // Count inspections per inspector
@@ -105,10 +107,12 @@ export default defineEventHandler(async (event) => {
     }
 
     return stats
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const statusCode = error && typeof error === 'object' && 'statusCode' in error ? (error.statusCode as number) : 500
+    const statusMessage = error && typeof error === 'object' && 'statusMessage' in error ? (error.statusMessage as string) : 'Error al obtener estadísticas de usuarios'
     throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || 'Failed to fetch user statistics'
+      statusCode,
+      statusMessage
     })
   }
 })
