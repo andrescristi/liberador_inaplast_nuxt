@@ -125,7 +125,7 @@ d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 
 </template>
 
 <script setup lang="ts">
-import type { Profile, ProfileRole } from '~/types'
+import type { Profile, UpdateProfileForm } from '~/types'
 
 const props = defineProps<{
   user: Profile
@@ -181,7 +181,7 @@ const updateUser = async () => {
 
   loading.value = true
   try {
-    const updateData: any = {}
+    const updateData: UpdateProfileForm = {}
     
     if (form.value.first_name !== props.user.first_name) {
       updateData.first_name = form.value.first_name
@@ -207,8 +207,9 @@ const updateUser = async () => {
 
     await useUserAdministration.updateUser(props.user.user_id, updateData, emailToUpdate)
     emit('updated')
-  } catch (error: any) {
-    useToast().error('Error', error.message)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error al actualizar el usuario'
+    useToast().error('Error', errorMessage)
   } finally {
     loading.value = false
   }
@@ -223,8 +224,9 @@ const resetPassword = async () => {
   try {
     await useUserAdministration.resetUserPassword(props.user.user_id)
     useToast().success('Éxito', 'Se ha enviado un email para restablecer la contraseña')
-  } catch (error: any) {
-    useToast().error('Error', error.message)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error al restablecer la contraseña'
+    useToast().error('Error', errorMessage)
   } finally {
     loading.value = false
   }

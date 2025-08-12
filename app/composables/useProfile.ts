@@ -9,8 +9,7 @@ export const useProfile = () => {
   const getCurrentProfile = async (): Promise<Profile | null> => {
     if (!user.value) return null
 
-    console.log('Debug - user.value:', user.value)
-    console.log('Debug - user.value.id:', user.value.id)
+    // Getting current user profile
 
     const { data, error } = await supabase
       .from('profiles')
@@ -26,10 +25,7 @@ export const useProfile = () => {
       .eq('user_id', user.value.id)
       .single()
 
-    console.log('Debug - Supabase response:', { data, error })
-    
     if (error) {
-      console.error('Profile fetch error details:', error)
       // Handle user profile fetch error
       throw new Error('Failed to fetch user profile: ' + error.message)
     }

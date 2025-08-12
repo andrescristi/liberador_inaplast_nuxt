@@ -194,8 +194,9 @@ const createUser = async () => {
     )
 
     emit('created')
-  } catch (error: any) {
-    useToast().error('Error', error.message)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error al crear el usuario'
+    useToast().error('Error', errorMessage)
   } finally {
     loading.value = false
   }

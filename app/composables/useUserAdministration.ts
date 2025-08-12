@@ -40,16 +40,16 @@ export const useUserAdministration = () => {
       }
 
       const total = data[0]?.total_count || 0
-      const profiles: Profile[] = data.map((item: any) => ({
-        id: item.id,
-        user_id: item.user_id,
-        first_name: item.first_name,
-        last_name: item.last_name,
-        user_role: item.user_role,
-        created_at: item.created_at,
-        updated_at: item.updated_at,
-        full_name: item.full_name,
-        email: item.email
+      const profiles: Profile[] = data.map((item: Record<string, unknown>) => ({
+        id: item.id as string,
+        user_id: item.user_id as string,
+        first_name: item.first_name as string,
+        last_name: item.last_name as string,
+        user_role: item.user_role as ProfileRole,
+        created_at: item.created_at as string,
+        updated_at: item.updated_at as string,
+        full_name: item.full_name as string,
+        email: item.email as string
       }))
 
       return {
@@ -59,8 +59,9 @@ export const useUserAdministration = () => {
         per_page: pageSize,
         total_pages: Math.ceil(total / pageSize)
       }
-    } catch (error: any) {
-      throw new Error(`Failed to fetch users: ${error.message}`)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      throw new Error(`Failed to fetch users: ${errorMessage}`)
     }
   }
 
@@ -102,8 +103,9 @@ export const useUserAdministration = () => {
         full_name: `${data.first_name} ${data.last_name}`,
         email: authUser.user?.email || ''
       }
-    } catch (error: any) {
-      throw new Error(`Failed to fetch user: ${error.message}`)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      throw new Error(`Failed to fetch user: ${errorMessage}`)
     }
   }
 
@@ -170,8 +172,9 @@ export const useUserAdministration = () => {
         full_name: `${profileUpdateData.first_name} ${profileUpdateData.last_name}`,
         email: authData.user.email || ''
       }
-    } catch (error: any) {
-      throw new Error(`Failed to create user: ${error.message}`)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      throw new Error(`Failed to create user: ${errorMessage}`)
     }
   }
 
@@ -235,8 +238,9 @@ export const useUserAdministration = () => {
         full_name: `${data.first_name} ${data.last_name}`,
         email: authUser.user?.email || ''
       }
-    } catch (error: any) {
-      throw new Error(`Failed to update user: ${error.message}`)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      throw new Error(`Failed to update user: ${errorMessage}`)
     }
   }
 
@@ -276,8 +280,9 @@ export const useUserAdministration = () => {
           }
         })
       }
-    } catch (error: any) {
-      throw new Error(`Failed to delete user: ${error.message}`)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      throw new Error(`Failed to delete user: ${errorMessage}`)
     }
   }
 
@@ -305,8 +310,9 @@ export const useUserAdministration = () => {
           reset_email: userData.user.email
         }
       })
-    } catch (error: any) {
-      throw new Error(`Failed to reset password: ${error.message}`)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      throw new Error(`Failed to reset password: ${errorMessage}`)
     }
   }
 
@@ -335,8 +341,9 @@ export const useUserAdministration = () => {
       }
 
       return stats
-    } catch (error: any) {
-      throw new Error(`Failed to fetch user statistics: ${error.message}`)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      throw new Error(`Failed to fetch user statistics: ${errorMessage}`)
     }
   }
 
@@ -351,7 +358,15 @@ export const useUserAdministration = () => {
     offset = 0,
     activityType?: string,
     targetUserId?: string
-  ): Promise<any[]> => {
+  ): Promise<{
+    id: string;
+    actor_user_id: string;
+    target_user_id: string | null;
+    activity_type: string;
+    activity_description: string;
+    metadata: Record<string, unknown>;
+    created_at: string;
+  }[]> => {
     if (!await checkIsAdmin()) {
       throw new Error('Access denied. Admin privileges required.')
     }
@@ -366,8 +381,9 @@ export const useUserAdministration = () => {
 
       if (error) throw error
       return data || []
-    } catch (error: any) {
-      throw new Error(`Failed to fetch activity logs: ${error.message}`)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      throw new Error(`Failed to fetch activity logs: ${errorMessage}`)
     }
   }
 

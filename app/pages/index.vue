@@ -212,10 +212,9 @@ async function loadDashboardData() {
     // Simulate loading time
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-  } catch (error) {
-    console.error('Error loading dashboard data:', error)
-    
-    toast.error('Error', 'Failed to load dashboard data')
+  } catch {
+    // Error loading dashboard data
+    toast.error('Error', 'Error al cargar los datos del dashboard')
   } finally {
     loading.value = false
   }

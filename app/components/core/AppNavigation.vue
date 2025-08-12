@@ -38,7 +38,7 @@
                 <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-full flex items-center justify-center">
                   <Icon name="bx:bxs-user" class="w-4 h-4 text-white" />
                 </div>
-                <span class="hidden lg:inline">{{ user?.email?.split('@')[0] || 'User' }}</span>
+                <span class="hidden lg:inline">{{ user?.email?.split('@')[0] || 'Usuario' }}</span>
                 <Icon name="bx:bxs-chevron-down" class="w-4 h-4" />
               </div>
             </template>
@@ -46,7 +46,7 @@
             <template #account>
               <div class="text-left">
                 <p class="text-sm font-medium text-gray-900 truncate">
-                  {{ user?.email?.split('@')[0] || 'User' }}
+                  {{ user?.email?.split('@')[0] || 'Usuario' }}
                 </p>
                 <p class="text-xs text-gray-500 truncate">
                   {{ user?.email }}
@@ -116,7 +116,7 @@
                 </div>
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium text-gray-900 truncate">
-                    {{ user?.email?.split('@')[0] || 'User' }}
+                    {{ user?.email?.split('@')[0] || 'Usuario' }}
                   </p>
                   <p class="text-xs text-gray-500 truncate">
                     {{ user?.email }}
@@ -181,6 +181,8 @@
 </template>
 
 <script setup lang="ts">
+import type { Profile } from '~/types'
+
 // Icons are now provided by @nuxt/icon
 
 // Composables
@@ -191,15 +193,15 @@ const toast = useToast()
 // State
 const signingOut = ref(false)
 const mobileMenuOpen = ref(false)
-const userProfile = ref<any>(null)
+const userProfile = ref<Profile | null>(null)
 
 // Get user profile
 watchEffect(async () => {
   if (user.value) {
     try {
       userProfile.value = await getCurrentUserProfile()
-    } catch (error) {
-      console.error('Error fetching user profile:', error)
+    } catch {
+      // Error fetching user profile - handled silently
     }
   } else {
     userProfile.value = null
@@ -262,7 +264,7 @@ const userMenuItems = computed(() => {
       disabled: true
     }], 
     [{
-      label: 'Profile',
+      label: 'Perfil',
       icon: 'bx:user-circle',
       to: '/profile'
     }]
@@ -278,11 +280,11 @@ const userMenuItems = computed(() => {
   }
 
   menuItems.push([{
-    label: signingOut.value ? 'Signing out...' : 'Sign Out',
+    label: signingOut.value ? 'Cerrando sesión...' : 'Cerrar Sesión',
     icon: 'bx:exit',
-    onClick: handleSignOut,
+    click: handleSignOut,
     disabled: signingOut.value
-  } as any])
+  } as { label: string; icon: string; click: () => void; disabled: boolean }])
 
   return menuItems
 })
@@ -297,11 +299,11 @@ const handleSignOut = async () => {
     
     await signOut()
     
-    toast.success('Signed out successfully')
+    toast.success('Sesión cerrada correctamente')
     
   } catch {
     // Handle sign out error silently or use proper error reporting
-    toast.error('Error signing out', 'Please try again.')
+    toast.error('Error al cerrar sesión', 'Por favor intenta de nuevo.')
   } finally {
     signingOut.value = false
   }

@@ -1,4 +1,4 @@
-export default defineNuxtRouteMiddleware(async (to, from) => {
+export default defineNuxtRouteMiddleware(async (_to, _from) => {
   const user = useSupabaseUser()
   const { getCurrentUserProfile } = useAuth()
 
@@ -25,10 +25,12 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         statusMessage: 'Admin access required'
       })
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const statusCode = error && typeof error === 'object' && 'statusCode' in error ? (error.statusCode as number) : 500
+    const statusMessage = error && typeof error === 'object' && 'statusMessage' in error ? (error.statusMessage as string) : 'Failed to verify admin access'
     throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || 'Failed to verify admin access'
+      statusCode,
+      statusMessage
     })
   }
 })
