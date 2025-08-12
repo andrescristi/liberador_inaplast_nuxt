@@ -270,21 +270,13 @@ const userMenuItems = computed(() => {
     }]
   ]
 
-  // Add admin menu item for admin users
-  if (userProfile.value?.user_role === 'Admin') {
-    menuItems.push([{
-      label: 'Administración',
-      icon: 'bx:cog',
-      to: '/admin/users'
-    }])
-  }
 
   menuItems.push([{
     label: signingOut.value ? 'Cerrando sesión...' : 'Cerrar Sesión',
     icon: 'bx:exit',
     click: handleSignOut,
     disabled: signingOut.value
-  } as { label: string; icon: string; click: () => void; disabled: boolean }])
+  }])
 
   return menuItems
 })

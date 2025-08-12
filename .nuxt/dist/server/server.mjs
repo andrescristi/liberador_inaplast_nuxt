@@ -1,1 +1,0 @@
-export { default } from "file:///Users/acl/Development/consultoria/inaplast/liberador_inaplast_nuxt/node_modules/@nuxt/vite-builder/dist/runtime/vite-node.mjs"

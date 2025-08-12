@@ -56,6 +56,9 @@ importers:
       tailwindcss:
         specifier: ^3.4.0
         version: 3.4.17
+      type-check:
+        specifier: ^0.4.0
+        version: 0.4.0
       vue:
         specifier: latest
         version: 3.5.18(typescript@5.9.2)

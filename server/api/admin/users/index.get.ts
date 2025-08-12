@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
   } = query
 
   try {
+    const { serverSupabaseServiceRole } = await import('#supabase/server')
     const supabase = serverSupabaseServiceRole(event)
     
     const { data, error } = await supabase.rpc('get_all_profiles', {

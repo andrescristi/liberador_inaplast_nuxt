@@ -131,8 +131,8 @@ const emit = defineEmits<{
   created: []
 }>()
 
-const { useUserAdministration } = useUserAdministration()
-const { useToast } = useToast()
+const userAdmin = useUserAdministration()
+const toast = useToast()
 
 // Form data
 const form = ref({
@@ -183,7 +183,7 @@ const createUser = async () => {
 
   loading.value = true
   try {
-    await useUserAdministration.createUser(
+    await userAdmin.createUser(
       form.value.email,
       form.value.password,
       {
@@ -196,7 +196,7 @@ const createUser = async () => {
     emit('created')
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Error al crear el usuario'
-    useToast().error('Error', errorMessage)
+    toast.error('Error', errorMessage)
   } finally {
     loading.value = false
   }

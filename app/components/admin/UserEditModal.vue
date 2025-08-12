@@ -136,8 +136,8 @@ const emit = defineEmits<{
   updated: []
 }>()
 
-const { useUserAdministration } = useUserAdministration()
-const { useToast } = useToast()
+const userAdmin = useUserAdministration()
+const toast = useToast()
 
 // Form data
 const form = ref({
@@ -201,15 +201,15 @@ const updateUser = async () => {
     }
 
     if (Object.keys(updateData).length === 0 && !emailToUpdate) {
-      useToast().info('Info', 'No hay cambios para guardar')
+      toast.info('Info', 'No hay cambios para guardar')
       return
     }
 
-    await useUserAdministration.updateUser(props.user.user_id, updateData, emailToUpdate)
+    await userAdmin.updateUser(props.user.user_id, updateData, emailToUpdate)
     emit('updated')
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Error al actualizar el usuario'
-    useToast().error('Error', errorMessage)
+    toast.error('Error', errorMessage)
   } finally {
     loading.value = false
   }
@@ -222,11 +222,11 @@ const resetPassword = async () => {
 
   loading.value = true
   try {
-    await useUserAdministration.resetUserPassword(props.user.user_id)
-    useToast().success('Éxito', 'Se ha enviado un email para restablecer la contraseña')
+    await userAdmin.resetUserPassword(props.user.user_id)
+    toast.success('Éxito', 'Se ha enviado un email para restablecer la contraseña')
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Error al restablecer la contraseña'
-    useToast().error('Error', errorMessage)
+    toast.error('Error', errorMessage)
   } finally {
     loading.value = false
   }

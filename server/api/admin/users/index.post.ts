@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
+    const { serverSupabaseServiceRole } = await import('#supabase/server')
     const supabase = serverSupabaseServiceRole(event)
 
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
