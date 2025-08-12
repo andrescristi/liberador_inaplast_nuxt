@@ -354,6 +354,7 @@ definePageMeta({
 })
 
 const userAdmin = useUserAdministration()
+const adminUsers = useAdminUsers()
 const toast = useToast()
 const { debounce } = useDebounce()
 
@@ -397,7 +398,7 @@ const fetchUsers = async () => {
     if (searchTerm.value) filters.search = searchTerm.value
     if (selectedRole.value) filters.role_filter = selectedRole.value
 
-    const response = await userAdmin.getAllUsers(filters, currentPage.value, pageSize)
+    const response = await adminUsers.listUsers(filters, currentPage.value, pageSize)
     users.value = response.data
     totalUsers.value = response.total
     totalPages.value = response.total_pages
