@@ -11,7 +11,7 @@
             Gestiona usuarios, roles y permisos del sistema
           </p>
         </div>
-        <div class="mt-4 flex md:mt-0 md:ml-4">
+        <div v-if="!hasPermissionsError" class="mt-4 flex md:mt-0 md:ml-4">
           <BaseButton class="btn-primary" @click="showCreateModal = true">
             <svg
 class="w-5 h-5 mr-2"
@@ -153,7 +153,7 @@ d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m5-13v4a1 1 0 001 1h4m-5-4a5 5 0 00-5 5v7a
       </div>
 
       <!-- Search and Filters -->
-      <BaseCard class="mb-6">
+      <BaseCard v-if="!hasPermissionsError" class="mb-6">
         <div class="p-6">
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="sm:col-span-2">
@@ -193,8 +193,48 @@ d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </div>
       </BaseCard>
 
+      <!-- Permissions Error Message -->
+      <div v-if="hasPermissionsError" class="mb-6">
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg
+                class="h-5 w-5 text-red-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">
+                Acceso Denegado
+              </h3>
+              <div class="mt-2 text-sm text-red-700">
+                <p>{{ permissionsErrorMessage }}</p>
+              </div>
+              <div class="mt-4">
+                <div class="-mx-2 -my-1.5 flex">
+                  <button
+                    type="button"
+                    class="bg-red-50 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
+                    @click="$router.push('/')"
+                  >
+                    Ir al Inicio
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Users Table -->
-      <BaseCard>
+      <BaseCard v-if="!hasPermissionsError">
         <div class="px-4 py-5 sm:p-6">
           <BaseTable
             :headers="tableHeaders"
@@ -232,7 +272,7 @@ d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </BaseCard>
 
       <!-- Pagination -->
-      <div v-if="totalPages > 1" class="mt-6 flex items-center justify-between">
+      <div v-if="totalPages > 1 && !hasPermissionsError" class="mt-6 flex items-center justify-between">
         <div class="text-sm text-gray-700">
           Mostrando {{ ((currentPage - 1) * pageSize) + 1 }} a {{ Math.min(currentPage * pageSize, totalUsers) }} de {{ totalUsers }} usuarios
         </div>
@@ -317,6 +357,8 @@ const currentPage = ref(1)
 const totalUsers = ref(0)
 const totalPages = ref(0)
 const pageSize = 20
+const hasPermissionsError = ref(false)
+const permissionsErrorMessage = ref('')
 
 // Modals
 const showCreateModal = ref(false)
@@ -337,6 +379,9 @@ const tableHeaders = [
 // Methods
 const fetchUsers = async () => {
   loading.value = true
+  hasPermissionsError.value = false
+  permissionsErrorMessage.value = ''
+  
   try {
     const filters: { search?: string; role_filter?: ProfileRole } = {}
     if (searchTerm.value) filters.search = searchTerm.value
@@ -348,7 +393,21 @@ const fetchUsers = async () => {
     totalPages.value = response.total_pages
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Error al cargar usuarios'
-    toast.error('Error', errorMessage)
+    
+    // Detectar errores de permisos 
+    const isPermissionError = errorMessage.includes('Access denied') || 
+        errorMessage.includes('Admin privileges required') ||
+        errorMessage.includes('403') ||
+        errorMessage.includes('Forbidden') ||
+        errorMessage.includes('Unknown error occurred') || // Error genérico de Supabase 403
+        (error && typeof error === 'object' && 'code' in error && (error as Record<string, unknown>).code === 'PGRST301')
+    
+    if (isPermissionError) {
+      hasPermissionsError.value = true
+      permissionsErrorMessage.value = 'No tienes permisos de administrador para ver esta página. Contacta a un administrador del sistema.'
+    } else {
+      toast.error('Error', errorMessage)
+    }
   } finally {
     loading.value = false
   }
@@ -357,8 +416,25 @@ const fetchUsers = async () => {
 const fetchStats = async () => {
   try {
     stats.value = await userAdmin.getUserStats()
-  } catch {
-    toast.error('Error', 'No se pudieron cargar las estadísticas')
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'No se pudieron cargar las estadísticas'
+    
+    // Si ya hay un error de permisos, no mostrar toast adicional
+    if (!hasPermissionsError.value) {
+      const isPermissionError = errorMessage.includes('Access denied') || 
+          errorMessage.includes('Admin privileges required') ||
+          errorMessage.includes('403') ||
+          errorMessage.includes('Forbidden') ||
+          errorMessage.includes('Unknown error occurred') || // Error genérico de Supabase 403
+          (error && typeof error === 'object' && 'code' in error && (error as Record<string, unknown>).code === 'PGRST301')
+      
+      if (isPermissionError) {
+        hasPermissionsError.value = true
+        permissionsErrorMessage.value = 'No tienes permisos de administrador para ver esta página. Contacta a un administrador del sistema.'
+      } else {
+        toast.error('Error', errorMessage)
+      }
+    }
   }
 }
 

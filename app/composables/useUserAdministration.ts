@@ -27,7 +27,10 @@ export const useUserAdministration = () => {
         page_size: pageSize
       })
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase RPC error:', error)
+        throw error
+      }
 
       if (!data || data.length === 0) {
         return {
