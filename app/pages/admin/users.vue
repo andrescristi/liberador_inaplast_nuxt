@@ -303,13 +303,13 @@ definePageMeta({
   layout: 'default'
 })
 
-const { useUserAdministration } = useUserAdministration()
-const { useToast } = useToast()
+const userAdmin = useUserAdministration()
+const toast = useToast()
 const { debounce } = useDebounce()
 
 // Reactive data
 const users = ref<Profile[]>([])
-const stats = ref<any>(null)
+const stats = ref<{ total: number; admins: number; supervisors: number; inspectors: number } | null>(null)
 const loading = ref(false)
 const searchTerm = ref('')
 const selectedRole = ref<ProfileRole | ''>('')
@@ -334,22 +334,21 @@ const tableHeaders = [
   { key: 'actions', label: 'Acciones' }
 ]
 
-const debouncedSearch = debounce(fetchUsers, 300)
-
 // Methods
 const fetchUsers = async () => {
   loading.value = true
   try {
-    const filters: any = {}
+    const filters: { search?: string; role_filter?: ProfileRole } = {}
     if (searchTerm.value) filters.search = searchTerm.value
     if (selectedRole.value) filters.role_filter = selectedRole.value
 
-    const response = await useUserAdministration.getAllUsers(filters, currentPage.value, pageSize)
+    const response = await userAdmin.getAllUsers(filters, currentPage.value, pageSize)
     users.value = response.data
     totalUsers.value = response.total
     totalPages.value = response.total_pages
-  } catch (error: any) {
-    useToast().error('Error', error.message)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error al cargar usuarios'
+    toast.error('Error', errorMessage)
   } finally {
     loading.value = false
   }
@@ -357,9 +356,9 @@ const fetchUsers = async () => {
 
 const fetchStats = async () => {
   try {
-    stats.value = await useUserAdministration.getUserStats()
-  } catch (error: any) {
-    useToast().error('Error', 'No se pudieron cargar las estadísticas')
+    stats.value = await userAdmin.getUserStats()
+  } catch {
+    toast.error('Error', 'No se pudieron cargar las estadísticas')
   }
 }
 
@@ -395,14 +394,15 @@ const deleteUser = async () => {
   if (!userToDelete.value) return
   
   try {
-    await useUserAdministration.deleteUser(userToDelete.value.user_id)
-    useToast().success('Éxito', 'Usuario eliminado correctamente')
+    await userAdmin.deleteUser(userToDelete.value.user_id)
+    toast.success('Éxito', 'Usuario eliminado correctamente')
     showDeleteModal.value = false
     userToDelete.value = null
     await fetchUsers()
     await fetchStats()
-  } catch (error: any) {
-    useToast().error('Error', error.message)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error al eliminar usuario'
+    toast.error('Error', errorMessage)
   }
 }
 
@@ -410,7 +410,7 @@ const handleUserCreated = async () => {
   showCreateModal.value = false
   await fetchUsers()
   await fetchStats()
-  useToast().success('Éxito', 'Usuario creado correctamente')
+  toast.success('Éxito', 'Usuario creado correctamente')
 }
 
 const handleUserUpdated = async () => {
@@ -418,7 +418,7 @@ const handleUserUpdated = async () => {
   selectedUser.value = null
   await fetchUsers()
   await fetchStats()
-  useToast().success('Éxito', 'Usuario actualizado correctamente')
+  toast.success('Éxito', 'Usuario actualizado correctamente')
 }
 
 const nextPage = () => {
@@ -434,6 +434,8 @@ const previousPage = () => {
     fetchUsers()
   }
 }
+
+const debouncedSearch = debounce(fetchUsers, 300)
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('es-ES', {
