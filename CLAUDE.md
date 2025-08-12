@@ -19,3 +19,4 @@ Whenever you make changes to the codebase, use lint to check if there are any pr
 
 ## LANGUAGE
 All messages to the user and errors must be in spanish
+- All labels and messages shall be in spanish
