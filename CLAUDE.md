@@ -15,9 +15,10 @@ Whenever you need to take an screenshot, save it in the screenshot folder, in th
 Always use pnpm instead of npm. Example: Bash(pnpm run lint)
 
 ## CHANGES
-Whenever you make changes to the codebase, use lint to check if there are any problems with the code.
+Whenever you make changes to the codebase, use lint and tsc to check if there are any problems with the code. Always use Bash(npx tsc --noEmit) instead of typecheck
 
 ## LANGUAGE
 All messages to the user and errors must be in spanish
 - All labels and messages shall be in spanish
 - All playwright reports and screenshots must go in the screenshots folder
+
