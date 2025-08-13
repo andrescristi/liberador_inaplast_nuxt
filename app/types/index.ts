@@ -27,6 +27,14 @@ export interface UpdateProfileForm {
   user_role?: ProfileRole
 }
 
+export interface CreateUserForm {
+  email: string
+  password: string
+  first_name: string
+  last_name: string
+  user_role: ProfileRole
+}
+
 export interface ProfileFilters {
   search?: string
   role_filter?: ProfileRole

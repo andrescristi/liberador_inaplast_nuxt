@@ -1,4 +1,9 @@
+import { requireAdminAuth } from '../../../utils/auth'
+
 export default defineEventHandler(async (event) => {
+  // Validar permisos de administrador COMPLETAMENTE en server-side
+  await requireAdminAuth(event)
+  
   const query = getQuery(event)
   const { 
     page = 1, 
