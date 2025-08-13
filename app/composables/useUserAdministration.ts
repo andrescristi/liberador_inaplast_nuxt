@@ -1,7 +1,8 @@
 import type { Profile, ProfileRole, ProfileFilters, PaginatedResponse, CreateProfileForm, UpdateProfileForm } from '~/types'
+import type { Database } from '../../types/database.types'
 
 export const useUserAdministration = () => {
-  const supabase = useSupabaseClient()
+  const supabase = useSupabaseClient<Database>()
   const user = useSupabaseUser()
   const { getCurrentUserProfile } = useAuth()
 
@@ -16,55 +17,61 @@ export const useUserAdministration = () => {
     pageSize = 20
   ): Promise<PaginatedResponse<Profile>> => {
     if (!await checkIsAdmin()) {
-      throw new Error('Access denied. Admin privileges required.')
+      throw new Error('Acceso denegado. Se requieren privilegios de administrador.')
     }
 
     try {
-      const { data, error } = await supabase.rpc('get_all_profiles', {
-        search_term: filters.search || null,
-        role_filter: filters.role_filter || null,
-        page_num: page,
-        page_size: pageSize
-      })
+      // Calculate offset for pagination
+      const offset = (page - 1) * pageSize
+
+      // Build the query
+      let query = supabase
+        .from('profiles')
+        .select(`
+          id,
+          user_id,
+          first_name,
+          last_name,
+          user_role,
+          created_at,
+          updated_at
+        `, { count: 'exact' })
+
+      // Apply filters
+      if (filters.search) {
+        query = query.or(`first_name.ilike.%${filters.search}%,last_name.ilike.%${filters.search}%`)
+      }
+
+      if (filters.role_filter) {
+        query = query.eq('user_role', filters.role_filter)
+      }
+
+      // Apply pagination
+      query = query.range(offset, offset + pageSize - 1)
+
+      const { data, error, count } = await query
 
       if (error) {
-        console.error('Supabase RPC error:', error)
         throw error
       }
 
-      if (!data || data.length === 0) {
-        return {
-          data: [],
-          total: 0,
-          page,
-          per_page: pageSize,
-          total_pages: 0
-        }
-      }
-
-      const total = data[0]?.total_count || 0
-      const profiles: Profile[] = data.map((item: Record<string, unknown>) => ({
-        id: item.id as string,
-        user_id: item.user_id as string,
-        first_name: item.first_name as string,
-        last_name: item.last_name as string,
-        user_role: item.user_role as ProfileRole,
-        created_at: item.created_at as string,
-        updated_at: item.updated_at as string,
-        full_name: item.full_name as string,
-        email: item.email as string
+      // Transform profiles and add full_name
+      const profilesWithEmails = (data || []).map((profile) => ({
+        ...profile,
+        full_name: `${profile.first_name} ${profile.last_name}`,
+        email: '' // Email will be populated separately if needed
       }))
 
       return {
-        data: profiles,
-        total,
+        data: profilesWithEmails,
+        total: count || 0,
         page,
         per_page: pageSize,
-        total_pages: Math.ceil(total / pageSize)
+        total_pages: Math.ceil((count || 0) / pageSize)
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      throw new Error(`Failed to fetch users: ${errorMessage}`)
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
+      throw new Error(`Error al obtener usuarios: ${errorMessage}`)
     }
   }
 
@@ -224,10 +231,10 @@ export const useUserAdministration = () => {
         p_target_user_id: userId,
         p_activity_type: profileData.user_role ? 'user_role_changed' : 'user_updated',
         p_activity_description: `Updated user: ${changes.join(', ')}`,
-        p_metadata: {
+        p_metadata: JSON.parse(JSON.stringify({
           changes: profileData,
           new_email: email
-        }
+        }))
       })
 
       return {
