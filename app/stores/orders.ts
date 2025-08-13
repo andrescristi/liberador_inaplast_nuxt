@@ -117,7 +117,7 @@ export const useOrdersStore = defineStore('orders', {
             ...this.orders[orderIndex],
             status,
             updated_at: new Date().toISOString()
-          }
+          } as Order
         }
         
         if (this.currentOrder && this.currentOrder.id === orderId) {

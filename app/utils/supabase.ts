@@ -74,17 +74,17 @@ export class SupabaseAPI {
 
     return {
       data: orders.map((row: Record<string, unknown>) => ({
-        id: row.id,
-        customer_id: row.customer_id,
-        status: row.status,
-        total_amount: parseFloat(row.total_amount),
-        order_date: row.order_date,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
+        id: row.id as string,
+        customer_id: row.customer_id as string,
+        status: row.status as OrderStatus,
+        total_amount: parseFloat(row.total_amount as string),
+        order_date: row.order_date as string,
+        created_at: row.created_at as string,
+        updated_at: row.updated_at as string,
         customer: row.customer_name ? {
-          id: row.customer_id,
-          name: row.customer_name,
-          email: row.customer_email,
+          id: row.customer_id as string,
+          name: row.customer_name as string,
+          email: row.customer_email as string,
           phone: '',
           address: '',
           created_at: '',
@@ -107,7 +107,7 @@ export class SupabaseAPI {
       throw new Error('Failed to fetch order details')
     }
 
-    return data || null
+    return (data as unknown) as Order || null
   }
 
   async createOrder(orderData: CreateOrderForm): Promise<Order> {
@@ -217,15 +217,15 @@ export class SupabaseAPI {
 
     return {
       data: customers.map((row: Record<string, unknown>) => ({
-        id: row.id,
-        name: row.name,
-        email: row.email,
-        phone: row.phone,
-        address: row.address,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
-        orders_count: row.orders_count,
-        total_spent: parseFloat(row.total_spent)
+        id: row.id as string,
+        name: row.name as string,
+        email: row.email as string,
+        phone: row.phone as string,
+        address: row.address as string,
+        created_at: row.created_at as string,
+        updated_at: row.updated_at as string,
+        orders_count: row.orders_count as number,
+        total_spent: parseFloat(row.total_spent as string)
       })),
       total: totalCount,
       page,
@@ -302,15 +302,15 @@ export class SupabaseAPI {
 
     return {
       data: products.map((row: Record<string, unknown>) => ({
-        id: row.id,
-        name: row.name,
-        description: row.description,
-        price: parseFloat(row.price),
-        stock_quantity: row.stock_quantity,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
-        times_ordered: row.times_ordered,
-        total_revenue: parseFloat(row.total_revenue)
+        id: row.id as string,
+        name: row.name as string,
+        description: row.description as string,
+        price: parseFloat(row.price as string),
+        stock_quantity: row.stock_quantity as number,
+        created_at: row.created_at as string,
+        updated_at: row.updated_at as string,
+        times_ordered: row.times_ordered as number,
+        total_revenue: parseFloat(row.total_revenue as string)
       })),
       total: totalCount,
       page,

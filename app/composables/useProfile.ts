@@ -141,15 +141,15 @@ export const useProfile = () => {
 
     return {
       data: profiles.map((row: Record<string, unknown>) => ({
-        id: row.id,
-        user_id: row.user_id,
-        first_name: row.first_name,
-        last_name: row.last_name,
-        full_name: row.full_name,
-        user_role: row.user_role,
-        email: row.email,
-        created_at: row.created_at,
-        updated_at: row.updated_at
+        id: row.id as string,
+        user_id: row.user_id as string,
+        first_name: row.first_name as string,
+        last_name: row.last_name as string,
+        full_name: row.full_name as string,
+        user_role: row.user_role as ProfileRole,
+        email: row.email as string,
+        created_at: row.created_at as string,
+        updated_at: row.updated_at as string
       })),
       total: totalCount,
       page,
