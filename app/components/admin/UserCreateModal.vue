@@ -153,7 +153,6 @@ const emit = defineEmits<{
   created: []
 }>()
 
-const userAdmin = useAdminUserManager()
 const toast = useToast()
 
 // Form data
@@ -205,15 +204,16 @@ const createUser = async () => {
 
   loading.value = true
   try {
-    await userAdmin.createUser(
-      form.value.email,
-      form.value.password,
-      {
+    await $fetch('/api/admin/users', {
+      method: 'POST',
+      body: {
+        email: form.value.email,
+        password: form.value.password,
         first_name: form.value.first_name,
         last_name: form.value.last_name,
         user_role: form.value.user_role as ProfileRole
       }
-    )
+    })
 
     emit('created')
   } catch (error: unknown) {
