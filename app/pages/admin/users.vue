@@ -12,18 +12,13 @@
           </p>
         </div>
         <div v-if="!hasPermissionsError" class="mt-4 flex md:mt-0 md:ml-4">
-          <BaseButton class="btn-primary" @click="showCreateModal = true">
-            <svg
-class="w-5 h-5 mr-2"
-fill="none"
-stroke="currentColor"
-viewBox="0 0 24 24">
-              <path
-stroke-linecap="round"
-stroke-linejoin="round"
-stroke-width="2"
-d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
+          <BaseButton 
+            color="primary" 
+            variant="solid" 
+            size="md"
+            leading-icon="bx:plus"
+            @click="showCreateModal = true"
+          >
             Crear Usuario
           </BaseButton>
         </div>
@@ -242,26 +237,26 @@ d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           >
             <template #user_role-data="{ row }">
               <BaseBadge
-                :color="getRoleBadgeVariant((row as Profile).user_role)"
+                :color="getRoleBadgeVariant((row as unknown as Profile).user_role)"
               >
-                {{ getRoleLabel((row as Profile).user_role) }}
+                {{ getRoleLabel((row as unknown as Profile).user_role) }}
               </BaseBadge>
             </template>
             <template #created_at-data="{ row }">
-              {{ formatDate((row as Profile).created_at) }}
+              {{ formatDate((row as unknown as Profile).created_at) }}
             </template>
             <template #actions-data="{ row }">
               <div class="flex space-x-2">
                 <button
                   class="text-blue-600 hover:text-blue-900 text-sm font-medium"
-                  @click="editUser(row as Profile)"
+                  @click="editUser(row as unknown as Profile)"
                 >
                   Editar
                 </button>
                 <button
-                  v-if="(row as Profile).user_role !== 'Admin'"
+                  v-if="(row as unknown as Profile).user_role !== 'Admin'"
                   class="text-red-600 hover:text-red-900 text-sm font-medium"
-                  @click="confirmDeleteUser(row as Profile)"
+                  @click="confirmDeleteUser(row as unknown as Profile)"
                 >
                   Eliminar
                 </button>
