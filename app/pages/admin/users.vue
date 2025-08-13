@@ -289,7 +289,7 @@ d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </div>
       </div>
     </div>
-
+    
     <!-- Create User Modal -->
     <UserCreateModal
       v-if="showCreateModal"
@@ -348,8 +348,8 @@ definePageMeta({
   layout: 'default'
 })
 
-const userAdmin = useUserAdministration()
-const adminUsers = useAdminUsers()
+const userAdmin = useAdminUserManager()
+const userAPI = useAdminUserAPI()
 const toast = useToast()
 const { debounce } = useDebounce()
 
@@ -362,7 +362,7 @@ const selectedRole = ref<ProfileRole | ''>('')
 const currentPage = ref(1)
 const totalUsers = ref(0)
 const totalPages = ref(0)
-const pageSize = 20
+const pageSize = 10
 const hasPermissionsError = ref(false)
 const permissionsErrorMessage = ref('')
 
@@ -393,7 +393,8 @@ const fetchUsers = async () => {
     if (searchTerm.value) filters.search = searchTerm.value
     if (selectedRole.value) filters.role_filter = selectedRole.value
 
-    const response = await adminUsers.listUsers(filters, currentPage.value, pageSize)
+    // Use API endpoint instead of direct Supabase client to bypass RLS issues
+    const response = await userAPI.getAllUsersFromAPI(filters, currentPage.value, pageSize)
     users.value = response.data
     totalUsers.value = response.total
     totalPages.value = response.total_pages
@@ -403,6 +404,7 @@ const fetchUsers = async () => {
     // Detectar errores de permisos 
     const isPermissionError = errorMessage.includes('Access denied') || 
         errorMessage.includes('Admin privileges required') ||
+        errorMessage.includes('Acceso denegado') ||
         errorMessage.includes('403') ||
         errorMessage.includes('Forbidden') ||
         errorMessage.includes('Unknown error occurred') || // Error genérico de Supabase 403
@@ -421,7 +423,7 @@ const fetchUsers = async () => {
 
 const fetchStats = async () => {
   try {
-    stats.value = await userAdmin.getUserStats()
+    stats.value = await userAPI.getUserStatsFromAPI()
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'No se pudieron cargar las estadísticas'
     
@@ -429,6 +431,7 @@ const fetchStats = async () => {
     if (!hasPermissionsError.value) {
       const isPermissionError = errorMessage.includes('Access denied') || 
           errorMessage.includes('Admin privileges required') ||
+          errorMessage.includes('Acceso denegado') ||
           errorMessage.includes('403') ||
           errorMessage.includes('Forbidden') ||
           errorMessage.includes('Unknown error occurred') || // Error genérico de Supabase 403
