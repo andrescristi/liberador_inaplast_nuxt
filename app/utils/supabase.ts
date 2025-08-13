@@ -16,15 +16,16 @@ import type {
   DashboardMetrics,
   OrderStatus
 } from '~/types'
+import type { Database } from '../../types/database.types'
 
 // Database query utilities
 export class SupabaseAPI {
   private get client() {
-    return useSupabaseClient()
+    return useSupabaseClient<Database>()
   }
 
   private getClient() {
-    return useSupabaseClient()
+    return useSupabaseClient<Database>()
   }
 
   // Dashboard Metrics

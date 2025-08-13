@@ -1,8 +1,9 @@
 // Profile management composable for user profiles and roles
 import type { Profile, ProfileRole, CreateProfileForm, UpdateProfileForm, ProfileFilters, PaginatedResponse } from '~/types'
+import type { Database } from '../../types/database.types'
 
 export const useProfile = () => {
-  const supabase = useSupabaseClient()
+  const supabase = useSupabaseClient<Database>()
   const user = useSupabaseUser()
 
   // Get current user's profile
