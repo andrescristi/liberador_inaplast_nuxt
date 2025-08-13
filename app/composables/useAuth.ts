@@ -35,6 +35,31 @@ export const useAuth = () => {
       throw new Error(errorMessage)
     }
 
+    // After successful login, update user metadata with role for JWT claims
+    if (data.user) {
+      try {
+        // Get user profile to get the role
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_role')
+          .eq('user_id', data.user.id)
+          .single()
+
+        if (profile) {
+          // Update user metadata with role for JWT claims
+          await supabase.auth.updateUser({
+            data: {
+              user_role: profile.user_role
+            }
+          })
+        }
+      } catch (updateError) {
+        // Don't fail the login if we can't update metadata
+        // eslint-disable-next-line no-console
+        console.warn('Could not update user metadata:', updateError)
+      }
+    }
+
     return data
   }
 
