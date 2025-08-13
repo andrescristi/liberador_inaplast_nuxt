@@ -1,5 +1,5 @@
 <template>
-  <BaseModal @close="$emit('close')">
+  <BaseModal :show="true" @close="$emit('close')">
     <div class="p-6">
       <h3 class="text-lg font-medium text-gray-900 mb-6">
         Editar Usuario
@@ -136,7 +136,7 @@ const emit = defineEmits<{
   updated: []
 }>()
 
-const userAdmin = useUserAdministration()
+const userAdmin = useAdminUserManager()
 const toast = useToast()
 
 // Form data
