@@ -1,0 +1,112 @@
+import type { Profile, PaginatedResponse } from '~/types'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import type { Database } from '../../../../types/database.types'
+
+export default defineEventHandler(async (event): Promise<PaginatedResponse<Profile>> => {
+  const query = getQuery(event)
+  const { 
+    search = '', 
+    role_filter = '', 
+    page = 1, 
+    page_size = 20 
+  } = query
+
+  // Parse query parameters
+  const currentPage = parseInt(page as string) || 1
+  const pageSize = parseInt(page_size as string) || 20
+  const searchTerm = search as string || ''
+  const roleFilter = role_filter as string || ''
+
+  // Create service role client for admin operations
+  const serviceSupabase = serverSupabaseServiceRole<Database>(event)
+
+  try {
+    // Get user from the request headers (Nuxt should handle auth)
+    const supabaseUser = await serverSupabaseUser(event)
+    
+    if (!supabaseUser) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Usuario no autenticado'
+      })
+    }
+
+    // Check if user is admin using service client
+    const { data: adminCheck } = await serviceSupabase
+      .from('profiles')
+      .select('user_role')
+      .eq('user_id', supabaseUser.id)
+      .single()
+
+    if (!adminCheck || adminCheck.user_role !== 'Admin') {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'Acceso denegado. Se requieren privilegios de administrador.'
+      })
+    }
+
+    // Calculate offset for pagination
+    const offset = (currentPage - 1) * pageSize
+
+    // Build the query using service client (bypasses RLS)
+    let query_builder = serviceSupabase
+      .from('profiles')
+      .select(`
+        id,
+        user_id,
+        first_name,
+        last_name,
+        user_role,
+        created_at,
+        updated_at
+      `, { count: 'exact' })
+
+    // Apply filters
+    if (searchTerm) {
+      query_builder = query_builder.or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%`)
+    }
+
+    if (roleFilter && (roleFilter === 'Admin' || roleFilter === 'Supervisor' || roleFilter === 'Inspector')) {
+      query_builder = query_builder.eq('user_role', roleFilter)
+    }
+
+    // Apply pagination and ordering
+    query_builder = query_builder
+      .range(offset, offset + pageSize - 1)
+      .order('created_at', { ascending: false })
+
+    const { data, error, count } = await query_builder
+
+    if (error) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: `Error al obtener usuarios: ${error.message}`
+      })
+    }
+
+    // Transform profiles and add full_name
+    const profilesWithEmails = (data || []).map((profile) => ({
+      ...profile,
+      full_name: `${profile.first_name} ${profile.last_name}`,
+      email: '' // Email will be populated separately if needed
+    }))
+
+    return {
+      data: profilesWithEmails,
+      total: count || 0,
+      page: currentPage,
+      per_page: pageSize,
+      total_pages: Math.ceil((count || 0) / pageSize)
+    }
+  } catch (error: unknown) {
+    if ('statusCode' in (error as object)) {
+      throw error // Re-throw createError errors
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
+    throw createError({
+      statusCode: 500,
+      statusMessage: `Error interno del servidor: ${errorMessage}`
+    })
+  }
+})
