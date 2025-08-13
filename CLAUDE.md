@@ -5,7 +5,8 @@ Use the available agents whenever you can.
 Whenever you need to use documentation, use context7 mcp to extract the most up to date docs.
 
 ## MCP
-Use the available MCP servers and tools.
+Use all available MCP servers and tools.
+Use Context7 MCP to get most up to date documentation. If Context7 MCP is not available, use Ref MCP.
 
 ## PLAYWRIGHT
 Whenever you need to take an screenshot, save it in the screenshot folder, in the project's root path  
