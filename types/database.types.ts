@@ -200,7 +200,7 @@ export interface Database {
           user_id: string
           first_name: string
           last_name: string
-          user_role: string
+          user_role: 'Admin' | 'Inspector' | 'Supervisor'
           created_at: string
           updated_at: string
           full_name: string
@@ -221,7 +221,7 @@ export interface Database {
         Returns: {
           id: string
           customer_id: string
-          status: string
+          status: 'pending' | 'processing' | 'completed' | 'cancelled'
           total_amount: number
           order_date: string
           created_at: string
@@ -249,6 +249,165 @@ export interface Database {
           updated_at: string
           total_count: number
         }[]
+      }
+      get_dashboard_metrics: {
+        Args: Record<string, never>
+        Returns: {
+          pending_orders: number
+          completed_orders: number
+          cancelled_orders: number
+          current_month_revenue: number
+          current_week_revenue: number
+        }
+      }
+      search_orders: {
+        Args: {
+          search_term?: string | null
+          status_filter?: string | null
+          customer_id_filter?: string | null
+          date_from?: string | null
+          date_to?: string | null
+          page_num: number
+          page_size: number
+        }
+        Returns: {
+          id: string
+          customer_id: string
+          status: 'pending' | 'processing' | 'completed' | 'cancelled'
+          total_amount: number
+          order_date: string
+          created_at: string
+          updated_at: string
+          customer_name: string
+          customer_email: string
+          total_count: number
+        }[]
+      }
+      get_order_details: {
+        Args: {
+          order_id_param: string
+        }
+        Returns: {
+          id: string
+          customer_id: string
+          status: 'pending' | 'processing' | 'completed' | 'cancelled'
+          total_amount: number
+          order_date: string
+          created_at: string
+          updated_at: string
+          customer: {
+            id: string
+            name: string
+            email: string
+            phone: string
+            address: string
+          }
+          order_items: {
+            id: string
+            product_id: string
+            quantity: number
+            unit_price: number
+            subtotal: number
+            product_name: string
+            product_description: string
+          }[]
+        }
+      }
+      search_customers: {
+        Args: {
+          search_term?: string | null
+          page_num: number
+          page_size: number
+        }
+        Returns: {
+          id: string
+          name: string
+          email: string
+          phone: string
+          address: string
+          created_at: string
+          updated_at: string
+          orders_count: number
+          total_spent: number
+          total_count: number
+        }[]
+      }
+      search_products: {
+        Args: {
+          search_term?: string | null
+          low_stock_only: boolean
+          low_stock_threshold: number
+          page_num: number
+          page_size: number
+        }
+        Returns: {
+          id: string
+          name: string
+          description: string
+          price: number
+          stock_quantity: number
+          created_at: string
+          updated_at: string
+          times_ordered: number
+          total_revenue: number
+          total_count: number
+        }[]
+      }
+      log_user_activity: {
+        Args: {
+          p_actor_user_id?: string | null
+          p_target_user_id?: string | null
+          p_activity_type: string
+          p_activity_description: string
+          p_metadata?: Json | null
+        }
+        Returns: undefined
+      }
+      get_activity_logs: {
+        Args: {
+          p_limit: number
+          p_offset: number
+          p_activity_type?: string | null
+          p_target_user_id?: string | null
+        }
+        Returns: {
+          id: string
+          actor_user_id: string
+          target_user_id: string | null
+          activity_type: string
+          activity_description: string
+          metadata: Record<string, unknown>
+          created_at: string
+        }[]
+      }
+      get_user_profile: {
+        Args: {
+          user_id_param: string
+        }
+        Returns: {
+          id: string
+          user_id: string
+          first_name: string
+          last_name: string
+          user_role: 'Admin' | 'Inspector' | 'Supervisor'
+          created_at: string
+          updated_at: string
+          full_name: string
+          email: string
+        }
+      }
+      user_has_role: {
+        Args: {
+          required_role: string
+          user_id_param: string
+        }
+        Returns: boolean
+      }
+      is_admin: {
+        Args: {
+          user_id_param: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
