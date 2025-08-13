@@ -37,6 +37,8 @@ A modern web application for managing product release quality control workflows 
 - **Audit Logging** - Complete activity trail of all administrative actions
 - **Permission Error Handling** - Graceful handling of access denied scenarios with clear user messaging
 - **Security Protection** - Admin routes protected with intelligent error detection and user-friendly feedback
+- **API-First Architecture** - Statistics and user data served through secure API endpoints with service role authentication
+- **RLS Bypass** - Admin operations use service role to bypass Row Level Security issues while maintaining security
 
 ## Tech Stack
 
@@ -138,9 +140,9 @@ app/
 │       ├── ToastContainer.vue # Toast notification container
 │       └── ToastNotification.vue # Individual toast notifications
 ├── composables/
-│   ├── useAuth.ts             # Authentication composable
+│   ├── useAuth.ts             # Authentication composable with role metadata
 │   ├── useDebounce.ts         # Debouncing utility for search/input handling
-│   ├── useAdminUserAPI.ts     # Admin user API operations
+│   ├── useAdminUserAPI.ts     # Admin user API operations via secure endpoints
 │   ├── useAdminUserManager.ts # Admin user management with state handling
 │   └── useToast.ts            # Toast notification management
 ├── layouts/
@@ -362,6 +364,11 @@ pnpm build
 - ✅ **Admin API Refactoring**: Modular admin user management with separate API composables for better code organization
 - ✅ **Testing Infrastructure**: Comprehensive testing endpoints for admin functionality and direct Supabase integration
 - ✅ **Server Utilities**: Centralized server-side utilities for improved code reusability
+- ✅ **Statistics API Integration**: Fixed admin user statistics display issues by implementing API-first approach with service role authentication
+- ✅ **RLS Bypass Architecture**: Admin operations now use secure API endpoints that bypass Row Level Security restrictions while maintaining security
+- ✅ **Enhanced User Authentication**: Added role metadata to JWT claims for improved authorization handling
+- ✅ **Modal Component Improvements**: Refactored admin user modals with better styling and proper composable integration
+- ✅ **Code Cleanup**: Removed redundant composables and consolidated admin user management logic
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing
