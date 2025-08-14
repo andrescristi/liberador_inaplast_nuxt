@@ -1,21 +1,32 @@
 <template>
-  <!-- Top Navigation -->
+  <!-- 
+    Navegación Principal Sticky 
+    - Backdrop blur para efecto glass moderno
+    - Z-index controlado por variable CSS para evitar conflictos
+    - Semi-transparente para mostrar contenido deslizante debajo
+  -->
   <nav class="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-200" style="z-index: var(--z-sticky)">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
       <div class="flex justify-between h-14 sm:h-16">
-        <!-- Logo and Brand -->
+        
+        <!-- Logo y Marca Principal -->
         <div class="flex items-center">
           <div class="flex items-center space-x-2 sm:space-x-3">
+            <!-- Logo con gradiente dinámico basado en theme -->
             <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-lg flex items-center justify-center shadow-sm">
               <Icon name="bx:bxs-factory" class="w-4 h-4 sm:w-6 sm:h-6 text-white" />
             </div>
+            <!-- Enlace de marca clickeable con hover effect -->
             <NuxtLink to="/" class="text-lg sm:text-xl font-semibold text-gray-900 hover:text-primary-600 transition-colors">
               Inaplast
             </NuxtLink>
           </div>
         </div>
 
-        <!-- Navigation Links (Desktop Only) -->
+        <!-- 
+          Enlaces de Navegación (Solo Desktop)
+          Oculto en mobile para evitar sobrecarga UI - se usa bottom nav en su lugar
+        -->
         <div class="hidden md:flex items-center space-x-1">
           <UiBaseButton
             v-for="item in navigationItems"
@@ -30,19 +41,26 @@
           </UiBaseButton>
         </div>
 
-        <!-- Desktop User Menu -->
+        <!-- 
+          Menú de Usuario Desktop
+          Dropdown con información de cuenta y acciones de usuario
+          min-h para target de toque consistente (44px mínimo)
+        -->
         <div class="hidden md:flex items-center">
           <UiBaseDropdown :items="userMenuItems">
             <template #button>
               <div class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors min-h-[44px]">
+                <!-- Avatar circular con gradiente -->
                 <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-full flex items-center justify-center">
                   <Icon name="bx:bxs-user" class="w-4 h-4 text-white" />
                 </div>
+                <!-- Username extraído del email (antes del @), visible solo en LG+ -->
                 <span class="hidden lg:inline">{{ user?.email?.split('@')[0] || 'Usuario' }}</span>
                 <Icon name="bx:bxs-chevron-down" class="w-4 h-4" />
               </div>
             </template>
             
+            <!-- Slot personalizado para mostrar info de cuenta -->
             <template #account>
               <div class="text-left">
                 <p class="text-sm font-medium text-gray-900 truncate">
@@ -56,7 +74,10 @@
           </UiBaseDropdown>
         </div>
 
-        <!-- Mobile menu button with enhanced animation -->
+        <!-- 
+          Botón de Menú Móvil con Animación Hamburger
+          Usa CSS classes dinámicas para transformar hamburger a X
+        -->
         <div class="md:hidden flex items-center">
           <UiBaseButton
             variant="ghost"
@@ -65,7 +86,7 @@
             class="w-11 h-11 p-0 mobile-menu-btn"
             @click="toggleMobileMenu"
           >
-            <!-- Animated hamburger/X icon -->
+            <!-- Icono hamburger animado con 3 líneas que se transforman -->
             <div class="hamburger-icon flex flex-col justify-around w-5 h-5 cursor-pointer" :class="{ 'open': mobileMenuOpen }">
               <span class="hamburger-line block h-0.5 w-full bg-current rounded-sm" />
               <span class="hamburger-line block h-0.5 w-full bg-current rounded-sm" />
@@ -75,7 +96,14 @@
         </div>
       </div>
 
-      <!-- Mobile Slide-out Menu with enhanced animations -->
+      <!-- 
+        Menú Móvil Deslizable con Animaciones Sofisticadas
+        
+        Transiciones configuradas para suavidad:
+        - Enter: 400ms ease-out (más lento para sentirse natural)
+        - Leave: 300ms ease-in (más rápido para responsividad)
+        - Efectos combinados: opacity + translate + scale para profundidad
+      -->
       <Transition
         enter-active-class="transition-all duration-400 ease-out"
         enter-from-class="opacity-0 -translate-y-4 scale-95"
@@ -86,13 +114,15 @@
       >
         <div v-if="mobileMenuOpen" class="md:hidden bg-white border-t border-gray-200 shadow-lg mobile-menu-content">
           <div class="px-3 py-4 space-y-2">
-            <!-- Navigation Links -->
+            
+            <!-- Enlaces de Navegación Móvil con Animación Escalonada -->
             <div 
               v-for="(item, index) in navigationItems" 
               :key="item.to"
               class="mobile-nav-item"
               :style="{ '--item-index': index }"
             >
+              <!-- Botones full-width para fácil toque en móvil -->
               <UiBaseButton
                 :to="item.to"
                 variant="ghost"
@@ -105,15 +135,21 @@
               </UiBaseButton>
             </div>
             
-            <!-- Divider -->
+            <!-- Separador Visual -->
             <div class="border-t border-gray-200 my-4"/>
             
-            <!-- User Section -->
+            <!-- 
+              Sección de Usuario con Tarjeta de Perfil
+              Fondo sutil para destacar información personal
+            -->
             <div class="px-4 py-3 bg-gray-50 rounded-xl">
+              <!-- Header de información de usuario -->
               <div class="flex items-center space-x-3 mb-3">
+                <!-- Avatar más grande para móvil -->
                 <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-full flex items-center justify-center">
                   <Icon name="bx:bxs-user" class="w-5 h-5 text-white" />
                 </div>
+                <!-- Info de usuario con manejo de overflow -->
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium text-gray-900 truncate">
                     {{ user?.email?.split('@')[0] || 'Usuario' }}
@@ -124,7 +160,9 @@
                 </div>
               </div>
               
+              <!-- Acciones de Usuario -->
               <div class="space-y-1">
+                <!-- Enlace a perfil -->
                 <UiBaseButton
                   :to="'/auth/profile'"
                   variant="ghost"
@@ -136,6 +174,7 @@
                   Perfil
                 </UiBaseButton>
                 
+                <!-- Botón de logout con estado de carga y estilos rojos -->
                 <UiBaseButton
                   variant="ghost"
                   color="gray"
@@ -154,7 +193,15 @@
     </div>
   </nav>
 
-  <!-- Bottom Navigation for Mobile with enhanced animations -->
+  <!-- 
+    Navegación Inferior Móvil (Bottom Tab Bar)
+    
+    Patrón iOS/Android estándar para navegación principal:
+    - Fixed bottom para fácil acceso con pulgares
+    - Backdrop blur para mantener legibilidad sobre contenido
+    - Z-index alto para siempre estar visible
+    - Botón central destacado ("Nueva Liberación") con scale-up
+  -->
   <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 px-2 py-2 mobile-bottom-nav" style="z-index: var(--z-fixed)">
     <div class="flex items-center justify-around">
       <div 
@@ -173,6 +220,7 @@
           ]"
           :leading-icon="item.icon"
         >
+          <!-- Label debajo del icono para patrón mobile familiar -->
           <span class="mt-1">{{ item.label }}</span>
         </UiBaseButton>
       </div>
@@ -183,40 +231,59 @@
 <script setup lang="ts">
 import type { Profile } from '~/types'
 
-// Icons are now provided by @nuxt/icon
+// 
+// ===== CONFIGURACIÓN DE COMPONENTE =====
+//
 
-// Composables
-const user = useSupabaseUser()
-const { signOut, getCurrentUserProfile } = useAuth()
-const toast = useToast()
+// Composables de Nuxt/Supabase para autenticación y UI
+const user = useSupabaseUser() // Usuario reactivo de Supabase Auth
+const { signOut, getCurrentUserProfile } = useAuth() // Funciones de autenticación personalizada
+const toast = useToast() // Sistema de notificaciones toast
 
-// State
-const signingOut = ref(false)
-const mobileMenuOpen = ref(false)
-const userProfile = ref<Profile | null>(null)
+// 
+// ===== ESTADO REACTIVO LOCAL =====
+//
 
-// Get user profile
+const signingOut = ref(false) // Flag para mostrar loading durante logout
+const mobileMenuOpen = ref(false) // Control del menú móvil deslizable
+const userProfile = ref<Profile | null>(null) // Perfil completo con rol del usuario
+
+//
+// ===== GESTIÓN REACTIVA DE PERFIL DE USUARIO =====
+//
+
+// Auto-fetch del perfil cuando el usuario cambia (login/logout)
+// Se ejecuta reactivamente cada vez que user.value cambia
 watchEffect(async () => {
   if (user.value) {
     try {
+      // Obtener perfil completo desde la tabla profiles (incluye rol)
       userProfile.value = await getCurrentUserProfile()
     } catch {
-      // Error fetching user profile - handled silently
+      // Error silencioso - el perfil no es crítico para la navegación básica
+      // El usuario puede navegar aunque no se cargue el perfil completo
     }
   } else {
+    // Limpiar perfil cuando usuario hace logout
     userProfile.value = null
   }
 })
 
-// Navigation items data
+//
+// ===== NAVEGACIÓN DINÁMICA BASADA EN ROLES =====
+//
+
+// Computed reactivo que agrega/quita enlaces según el rol del usuario
 const navigationItems = computed(() => {
+  // Enlaces base disponibles para todos los roles
   const baseItems = [
     { to: '/', label: 'Inicio', icon: 'bx:home-alt-2' },
     { to: '/orders/new', label: 'Nueva Liberación', icon: 'bx:bxs-plus-square' },
     { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus' }
   ]
 
-  // Add admin navigation for admin users
+  // Agregar enlace de administración solo para usuarios Admin
+  // Esto implementa el control de acceso a nivel UI
   if (userProfile.value?.user_role === 'Admin') {
     baseItems.push({
       to: '/admin/users',
@@ -228,25 +295,28 @@ const navigationItems = computed(() => {
   return baseItems
 })
 
+// Navegación inferior móvil con configuración de estilos específica
 const bottomNavItems = computed(() => {
+  // Items base con variants específicos para bottom navigation
   const baseItems = [
     { to: '/', label: 'Inicio', icon: 'bx:home-alt-2', variant: 'ghost' as const, color: 'gray' as const },
     { 
+      // Botón central destacado - acción principal del sistema
       to: '/orders/new', 
       label: 'Nueva Liberación', 
       icon: 'bx:bxs-plus-square', 
       variant: 'solid' as const, 
       color: 'primary' as const,
-      special: true 
+      special: true  // Flag para aplicar scale-up CSS
     },
     { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus', variant: 'ghost' as const, color: 'gray' as const }
   ]
 
-  // Add admin navigation for admin users in mobile
+  // Agregar acceso admin en navegación móvil (label abreviado por espacio)
   if (userProfile.value?.user_role === 'Admin') {
     baseItems.push({
       to: '/admin/users',
-      label: 'Admin',
+      label: 'Admin', // Más corto para mobile
       icon: 'bx:bxs-cog',
       variant: 'ghost' as const,
       color: 'gray' as const
@@ -256,13 +326,19 @@ const bottomNavItems = computed(() => {
   return baseItems
 })
 
-// User menu items
+//
+// ===== MENÚ DROPDOWN DE USUARIO =====
+//
+
+// Estructura de menú contextual para dropdown de usuario
 const userMenuItems = computed(() => {
   const menuItems = [
+    // Primera sección: Info de cuenta (slot personalizado, no clickeable)
     [{
       slot: 'account',
       disabled: true
     }], 
+    // Segunda sección: Enlaces de perfil
     [{
       label: 'Perfil',
       icon: 'bx:user-circle',
@@ -270,55 +346,76 @@ const userMenuItems = computed(() => {
     }]
   ]
 
-
+  // Tercera sección: Acción de logout con estado dinámico
   menuItems.push([{
     label: signingOut.value ? 'Cerrando sesión...' : 'Cerrar Sesión',
     icon: 'bx:exit',
-    click: handleSignOut,
-    disabled: signingOut.value
+    click: handleSignOut, // Función manejadora
+    disabled: signingOut.value // Deshabilitado durante proceso
   }])
 
   return menuItems
 })
 
-// Sign out handler
+//
+// ===== MANEJADORES DE EVENTOS =====
+//
+
+// Función para manejar logout con UX optimizada
 const handleSignOut = async () => {
   try {
+    // Activar estado de loading para feedback inmediato
     signingOut.value = true
     
-    // Add smooth UX delay
+    // Delay mínimo para que el usuario vea el cambio de estado
+    // Mejora la percepción de responsividad en lugar de cambio instantáneo
     await new Promise(resolve => setTimeout(resolve, 300))
     
+    // Ejecutar logout real (redirige automáticamente a /auth/login)
     await signOut()
     
+    // Mostrar confirmación de éxito
     toast.success('Sesión cerrada correctamente')
     
   } catch {
-    // Handle sign out error silently or use proper error reporting
+    // Manejo de errores de logout (poco común)
+    // Error silencioso para no abrumar al usuario
     toast.error('Error al cerrar sesión', 'Por favor intenta de nuevo.')
   } finally {
+    // Asegurar que el loading se desactive sin importar el resultado
     signingOut.value = false
   }
 }
 
-// Enhanced mobile menu methods
+//
+// ===== GESTIÓN DE MENÚ MÓVIL =====
+//
+
+// Toggle del menú móvil con efectos de UX mejorados
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
   
-  // Add haptic feedback simulation
+  // Feedback háptico para devices que lo soporten
+  // Mejora la sensación tactil en móviles
   if (import.meta.client) {
-    // Trigger a subtle vibration on supported devices
+    // Vibración sutil (50ms) para confirmar acción
     if ('vibrate' in navigator) {
       navigator.vibrate(50)
     }
   }
 }
 
+// Función específica para cerrar menú (usada en navegación)
 const closeMobileMenu = () => {
   mobileMenuOpen.value = false
 }
 
-// Close mobile menu on route change
+//
+// ===== WATCHERS Y EFECTOS REACTIVOS =====
+//
+
+// Auto-cerrar menú móvil cuando el usuario navega
+// Previene menú abierto en nueva página (UX confuso)
 watch(() => useRoute().path, () => {
   mobileMenuOpen.value = false
 })
