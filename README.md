@@ -43,6 +43,7 @@ A modern web application for managing product release quality control workflows 
 - **API-First Architecture** - Statistics and user data served through secure API endpoints with service role authentication
 - **RLS Bypass** - Admin operations use service role to bypass Row Level Security issues while maintaining security
 - **Clean Auth Experience** - Navbar correctly hidden during authentication flows and logout transitions
+- **Profile Management Migration** - User profile functionality moved to auth section with updated navigation routes
 
 ## Tech Stack
 
@@ -51,6 +52,7 @@ A modern web application for managing product release quality control workflows 
 - **Backend**: Supabase (PostgreSQL, Auth, Real-time)
 - **State Management**: Pinia
 - **Icons**: @nuxt/icon with Boxicons
+- **Testing**: Vitest (unit tests), Playwright (E2E tests), Vue Testing Library
 - **Package Manager**: pnpm
 - **Deployment**: Ready for Vercel/Netlify deployment
 
@@ -160,13 +162,13 @@ app/
 │   ├── auth/
 │   │   ├── confirm.vue        # Email confirmation handler
 │   │   ├── login.vue          # Login page with password reset
+│   │   ├── profile.vue        # User profile management (relocated to auth)
 │   │   └── reset-password.vue # Password reset page
 │   ├── orders/
 │   │   ├── [id].vue           # Individual release details
 │   │   ├── index.vue          # Release history and management
 │   │   └── new.vue            # 4-step quality control workflow
-│   ├── index.vue              # Dashboard with metrics
-│   └── profile.vue            # User profile page
+│   └── index.vue              # Dashboard with metrics
 ├── types/                     # TypeScript type definitions
 ├── utils/
 │   └── formatters.ts          # Shared formatting utilities (currency, dates)
@@ -215,6 +217,11 @@ pnpm generate        # Generate static site
 pnpm preview         # Preview production build
 pnpm lint            # Run ESLint to check code quality
 pnpm lint:fix        # Automatically fix ESLint issues
+pnpm test            # Run unit tests with Vitest
+pnpm test:ui         # Run tests with UI interface
+pnpm test:coverage   # Run tests with coverage report
+pnpm test:e2e        # Run end-to-end tests with Playwright
+pnpm test:e2e:ui     # Run E2E tests with Playwright UI
 ```
 
 ### Custom UI Component System
@@ -381,6 +388,9 @@ pnpm build
 - ✅ **Auth UI/UX**: Resolved navbar display issues on authentication pages with route-based conditional rendering
 - ✅ **Admin Operations Security**: Complete CRUD operations now properly use server-side endpoints with service role authentication instead of client-side admin calls
 - ✅ **Password Reset System**: Added secure admin-initiated password reset functionality with email notifications
+- ✅ **Testing Infrastructure**: Complete testing setup with Vitest for unit/integration tests and Playwright for E2E testing with multi-browser support
+- ✅ **Profile Route Migration**: Moved user profile from root to auth section for better organization and improved navigation consistency
+- ✅ **Component Testing**: Comprehensive test structure for components, composables, middleware, stores, and utilities
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing
