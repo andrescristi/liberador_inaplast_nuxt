@@ -348,7 +348,6 @@ definePageMeta({
   layout: 'default'
 })
 
-const userAdmin = useAdminUserManager()
 const userAPI = useAdminUserAPI()
 const toast = useToast()
 const { debounce } = useDebounce()
@@ -479,7 +478,9 @@ const deleteUser = async () => {
   if (!userToDelete.value) return
   
   try {
-    await userAdmin.deleteUser(userToDelete.value.user_id)
+    await $fetch(`/api/admin/users/${userToDelete.value.user_id}`, {
+      method: 'DELETE'
+    })
     toast.success('Éxito', 'Usuario eliminado correctamente')
     showDeleteModal.value = false
     userToDelete.value = null
