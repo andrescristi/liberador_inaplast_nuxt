@@ -1,7 +1,21 @@
 <template>
+  <!-- 
+    Dashboard Principal - Sistema de Liberación Inaplast
+    
+    Estructura:
+    1. Header con título y descripción
+    2. Tarjetas de métricas (responsive grid)
+    3. Acciones rápidas (Nueva Liberación, Historial)
+    4. Tabla de liberaciones recientes con estados
+    
+    Responsividad:
+    - Mobile-first design con contenedor @container
+    - Grid adaptativo: 1 col (mobile) → 2 cols (tablet) → 3 cols (desktop)
+    - Componentes UI escalables con breakpoints sm/lg
+  -->
   <div>
     <div class="@container">
-      <!-- Page Header -->
+      <!-- Encabezado de página con título contextual -->
       <div class="mb-6 sm:mb-8">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
         <p class="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
@@ -9,7 +23,15 @@
         </p>
       </div>
 
-      <!-- Metrics Cards - Mobile-First Grid -->
+      <!-- 
+        Tarjetas de Métricas - Grid Responsive 
+        
+        Características:
+        - 3 métricas principales: Realizadas, Aceptadas, Rechazadas
+        - Contenido dinámico basado en rol (shouldShowAllStats)
+        - Iconografía consistente con códigos de color
+        - Gradientes de fondo para diferenciación visual
+      -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <UiBaseCard class="bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
           <div class="flex items-center">
@@ -60,7 +82,18 @@
         </UiBaseCard>
       </div>
 
-      <!-- Quick Actions - Mobile-First Grid -->
+      <!-- 
+        Acciones Rápidas - Navegación Principal
+        
+        Dos acciones principales del sistema:
+        1. Nueva Liberación - Inicia el flujo de 4 pasos
+        2. Historial - Navega a la vista completa de liberaciones
+        
+        Interacciones:
+        - Hover effects con transiciones suaves
+        - Active states con scaling
+        - Iconografía descriptiva
+      -->
       <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <UiBaseCard 
           class="group hover:shadow-md transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-indigo-200 active:scale-95"
@@ -185,21 +218,54 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Dashboard principal del sistema de liberación de productos Inaplast
+ * 
+ * Esta página proporciona una vista general del sistema mostrando:
+ * - Métricas diferenciadas por rol de usuario (Inspector vs Admin/Supervisor)  
+ * - Acciones rápidas para crear liberaciones y ver historial
+ * - Tabla de liberaciones recientes con estados y navegación
+ * - Interfaz responsive mobile-first optimizada para tablets y móviles
+ * 
+ * @route /
+ * @access Requiere autenticación (middleware: auth)
+ * @author Inaplast Development Team
+ * @since v1.0.0
+ */
+
 import type { Profile } from '~/types'
 
+// Composables y utilitiesystem/toast
 const toast = useToast()
 const { getCurrentProfile } = useProfile()
 
+// Estado reactivo del componente
+/** Control de estado de carga para mostrar spinners y skeleton states */
 const loading = ref(true)
+
+/** Perfil del usuario autenticado actual con información de rol */
 const userProfile = ref<Profile | null>(null)
+
+/**
+ * Métricas del dashboard que varían según el rol del usuario
+ * - Inspector: Solo sus propias métricas
+ * - Admin/Supervisor: Métricas globales del sistema
+ */
 const metrics = ref({
+  /** Número de inspecciones pendientes */
   pending: 25,
+  /** Número de inspecciones completadas/aceptadas */
   completed: 120,
+  /** Número de inspecciones rechazadas */
   rejected: 8,
+  /** Número total de clientes (para referencia futura) */
   customers: 45
 })
 
+/** Lista de órdenes recientes para mostrar en la tabla del dashboard */
 const recentOrders = ref([])
+
+/** Configuración de columnas para la tabla de órdenes recientes */
 const tableColumns = ref([
   { key: 'order', label: 'Order' },
   { key: 'customer', label: 'Customer' },
@@ -212,67 +278,115 @@ onMounted(async () => {
   await loadDashboardData()
 })
 
+/**
+ * Carga todos los datos necesarios para el dashboard
+ * 
+ * Esta función gestiona la carga inicial de datos basándose en el rol del usuario:
+ * - Obtiene el perfil del usuario autenticado
+ * - Carga métricas específicas según el rol (Inspector vs Admin/Supervisor)
+ * - Maneja estados de error y loading apropiadamente
+ * 
+ * @async
+ * @throws {Error} Si hay problemas de conectividad con la API o Supabase
+ * 
+ * @todo Implementar llamadas a API reales para métricas:
+ *       - GET /api/metrics/inspector/:userId para inspectores
+ *       - GET /api/metrics/global para admin/supervisor
+ * @todo Reemplazar datos mock con endpoints reales de Supabase
+ */
 async function loadDashboardData() {
   try {
     loading.value = true
 
-    // Get current user profile to determine role
+    // Obtener perfil del usuario actual para determinar rol y permisos
     userProfile.value = await getCurrentProfile()
     
-    // Load metrics based on user role
+    // Cargar métricas específicas basadas en el rol del usuario
     if (userProfile.value?.user_role === 'Inspector') {
-      // For Inspectors, load only their own statistics
-      // TODO: Implement API call to fetch user-specific metrics
+      // Para Inspectores: solo sus propias estadísticas
+      // TODO: Implementar llamada a API para métricas específicas del usuario
       metrics.value = {
-        pending: 5,    // Inspector's own pending inspections
-        completed: 12, // Inspector's own completed inspections
-        rejected: 2,   // Inspector's own rejected inspections
-        customers: 8   // Inspector's own customers
+        pending: 5,    // Inspecciones pendientes del inspector
+        completed: 12, // Inspecciones completadas del inspector  
+        rejected: 2,   // Inspecciones rechazadas del inspector
+        customers: 8   // Clientes asignados al inspector
       }
     } else {
-      // For Admin and Supervisor, show all statistics
-      // TODO: Implement API call to fetch all metrics
+      // Para Admin y Supervisor: mostrar estadísticas globales del sistema
+      // TODO: Implementar llamada a API para métricas globales
       metrics.value = {
-        pending: 25,
-        completed: 120,
-        rejected: 8,
-        customers: 45
+        pending: 25,   // Total de inspecciones pendientes en el sistema
+        completed: 120, // Total de inspecciones completadas
+        rejected: 8,   // Total de inspecciones rechazadas
+        customers: 45  // Total de clientes en el sistema
       }
     }
     
-    // Simulate loading time
+    // Simulación de tiempo de carga (remover cuando se implementen APIs reales)
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-  } catch {
-    // Error loading dashboard data
+  } catch (error) {
+    // Manejo de errores durante la carga de datos
+    console.error('Error loading dashboard data:', error)
     toast.error('Error', 'Error al cargar los datos del dashboard')
   } finally {
+    // Asegurar que el loading se desactive independientemente del resultado
     loading.value = false
   }
 }
 
-// Check if user should see all statistics (Admin/Supervisor) or only their own (Inspector)
+/**
+ * Computed que determina si el usuario debe ver estadísticas globales
+ * 
+ * Los usuarios con rol Admin o Supervisor ven métricas globales del sistema,
+ * mientras que los Inspectores solo ven sus propias métricas.
+ * 
+ * @returns {boolean} true para Admin/Supervisor, false para Inspector o usuario no autenticado
+ */
 const shouldShowAllStats = computed(() => {
   if (!userProfile.value) return false
   return userProfile.value.user_role === 'Admin' || userProfile.value.user_role === 'Supervisor'
 })
 
+/**
+ * Determina el color apropiado para el badge de estado de una orden
+ * 
+ * Mapea los diferentes estados de orden a colores específicos para
+ * proporcionar feedback visual inmediato del estado.
+ * 
+ * @param {string} status - Estado de la orden (pending, processing, completed, cancelled)
+ * @returns {string} Color del badge según el sistema de diseño
+ */
 function getStatusColor(status: string): 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink' {
   const colors: Record<string, 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink'> = {
-    pending: 'yellow',
-    processing: 'blue',
-    completed: 'green',
-    cancelled: 'red'
+    pending: 'yellow',    // Amarillo para pendientes
+    processing: 'blue',   // Azul para en proceso
+    completed: 'green',   // Verde para completadas
+    cancelled: 'red'      // Rojo para canceladas
   }
-  return colors[status] || 'gray'
+  return colors[status] || 'gray' // Gris como fallback
 }
 
-function formatDate(dateString: string) {
+/**
+ * Formatea una fecha ISO string a formato localizado en español
+ * 
+ * @param {string} dateString - Fecha en formato ISO string
+ * @returns {string} Fecha formateada en formato español (DD/MM/AAAA)
+ */
+function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleDateString('es-ES')
 }
 
-function onOrderClick(row: Record<string, unknown>) {
+/**
+ * Maneja el clic en una fila de la tabla de órdenes
+ * 
+ * Navega a la página de detalle de la orden seleccionada
+ * con validación de tipo segura.
+ * 
+ * @param {Record<string, unknown>} row - Fila de datos de la tabla
+ */
+function onOrderClick(row: Record<string, unknown>): void {
   if (row.id && typeof row.id === 'string') {
     navigateTo(`/orders/${row.id}`)
   }

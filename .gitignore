@@ -52,8 +52,8 @@ screenshots/
 !app/assets/images/*.svg
 
 # Documentation and temp files
-docs/
 agent-context/
 *.md
 !README.md
 !CLAUDE.md
+!docs/*.md

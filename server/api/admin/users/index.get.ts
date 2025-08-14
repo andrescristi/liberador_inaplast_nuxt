@@ -1,9 +1,70 @@
+/**
+ * API Endpoint: GET /api/admin/users
+ * 
+ * Obtiene lista paginada de usuarios del sistema con filtros opcionales.
+ * Requiere permisos de administrador y utiliza service role para acceso completo.
+ * 
+ * @route GET /api/admin/users
+ * @access Admin only - Verificado con requireAdminAuth middleware
+ * @auth Service Role - Bypassa RLS para acceso completo a profiles
+ * 
+ * @param {QueryParams} query - Parámetros de consulta opcionales
+ * @param {number} [query.page=1] - Número de página (base 1)
+ * @param {number} [query.pageSize=20] - Elementos por página (max 100)
+ * @param {string} [query.search] - Término de búsqueda (nombre, apellido, email)
+ * @param {ProfileRole} [query.role_filter] - Filtro por rol específico
+ * 
+ * @returns {PaginatedResponse<Profile>} Lista paginada de perfiles con emails
+ * @returns {Profile[]} data - Array de perfiles con datos completos
+ * @returns {number} total - Total de registros que coinciden con los filtros
+ * @returns {number} page - Página actual
+ * @returns {number} per_page - Elementos por página
+ * @returns {number} total_pages - Total de páginas disponibles
+ * 
+ * @throws {401} No autorizado - Usuario no autenticado
+ * @throws {403} Sin permisos - Usuario no es administrador
+ * @throws {500} Error de base de datos - Problemas con RPC o conexión
+ * 
+ * @example
+ * ```
+ * // Obtener primera página con 10 usuarios
+ * GET /api/admin/users?page=1&pageSize=10
+ * 
+ * // Buscar usuarios con término específico
+ * GET /api/admin/users?search=juan&role_filter=Inspector
+ * 
+ * // Respuesta exitosa:
+ * {
+ *   "data": [
+ *     {
+ *       "id": "uuid-1",
+ *       "user_id": "auth-uuid-1",
+ *       "first_name": "Juan",
+ *       "last_name": "Pérez",
+ *       "user_role": "Inspector",
+ *       "email": "juan@inaplast.com",
+ *       "full_name": "Juan Pérez",
+ *       "created_at": "2023-01-01T00:00:00Z",
+ *       "updated_at": "2023-06-01T00:00:00Z"
+ *     }
+ *   ],
+ *   "total": 45,
+ *   "page": 1,
+ *   "per_page": 10,
+ *   "total_pages": 5
+ * }
+ * ```
+ * 
+ * @since v1.0.0
+ */
+
 import { requireAdminAuth } from '../../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   // Validar permisos de administrador COMPLETAMENTE en server-side
   await requireAdminAuth(event)
   
+  // Extraer y validar parámetros de query
   const query = getQuery(event)
   const { 
     page = 1, 
