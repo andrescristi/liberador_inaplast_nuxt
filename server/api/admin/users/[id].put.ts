@@ -90,6 +90,9 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    // Track if email will be updated
+    let emailUpdated = false
+    
     // Update email if provided and user has permission
     if (email && !isCurrentUser) {
       const { error: authError } = await supabase.auth.admin.updateUserById(userId, {
@@ -101,6 +104,7 @@ export default defineEventHandler(async (event) => {
           statusMessage: `Error al actualizar email: ${authError.message}`
         })
       }
+      emailUpdated = true
     }
 
     const updateData: { first_name?: string; last_name?: string; user_role?: string; updated_at?: string } = {}
@@ -108,27 +112,48 @@ export default defineEventHandler(async (event) => {
     if (last_name !== undefined) updateData.last_name = last_name
     if (user_role !== undefined && !isCurrentUser) updateData.user_role = user_role
 
-    if (Object.keys(updateData).length === 0) {
+    // Check if there are any updates (profile data or email)
+    if (Object.keys(updateData).length === 0 && !emailUpdated) {
       throw createError({
         statusCode: 400,
         statusMessage: 'No hay campos para actualizar'
       })
     }
 
-    updateData.updated_at = new Date().toISOString()
+    // Only update profile if there are profile fields to update
+    let data
+    if (Object.keys(updateData).length > 0) {
+      updateData.updated_at = new Date().toISOString()
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .update(updateData)
-      .eq('user_id', userId)
-      .select()
-      .single()
+      const result = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('user_id', userId)
+        .select()
+        .single()
 
-    if (error) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: `Error al actualizar perfil: ${error.message}`
-      })
+      if (result.error) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: `Error al actualizar perfil: ${result.error.message}`
+        })
+      }
+      data = result.data
+    } else {
+      // If only email was updated, get current profile data
+      const result = await supabase
+        .from('profiles')
+        .select()
+        .eq('user_id', userId)
+        .single()
+
+      if (result.error) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: `Error al obtener perfil: ${result.error.message}`
+        })
+      }
+      data = result.data
     }
 
     const { data: authUser } = await supabase.auth.admin.getUserById(userId)
