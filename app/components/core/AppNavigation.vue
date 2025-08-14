@@ -126,7 +126,7 @@
               
               <div class="space-y-1">
                 <UiBaseButton
-                  :to="'/profile'"
+                  :to="'/auth/profile'"
                   variant="ghost"
                   color="gray"
                   class="w-full justify-start text-sm py-2 px-3 rounded-lg"
@@ -266,7 +266,7 @@ const userMenuItems = computed(() => {
     [{
       label: 'Perfil',
       icon: 'bx:user-circle',
-      to: '/profile'
+      to: '/auth/profile'
     }]
   ]
 
