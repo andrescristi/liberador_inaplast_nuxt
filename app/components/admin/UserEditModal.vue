@@ -11,7 +11,7 @@
             v-model="form.first_name"
             label="Nombre"
             placeholder="Ingresa el nombre"
-            :error="errors.first_name"
+            :error="!!errors.first_name"
             required
           />
           
@@ -19,7 +19,7 @@
             v-model="form.last_name"
             label="Apellido"
             placeholder="Ingresa el apellido"
-            :error="errors.last_name"
+            :error="!!errors.last_name"
             required
           />
         </div>
@@ -29,7 +29,7 @@
           label="Email"
           type="email"
           placeholder="usuario@ejemplo.com"
-          :error="errors.email"
+          :error="!!errors.email"
           required
         />
 
@@ -127,6 +127,11 @@ d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 
 <script setup lang="ts">
 import type { Profile, UpdateProfileForm } from '~/types'
 
+// Import components explicitly to fix SSR resolution issues
+import BaseButton from '~/components/ui/BaseButton.vue'
+import BaseInput from '~/components/ui/BaseInput.vue'
+import BaseModal from '~/components/ui/BaseModal.vue'
+
 const props = defineProps<{
   user: Profile
 }>()
@@ -136,7 +141,6 @@ const emit = defineEmits<{
   updated: []
 }>()
 
-const userAdmin = useAdminUserManager()
 const toast = useToast()
 
 // Form data
@@ -205,7 +209,13 @@ const updateUser = async () => {
       return
     }
 
-    await userAdmin.updateUser(props.user.user_id, updateData, emailToUpdate)
+    await $fetch(`/api/admin/users/${props.user.user_id}`, {
+      method: 'PUT',
+      body: {
+        ...updateData,
+        ...(emailToUpdate && { email: emailToUpdate })
+      }
+    })
     emit('updated')
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Error al actualizar el usuario'
@@ -222,7 +232,9 @@ const resetPassword = async () => {
 
   loading.value = true
   try {
-    await userAdmin.resetUserPassword(props.user.user_id)
+    await $fetch(`/api/admin/users/${props.user.user_id}/reset-password`, {
+      method: 'POST'
+    })
     toast.success('Éxito', 'Se ha enviado un email para restablecer la contraseña')
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Error al restablecer la contraseña'
