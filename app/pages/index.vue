@@ -19,7 +19,9 @@
               </div>
             </div>
             <div class="ml-3 sm:ml-4">
-              <dt class="text-xs sm:text-sm font-medium text-yellow-800">Inspecciones Realizadas</dt>
+              <dt class="text-xs sm:text-sm font-medium text-yellow-800">
+                {{ shouldShowAllStats ? 'Inspecciones Realizadas' : 'Mis Inspecciones Realizadas' }}
+              </dt>
               <dd class="text-xl sm:text-2xl font-bold text-yellow-900">{{ metrics.pending }}</dd>
             </div>
           </div>
@@ -33,7 +35,9 @@
               </div>
             </div>
             <div class="ml-3 sm:ml-4">
-              <dt class="text-xs sm:text-sm font-medium text-green-800">Inspecciones Aceptadas</dt>
+              <dt class="text-xs sm:text-sm font-medium text-green-800">
+                {{ shouldShowAllStats ? 'Inspecciones Aceptadas' : 'Mis Inspecciones Aceptadas' }}
+              </dt>
               <dd class="text-xl sm:text-2xl font-bold text-green-900">{{ metrics.completed }}</dd>
             </div>
           </div>
@@ -47,7 +51,9 @@
               </div>
             </div>
             <div class="ml-3 sm:ml-4">
-              <dt class="text-xs sm:text-sm font-medium text-red-800">Inspecciones Rechazadas</dt>
+              <dt class="text-xs sm:text-sm font-medium text-red-800">
+                {{ shouldShowAllStats ? 'Inspecciones Rechazadas' : 'Mis Inspecciones Rechazadas' }}
+              </dt>
               <dd class="text-xl sm:text-2xl font-bold text-red-900">{{ metrics.rejected }}</dd>
             </div>
           </div>
@@ -139,19 +145,19 @@
           >
             <template #order-data="{ row }">
               <div class="font-medium text-gray-900">
-                #{{ row.id.slice(0, 8) }}
+                #{{ (row.id as string).slice(0, 8) }}
               </div>
             </template>
 
             <template #customer-data="{ row }">
               <div class="text-gray-700">
-                {{ row.customers?.name || 'Unknown' }}
+                {{ (row.customers as any)?.name || 'Unknown' }}
               </div>
             </template>
 
             <template #status-data="{ row }">
               <UiBaseBadge 
-                :color="getStatusColor(row.status)"
+                :color="getStatusColor(row.status as string)"
                 variant="soft"
                 class="capitalize"
               >
@@ -161,13 +167,13 @@
 
             <template #amount-data="{ row }">
               <div class="font-medium text-gray-900">
-                ${{ row.total_amount.toFixed(2) }}
+                ${{ (row.total_amount as number).toFixed(2) }}
               </div>
             </template>
 
             <template #date-data="{ row }">
               <div class="text-gray-600">
-                {{ formatDate(row.order_date) }}
+                {{ formatDate(row.order_date as string) }}
               </div>
             </template>
           </UiBaseTable>
@@ -179,9 +185,13 @@
 </template>
 
 <script setup lang="ts">
+import type { Profile } from '~/types'
+
 const toast = useToast()
+const { getCurrentProfile } = useProfile()
 
 const loading = ref(true)
+const userProfile = ref<Profile | null>(null)
 const metrics = ref({
   pending: 25,
   completed: 120,
@@ -206,8 +216,29 @@ async function loadDashboardData() {
   try {
     loading.value = true
 
-    // For now, we'll use mock data
-    // In the future, fetch real data from Supabase
+    // Get current user profile to determine role
+    userProfile.value = await getCurrentProfile()
+    
+    // Load metrics based on user role
+    if (userProfile.value?.user_role === 'Inspector') {
+      // For Inspectors, load only their own statistics
+      // TODO: Implement API call to fetch user-specific metrics
+      metrics.value = {
+        pending: 5,    // Inspector's own pending inspections
+        completed: 12, // Inspector's own completed inspections
+        rejected: 2,   // Inspector's own rejected inspections
+        customers: 8   // Inspector's own customers
+      }
+    } else {
+      // For Admin and Supervisor, show all statistics
+      // TODO: Implement API call to fetch all metrics
+      metrics.value = {
+        pending: 25,
+        completed: 120,
+        rejected: 8,
+        customers: 45
+      }
+    }
     
     // Simulate loading time
     await new Promise(resolve => setTimeout(resolve, 1000))
@@ -219,6 +250,12 @@ async function loadDashboardData() {
     loading.value = false
   }
 }
+
+// Check if user should see all statistics (Admin/Supervisor) or only their own (Inspector)
+const shouldShowAllStats = computed(() => {
+  if (!userProfile.value) return false
+  return userProfile.value.user_role === 'Admin' || userProfile.value.user_role === 'Supervisor'
+})
 
 function getStatusColor(status: string): 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink' {
   const colors: Record<string, 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink'> = {
