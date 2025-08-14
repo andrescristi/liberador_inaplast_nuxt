@@ -84,11 +84,24 @@ export default defineEventHandler(async (event): Promise<PaginatedResponse<Profi
       })
     }
 
-    // Transform profiles and add full_name
-    const profilesWithEmails = (data || []).map((profile) => ({
-      ...profile,
-      full_name: `${profile.first_name} ${profile.last_name}`,
-      email: '' // Email will be populated separately if needed
+    // Get emails for all users using admin client
+    const profilesWithEmails = await Promise.all((data || []).map(async (profile) => {
+      try {
+        const { data: authUser } = await serviceSupabase.auth.admin.getUserById(profile.user_id)
+        return {
+          ...profile,
+          full_name: `${profile.first_name} ${profile.last_name}`,
+          email: authUser.user?.email || ''
+        }
+      } catch (error) {
+        // If getting the email fails, return profile without email
+        console.error(`Error getting email for user ${profile.user_id}:`, error)
+        return {
+          ...profile,
+          full_name: `${profile.first_name} ${profile.last_name}`,
+          email: ''
+        }
+      }
     }))
 
     return {
