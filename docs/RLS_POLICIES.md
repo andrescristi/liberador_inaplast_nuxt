@@ -234,14 +234,13 @@ $function$
   - **Condición:** `is_admin_from_jwt()` (solo admins pueden crear perfiles)
 
 #### Políticas de Actualización (UPDATE)
-- **`Users can update own profile`**
+- **`Users can update profiles with role restrictions`**
   - **Roles:** `authenticated`
-  - **Condición:** `auth.uid() = user_id` (usuarios pueden actualizar su propio perfil)
-  - **Verificación:** `auth.uid() = user_id` (misma verificación)
-
-- **`Admins can update any profile`**
-  - **Roles:** `authenticated`
-  - **Condición:** `is_admin_from_jwt()` (admins pueden actualizar cualquier perfil)
+  - **Condición:** `auth.uid() = user_id OR EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND user_role = 'Admin')`
+    - Usuarios pueden actualizar su propio perfil O admins pueden actualizar cualquier perfil
+  - **Verificación:** `public.can_change_user_role(user_id, user_role)`
+    - Confía en la validación de la capa API para cambios de roles
+    - La API ya valida permisos de admin correctamente
 
 #### Políticas de Eliminación (DELETE)
 - **`Admins can delete profiles`**
@@ -289,6 +288,20 @@ Admin > Supervisor > Inspector
 
 ---
 
+## Funciones y Triggers
+
+### Triggers Eliminados
+
+#### `prevent_role_changes_trigger` (ELIMINADO en v20250815000001)
+**Problema:** El trigger fallaba porque `auth.uid()` devuelve NULL cuando se usan operaciones de service role client.
+
+**Solución:** Se eliminó el trigger problemático y se simplificó la política RLS para confiar en la validación de la capa API, que ya maneja correctamente los permisos de admin.
+
+**Fecha de eliminación:** 2025-08-15
+**Migración:** `20250815000001_fix_role_change_permissions.sql`
+
+---
+
 ## ⚠️ Problemas de Seguridad Identificados
 
 ### 1. Políticas Públicas Demasiado Permisivas
@@ -321,5 +334,18 @@ Algunas políticas usan `auth.jwt()` mientras otras consultan la tabla `profiles
 
 ---
 
-*Documentación generada el: 2025-08-15*
+## Historial de Cambios
+
+### 2025-08-15 - Corrección de Permisos de Cambio de Roles
+- **Problema:** Error "Only administrators can change user roles" en el panel de admin
+- **Causa:** Trigger `prevent_role_changes_trigger` fallaba con operaciones de service role
+- **Solución:** 
+  - Eliminado el trigger problemático
+  - Simplificada la política RLS para `profiles` tabla
+  - Confianza en validación de API layer que maneja correctamente permisos de admin
+- **Migración:** `20250815000001_fix_role_change_permissions.sql`
+
+---
+
+*Documentación actualizada el: 2025-08-15*
 *Proyecto: Liberador Inaplast - Sistema de Gestión de Calidad*

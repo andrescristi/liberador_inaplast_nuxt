@@ -158,6 +158,60 @@ Tipo enumerado para roles de usuario:
 - `Inspector` - Inspector de calidad
 - `Supervisor` - Supervisor
 
+### activity_type (ENUM)
+Tipo enumerado para tipos de actividad de auditoría:
+- `user_created` - Usuario creado
+- `user_updated` - Usuario actualizado
+- `user_deleted` - Usuario eliminado
+- `user_role_changed` - Rol de usuario modificado
+- `password_reset` - Contraseña restablecida
+- `user_login` - Usuario inició sesión
+- `user_logout` - Usuario cerró sesión
+
+---
+
+### 8. user_activity_logs - Auditoría de Actividad de Usuarios
+Tabla para registrar todas las actividades de gestión de usuarios (auditoría completa).
+
+**Columnas:**
+- `id` (UUID) - Identificador único (PK)
+  - Valor por defecto: `uuid_generate_v4()`
+- `actor_user_id` (UUID) - ID del usuario que ejecutó la acción (FK → auth.users.id, Requerido)
+- `target_user_id` (UUID) - ID del usuario objetivo de la acción (FK → auth.users.id, Opcional)
+- `activity_type` (activity_type) - Tipo de actividad realizada (Enum, Requerido)
+  - Valores: `['user_created', 'user_updated', 'user_deleted', 'user_role_changed', 'password_reset', 'user_login', 'user_logout']`
+- `activity_description` (TEXT) - Descripción de la actividad (Requerido)
+- `metadata` (JSONB) - Metadatos adicionales de la acción
+  - Valor por defecto: `'{}'`
+- `ip_address` (INET) - Dirección IP desde donde se ejecutó la acción (Opcional)
+- `user_agent` (TEXT) - User agent del navegador (Opcional)  
+- `created_at` (TIMESTAMPTZ) - Fecha y hora de la acción
+  - Valor por defecto: `now()`
+
+**RLS:** Habilitado
+- Solo admins pueden ver logs (`Admins can view activity logs`)
+- Sistema puede insertar logs (`System can insert activity logs`)
+
+**Relaciones:**
+- `actor_user_id` → `auth.users.id` (Foreign Key, CASCADE DELETE)
+- `target_user_id` → `auth.users.id` (Foreign Key, CASCADE DELETE)
+
+**Índices:**
+- `idx_activity_logs_actor` en `actor_user_id`
+- `idx_activity_logs_target` en `target_user_id` 
+- `idx_activity_logs_type` en `activity_type`
+- `idx_activity_logs_created_at` en `created_at`
+
+**Funciones Asociadas:**
+- `log_user_activity()` - Registra actividad de usuario
+- `get_activity_logs()` - Obtiene logs con detalles de usuario (solo admins)
+- `log_user_login()` - Trigger automático para logins
+
+**Triggers:**
+- `on_user_login` - Registra automáticamente logins de usuarios
+
+**Propósito:** Sistema completo de auditoría que rastrea todas las actividades administrativas y de usuario para seguridad y compliance.
+
 ---
 
 ## Configuración de Seguridad
@@ -166,6 +220,10 @@ Tipo enumerado para roles de usuario:
 
 **Extensiones utilizadas:**
 - `uuid-ossp` para generación de UUIDs
+
+**Triggers y Funciones:**
+- Sistema de auditoría automático para la tabla `user_activity_logs`
+- Funciones de validación de permisos para cambios de roles
 
 ---
 
@@ -177,6 +235,7 @@ Tipo enumerado para roles de usuario:
 | products | 6 | 64 kB |
 | orders | 2 | 96 kB |
 | profiles | 12 | 96 kB |
+| user_activity_logs | ~50 | 32 kB |
 | planes_de_muestreo | 176 | 64 kB |
 | grupos_muestreo | 105 | 32 kB |
 | grupos_planes | 1,155 | 104 kB |
@@ -189,6 +248,8 @@ Tipo enumerado para roles de usuario:
 auth.users
     ↓ (user_id)
 profiles
+    │
+    └─→ user_activity_logs (admin_user_id, target_user_id)
 
 customers
     ↓ (customer_id)
@@ -200,5 +261,29 @@ grupos_muestreo ←→ grupos_planes ←→ planes_de_muestreo
 
 ---
 
-*Documentación generada el: 2025-08-15*
+## Migraciones Aplicadas
+
+### Lista de Migraciones
+- `20250801000001_initial_schema.sql` - Esquema inicial
+- `20250801000002_database_functions.sql` - Funciones de base de datos
+- `20250802000001_add_user_profiles.sql` - Tabla de perfiles de usuario
+- `20250802000002_seed_profiles.sql` - Datos semilla para perfiles
+- `20250802000003_fix_rls_policies_cleanup.sql` - Limpieza de políticas RLS
+- `20250809000001_fix_profile_policy_recursion.sql` - Fix recursión políticas
+- `20250809000002_enforce_role_change_restrictions.sql` - Restricciones cambio roles (OBSOLETO)
+- `20250809000003_fix_all_profile_policy_recursion.sql` - Fix recursión completa
+- `20250809000004_simple_profile_policies.sql` - Políticas simples
+- `20250811000001_add_user_activity_logs.sql` - Sistema de auditoría
+- `20250815000001_fix_role_change_permissions.sql` - **ACTUAL** Fix permisos cambio roles
+
+### Cambios Recientes
+
+#### 2025-08-15 - Fix Permisos de Cambio de Roles
+- **Problema:** Trigger `prevent_role_changes_trigger` fallaba con service role operations
+- **Solución:** Eliminado trigger problemático, simplificada política RLS
+- **Archivos:** `20250815000001_fix_role_change_permissions.sql`
+
+---
+
+*Documentación actualizada el: 2025-08-15*
 *Proyecto: Liberador Inaplast - Sistema de Gestión de Calidad*
