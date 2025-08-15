@@ -203,7 +203,8 @@ server/
 
 supabase/
 └── migrations/
-    └── 20250811000001_add_user_activity_logs.sql # Audit trail system
+    ├── 20250811000001_add_user_activity_logs.sql # Audit trail system
+    └── 20250815000001_fix_role_change_permissions.sql # Role change permission fixes
 ```
 
 ## Development
@@ -391,6 +392,7 @@ pnpm build
 - ✅ **Testing Infrastructure**: Complete testing setup with Vitest for unit/integration tests and Playwright for E2E testing with multi-browser support
 - ✅ **Profile Route Migration**: Moved user profile from root to auth section for better organization and improved navigation consistency
 - ✅ **Component Testing**: Comprehensive test structure for components, composables, middleware, stores, and utilities
+- ✅ **Role Change Permissions Fix**: Resolved critical issue with role change validation in admin panel by fixing database trigger conflicts with service role operations
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing
