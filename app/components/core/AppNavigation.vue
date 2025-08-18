@@ -28,17 +28,46 @@
           Oculto en mobile para evitar sobrecarga UI - se usa bottom nav en su lugar
         -->
         <div class="hidden md:flex items-center space-x-1">
+          <!-- Enlace de Inicio -->
           <UiBaseButton
-            v-for="item in navigationItems"
-            :key="item.to"
-            :to="item.to"
+            to="/"
             variant="ghost"
             color="gray"
             class="font-medium"
-            :leading-icon="item.icon"
+            :leading-icon="'bx:home-alt-2'"
           >
-            {{ item.label }}
+            Inicio
           </UiBaseButton>
+
+          <!-- Dropdown de Liberaciones -->
+          <UiBaseDropdown :items="liberacionesMenuItems">
+            <template #button>
+              <UiBaseButton
+                variant="ghost"
+                color="gray"
+                class="font-medium"
+                :leading-icon="'bx:bxs-package'"
+                :trailing-icon="'bx:bxs-chevron-down'"
+              >
+                Liberaciones
+              </UiBaseButton>
+            </template>
+          </UiBaseDropdown>
+
+          <!-- Dropdown de Configuración (solo si tiene elementos) -->
+          <UiBaseDropdown v-if="showConfiguracionMenu" :items="configuracionMenuItems">
+            <template #button>
+              <UiBaseButton
+                variant="ghost"
+                color="gray"
+                class="font-medium"
+                :leading-icon="'bx:bxs-cog'"
+                :trailing-icon="'bx:bxs-chevron-down'"
+              >
+                Configuración
+              </UiBaseButton>
+            </template>
+          </UiBaseDropdown>
         </div>
 
         <!-- 
@@ -116,24 +145,93 @@
           <div class="px-3 py-4 space-y-2">
             
             <!-- Enlaces de Navegación Móvil con Animación Escalonada -->
-            <div 
-              v-for="(item, index) in navigationItems" 
-              :key="item.to"
-              class="mobile-nav-item"
-              :style="{ '--item-index': index }"
-            >
-              <!-- Botones full-width para fácil toque en móvil -->
+            <!-- Enlace de Inicio -->
+            <div class="mobile-nav-item" style="--item-index: 0">
               <UiBaseButton
-                :to="item.to"
+                to="/"
                 variant="ghost"
                 color="gray"
                 class="w-full justify-start font-medium text-base py-4 px-4 rounded-xl mobile-nav-btn"
-                :leading-icon="item.icon"
+                :leading-icon="'bx:home-alt-2'"
                 @click="closeMobileMenu"
               >
-                {{ item.label }}
+                Inicio
               </UiBaseButton>
             </div>
+
+            <!-- Sección de Liberaciones -->
+            <div class="mobile-nav-item" style="--item-index: 1">
+              <div class="px-4 py-2">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Liberaciones</h3>
+              </div>
+            </div>
+            
+            <div class="mobile-nav-item" style="--item-index: 2">
+              <UiBaseButton
+                to="/orders/new"
+                variant="ghost"
+                color="gray"
+                class="w-full justify-start font-medium text-base py-4 px-4 pl-8 rounded-xl mobile-nav-btn"
+                :leading-icon="'bx:bxs-plus-square'"
+                @click="closeMobileMenu"
+              >
+                Nueva Liberación
+              </UiBaseButton>
+            </div>
+
+            <div class="mobile-nav-item" style="--item-index: 3">
+              <UiBaseButton
+                to="/orders"
+                variant="ghost"
+                color="gray"
+                class="w-full justify-start font-medium text-base py-4 px-4 pl-8 rounded-xl mobile-nav-btn"
+                :leading-icon="'bx:bxs-calendar-minus'"
+                @click="closeMobileMenu"
+              >
+                Historial
+              </UiBaseButton>
+            </div>
+
+            <!-- Sección de Configuración (solo si tiene elementos) -->
+            <template v-if="showConfiguracionMenu">
+              <div class="mobile-nav-item" style="--item-index: 4">
+                <div class="px-4 py-2">
+                  <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Configuración</h3>
+                </div>
+              </div>
+
+              <!-- Muestreo (si el usuario tiene permisos) -->
+              <template v-if="userProfile?.user_role === 'Admin' || userProfile?.user_role === 'Supervisor'">
+                <div class="mobile-nav-item" style="--item-index: 5">
+                  <UiBaseButton
+                    to="/muestreo"
+                    variant="ghost"
+                    color="gray"
+                    class="w-full justify-start font-medium text-base py-4 px-4 pl-8 rounded-xl mobile-nav-btn"
+                    :leading-icon="'bx:bxs-pie-chart-alt-2'"
+                    @click="closeMobileMenu"
+                  >
+                    Muestreo
+                  </UiBaseButton>
+                </div>
+              </template>
+
+              <!-- Administración (solo para Admin) -->
+              <template v-if="userProfile?.user_role === 'Admin'">
+                <div class="mobile-nav-item" style="--item-index: 6">
+                  <UiBaseButton
+                    to="/admin/users"
+                    variant="ghost"
+                    color="gray"
+                    class="w-full justify-start font-medium text-base py-4 px-4 pl-8 rounded-xl mobile-nav-btn"
+                    :leading-icon="'bx:bxs-cog'"
+                    @click="closeMobileMenu"
+                  >
+                    Administración
+                  </UiBaseButton>
+                </div>
+              </template>
+            </template>
             
             <!-- Separador Visual -->
             <div class="border-t border-gray-200 my-4"/>
@@ -273,27 +371,51 @@ watchEffect(async () => {
 // ===== NAVEGACIÓN DINÁMICA BASADA EN ROLES =====
 //
 
-// Computed reactivo que agrega/quita enlaces según el rol del usuario
-const navigationItems = computed(() => {
-  // Enlaces base disponibles para todos los roles
-  const baseItems = [
-    { to: '/', label: 'Inicio', icon: 'bx:home-alt-2' },
-    { to: '/orders/new', label: 'Nueva Liberación', icon: 'bx:bxs-plus-square' },
-    { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus' }
-  ]
+// Menú desplegable de Liberaciones
+const liberacionesMenuItems = computed(() => [
+  [{
+    label: 'Nueva Liberación',
+    icon: 'bx:bxs-plus-square',
+    to: '/orders/new'
+  }, {
+    label: 'Historial',
+    icon: 'bx:bxs-calendar-minus',
+    to: '/orders'
+  }]
+])
 
-  // Agregar enlace de administración solo para usuarios Admin
-  // Esto implementa el control de acceso a nivel UI
-  if (userProfile.value?.user_role === 'Admin') {
-    baseItems.push({
-      to: '/admin/users',
-      label: 'Administración',
-      icon: 'bx:bxs-cog'
+// Menú desplegable de Configuración
+const configuracionMenuItems = computed(() => {
+  const items: Array<{
+    label: string
+    icon: string
+    to: string
+  }> = []
+
+  // Agregar Muestreo para usuarios con permisos de calidad
+  if (userProfile.value?.user_role === 'Admin' || userProfile.value?.user_role === 'Supervisor') {
+    items.push({
+      label: 'Muestreo',
+      icon: 'bx:bxs-pie-chart-alt-2',
+      to: '/muestreo'
     })
   }
 
-  return baseItems
+  // Agregar Administración solo para usuarios Admin
+  if (userProfile.value?.user_role === 'Admin') {
+    items.push({
+      label: 'Administración',
+      icon: 'bx:bxs-cog',
+      to: '/admin/users'
+    })
+  }
+
+  return items.length > 0 ? [items] : []
 })
+
+// Computed para verificar si mostrar el botón de configuración
+const showConfiguracionMenu = computed(() => configuracionMenuItems.value.length > 0)
+
 
 // Navegación inferior móvil con configuración de estilos específica
 const bottomNavItems = computed(() => {
@@ -312,12 +434,25 @@ const bottomNavItems = computed(() => {
     { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus', variant: 'ghost' as const, color: 'gray' as const }
   ]
 
-  // Agregar acceso admin en navegación móvil (label abreviado por espacio)
+  // Para el bottom nav móvil mantenemos elementos individuales por espacio limitado
+  // Solo agregamos el elemento más importante basado en rol
+  
+  // Si es Admin, priorizar Administración
   if (userProfile.value?.user_role === 'Admin') {
     baseItems.push({
       to: '/admin/users',
       label: 'Admin', // Más corto para mobile
       icon: 'bx:bxs-cog',
+      variant: 'ghost' as const,
+      color: 'gray' as const
+    })
+  } 
+  // Si es Supervisor (pero no Admin), mostrar Muestreo
+  else if (userProfile.value?.user_role === 'Supervisor') {
+    baseItems.push({
+      to: '/muestreo',
+      label: 'Calidad', // Más corto para mobile
+      icon: 'bx:bxs-pie-chart-alt-2',
       variant: 'ghost' as const,
       color: 'gray' as const
     })
@@ -332,7 +467,14 @@ const bottomNavItems = computed(() => {
 
 // Estructura de menú contextual para dropdown de usuario
 const userMenuItems = computed(() => {
-  const menuItems = [
+  const menuItems: Array<Array<{
+    slot?: string
+    disabled?: boolean
+    label?: string
+    icon?: string
+    to?: string
+    click?: () => void
+  }>> = [
     // Primera sección: Info de cuenta (slot personalizado, no clickeable)
     [{
       slot: 'account',
