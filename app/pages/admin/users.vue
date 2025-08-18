@@ -39,7 +39,7 @@ viewBox="0 0 24 24">
 stroke-linecap="round"
 stroke-linejoin="round"
 stroke-width="2"
-d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                 </svg>
               </div>
               <div class="ml-5 w-0 flex-1">
@@ -99,7 +99,7 @@ viewBox="0 0 24 24">
 stroke-linecap="round"
 stroke-linejoin="round"
 stroke-width="2"
-d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                 </svg>
               </div>
               <div class="ml-5 w-0 flex-1">
@@ -129,7 +129,7 @@ viewBox="0 0 24 24">
 stroke-linecap="round"
 stroke-linejoin="round"
 stroke-width="2"
-d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m5-13v4a1 1 0 001 1h4m-5-4a5 5 0 00-5 5v7a5 5 0 005 5h4a1 1 0 001-1v-4a5 5 0 00-5-5H9z"/>
+d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V9a2 2 0 00-2-2h-6zM9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                 </svg>
               </div>
               <div class="ml-5 w-0 flex-1">

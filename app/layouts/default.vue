@@ -1,9 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    
-
     <!-- Main Content with Mobile-First Padding -->
-    <main class="px-4 py-6 sm:px-6 lg:px-8">
+    <main class="px-4 py-6 sm:px-6 lg:px-8 pb-20 md:pb-6">
       <!-- Mobile-optimized container -->
       <div class="max-w-7xl mx-auto">
         <slot />
