@@ -5,12 +5,13 @@
         <Icon :name="iconName" :class="iconClasses" />
       </div>
       <div class="ml-3">
-        <h3 v-if="title" :class="titleClasses">
-          {{ title }}
+        <h3 v-if="title || $slots.title" :class="titleClasses">
+          <slot v-if="$slots.title" name="title" />
+          <template v-else>{{ title }}</template>
         </h3>
         <div :class="descriptionClasses">
           <p v-if="description">{{ description }}</p>
-          <slot v-else />
+          <slot v-else-if="$slots.default" />
         </div>
       </div>
       <div v-if="closable" class="ml-auto pl-3">

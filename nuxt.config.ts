@@ -57,7 +57,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/auth/login',                     // Redirect si no autenticado
       callback: '/auth/confirm',               // Después de login exitoso
-      exclude: ['/auth/login', '/auth/reset-password', '/auth/confirm'] // Páginas públicas
+      exclude: ['/auth/login', '/auth/reset-password', '/auth/confirm', '/ocr-test'] // Páginas públicas
     }
   },
   

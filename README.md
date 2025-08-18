@@ -27,6 +27,16 @@ A modern web application for managing product release quality control workflows 
 - **Order Management** - Full orders interface with SSR-compatible state management
 - **Status Management** - Simplified order states: "Aceptado" (Accepted) and "Rechazado" (Rejected)
 
+### 📄 OCR Text Extraction
+- **Image Upload OCR** - Advanced optical character recognition for text extraction from images
+- **Multi-Language Support** - English and Spanish text recognition capabilities
+- **High-Quality Processing** - Optimized Tesseract.js configuration for best accuracy results
+- **Real-Time Progress** - Live progress tracking during OCR processing with Spanish status messages
+- **Image Format Support** - Supports JPG, PNG, WEBP, BMP, and GIF image formats
+- **Text Export** - Copy extracted text to clipboard with one-click functionality
+- **Drag & Drop Interface** - User-friendly file upload with visual feedback
+- **Test Page** - Dedicated testing interface at `/ocr-test` for OCR functionality validation
+
 ### 🔬 Quality Control & Sampling
 - **Muestreo System** - Complete sampling management module for quality control
 - **Plan de Muestreo** - Sampling plan management with AQL (Acceptable Quality Level) configuration
@@ -60,6 +70,7 @@ A modern web application for managing product release quality control workflows 
 - **Backend**: Supabase (PostgreSQL, Auth, Real-time)
 - **State Management**: Pinia
 - **Icons**: @nuxt/icon with Boxicons
+- **OCR Engine**: Tesseract.js 6.0.1 with optimized configuration
 - **Testing**: Vitest (unit tests), Playwright (E2E tests), Vue Testing Library
 - **Package Manager**: pnpm
 - **Deployment**: Ready for Vercel/Netlify deployment
@@ -157,6 +168,7 @@ app/
 │       ├── BaseInput.vue      # Form input component
 │       ├── BaseModal.vue      # Modal dialog
 │       ├── BaseTable.vue      # Data table component
+│       ├── ImageUploadOCR.vue # OCR text extraction component
 │       ├── ToastContainer.vue # Toast notification container
 │       └── ToastNotification.vue # Individual toast notifications
 ├── composables/
@@ -187,6 +199,7 @@ app/
 │   │   ├── index.vue          # Sampling dashboard
 │   │   ├── grupos.vue         # Sampling groups management
 │   │   └── planes.vue         # Sampling plans management
+│   ├── ocr-test.vue           # OCR testing and validation page
 │   └── index.vue              # Dashboard with metrics
 ├── types/                     # TypeScript type definitions
 ├── utils/
@@ -417,6 +430,9 @@ pnpm build
 - ✅ **Role Change Permissions Fix**: Resolved critical issue with role change validation in admin panel by fixing database trigger conflicts with service role operations
 - ✅ **Navigation Structure Enhancement**: Improved navbar organization with grouped navigation items (Liberaciones, Configuración) and role-based conditional display
 - ✅ **Quality Control Module**: Complete sampling management system with statistical sampling plans and group management for quality assurance
+- ✅ **OCR Text Extraction System**: Advanced optical character recognition with Tesseract.js 6.0.1, optimized for high-quality text extraction from images
+- ✅ **Multi-Language OCR Support**: English and Spanish text recognition with proper language configuration and quality optimization
+- ✅ **OCR User Interface**: Complete UI component with drag-and-drop, progress tracking, clipboard integration, and dedicated test page
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing

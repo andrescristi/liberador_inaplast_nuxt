@@ -1,85 +1,99 @@
 <template>
-  <Menu as="div" class="relative inline-block text-left">
-    <div>
-      <MenuButton :class="buttonClasses">
-        <slot name="button">
-          <span>Options</span>
-          <Icon name="bx:chevron-down" class="-mr-1 ml-2 h-5 w-5" />
-        </slot>
-      </MenuButton>
-    </div>
+  <ClientOnly>
+    <Menu as="div" class="relative inline-block text-left">
+      <div>
+        <MenuButton :class="buttonClasses">
+          <slot name="button">
+            <span>Options</span>
+            <Icon name="bx:chevron-down" class="-mr-1 ml-2 h-5 w-5" />
+          </slot>
+        </MenuButton>
+      </div>
 
-    <transition
-      enter-active-class="transition ease-out duration-100"
-      enter-from-class="transform opacity-0 scale-95"
-      enter-to-class="transform opacity-100 scale-100"
-      leave-active-class="transition ease-in duration-75"
-      leave-from-class="transform opacity-100 scale-100"
-      leave-to-class="transform opacity-0 scale-95"
-    >
-      <MenuItems :class="menuClasses">
-        <div
-v-for="(section, sectionIndex) in items"
-:key="sectionIndex"
-class="py-1">
-          <template v-for="(item, itemIndex) in section" :key="itemIndex">
-            <MenuItem 
-              v-if="!item.slot" 
-              v-slot="{ active, close }"
-              :as="item.to ? 'template' : 'div'"
-            >
-              <NuxtLink
-                v-if="item.to"
-                :to="item.to"
-                :class="[
-                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                  'group flex items-center px-4 py-2 text-sm w-full text-left',
-                  item.disabled ? 'opacity-50 cursor-not-allowed' : ''
-                ]"
-                @click="close"
+      <transition
+        enter-active-class="transition ease-out duration-100"
+        enter-from-class="transform opacity-0 scale-95"
+        enter-to-class="transform opacity-100 scale-100"
+        leave-active-class="transition ease-in duration-75"
+        leave-from-class="transform opacity-100 scale-100"
+        leave-to-class="transform opacity-0 scale-95"
+      >
+        <MenuItems :class="menuClasses">
+          <div
+            v-for="(section, sectionIndex) in items"
+            :key="sectionIndex"
+            class="py-1">
+            <template v-for="(item, itemIndex) in section" :key="itemIndex">
+              <MenuItem 
+                v-if="!item.slot" 
+                v-slot="{ active, close }"
+                :as="item.to ? 'template' : 'div'"
               >
-                <slot
-:name="item.key || `item-${sectionIndex}-${itemIndex}`"
-:item="item"
-:active="active">
-                  <Icon
-v-if="item.icon"
-:name="item.icon"
-class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
-                  {{ item.label }}
-                </slot>
-              </NuxtLink>
-              <button
-                v-else
-                :class="[
-                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                  'group flex items-center px-4 py-2 text-sm w-full text-left',
-                  item.disabled ? 'opacity-50 cursor-not-allowed' : ''
-                ]"
-                :disabled="item.disabled"
-                @click="item.click && item.click(); close()"
-              >
-                <slot
-:name="item.key || `item-${sectionIndex}-${itemIndex}`"
-:item="item"
-:active="active">
-                  <Icon
-v-if="item.icon"
-:name="item.icon"
-class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
-                  {{ item.label }}
-                </slot>
-              </button>
-            </MenuItem>
-            <div v-else :class="item.class || 'px-4 py-2'">
-              <slot :name="item.slot" :item="item" />
-            </div>
-          </template>
-          <div v-if="sectionIndex < items.length - 1" class="border-t border-gray-100" />
+                <NuxtLink
+                  v-if="item.to"
+                  :to="item.to"
+                  :class="[
+                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                    'group flex items-center px-4 py-2 text-sm w-full text-left',
+                    item.disabled ? 'opacity-50 cursor-not-allowed' : ''
+                  ]"
+                  @click="close"
+                >
+                  <slot
+                    :name="item.key || `item-${sectionIndex}-${itemIndex}`"
+                    :item="item"
+                    :active="active">
+                    <Icon
+                      v-if="item.icon"
+                      :name="item.icon"
+                      class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                    {{ item.label }}
+                  </slot>
+                </NuxtLink>
+                <button
+                  v-else
+                  :class="[
+                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                    'group flex items-center px-4 py-2 text-sm w-full text-left',
+                    item.disabled ? 'opacity-50 cursor-not-allowed' : ''
+                  ]"
+                  :disabled="item.disabled"
+                  @click="item.click && item.click(); close()"
+                >
+                  <slot
+                    :name="item.key || `item-${sectionIndex}-${itemIndex}`"
+                    :item="item"
+                    :active="active">
+                    <Icon
+                      v-if="item.icon"
+                      :name="item.icon"
+                      class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                    {{ item.label }}
+                  </slot>
+                </button>
+              </MenuItem>
+              <div v-else :class="item.class || 'px-4 py-2'">
+                <slot :name="item.slot" :item="item" />
+              </div>
+            </template>
+            <div v-if="sectionIndex < items.length - 1" class="border-t border-gray-100" />
+          </div>
+        </MenuItems>
+      </transition>
+    </Menu>
+    
+    <!-- Fallback placeholder para SSR -->
+    <template #fallback>
+      <div class="relative inline-block text-left">
+        <div :class="buttonClasses">
+          <slot name="button">
+            <span>Options</span>
+            <Icon name="bx:chevron-down" class="-mr-1 ml-2 h-5 w-5" />
+          </slot>
         </div>
-      </MenuItems>
-    </transition>
-  </Menu>
+      </div>
+    </template>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
