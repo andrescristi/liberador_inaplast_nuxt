@@ -27,6 +27,14 @@ A modern web application for managing product release quality control workflows 
 - **Order Management** - Full orders interface with SSR-compatible state management
 - **Status Management** - Simplified order states: "Aceptado" (Accepted) and "Rechazado" (Rejected)
 
+### 🔬 Quality Control & Sampling
+- **Muestreo System** - Complete sampling management module for quality control
+- **Plan de Muestreo** - Sampling plan management with AQL (Acceptable Quality Level) configuration
+- **Grupo de Muestreo** - Sampling group management with lot size ranges and inspection levels
+- **Statistical Sampling** - MIL-STD based sampling plans for quality assurance
+- **Inspection Management** - Multi-level inspection support (General, Special, Reduced)
+- **Quality Metrics** - Comprehensive quality control metrics and reporting
+
 ### 👥 Administrative Features
 - **User Management Dashboard** - Complete CRUD operations for user accounts with real email display
 - **User Creation & Editing** - Full user lifecycle management with secure server-side validation
@@ -134,6 +142,12 @@ app/
 │   │   ├── UserCreateModal.vue # User creation modal form
 │   │   └── UserEditModal.vue   # User editing modal form
 │   ├── core/                  # Core app components (navigation)
+│   ├── muestreo/              # Quality control & sampling components
+│   │   ├── GrupoMuestreoCreateModal.vue    # Sampling group creation
+│   │   ├── GrupoMuestreoEditModal.vue      # Sampling group editing
+│   │   ├── GrupoMuestreoRelacionesModal.vue # Group-plan relations
+│   │   ├── GrupoMuestreoViewModal.vue      # Sampling group details
+│   │   └── PlanMuestreoViewModal.vue       # Sampling plan details
 │   └── ui/                    # Custom UI components (TailwindCSS-based)
 │       ├── BaseAlert.vue      # Alert/notification component
 │       ├── BaseBadge.vue      # Status badges
@@ -150,6 +164,7 @@ app/
 │   ├── useDebounce.ts         # Debouncing utility for search/input handling
 │   ├── useAdminUserAPI.ts     # Admin user API operations via secure endpoints
 │   ├── useAdminUserManager.ts # Admin user management with state handling
+│   ├── useMuestreoAPI.ts      # Quality control & sampling API operations
 │   └── useToast.ts            # Toast notification management
 ├── layouts/
 │   └── default.vue            # Main layout with navigation
@@ -168,6 +183,10 @@ app/
 │   │   ├── [id].vue           # Individual release details
 │   │   ├── index.vue          # Release history and management
 │   │   └── new.vue            # 4-step quality control workflow
+│   ├── muestreo/              # Quality control & sampling pages
+│   │   ├── index.vue          # Sampling dashboard
+│   │   ├── grupos.vue         # Sampling groups management
+│   │   └── planes.vue         # Sampling plans management
 │   └── index.vue              # Dashboard with metrics
 ├── types/                     # TypeScript type definitions
 ├── utils/
@@ -299,11 +318,14 @@ The application uses the following main tables:
 - `user_activity_logs` - Comprehensive audit trail for all user management actions
 - `orders` - Product release records with quality control data
 - `order_items` - Individual items and test results within releases
+- `planes_de_muestreo` - Statistical sampling plans with AQL configurations
+- `grupos_muestreo` - Sampling groups with lot size ranges and inspection levels
+- `grupos_planes` - Many-to-many relationship between groups and sampling plans
 
 **Role-Based Access Control:**
-- **Admin**: Full system access including user management
-- **Supervisor**: Can manage orders and view all data
-- **Inspector**: Can create and manage assigned orders
+- **Admin**: Full system access including user management, quality control sampling, and administrative functions
+- **Supervisor**: Can manage orders, access quality control sampling (muestreo), and view all data
+- **Inspector**: Can create and manage assigned orders (no access to sampling or admin functions)
 
 See `supabase/migrations/` for complete schema definitions and security policies.
 
@@ -393,6 +415,8 @@ pnpm build
 - ✅ **Profile Route Migration**: Moved user profile from root to auth section for better organization and improved navigation consistency
 - ✅ **Component Testing**: Comprehensive test structure for components, composables, middleware, stores, and utilities
 - ✅ **Role Change Permissions Fix**: Resolved critical issue with role change validation in admin panel by fixing database trigger conflicts with service role operations
+- ✅ **Navigation Structure Enhancement**: Improved navbar organization with grouped navigation items (Liberaciones, Configuración) and role-based conditional display
+- ✅ **Quality Control Module**: Complete sampling management system with statistical sampling plans and group management for quality assurance
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing
