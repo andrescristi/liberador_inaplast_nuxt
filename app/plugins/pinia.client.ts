@@ -5,6 +5,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   
   nuxtApp.hook('app:created', () => {
     // Pinia ya está disponible aquí
-    console.log('Pinia initialized on client')
+    // Pinia initialized on client
   })
 })

@@ -502,9 +502,9 @@ const debouncedSearch = debounce(() => {
   applyFilters()
 }, 300)
 
-const toggleSort = (field: string) => {
+const toggleSort = (_field: string) => {
   // Sorting functionality will be implemented when backend API supports it
-  console.log(`Sorting by ${field} - feature pending backend support`)
+  // Sorting by field - feature pending backend support
 }
 
 const showOrderActions = (order: Order) => {

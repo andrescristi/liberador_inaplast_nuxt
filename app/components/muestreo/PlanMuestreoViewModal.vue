@@ -206,7 +206,7 @@ const props = defineProps<{
   plan: PlanDeMuestreo
 }>()
 
-const emit = defineEmits<{
+const _emit = defineEmits<{
   close: []
 }>()
 

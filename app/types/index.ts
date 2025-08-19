@@ -64,9 +64,9 @@ export interface Profile {
   /** Rol del usuario en el sistema */
   user_role: ProfileRole
   /** Fecha de creación del perfil */
-  created_at: string
+  created_at: string | null
   /** Fecha de última actualización */
-  updated_at: string
+  updated_at: string | null
   /** Campo calculado: nombre completo (first_name + last_name) */
   full_name?: string
   /** Email del usuario (poblado desde auth.users) */

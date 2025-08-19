@@ -304,7 +304,7 @@ definePageMeta({
 })
 
 const muestreoAPI = useMuestreoAPI()
-const toast = useToast()
+const _toast = useToast()
 const { debounce } = useDebounce()
 const { user } = useAuth()
 

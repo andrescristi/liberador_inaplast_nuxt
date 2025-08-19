@@ -159,17 +159,18 @@ export const useAdminUserManager = () => {
       if (profileError) throw profileError
 
       // Log the activity
-      await supabase.rpc('log_user_activity', {
-        p_actor_user_id: user.value?.id,
-        p_target_user_id: authData.user.id,
-        p_activity_type: 'user_created',
-        p_activity_description: `Created user: ${profileData.first_name} ${profileData.last_name} (${email}) with role ${profileData.user_role}`,
-        p_metadata: {
-          email,
-          role: profileData.user_role,
-          name: `${profileData.first_name} ${profileData.last_name}`
-        }
-      })
+      // TODO: Implement log_user_activity function in database
+      // await supabase.rpc('log_user_activity', {
+      //   p_actor_user_id: user.value?.id,
+      //   p_target_user_id: authData.user.id,
+      //   p_activity_type: 'user_created',
+      //   p_activity_description: `Created user: ${profileData.first_name} ${profileData.last_name} (${email}) with role ${profileData.user_role}`,
+      //   p_metadata: {
+      //     email,
+      //     role: profileData.user_role,
+      //     name: `${profileData.first_name} ${profileData.last_name}`
+      //   }
+      // })
 
       return {
         id: profileUpdateData.id,
@@ -226,16 +227,17 @@ export const useAdminUserManager = () => {
       if (profileData.user_role) changes.push(`role: ${profileData.user_role}`)
       if (email) changes.push(`email: ${email}`)
 
-      await supabase.rpc('log_user_activity', {
-        p_actor_user_id: user.value?.id,
-        p_target_user_id: userId,
-        p_activity_type: profileData.user_role ? 'user_role_changed' : 'user_updated',
-        p_activity_description: `Updated user: ${changes.join(', ')}`,
-        p_metadata: JSON.parse(JSON.stringify({
-          changes: profileData,
-          new_email: email
-        }))
-      })
+      // TODO: Implement log_user_activity function in database
+      // await supabase.rpc('log_user_activity', {
+      //   p_actor_user_id: user.value?.id,
+      //   p_target_user_id: userId,
+      //   p_activity_type: profileData.user_role ? 'user_role_changed' : 'user_updated',
+      //   p_activity_description: `Updated user: ${changes.join(', ')}`,
+      //   p_metadata: JSON.parse(JSON.stringify({
+      //     changes: profileData,
+      //     new_email: email
+      //   }))
+      // })
 
       return {
         id: data.id,
@@ -266,8 +268,8 @@ export const useAdminUserManager = () => {
 
     try {
       // Get user info before deletion for logging
-      const { data: userData } = await supabase.auth.admin.getUserById(userId)
-      const { data: profileData } = await supabase
+      const { data: _userData } = await supabase.auth.admin.getUserById(userId)
+      const { data: _profileData } = await supabase
         .from('profiles')
         .select('first_name, last_name, user_role')
         .eq('user_id', userId)
@@ -277,19 +279,20 @@ export const useAdminUserManager = () => {
       if (error) throw error
 
       // Log the activity
-      if (userData.user && profileData) {
-        await supabase.rpc('log_user_activity', {
-          p_actor_user_id: user.value?.id,
-          p_target_user_id: null, // User is deleted, so no target
-          p_activity_type: 'user_deleted',
-          p_activity_description: `Deleted user: ${profileData.first_name} ${profileData.last_name} (${userData.user.email})`,
-          p_metadata: {
-            deleted_user_email: userData.user.email,
-            deleted_user_name: `${profileData.first_name} ${profileData.last_name}`,
-            deleted_user_role: profileData.user_role
-          }
-        })
-      }
+      // TODO: Implement log_user_activity function in database
+      // if (userData.user && profileData) {
+      //   await supabase.rpc('log_user_activity', {
+      //     p_actor_user_id: user.value?.id,
+      //     p_target_user_id: null, // User is deleted, so no target
+      //     p_activity_type: 'user_deleted',
+      //     p_activity_description: `Deleted user: ${profileData.first_name} ${profileData.last_name} (${userData.user.email})`,
+      //     p_metadata: {
+      //       deleted_user_email: userData.user.email,
+      //       deleted_user_name: `${profileData.first_name} ${profileData.last_name}`,
+      //       deleted_user_role: profileData.user_role
+      //     }
+      //   })
+      // }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
       throw new Error(`Failed to delete user: ${errorMessage}`)
@@ -311,15 +314,16 @@ export const useAdminUserManager = () => {
       if (error) throw error
 
       // Log the activity
-      await supabase.rpc('log_user_activity', {
-        p_actor_user_id: user.value?.id,
-        p_target_user_id: userId,
-        p_activity_type: 'password_reset',
-        p_activity_description: `Password reset requested for user: ${userData.user.email}`,
-        p_metadata: {
-          reset_email: userData.user.email
-        }
-      })
+      // TODO: Implement log_user_activity function in database
+      // await supabase.rpc('log_user_activity', {
+      //   p_actor_user_id: user.value?.id,
+      //   p_target_user_id: userId,
+      //   p_activity_type: 'password_reset',
+      //   p_activity_description: `Password reset requested for user: ${userData.user.email}`,
+      //   p_metadata: {
+      //     reset_email: userData.user.email
+      //   }
+      // })
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
       throw new Error(`Failed to reset password: ${errorMessage}`)
@@ -364,10 +368,10 @@ export const useAdminUserManager = () => {
   ]
 
   const getActivityLogs = async (
-    limit = 50,
-    offset = 0,
-    activityType?: string,
-    targetUserId?: string
+    _limit = 50,
+    _offset = 0,
+    _activityType?: string,
+    _targetUserId?: string
   ): Promise<{
     id: string;
     actor_user_id: string;
@@ -382,15 +386,18 @@ export const useAdminUserManager = () => {
     }
 
     try {
-      const { data, error } = await supabase.rpc('get_activity_logs', {
-        p_limit: limit,
-        p_offset: offset,
-        p_activity_type: activityType || null,
-        p_target_user_id: targetUserId || null
-      })
-
-      if (error) throw error
-      return data || []
+      // TODO: Implement get_activity_logs function in database
+      // const { data, error } = await supabase.rpc('get_activity_logs', {
+      //   p_limit: limit,
+      //   p_offset: offset,
+      //   p_activity_type: activityType || null,
+      //   p_target_user_id: targetUserId || null
+      // })
+      // if (error) throw error
+      // return data || []
+      
+      // Return empty array until function is implemented
+      return []
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
       throw new Error(`Failed to fetch activity logs: ${errorMessage}`)

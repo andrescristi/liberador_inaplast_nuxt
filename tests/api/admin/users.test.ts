@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { Profile, ProfileRole } from '~/types'
+import type { ProfileRole } from '~/types'
 
 // Mock de utils de auth
 const mockRequireAdminAuth = vi.fn()
@@ -153,7 +153,7 @@ describe('API: Admin Users', () => {
 
       mockCreateError.mockImplementation(({ statusCode, statusMessage }) => {
         const error = new Error(statusMessage)
-        ;(error as any).statusCode = statusCode
+        ;(error as Error & { statusCode: number }).statusCode = statusCode
         throw error
       })
 
@@ -176,7 +176,7 @@ describe('API: Admin Users', () => {
     }
 
     it('debe crear usuario exitosamente', async () => {
-      const mockCreatedUser = {
+      const _mockCreatedUser = {
         id: 'new-user-id',
         email: 'nuevo@test.com'
       }
@@ -277,7 +277,7 @@ describe('API: Admin Users', () => {
     it('debe validar autenticación en todos los endpoints', async () => {
       const endpoints = ['GET', 'POST', 'PUT', 'DELETE']
       
-      for (const method of endpoints) {
+      for (const _method of endpoints) {
         expect(mockRequireAdminAuth).toHaveBeenCalled()
       }
     })

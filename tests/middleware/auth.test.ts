@@ -12,7 +12,7 @@ vi.stubGlobal('navigateTo', mockNavigateTo)
 describe('Auth Middleware', () => {
   
   // Simulación del middleware de autenticación
-  const authMiddleware = (to: any, from: any) => {
+  const authMiddleware = (_to: unknown, _from: unknown) => {
     const user = mockUser
     
     if (!user.value) {
@@ -92,7 +92,7 @@ describe('Auth Middleware', () => {
   })
 
   describe('Middleware de Roles', () => {
-    const requireAdminMiddleware = async (to: any, from: any) => {
+    const requireAdminMiddleware = async (_to: unknown, _from: unknown) => {
       const user = mockUser
       
       if (!user.value) {
@@ -131,7 +131,7 @@ describe('Auth Middleware', () => {
       
       mockCreateError.mockImplementation(({ statusCode, statusMessage }) => {
         const error = new Error(statusMessage)
-        ;(error as any).statusCode = statusCode
+        ;(error as Error & { statusCode: number }).statusCode = statusCode
         throw error
       })
 
@@ -144,7 +144,7 @@ describe('Auth Middleware', () => {
       
       mockCreateError.mockImplementation(({ statusCode, statusMessage }) => {
         const error = new Error(statusMessage)
-        ;(error as any).statusCode = statusCode
+        ;(error as Error & { statusCode: number }).statusCode = statusCode
         throw error
       })
 

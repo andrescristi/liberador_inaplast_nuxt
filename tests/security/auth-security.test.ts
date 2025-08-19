@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi as _vi } from 'vitest'
 
 describe('Seguridad de Autenticación', () => {
   
@@ -195,7 +195,7 @@ describe('Seguridad de Autenticación', () => {
         role: 'Admin<script>alert("privilege escalation")</script>'
       }
 
-      Object.entries(maliciousInputs).forEach(([field, value]) => {
+      Object.entries(maliciousInputs).forEach(([_field, value]) => {
         // Todos los inputs deben ser sanitizados
         const sanitized = value
           .replace(/<script.*?>.*?<\/script>/gi, '')
@@ -216,7 +216,7 @@ describe('Seguridad de Autenticación', () => {
         password: 128
       }
 
-      Object.entries(fieldLimits).forEach(([field, limit]) => {
+      Object.entries(fieldLimits).forEach(([_field, limit]) => {
         const oversizedInput = 'x'.repeat(limit + 1)
         const validInput = 'x'.repeat(limit)
         

@@ -6,6 +6,6 @@ export default defineNuxtPlugin(() => {
   if (import.meta.server) {
     // En el servidor, Pinia ya está configurado por @pinia/nuxt
     // Este plugin sirve para debugging y hooks adicionales si fuera necesario
-    console.log('Pinia server plugin initialized')
+    // Pinia server plugin initialized
   }
 })

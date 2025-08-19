@@ -1,11 +1,11 @@
 import { requireAdminAuth as _requireAdminAuth } from '../../../utils/auth'
 
 export default defineEventHandler(async (event) => {
-  console.log('🔍 POST /api/admin/users - Iniciando creación de usuario')
+  // POST /api/admin/users - Iniciando creación de usuario
   
   const body = await readBody(event)
   const { email, password, first_name, last_name, user_role } = body
-  console.log('📝 Datos recibidos:', { email, first_name, last_name, user_role })
+  // Datos recibidos para validación
 
   // Validación estricta de campos requeridos
   if (!email || !password || !first_name || !last_name || !user_role) {
@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'No autorizado. Se requiere autenticación.'
       })
     }
-    console.log('🔐 Usuario autenticado:', user.id)
+    // Usuario autenticado
     
     // Crear cliente directo para evitar conflictos del framework
     const { createClient } = await import('@supabase/supabase-js')
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
         }
       }
     )
-    console.log('🔑 Cliente Supabase directo inicializado')
+    // Cliente Supabase directo inicializado
     
     // Verificar permisos de admin
     const { data: profile, error: profileError } = await supabase
@@ -73,7 +73,7 @@ export default defineEventHandler(async (event) => {
       .single()
 
     if (profileError || !profile) {
-      console.error('❌ Error verificando perfil:', profileError)
+      // Error verificando perfil
       throw createError({
         statusCode: 403,
         statusMessage: 'No se pudo verificar el perfil del usuario.'
@@ -86,9 +86,9 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Acceso denegado. Se requieren permisos de administrador.'
       })
     }
-    console.log('✅ Permisos de admin verificados')
+    // Permisos de admin verificados
 
-    console.log('👤 Creando usuario en Auth...')
+    // Creando usuario en Auth
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -101,7 +101,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (authError) {
-      console.error('❌ Error al crear usuario Auth:', authError)
+      // Error al crear usuario Auth
       throw createError({
         statusCode: 400,
         statusMessage: `Error de autenticación: ${authError.message}`
@@ -109,14 +109,14 @@ export default defineEventHandler(async (event) => {
     }
 
     if (!authData.user) {
-      console.error('❌ No se creó el usuario Auth')
+      // No se creó el usuario Auth
       throw createError({
         statusCode: 500,
         statusMessage: 'Error al crear cuenta de usuario'
       })
     }
 
-    console.log('✅ Usuario Auth creado:', authData.user.id)
+    // Usuario Auth creado exitosamente
 
     // Primero verificar si ya existe el perfil
     const { data: existingProfile } = await supabase
@@ -127,7 +127,7 @@ export default defineEventHandler(async (event) => {
 
     let profileData
     if (existingProfile) {
-      console.log('📝 Actualizando perfil existente...')
+      // Actualizando perfil existente
       const { data: updateData, error: profileError } = await supabase
         .from('profiles')
         .update({
@@ -140,7 +140,7 @@ export default defineEventHandler(async (event) => {
         .single()
 
       if (profileError) {
-        console.error('❌ Error al actualizar perfil:', profileError)
+        // Error al actualizar perfil
         await supabase.auth.admin.deleteUser(authData.user.id)
         throw createError({
           statusCode: 500,
@@ -149,7 +149,7 @@ export default defineEventHandler(async (event) => {
       }
       profileData = updateData
     } else {
-      console.log('🆕 Creando nuevo perfil...')
+      // Creando nuevo perfil
       const { data: insertData, error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -162,7 +162,7 @@ export default defineEventHandler(async (event) => {
         .single()
 
       if (profileError) {
-        console.error('❌ Error al crear perfil:', profileError)
+        // Error al crear perfil
         await supabase.auth.admin.deleteUser(authData.user.id)
         throw createError({
           statusCode: 500,
@@ -172,7 +172,7 @@ export default defineEventHandler(async (event) => {
       profileData = insertData
     }
 
-    console.log('✅ Perfil procesado exitosamente:', profileData.id)
+    // Perfil procesado exitosamente
 
     const result = {
       id: profileData.id,
@@ -186,10 +186,10 @@ export default defineEventHandler(async (event) => {
       email: authData.user.email
     }
     
-    console.log('🎉 Usuario creado exitosamente:', result)
+    // Usuario creado exitosamente
     return result
   } catch (error: unknown) {
-    console.error('💥 Error en creación de usuario:', error)
+    // Error en creación de usuario
     const statusCode = error && typeof error === 'object' && 'statusCode' in error ? (error.statusCode as number) : 500
     const statusMessage = error && typeof error === 'object' && 'statusMessage' in error ? (error.statusMessage as string) : 'Error al crear usuario'
     throw createError({

@@ -216,20 +216,21 @@ JSON:
       }
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
 
     // Manejar errores específicos de la API de Gemini
-    if (error.status) {
+    if (error && typeof error === 'object' && 'status' in error) {
+      const status = (error as { status: number }).status
       throw createError({
-        statusCode: error.status,
-        statusMessage: `Error de Gemini API: ${error.message}`
+        statusCode: status,
+        statusMessage: `Error de Gemini API: ${error && typeof error === 'object' && 'message' in error ? (error as { message: string }).message : 'Error desconocido'}`
       })
     }
 
     // Error genérico
     throw createError({
       statusCode: 500,
-      statusMessage: `Error procesando la imagen: ${error.message || 'Error desconocido'}`
+      statusMessage: `Error procesando la imagen: ${error instanceof Error ? error.message : 'Error desconocido'}`
     })
   }
 })

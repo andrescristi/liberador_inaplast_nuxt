@@ -11,6 +11,17 @@
         "env": {
           "SUPABASE_ACCESS_TOKEN": "sbp_f831564397e7076868219bcc6bf9f680c67ba614"
         }
+      },
+      "zen": {
+      "command": "sh",
+      "args": [
+        "-c",
+        "exec $(which uvx || echo uvx) --from git+https://github.com/BeehiveInnovations/zen-mcp-server.git zen-mcp-server"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:~/.local/bin",
+        "GEMINI_API_KEY": "AIzaSyDLxwBLrVXS3uH-X5z1s7wZhZwI7muSj7U"
       }
+    }
     }
   }

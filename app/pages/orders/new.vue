@@ -972,16 +972,18 @@ const processImageOCR = async () => {
       toast.error('No se pudieron extraer datos', 'Verifica que la imagen contenga información de producción legible')
     }
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error en OCR:', error)
-    const errorMessage = error.statusMessage || 'Error al procesar la imagen. Por favor intenta nuevamente.'
+    const errorMessage = error && typeof error === 'object' && 'statusMessage' in error 
+      ? (error as { statusMessage: string }).statusMessage 
+      : 'Error al procesar la imagen. Por favor intenta nuevamente.'
     toast.error('Error OCR', errorMessage)
   } finally {
     isProcessingOCR.value = false
   }
 }
 
-const handleOCRDataExtracted = (productionData: any) => {
+const handleOCRDataExtracted = (productionData: Record<string, unknown>) => {
   // Mapear los datos extraídos a los campos del formulario
   if (productionData.cliente) formData.client = productionData.cliente
   if (productionData.lote) formData.batch = productionData.lote
@@ -1028,7 +1030,7 @@ const saveForm = async () => {
   
   try {
     // Prepare form data for API submission
-    const orderData = {
+    const _orderData = {
       // Basic information
       boxQuantity: formData.boxQuantity,
       labelImage: formData.labelImage,
@@ -1064,7 +1066,7 @@ const saveForm = async () => {
     
     // Prepare data for API submission
     // Note: API integration pending - currently logging for development
-    console.log('Order data prepared for API:', orderData)
+    // Order data prepared for API
     
     // For now, simulate API call for development
     await new Promise(resolve => setTimeout(resolve, 1500))

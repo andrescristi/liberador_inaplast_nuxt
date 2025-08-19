@@ -279,7 +279,7 @@ export const useMuestreoAPI = () => {
       // Procesar datos con tipos seguros
       const planesPorAQLCount: { [aql: string]: number } = {}
       if (planesPorAQL) {
-        planesPorAQL.forEach((p: any) => {
+        planesPorAQL.forEach((p: { aql?: string }) => {
           if (p.aql) {
             planesPorAQLCount[p.aql] = (planesPorAQLCount[p.aql] || 0) + 1
           }
@@ -289,7 +289,7 @@ export const useMuestreoAPI = () => {
       // Contar grupos por nivel
       const gruposPorNivelCount: { [nivel: string]: number } = {}
       if (gruposPorNivel) {
-        gruposPorNivel.forEach((g: any) => {
+        gruposPorNivel.forEach((g: { nivel_inspeccion?: string }) => {
           if (g.nivel_inspeccion) {
             gruposPorNivelCount[g.nivel_inspeccion] = (gruposPorNivelCount[g.nivel_inspeccion] || 0) + 1
           }
@@ -297,7 +297,7 @@ export const useMuestreoAPI = () => {
       }
 
       // Tipos únicos de inspección
-      const tiposUnicos = tiposInspeccion ? [...new Set(tiposInspeccion.map((t: any) => t.tipo_de_inspeccion).filter(Boolean))] : []
+      const tiposUnicos = tiposInspeccion ? [...new Set(tiposInspeccion.map((t: { tipo_de_inspeccion?: string }) => t.tipo_de_inspeccion).filter((tipo): tipo is string => Boolean(tipo)))] : []
 
       return {
         total_planes: totalPlanes || 0,
@@ -350,7 +350,7 @@ export const useMuestreoAPI = () => {
   const getPlanesAsignadosAGrupo = async (
     tamanoLoteDesde: number,
     nivelInspeccion: string
-  ): Promise<any[]> => {
+  ): Promise<unknown[]> => {
     try {
       const { data, error } = await supabase
         .from('grupos_planes')
@@ -362,7 +362,7 @@ export const useMuestreoAPI = () => {
 
       if (error) throw error
       
-      return data?.map((item: any) => item.planes_de_muestreo).filter(Boolean) || []
+      return data?.map((item: { planes_de_muestreo?: unknown }) => item.planes_de_muestreo).filter(Boolean) || []
     } catch (error) {
       toast.error('Error', 'No se pudieron cargar los planes asignados al grupo')
       throw error

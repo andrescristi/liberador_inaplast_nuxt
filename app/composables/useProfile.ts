@@ -54,7 +54,7 @@ export const useProfile = () => {
       throw new Error('Failed to fetch profile')
     }
 
-    return data || null
+    return (data as unknown) as Profile || null
   }
 
   // Update current user's profile
@@ -107,7 +107,7 @@ export const useProfile = () => {
     if (!user.value) return false
 
     const { data, error } = await supabase
-      .rpc('is_admin', { user_id_param: user.value.id })
+      .rpc('is_admin')
 
     if (error) {
       // Handle admin status check error
@@ -125,8 +125,8 @@ export const useProfile = () => {
   ): Promise<PaginatedResponse<Profile>> => {
     const { data, error } = await supabase
       .rpc('get_all_profiles', {
-        search_term: filters.search || null,
-        role_filter: filters.role_filter || null,
+        search_term: filters.search || undefined,
+        role_filter: filters.role_filter || undefined,
         page_num: page,
         page_size: perPage
       })

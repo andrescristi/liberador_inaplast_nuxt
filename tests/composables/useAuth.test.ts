@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { Profile } from '~/types'
+// import type { Profile as _Profile } from '~/types'
 
 // Mock de Supabase client
 const mockSupabaseClient = {

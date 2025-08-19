@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi as _vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import BaseTable from '~/components/ui/BaseTable.vue'
 
@@ -64,8 +64,9 @@ describe('BaseTable', () => {
   describe('Estado Vacío', () => {
     it('debe mostrar mensaje cuando no hay datos', () => {
       const wrapper = createWrapper({ rows: [] })
-      expect(wrapper.text()).toContain('No hay datos') ||
-      expect(wrapper.find('.text-center').exists()).toBe(true)
+      const hasNoDataText = wrapper.text().includes('No hay datos')
+      const hasCenteredText = wrapper.find('.text-center').exists()
+      expect(hasNoDataText || hasCenteredText).toBe(true)
     })
 
     it('debe mostrar mensaje personalizado para estado vacío', () => {
@@ -82,8 +83,9 @@ describe('BaseTable', () => {
       const wrapper = createWrapper({ selectable: true })
       const firstRow = wrapper.find('tbody tr')
       
-      expect(firstRow.classes()).toContain('cursor-pointer') ||
-      expect(firstRow.attributes('role')).toBe('button')
+      const hasCursorPointer = firstRow.classes().includes('cursor-pointer')
+      const hasButtonRole = firstRow.attributes('role') === 'button'
+      expect(hasCursorPointer || hasButtonRole).toBe(true)
     })
 
     it('debe emitir evento select al hacer click en fila', async () => {
@@ -145,8 +147,9 @@ describe('BaseTable', () => {
 
     it('debe ocultar datos durante loading', () => {
       const wrapper = createWrapper({ loading: true })
-      expect(wrapper.findAll('tbody tr').length).toBe(0) ||
-      expect(wrapper.find('.animate-pulse').exists()).toBe(true)
+      const hasNoRows = wrapper.findAll('tbody tr').length === 0
+      const hasPulseAnimation = wrapper.find('.animate-pulse').exists()
+      expect(hasNoRows || hasPulseAnimation).toBe(true)
     })
   })
 

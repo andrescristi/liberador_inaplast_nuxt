@@ -488,8 +488,8 @@ const selectFile = async (file: File) => {
     }
     previewUrl.value = URL.createObjectURL(fileToUse)
     
-  } catch (compressionError: any) {
-    error.value = `Error al comprimir la imagen: ${compressionError.message}`
+  } catch (compressionError: unknown) {
+    error.value = `Error al comprimir la imagen: ${compressionError instanceof Error ? compressionError.message : 'Error desconocido'}`
     selectedFile.value = null
   }
 }
@@ -521,7 +521,7 @@ const copyToClipboard = async () => {
   try {
     await navigator.clipboard.writeText(extractedText.value)
     // Texto copiado exitosamente
-  } catch (err) {
+  } catch {
     // Fallback para navegadores que no soportan clipboard API
     const textArea = document.createElement('textarea')
     textArea.value = extractedText.value
@@ -583,11 +583,13 @@ const processImage = async () => {
         error.value = response.error || 'No se pudo extraer texto de la imagen. Verifica que la imagen contenga texto legible.'
     }
     
-  } catch (err: any) {
+  } catch (err: unknown) {
     
     // Manejar errores específicos del servidor
-    if (err.statusCode) {
-      error.value = err.statusMessage || `Error del servidor (${err.statusCode})`
+    if (err && typeof err === 'object' && 'statusCode' in err) {
+      const statusCode = (err as { statusCode: number }).statusCode
+      const statusMessage = 'statusMessage' in err ? (err as { statusMessage: string }).statusMessage : undefined
+      error.value = statusMessage || `Error del servidor (${statusCode})`
     } else {
       error.value = 'Error al procesar la imagen. Por favor intenta nuevamente.'
     }

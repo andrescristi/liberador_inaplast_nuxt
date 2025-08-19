@@ -57,3 +57,4 @@ agent-context/
 !README.md
 !CLAUDE.md
 !docs/*.md
+.mcp.json

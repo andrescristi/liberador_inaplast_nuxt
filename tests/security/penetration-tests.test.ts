@@ -138,7 +138,7 @@ describe('Tests de Penetración Defensiva', () => {
     })
 
     it('debe implementar retrasos progresivos', () => {
-      const attemptCount = 0
+      const _attemptCount = 0
       
       const getLoginDelay = (attempts: number): number => {
         return Math.min(attempts * 1000, 30000) // Max 30 segundos
@@ -251,7 +251,7 @@ describe('Tests de Penetración Defensiva', () => {
 })
 
 // Helper functions para los tests
-function checkAccess(user: any, resource: any, action: string): boolean {
+function checkAccess(user: { role: string; id: string }, resource: { type: string; ownerId: string }, _action: string): boolean {
   if (user.role === 'Admin') return true
   if (user.role === 'Supervisor' && !resource.type.includes('admin')) return true
   if (user.role === 'Inspector' && resource.ownerId === user.id) return true
@@ -294,7 +294,7 @@ function sanitizeErrorMessage(error: string): string {
   return sanitized
 }
 
-async function simulateLoginAttempt(email: string): Promise<void> {
+async function simulateLoginAttempt(_email: string): Promise<void> {
   // Simular tiempo constante independiente de si usuario existe
   const baseDelay = 200 + Math.random() * 100 // 200-300ms
   await new Promise(resolve => setTimeout(resolve, baseDelay))

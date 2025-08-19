@@ -163,9 +163,9 @@ export default defineEventHandler(async (event): Promise<PlanMuestreoResponse | 
 
     return response
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Si el error ya fue creado por nosotros (con createError), lo re-lanzamos
-    if (error.statusCode) {
+    if (error && typeof error === 'object' && 'statusCode' in error) {
       throw error
     }
 

@@ -14,7 +14,7 @@
  * const obtenerPlan = async () => {
  *   await consultarPlanMuestreo(tamanoLote.value)
  *   if (!error.value) {
- *     console.log('Plan obtenido:', planMuestreo.value)
+ *     // Debug: Plan obtenido
  *   }
  * }
  * </script>
@@ -70,17 +70,18 @@ export const useCalidadAPI = () => {
       planMuestreo.value = data
       return data
 
-    } catch (fetchError: any) {
+    } catch (fetchError: unknown) {
       // Manejar diferentes tipos de errores
-      if (fetchError.statusCode && fetchError.statusMessage) {
+      if (fetchError && typeof fetchError === 'object' && 'statusCode' in fetchError && 'statusMessage' in fetchError) {
+        const statusMessage = (fetchError as { statusMessage: string }).statusMessage
         try {
           // Intentar parsear mensaje de error como JSON
-          const parsedError = JSON.parse(fetchError.statusMessage)
+          const parsedError = JSON.parse(statusMessage)
           error.value = parsedError
         } catch {
           // Si no es JSON válido, usar el mensaje tal como está
           error.value = {
-            error: fetchError.statusMessage || 'Error al consultar plan de muestreo',
+            error: statusMessage || 'Error al consultar plan de muestreo',
             code: 'API_ERROR'
           }
         }
@@ -92,7 +93,7 @@ export const useCalidadAPI = () => {
         }
       }
 
-      console.error('Error consultando plan de muestreo:', fetchError)
+      // Error consultando plan de muestreo
       return null
 
     } finally {

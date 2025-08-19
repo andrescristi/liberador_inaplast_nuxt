@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createApp } from 'vue'
+import { createApp as _createApp } from 'vue'
 import BaseButton from '~/components/ui/BaseButton.vue'
 
 // Mock de navegación de Nuxt
