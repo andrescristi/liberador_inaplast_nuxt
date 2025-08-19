@@ -1,5 +1,8 @@
 <template>
-  <BaseModal :show="true" @close="$emit('close')" size="xl">
+  <BaseModal
+:show="true"
+size="xl"
+@close="$emit('close')">
     <div class="p-6">
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-lg font-medium text-gray-900">
@@ -62,10 +65,10 @@
               </select>
             </div>
             <BaseButton
-              @click="asignarPlan"
               :disabled="!planSeleccionado || loadingAsignacion"
               variant="solid"
               color="primary"
+              @click="asignarPlan"
             >
               <Icon
                 v-if="loadingAsignacion"
@@ -131,16 +134,16 @@
                 <div class="flex items-center space-x-2">
                   <button
                     class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                    @click="verPlan(relacion.plan_info)"
                     title="Ver detalles del plan"
+                    @click="verPlan(relacion.plan_info)"
                   >
                     <Icon name="bx:show" class="w-5 h-5" />
                   </button>
                   <button
                     class="text-red-600 hover:text-red-800 text-sm font-medium"
-                    @click="confirmarDesasignar(relacion)"
                     title="Desasignar plan"
                     :disabled="loadingDesasignacion"
+                    @click="confirmarDesasignar(relacion)"
                   >
                     <Icon name="bx:trash" class="w-5 h-5" />
                   </button>
@@ -162,8 +165,8 @@
     <!-- Modal de Confirmación para Desasignar -->
     <BaseModal
       :show="showConfirmDesasignar"
-      @close="showConfirmDesasignar = false"
       size="sm"
+      @close="showConfirmDesasignar = false"
     >
       <div class="p-6">
         <div class="flex items-center mb-4">
@@ -190,8 +193,8 @@
           </BaseButton>
           <BaseButton 
             color="danger" 
-            @click="desasignarPlan"
             :disabled="loadingDesasignacion"
+            @click="desasignarPlan"
           >
             <Icon
               v-if="loadingDesasignacion"

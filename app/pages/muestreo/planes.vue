@@ -129,7 +129,10 @@
                 @change="fetchPlanes"
               >
                 <option value="">Todos los códigos</option>
-                <option v-for="codigo in codigosUnicos" :key="codigo" :value="codigo">
+                <option
+v-for="codigo in codigosUnicos"
+:key="codigo"
+:value="codigo">
                   {{ codigo }}
                 </option>
               </select>
@@ -141,7 +144,10 @@
                 @change="fetchPlanes"
               >
                 <option value="">Todos los AQL</option>
-                <option v-for="aql in aqlsUnicos" :key="aql" :value="aql">
+                <option
+v-for="aql in aqlsUnicos"
+:key="aql"
+:value="aql">
                   {{ aql }}
                 </option>
               </select>

@@ -79,7 +79,10 @@
             :disabled="loadingPlanes"
           >
             <option value="">Sin plan específico (opcional)</option>
-            <option v-for="plan in planesDisponibles" :key="plan.codigo" :value="plan.codigo">
+            <option
+v-for="plan in planesDisponibles"
+:key="plan.codigo"
+:value="plan.codigo">
               {{ plan.codigo }} - AQL {{ plan.aql }}
               <span v-if="plan.tamano_muestra">({{ plan.tamano_muestra }} muestras)</span>
             </option>

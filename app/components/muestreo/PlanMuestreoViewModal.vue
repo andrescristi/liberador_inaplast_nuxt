@@ -1,5 +1,8 @@
 <template>
-  <BaseModal :show="true" @close="$emit('close')" size="lg">
+  <BaseModal
+:show="true"
+size="lg"
+@close="$emit('close')">
     <div class="p-6">
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-lg font-medium text-gray-900">
@@ -160,8 +163,8 @@
               <BaseButton
                 variant="outline"
                 size="sm"
-                @click="testRecomendacion"
                 :disabled="!tamanoLoteTest || tamanoLoteTest < 1"
+                @click="testRecomendacion"
               >
                 Verificar Aplicabilidad
               </BaseButton>

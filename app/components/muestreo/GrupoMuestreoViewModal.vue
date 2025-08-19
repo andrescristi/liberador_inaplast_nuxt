@@ -1,5 +1,8 @@
 <template>
-  <BaseModal :show="true" @close="$emit('close')" size="lg">
+  <BaseModal
+:show="true"
+size="lg"
+@close="$emit('close')">
     <div class="p-6">
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-lg font-medium text-gray-900">
@@ -142,13 +145,16 @@
               <BaseButton
                 variant="outline"
                 size="sm"
-                @click="testAplicabilidad"
                 :disabled="!tamanoLoteTest || tamanoLoteTest < 1"
+                @click="testAplicabilidad"
               >
                 Verificar
               </BaseButton>
             </div>
-            <div v-if="aplicabilidadResult" class="mt-3 p-3 rounded-md" :class="aplicabilidadResult.aplicable ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'">
+            <div
+v-if="aplicabilidadResult"
+class="mt-3 p-3 rounded-md"
+:class="aplicabilidadResult.aplicable ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'">
               <p class="text-sm" :class="aplicabilidadResult.aplicable ? 'text-green-800' : 'text-red-800'">
                 <strong>{{ aplicabilidadResult.aplicable ? '✓ Aplicable' : '✗ No aplicable' }}:</strong>
                 {{ aplicabilidadResult.mensaje }}

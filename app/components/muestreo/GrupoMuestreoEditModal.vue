@@ -59,7 +59,10 @@
             :disabled="loadingPlanes"
           >
             <option value="">Sin plan específico</option>
-            <option v-for="plan in planesDisponibles" :key="plan.codigo" :value="plan.codigo">
+            <option
+v-for="plan in planesDisponibles"
+:key="plan.codigo"
+:value="plan.codigo">
               {{ plan.codigo }} - AQL {{ plan.aql }}
             </option>
           </select>

@@ -49,7 +49,10 @@
               </div>
             </div>
             <NuxtLink to="/muestreo/grupos">
-              <BaseButton variant="solid" color="primary" class="w-full">
+              <BaseButton
+variant="solid"
+color="primary"
+class="w-full">
                 Gestionar Grupos
               </BaseButton>
             </NuxtLink>
@@ -85,7 +88,10 @@
               </div>
             </div>
             <NuxtLink to="/muestreo/planes">
-              <BaseButton variant="outline" color="primary" class="w-full">
+              <BaseButton
+variant="outline"
+color="primary"
+class="w-full">
                 Gestionar Planes
               </BaseButton>
             </NuxtLink>

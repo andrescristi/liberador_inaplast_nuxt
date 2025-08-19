@@ -129,7 +129,10 @@
                 @change="fetchGrupos"
               >
                 <option value="">Todos los niveles</option>
-                <option v-for="nivel in nivelesUnicos" :key="nivel" :value="nivel">
+                <option
+v-for="nivel in nivelesUnicos"
+:key="nivel"
+:value="nivel">
                   Nivel {{ nivel }}
                 </option>
               </select>
@@ -141,7 +144,10 @@
                 @change="fetchGrupos"
               >
                 <option value="">Todos los tipos</option>
-                <option v-for="tipo in tiposUnicos" :key="tipo" :value="tipo">
+                <option
+v-for="tipo in tiposUnicos"
+:key="tipo"
+:value="tipo">
                   {{ tipo }}
                 </option>
               </select>
@@ -204,8 +210,8 @@
                 <button
                   v-if="canManageGrupos"
                   class="text-purple-600 hover:text-purple-900 text-sm font-medium"
-                  @click="gestionarPlanes(row as GrupoMuestreo)"
                   title="Gestionar planes asignados"
+                  @click="gestionarPlanes(row as GrupoMuestreo)"
                 >
                   Planes
                 </button>
