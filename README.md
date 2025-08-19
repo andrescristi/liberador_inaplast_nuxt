@@ -249,6 +249,14 @@ supabase/
 └── migrations/
     ├── 20250811000001_add_user_activity_logs.sql # Audit trail system
     └── 20250815000001_fix_role_change_permissions.sql # Role change permission fixes
+
+docs/
+├── ARCHITECTURE.md         # System architecture documentation
+├── CONFIGURATION.md        # Configuration guide
+├── DATABASE_STRUCTURE.md   # Database schema and relationships
+├── DEVELOPMENT.md          # Development guidelines
+├── RLS_POLICIES.md         # Row Level Security policies
+└── SEGURIDAD_SUPABASE.md   # Supabase security configuration (Service Role Key setup)
 ```
 
 ## Development
