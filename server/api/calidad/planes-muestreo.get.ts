@@ -112,7 +112,7 @@ export default defineEventHandler(async (event): Promise<PlanMuestreoResponse | 
       .from('grupos_muestreo')
       .select('*')
       .lte('tamano_lote_desde', tamanoLoteNumber)
-      .gt('tamano_lote_hasta', tamanoLoteNumber)
+      .gte('tamano_lote_hasta', tamanoLoteNumber)
       .eq('nivel_inspeccion', 'S1')
       .single()
 
