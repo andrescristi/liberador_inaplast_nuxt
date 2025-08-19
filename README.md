@@ -28,14 +28,19 @@ A modern web application for managing product release quality control workflows 
 - **Status Management** - Simplified order states: "Aceptado" (Accepted) and "Rechazado" (Rejected)
 
 ### 📄 OCR Text Extraction
-- **Image Upload OCR** - Advanced optical character recognition for text extraction from images
+- **Advanced OCR System** - Gemini AI-powered optical character recognition for superior text extraction from production labels
+- **Structured Data Extraction** - Automatically extracts and organizes production data into structured fields:
+  - Lote, Cliente, Producto, Pedido, Fecha Fabricación, Código Producto
+  - Turno, Unidades, Jefe de Turno, Orden de Compra, N° Operario
+  - Máquina, Inspector de Calidad
+- **Intelligent Table Display** - Presents extracted data in organized, professional table format
+- **Production Label Focus** - Optimized specifically for industrial production label recognition
 - **Multi-Language Support** - English and Spanish text recognition capabilities
-- **High-Quality Processing** - Optimized Tesseract.js configuration for best accuracy results
-- **Real-Time Progress** - Live progress tracking during OCR processing with Spanish status messages
-- **Image Format Support** - Supports JPG, PNG, WEBP, BMP, and GIF image formats
-- **Text Export** - Copy extracted text to clipboard with one-click functionality
+- **Image Format Support** - Supports JPG, PNG, WEBP, BMP, and GIF image formats (max 10MB)
+- **Text Export** - Copy extracted data to clipboard with one-click functionality
 - **Drag & Drop Interface** - User-friendly file upload with visual feedback
-- **Test Page** - Dedicated testing interface at `/ocr-test` for OCR functionality validation
+- **Clean Processing** - No console logging for cleaner production experience
+- **Smart Fallback** - Falls back to raw text display when structured data is not available
 
 ### 🔬 Quality Control & Sampling
 - **Muestreo System** - Complete sampling management module for quality control
@@ -70,7 +75,7 @@ A modern web application for managing product release quality control workflows 
 - **Backend**: Supabase (PostgreSQL, Auth, Real-time)
 - **State Management**: Pinia
 - **Icons**: @nuxt/icon with Boxicons
-- **OCR Engine**: Tesseract.js 6.0.1 with optimized configuration
+- **OCR Engine**: Google Gemini AI (@google/genai) for superior text recognition and data extraction
 - **Testing**: Vitest (unit tests), Playwright (E2E tests), Vue Testing Library
 - **Package Manager**: pnpm
 - **Deployment**: Ready for Vercel/Netlify deployment
@@ -199,7 +204,7 @@ app/
 │   │   ├── index.vue          # Sampling dashboard
 │   │   ├── grupos.vue         # Sampling groups management
 │   │   └── planes.vue         # Sampling plans management
-│   ├── ocr-test.vue           # OCR testing and validation page
+│   ├── extractor-ocr.vue      # Production OCR system for structured data extraction
 │   └── index.vue              # Dashboard with metrics
 ├── types/                     # TypeScript type definitions
 ├── utils/
@@ -227,6 +232,8 @@ server/
 │   │       ├── [id].put.ts    # Update user details
 │   │       ├── [id].delete.ts # Delete user account
 │   │       └── stats.get.ts   # User statistics and activity
+│   ├── ocr/
+│   │   └── extract.post.ts    # Gemini AI OCR endpoint for structured data extraction
 │   ├── test-admin-creation.post.ts    # Testing endpoints for admin functionality
 │   ├── test-create-user.post.ts       # User creation testing
 │   ├── test-direct-supabase.post.ts   # Direct Supabase integration testing
@@ -430,9 +437,10 @@ pnpm build
 - ✅ **Role Change Permissions Fix**: Resolved critical issue with role change validation in admin panel by fixing database trigger conflicts with service role operations
 - ✅ **Navigation Structure Enhancement**: Improved navbar organization with grouped navigation items (Liberaciones, Configuración) and role-based conditional display
 - ✅ **Quality Control Module**: Complete sampling management system with statistical sampling plans and group management for quality assurance
-- ✅ **OCR Text Extraction System**: Advanced optical character recognition with Tesseract.js 6.0.1, optimized for high-quality text extraction from images
-- ✅ **Multi-Language OCR Support**: English and Spanish text recognition with proper language configuration and quality optimization
-- ✅ **OCR User Interface**: Complete UI component with drag-and-drop, progress tracking, clipboard integration, and dedicated test page
+- ✅ **Advanced OCR System**: Gemini AI-powered text extraction with structured data parsing for production labels
+- ✅ **Structured Data Extraction**: Intelligent parsing of production label fields into organized table format
+- ✅ **OCR User Interface**: Complete UI component with drag-and-drop, smart table display, clipboard integration, and production-focused experience
+- ✅ **Production Label Recognition**: Specialized OCR system optimized for industrial quality control labels
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing
