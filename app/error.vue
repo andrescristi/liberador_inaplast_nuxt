@@ -53,30 +53,31 @@ class="sparkle-orbit"
       <!-- Action buttons -->
       <div class="space-y-4">
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button
-            variant="magical"
+          <BaseButton
+            variant="solid"
+            color="primary"
             size="lg"
-            :sparkle="true"
             class="transform hover:scale-105"
             @click="goHome"
           >
             <Icon name="lucide:home" class="w-5 h-5 mr-2" />
             Ir al inicio
-          </Button>
+          </BaseButton>
           
-          <Button
-            variant="secondary"
+          <BaseButton
+            variant="outline"
+            color="secondary"
             size="lg"
             class="transform hover:scale-105"
             @click="goBack"
           >
             <Icon name="lucide:arrow-left" class="w-5 h-5 mr-2" />
             Volver atrás
-          </Button>
+          </BaseButton>
         </div>
         
         <!-- Fun reload button -->
-        <Button
+        <BaseButton
           variant="ghost"
           class="transform hover:scale-105"
           :loading="reloading"
@@ -87,7 +88,7 @@ v-if="!reloading"
 name="lucide:refresh-cw"
 class="w-4 h-4 mr-2" />
           {{ reloading ? 'Haciendo magia...' : 'Intentar de nuevo' }}
-        </Button>
+        </BaseButton>
       </div>
       
       <!-- Easter egg counter -->
@@ -108,6 +109,9 @@ class="w-4 h-4 mr-2" />
 
 <script setup lang="ts">
 import type { NuxtError } from '#app'
+import BaseButton from '~/components/ui/BaseButton.vue'
+import MagicalParticles from '~/components/ui/MagicalParticles.vue'
+import ConfettiCelebration from '~/components/feedback/ConfettiCelebration.vue'
 
 interface Props {
   error: NuxtError
