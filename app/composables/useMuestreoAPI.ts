@@ -11,14 +11,8 @@
  */
 
 import type { 
-  PlanDeMuestreo, 
-  GrupoMuestreo, 
   PlanMuestreoWithDetails,
   GrupoMuestreoWithDetails,
-  CreatePlanMuestreoForm,
-  UpdatePlanMuestreoForm,
-  CreateGrupoMuestreoForm,
-  UpdateGrupoMuestreoForm,
   PlanMuestreoFilters,
   GrupoMuestreoFilters,
   EstadisticasMuestreo,
@@ -112,73 +106,7 @@ export const useMuestreoAPI = () => {
     }
   }
 
-  /**
-   * Crea un nuevo plan de muestreo
-   */
-  const createPlanMuestreo = async (form: CreatePlanMuestreoForm): Promise<PlanDeMuestreo> => {
-    try {
-      const { data, error } = await supabase
-        .from('planes_de_muestreo')
-        .insert(form as any)
-        .select()
-        .single()
-
-      if (error) throw error
-
-      toast.success('Éxito', 'Plan de muestreo creado correctamente')
-      return data
-    } catch (error) {
-      toast.error('Error', 'No se pudo crear el plan de muestreo')
-      throw error
-    }
-  }
-
-  /**
-   * Actualiza un plan de muestreo existente
-   */
-  const updatePlanMuestreo = async (
-    codigo: string,
-    aql: string,
-    form: UpdatePlanMuestreoForm
-  ): Promise<PlanDeMuestreo> => {
-    try {
-      const { data, error } = await supabase
-        .from('planes_de_muestreo')
-        .update(form)
-        .eq('codigo', codigo)
-        .eq('aql', aql)
-        .select()
-        .single()
-
-      if (error) throw error
-
-      toast.success('Éxito', 'Plan de muestreo actualizado correctamente')
-      return data
-    } catch (error) {
-      toast.error('Error', 'No se pudo actualizar el plan de muestreo')
-      throw error
-    }
-  }
-
-  /**
-   * Elimina un plan de muestreo
-   */
-  const deletePlanMuestreo = async (codigo: string, aql: string): Promise<void> => {
-    try {
-      const { error } = await supabase
-        .from('planes_de_muestreo')
-        .delete()
-        .eq('codigo', codigo)
-        .eq('aql', aql)
-
-      if (error) throw error
-
-      toast.success('Éxito', 'Plan de muestreo eliminado correctamente')
-    } catch (error) {
-      toast.error('Error', 'No se pudo eliminar el plan de muestreo')
-      throw error
-    }
-  }
+  // Las operaciones de escritura han sido removidas - solo operaciones de lectura permitidas
 
   // ============================================================================
   // GRUPOS DE MUESTREO
@@ -272,76 +200,7 @@ export const useMuestreoAPI = () => {
     }
   }
 
-  /**
-   * Crea un nuevo grupo de muestreo
-   */
-  const createGrupoMuestreo = async (form: CreateGrupoMuestreoForm): Promise<GrupoMuestreo> => {
-    try {
-      const { data, error } = await supabase
-        .from('grupos_muestreo')
-        .insert(form)
-        .select()
-        .single()
-
-      if (error) throw error
-
-      toast.success('Éxito', 'Grupo de muestreo creado correctamente')
-      return data
-    } catch (error) {
-      toast.error('Error', 'No se pudo crear el grupo de muestreo')
-      throw error
-    }
-  }
-
-  /**
-   * Actualiza un grupo de muestreo existente
-   */
-  const updateGrupoMuestreo = async (
-    tamanoLoteDesde: number,
-    nivelInspeccion: string,
-    form: UpdateGrupoMuestreoForm
-  ): Promise<GrupoMuestreo> => {
-    try {
-      const { data, error } = await supabase
-        .from('grupos_muestreo')
-        .update(form)
-        .eq('tamano_lote_desde', tamanoLoteDesde)
-        .eq('nivel_inspeccion', nivelInspeccion)
-        .select()
-        .single()
-
-      if (error) throw error
-
-      toast.success('Éxito', 'Grupo de muestreo actualizado correctamente')
-      return data
-    } catch (error) {
-      toast.error('Error', 'No se pudo actualizar el grupo de muestreo')
-      throw error
-    }
-  }
-
-  /**
-   * Elimina un grupo de muestreo
-   */
-  const deleteGrupoMuestreo = async (
-    tamanoLoteDesde: number,
-    nivelInspeccion: string
-  ): Promise<void> => {
-    try {
-      const { error } = await supabase
-        .from('grupos_muestreo')
-        .delete()
-        .eq('tamano_lote_desde', tamanoLoteDesde)
-        .eq('nivel_inspeccion', nivelInspeccion)
-
-      if (error) throw error
-
-      toast.success('Éxito', 'Grupo de muestreo eliminado correctamente')
-    } catch (error) {
-      toast.error('Error', 'No se pudo eliminar el grupo de muestreo')
-      throw error
-    }
-  }
+  // Las operaciones de escritura han sido removidas - solo operaciones de lectura permitidas
 
   // ============================================================================
   // RECOMENDACIONES Y UTILIDADES
@@ -349,85 +208,36 @@ export const useMuestreoAPI = () => {
 
   /**
    * Obtiene recomendación de muestreo para un tamaño de lote específico
+   * Utiliza el endpoint del backend para obtener los datos
    */
   const getRecomendacionMuestreo = async (
     tamanoLote: number,
-    nivelInspeccion: string = 'I',
-    aqlDeseado?: string
+    _nivelInspeccion: string = 'S1',
+    aqlDeseado: string = '1,5'
   ): Promise<RecomendacionMuestreo | null> => {
     try {
-      // Buscar el grupo de muestreo apropiado
-      const { data: grupos, error: gruposError } = await supabase
-        .from('grupos_muestreo')
-        .select(`
-          *,
-          grupos_planes(
-            *,
-            planes_de_muestreo(*)
-          )
-        `)
-        .eq('nivel_inspeccion', nivelInspeccion)
-        .lte('tamano_lote_desde', tamanoLote)
-        .or(`tamano_lote_hasta.gte.${tamanoLote},tamano_lote_hasta.is.null`)
-        .order('tamano_lote_desde', { ascending: false })
-        .limit(1)
-
-      if (gruposError) throw gruposError
-
-      if (!grupos || grupos.length === 0) {
+      const data = await $fetch(`/api/calidad/planes-muestreo?tamano_lote=${tamanoLote}`)
+      
+      if (!data || 'error' in data) {
         return null
       }
 
-      const grupo = grupos[0]
-      
-      // Si hay un plan directo recomendado, usarlo
-      if (grupo.codigo_plan_muestreo && !aqlDeseado) {
-        const { data: planDirecto, error: planError } = await supabase
-          .from('planes_de_muestreo')
-          .select('*')
-          .eq('codigo', grupo.codigo_plan_muestreo)
-          .limit(1)
-          .single()
-
-        if (!planError && planDirecto) {
-          return {
-            grupo,
-            plan: planDirecto,
-            justificacion: `Plan recomendado directamente para lotes de ${grupo.tamano_lote_desde} a ${grupo.tamano_lote_hasta || '∞'} unidades con nivel de inspección ${nivelInspeccion}`
-          }
-        }
-      }
-
-      // Buscar en las relaciones grupo-planes
-      const planesDisponibles = grupo.grupos_planes
-        ?.map(gp => gp.planes_de_muestreo)
-        .filter(Boolean) || []
-
-      if (planesDisponibles.length === 0) {
-        return {
-          grupo,
-          plan: { codigo: 'N/A', aql: 'N/A', tamano_muestra: 0, numero_maximo_fallas: 0 },
-          justificacion: 'No hay planes de muestreo definidos para este rango de lote'
-        }
-      }
-
-      // Si se especifica AQL, buscar el plan con ese AQL
-      if (aqlDeseado) {
-        const planAQL = planesDisponibles.find(p => p.aql === aqlDeseado)
-        if (planAQL) {
-          return {
-            grupo,
-            plan: planAQL,
-            justificacion: `Plan seleccionado para AQL ${aqlDeseado} con nivel de inspección ${nivelInspeccion}`
-          }
-        }
-      }
-
-      // Usar el primer plan disponible
+      // Convertir la respuesta del backend al formato esperado
       return {
-        grupo,
-        plan: planesDisponibles[0],
-        justificacion: `Plan sugerido para lotes de ${grupo.tamano_lote_desde} a ${grupo.tamano_lote_hasta || '∞'} unidades`
+        grupo: {
+          tamano_lote_desde: data.tamano_lote_desde,
+          tamano_lote_hasta: data.tamano_lote_hasta,
+          nivel_inspeccion: data.nivel_inspeccion,
+          tipo_de_inspeccion: data.tipo_inspeccion,
+          codigo_plan_muestreo: data.codigo_plan_muestreo
+        },
+        plan: {
+          codigo: data.codigo_plan_muestreo,
+          aql: aqlDeseado,
+          tamano_muestra: data.tamano_muestra,
+          numero_maximo_fallas: data.numero_maximo_fallas
+        },
+        justificacion: `Plan recomendado para lotes de ${data.tamano_lote_desde} a ${data.tamano_lote_hasta} unidades con nivel de inspección ${data.nivel_inspeccion} y AQL ${aqlDeseado}`
       }
     } catch (error) {
       toast.error('Error', 'No se pudo obtener la recomendación de muestreo')
@@ -466,20 +276,28 @@ export const useMuestreoAPI = () => {
           .order('tipo_de_inspeccion')
       ])
 
-      // Contar planes por AQL
+      // Procesar datos con tipos seguros
       const planesPorAQLCount: { [aql: string]: number } = {}
-      planesPorAQL?.forEach(p => {
-        planesPorAQLCount[p.aql] = (planesPorAQLCount[p.aql] || 0) + 1
-      })
+      if (planesPorAQL) {
+        planesPorAQL.forEach((p: any) => {
+          if (p.aql) {
+            planesPorAQLCount[p.aql] = (planesPorAQLCount[p.aql] || 0) + 1
+          }
+        })
+      }
 
       // Contar grupos por nivel
       const gruposPorNivelCount: { [nivel: string]: number } = {}
-      gruposPorNivel?.forEach(g => {
-        gruposPorNivelCount[g.nivel_inspeccion] = (gruposPorNivelCount[g.nivel_inspeccion] || 0) + 1
-      })
+      if (gruposPorNivel) {
+        gruposPorNivel.forEach((g: any) => {
+          if (g.nivel_inspeccion) {
+            gruposPorNivelCount[g.nivel_inspeccion] = (gruposPorNivelCount[g.nivel_inspeccion] || 0) + 1
+          }
+        })
+      }
 
       // Tipos únicos de inspección
-      const tiposUnicos = [...new Set(tiposInspeccion?.map(t => t.tipo_de_inspeccion).filter(Boolean))]
+      const tiposUnicos = tiposInspeccion ? [...new Set(tiposInspeccion.map((t: any) => t.tipo_de_inspeccion).filter(Boolean))] : []
 
       return {
         total_planes: totalPlanes || 0,
@@ -511,10 +329,10 @@ export const useMuestreoAPI = () => {
         .from('grupos_planes')
         .select(`
           *,
-          plan_info:planes_de_muestreo(*)
+          planes_de_muestreo(*)
         `)
-        .eq('grupo_tamano_lote_desde', tamanoLoteDesde)
-        .eq('grupo_nivel_inspeccion', nivelInspeccion)
+        .eq('tamano_lote_desde', tamanoLoteDesde)
+        .eq('nivel_inspeccion', nivelInspeccion)
 
       if (error) throw error
       return data || []
@@ -524,58 +342,7 @@ export const useMuestreoAPI = () => {
     }
   }
 
-  /**
-   * Asigna un plan a un grupo específico
-   */
-  const asignarPlanAGrupo = async (
-    tamanoLoteDesde: number,
-    nivelInspeccion: string,
-    codigoPlan: string
-  ) => {
-    try {
-      const { error } = await supabase
-        .from('grupos_planes')
-        .insert({
-          grupo_tamano_lote_desde: tamanoLoteDesde,
-          grupo_nivel_inspeccion: nivelInspeccion,
-          codigo_plan: codigoPlan,
-          fecha_asignacion: new Date().toISOString()
-        })
-
-      if (error) throw error
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error al asignar el plan al grupo'
-      
-      if (errorMessage.includes('duplicate') || errorMessage.includes('already exists')) {
-        throw new Error('Este plan ya está asignado a este grupo')
-      }
-      
-      throw new Error(errorMessage)
-    }
-  }
-
-  /**
-   * Desasigna un plan de un grupo específico
-   */
-  const desasignarPlanDeGrupo = async (
-    tamanoLoteDesde: number,
-    nivelInspeccion: string,
-    codigoPlan: string
-  ) => {
-    try {
-      const { error } = await supabase
-        .from('grupos_planes')
-        .delete()
-        .eq('grupo_tamano_lote_desde', tamanoLoteDesde)
-        .eq('grupo_nivel_inspeccion', nivelInspeccion)
-        .eq('codigo_plan', codigoPlan)
-
-      if (error) throw error
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error al desasignar el plan del grupo'
-      throw new Error(errorMessage)
-    }
-  }
+  // Las operaciones de escritura han sido removidas - solo operaciones de lectura permitidas
 
   /**
    * Obtiene todos los planes asignados a un grupo
@@ -583,19 +350,19 @@ export const useMuestreoAPI = () => {
   const getPlanesAsignadosAGrupo = async (
     tamanoLoteDesde: number,
     nivelInspeccion: string
-  ): Promise<PlanDeMuestreo[]> => {
+  ): Promise<any[]> => {
     try {
       const { data, error } = await supabase
         .from('grupos_planes')
         .select(`
           planes_de_muestreo(*)
         `)
-        .eq('grupo_tamano_lote_desde', tamanoLoteDesde)
-        .eq('grupo_nivel_inspeccion', nivelInspeccion)
+        .eq('tamano_lote_desde', tamanoLoteDesde)
+        .eq('nivel_inspeccion', nivelInspeccion)
 
       if (error) throw error
       
-      return data?.map(item => item.planes_de_muestreo).filter(Boolean) || []
+      return data?.map((item: any) => item.planes_de_muestreo).filter(Boolean) || []
     } catch (error) {
       toast.error('Error', 'No se pudieron cargar los planes asignados al grupo')
       throw error
@@ -603,24 +370,16 @@ export const useMuestreoAPI = () => {
   }
 
   return {
-    // Planes de muestreo
+    // Planes de muestreo (solo lectura)
     getPlanesMuestreo,
     getPlanMuestreo,
-    createPlanMuestreo,
-    updatePlanMuestreo,
-    deletePlanMuestreo,
 
-    // Grupos de muestreo
+    // Grupos de muestreo (solo lectura)
     getGruposMuestreo,
     getGrupoMuestreo,
-    createGrupoMuestreo,
-    updateGrupoMuestreo,
-    deleteGrupoMuestreo,
 
-    // Relaciones grupos-planes
+    // Relaciones grupos-planes (solo lectura)
     getRelacionesGrupoPlanes,
-    asignarPlanAGrupo,
-    desasignarPlanDeGrupo,
     getPlanesAsignadosAGrupo,
 
     // Utilidades

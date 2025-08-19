@@ -6,415 +6,357 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.12 (cd3cf9e)"
+  }
   public: {
     Tables: {
-      customers: {
+      grupos_muestreo: {
         Row: {
-          id: string
-          name: string
-          email: string
-          phone: string
-          address: string
-          created_at: string
-          updated_at: string
+          codigo_plan_muestreo: string | null
+          nivel_inspeccion: string
+          tamano_lote_desde: number
+          tamano_lote_hasta: number | null
+          tipo_de_inspeccion: string | null
         }
         Insert: {
-          id?: string
-          name: string
-          email: string
-          phone: string
-          address: string
-          created_at?: string
-          updated_at?: string
+          codigo_plan_muestreo?: string | null
+          nivel_inspeccion: string
+          tamano_lote_desde: number
+          tamano_lote_hasta?: number | null
+          tipo_de_inspeccion?: string | null
         }
         Update: {
-          id?: string
-          name?: string
-          email?: string
-          phone?: string
-          address?: string
-          created_at?: string
-          updated_at?: string
+          codigo_plan_muestreo?: string | null
+          nivel_inspeccion?: string
+          tamano_lote_desde?: number
+          tamano_lote_hasta?: number | null
+          tipo_de_inspeccion?: string | null
         }
         Relationships: []
       }
-      order_items: {
+      grupos_planes: {
         Row: {
-          id: string
-          order_id: string
-          product_id: string
-          quantity: number
-          unit_price: number
-          subtotal: number
+          aql: string | null
+          codigo: string | null
+          nivel_inspeccion: string | null
+          tamano_lote_desde: number | null
         }
         Insert: {
-          id?: string
-          order_id: string
-          product_id: string
-          quantity: number
-          unit_price: number
-          subtotal: number
+          aql?: string | null
+          codigo?: string | null
+          nivel_inspeccion?: string | null
+          tamano_lote_desde?: number | null
         }
         Update: {
-          id?: string
-          order_id?: string
-          product_id?: string
-          quantity?: number
-          unit_price?: number
-          subtotal?: number
+          aql?: string | null
+          codigo?: string | null
+          nivel_inspeccion?: string | null
+          tamano_lote_desde?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "order_items_order_id_fkey"
-            columns: ["order_id"]
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
+            foreignKeyName: "grupos_planes_codigo_aql_fkey"
+            columns: ["codigo", "aql"]
+            isOneToOne: false
+            referencedRelation: "planes_de_muestreo"
+            referencedColumns: ["codigo", "aql"]
           },
           {
-            foreignKeyName: "order_items_product_id_fkey"
-            columns: ["product_id"]
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          }
+            foreignKeyName: "grupos_planes_tamano_lote_desde_nivel_inspeccion_fkey"
+            columns: ["tamano_lote_desde", "nivel_inspeccion"]
+            isOneToOne: false
+            referencedRelation: "grupos_muestreo"
+            referencedColumns: ["tamano_lote_desde", "nivel_inspeccion"]
+          },
         ]
       }
       orders: {
         Row: {
-          id: string
+          created_at: string | null
           customer_id: string
-          status: 'pending' | 'processing' | 'completed' | 'cancelled'
+          id: string
+          order_date: string | null
+          status: string
           total_amount: number
-          order_date: string
-          created_at: string
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
-          id?: string
+          created_at?: string | null
           customer_id: string
-          status?: 'pending' | 'processing' | 'completed' | 'cancelled'
+          id?: string
+          order_date?: string | null
+          status?: string
           total_amount: number
-          order_date?: string
-          created_at?: string
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
-          id?: string
+          created_at?: string | null
           customer_id?: string
-          status?: 'pending' | 'processing' | 'completed' | 'cancelled'
+          id?: string
+          order_date?: string | null
+          status?: string
           total_amount?: number
-          order_date?: string
-          created_at?: string
-          updated_at?: string
+          updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "orders_customer_id_fkey"
-            columns: ["customer_id"]
-            referencedRelation: "customers"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
       }
-      products: {
+      planes_de_muestreo: {
         Row: {
-          id: string
-          name: string
-          description: string
-          price: number
-          stock_quantity: number
-          created_at: string
-          updated_at: string
+          aql: string
+          codigo: string
+          numero_maximo_fallas: number | null
+          tamano_muestra: number | null
         }
         Insert: {
-          id?: string
-          name: string
-          description: string
-          price: number
-          stock_quantity: number
-          created_at?: string
-          updated_at?: string
+          aql: string
+          codigo: string
+          numero_maximo_fallas?: number | null
+          tamano_muestra?: number | null
         }
         Update: {
-          id?: string
-          name?: string
-          description?: string
-          price?: number
-          stock_quantity?: number
-          created_at?: string
-          updated_at?: string
+          aql?: string
+          codigo?: string
+          numero_maximo_fallas?: number | null
+          tamano_muestra?: number | null
         }
         Relationships: []
       }
       profiles: {
         Row: {
-          id: string
-          user_id: string
+          created_at: string | null
           first_name: string
+          id: string
           last_name: string
-          user_role: 'Admin' | 'Inspector' | 'Supervisor'
-          created_at: string
-          updated_at: string
+          updated_at: string | null
+          user_id: string
+          user_role: Database["public"]["Enums"]["profile_role"]
         }
         Insert: {
-          id?: string
-          user_id: string
+          created_at?: string | null
           first_name: string
+          id?: string
           last_name: string
-          user_role: 'Admin' | 'Inspector' | 'Supervisor'
-          created_at?: string
-          updated_at?: string
+          updated_at?: string | null
+          user_id: string
+          user_role?: Database["public"]["Enums"]["profile_role"]
         }
         Update: {
-          id?: string
-          user_id?: string
+          created_at?: string | null
           first_name?: string
+          id?: string
           last_name?: string
-          user_role?: 'Admin' | 'Inspector' | 'Supervisor'
-          created_at?: string
-          updated_at?: string
+          updated_at?: string | null
+          user_id?: string
+          user_role?: Database["public"]["Enums"]["profile_role"]
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      can_change_user_role: {
+        Args:
+          | Record<PropertyKey, never>
+          | {
+              current_user_id: string
+              new_role: string
+              target_user_id: string
+            }
+          | { current_user_id: string; target_user_id: string }
+          | {
+              new_role: Database["public"]["Enums"]["profile_role"]
+              target_user_id: string
+            }
+        Returns: boolean
+      }
       get_all_profiles: {
         Args: {
-          search_term?: string | null
-          role_filter?: string | null
-          page_num: number
-          page_size: number
+          page_num?: number
+          page_size?: number
+          role_filter?: Database["public"]["Enums"]["profile_role"]
+          search_term?: string
         }
         Returns: {
-          id: string
-          user_id: string
+          created_at: string
+          email: string
           first_name: string
-          last_name: string
-          user_role: 'Admin' | 'Inspector' | 'Supervisor'
-          created_at: string
-          updated_at: string
           full_name: string
-          email: string
+          id: string
+          last_name: string
           total_count: number
-        }[]
-      }
-      get_orders_with_customers: {
-        Args: {
-          search_term?: string | null
-          status_filter?: string | null
-          customer_id_filter?: string | null
-          date_from_filter?: string | null
-          date_to_filter?: string | null
-          page_num: number
-          page_size: number
-        }
-        Returns: {
-          id: string
-          customer_id: string
-          status: 'pending' | 'processing' | 'completed' | 'cancelled'
-          total_amount: number
-          order_date: string
-          created_at: string
           updated_at: string
-          customer_name: string
-          customer_email: string
-          total_count: number
-        }[]
-      }
-      get_products_with_stock: {
-        Args: {
-          search_term?: string | null
-          low_stock_only: boolean
-          low_stock_threshold: number
-          page_num: number
-          page_size: number
-        }
-        Returns: {
-          id: string
-          name: string
-          description: string
-          price: number
-          stock_quantity: number
-          created_at: string
-          updated_at: string
-          total_count: number
-        }[]
-      }
-      get_dashboard_metrics: {
-        Args: Record<string, never>
-        Returns: {
-          pending_orders: number
-          completed_orders: number
-          cancelled_orders: number
-          current_month_revenue: number
-          current_week_revenue: number
-        }
-      }
-      search_orders: {
-        Args: {
-          search_term?: string | null
-          status_filter?: string | null
-          customer_id_filter?: string | null
-          date_from?: string | null
-          date_to?: string | null
-          page_num: number
-          page_size: number
-        }
-        Returns: {
-          id: string
-          customer_id: string
-          status: 'pending' | 'processing' | 'completed' | 'cancelled'
-          total_amount: number
-          order_date: string
-          created_at: string
-          updated_at: string
-          customer_name: string
-          customer_email: string
-          total_count: number
-        }[]
-      }
-      get_order_details: {
-        Args: {
-          order_id_param: string
-        }
-        Returns: {
-          id: string
-          customer_id: string
-          status: 'pending' | 'processing' | 'completed' | 'cancelled'
-          total_amount: number
-          order_date: string
-          created_at: string
-          updated_at: string
-          customer: {
-            id: string
-            name: string
-            email: string
-            phone: string
-            address: string
-          }
-          order_items: {
-            id: string
-            product_id: string
-            quantity: number
-            unit_price: number
-            subtotal: number
-            product_name: string
-            product_description: string
-          }[]
-        }
-      }
-      search_customers: {
-        Args: {
-          search_term?: string | null
-          page_num: number
-          page_size: number
-        }
-        Returns: {
-          id: string
-          name: string
-          email: string
-          phone: string
-          address: string
-          created_at: string
-          updated_at: string
-          orders_count: number
-          total_spent: number
-          total_count: number
-        }[]
-      }
-      search_products: {
-        Args: {
-          search_term?: string | null
-          low_stock_only: boolean
-          low_stock_threshold: number
-          page_num: number
-          page_size: number
-        }
-        Returns: {
-          id: string
-          name: string
-          description: string
-          price: number
-          stock_quantity: number
-          created_at: string
-          updated_at: string
-          times_ordered: number
-          total_revenue: number
-          total_count: number
-        }[]
-      }
-      log_user_activity: {
-        Args: {
-          p_actor_user_id?: string | null
-          p_target_user_id?: string | null
-          p_activity_type: string
-          p_activity_description: string
-          p_metadata?: Json | null
-        }
-        Returns: undefined
-      }
-      get_activity_logs: {
-        Args: {
-          p_limit: number
-          p_offset: number
-          p_activity_type?: string | null
-          p_target_user_id?: string | null
-        }
-        Returns: {
-          id: string
-          actor_user_id: string
-          target_user_id: string | null
-          activity_type: string
-          activity_description: string
-          metadata: Record<string, unknown>
-          created_at: string
+          user_id: string
+          user_role: Database["public"]["Enums"]["profile_role"]
         }[]
       }
       get_user_profile: {
-        Args: {
-          user_id_param: string
-        }
-        Returns: {
-          id: string
-          user_id: string
-          first_name: string
-          last_name: string
-          user_role: 'Admin' | 'Inspector' | 'Supervisor'
-          created_at: string
-          updated_at: string
-          full_name: string
-          email: string
-        }
+        Args: { user_id_param?: string }
+        Returns: Json
+      }
+      hook_restrict_signup_to_admin_only: {
+        Args: { event: Json }
+        Returns: Json
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_admin_from_jwt: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_inspector_or_above: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_supervisor_or_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       user_has_role: {
         Args: {
-          required_role: string
-          user_id_param: string
-        }
-        Returns: boolean
-      }
-      is_admin: {
-        Args: {
-          user_id_param: string
+          required_role: Database["public"]["Enums"]["profile_role"]
+          user_id_param?: string
         }
         Returns: boolean
       }
     }
     Enums: {
-      [_ in never]: never
+      profile_role: "Admin" | "Inspector" | "Supervisor"
     }
     CompositeTypes: {
       [_ in never]: never
     }
   }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      profile_role: ["Admin", "Inspector", "Supervisor"],
+    },
+  },
+} as const
