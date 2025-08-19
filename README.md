@@ -174,6 +174,7 @@ app/
 │       ├── BaseModal.vue      # Modal dialog
 │       ├── BaseTable.vue      # Data table component
 │       ├── ImageUploadOCR.vue # OCR text extraction component
+│       ├── OrderImageOCR.vue  # Order-specific OCR component with form integration
 │       ├── ToastContainer.vue # Toast notification container
 │       └── ToastNotification.vue # Individual toast notifications
 ├── composables/
@@ -181,6 +182,8 @@ app/
 │   ├── useDebounce.ts         # Debouncing utility for search/input handling
 │   ├── useAdminUserAPI.ts     # Admin user API operations via secure endpoints
 │   ├── useAdminUserManager.ts # Admin user management with state handling
+│   ├── useCalidadAPI.ts       # Quality sampling API operations for statistical plans
+│   ├── useImageCompression.ts # Image compression utility for OCR optimization
 │   ├── useMuestreoAPI.ts      # Quality control & sampling API operations
 │   └── useToast.ts            # Toast notification management
 ├── layouts/
@@ -232,6 +235,8 @@ server/
 │   │       ├── [id].put.ts    # Update user details
 │   │       ├── [id].delete.ts # Delete user account
 │   │       └── stats.get.ts   # User statistics and activity
+│   ├── calidad/
+│   │   └── planes-muestreo.get.ts  # Statistical sampling plan API endpoint
 │   ├── ocr/
 │   │   └── extract.post.ts    # Gemini AI OCR endpoint for structured data extraction
 │   ├── test-admin-creation.post.ts    # Testing endpoints for admin functionality
@@ -441,6 +446,11 @@ pnpm build
 - ✅ **Structured Data Extraction**: Intelligent parsing of production label fields into organized table format
 - ✅ **OCR User Interface**: Complete UI component with drag-and-drop, smart table display, clipboard integration, and production-focused experience
 - ✅ **Production Label Recognition**: Specialized OCR system optimized for industrial quality control labels
+- ✅ **Quality Sampling API**: Complete API endpoint for statistical sampling plan queries with range-based lot size lookup
+- ✅ **JavaScript Console Cleanup**: Resolved all Vue component resolution errors, hydration mismatches, and missing component references
+- ✅ **Component System Integrity**: Fixed error page component imports and ensured proper BaseButton, MagicalParticles, and ConfettiCelebration resolution
+- ✅ **Database Query Optimization**: Corrected sampling plan database queries with proper column references and AQL format handling
+- ✅ **SSR/CSR Compatibility**: Eliminated hydration mismatch errors for seamless server-side and client-side rendering
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing
