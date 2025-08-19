@@ -17,6 +17,7 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@google/genai": "^1.15.0",
     "@headlessui/vue": "^1.7.23",
     "@nuxt/devtools": "latest",
     "@nuxt/eslint": "^1.7.1",

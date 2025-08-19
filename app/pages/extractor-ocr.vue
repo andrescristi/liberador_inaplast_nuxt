@@ -6,7 +6,7 @@
           Extractor de Texto OCR - Prueba
         </h1>
         <p class="mt-2 text-lg text-gray-600">
-          Prueba el componente de extracción de texto desde imágenes usando Tesseract.js
+          Prueba el componente de extracción de texto desde imágenes usando Gemini AI
         </p>
       </div>
       
@@ -28,7 +28,7 @@
               <h3 class="font-medium text-gray-900">Cómo usar</h3>
               <p class="text-gray-600">
                 Selecciona una imagen con texto o arrastra y suelta un archivo en la zona de carga.
-                El componente procesará la imagen y extraerá el texto usando OCR.
+                El componente procesará la imagen y extraerá el texto usando Gemini AI.
               </p>
             </div>
           </div>
@@ -49,7 +49,7 @@
               <h3 class="font-medium text-gray-900">Mejores resultados</h3>
               <p class="text-gray-600">
                 Para obtener mejores resultados, usa imágenes con texto claro, buen contraste y resolución alta.
-                El sistema detecta texto en español e inglés.
+                Gemini AI reconoce texto en múltiples idiomas incluyendo español e inglés.
               </p>
             </div>
           </div>
@@ -59,8 +59,8 @@
             <div>
               <h3 class="font-medium text-gray-900">Resultado</h3>
               <p class="text-gray-600">
-                El texto extraído se mostrará en la consola del navegador. 
-                Abre las herramientas de desarrollador (F12) para ver el resultado completo.
+                El texto extraído se procesará usando Gemini AI y se mostrará aquí mismo. 
+                También puedes verlo en la consola del navegador (F12).
               </p>
             </div>
           </div>

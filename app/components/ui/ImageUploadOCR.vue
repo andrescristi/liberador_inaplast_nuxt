@@ -55,15 +55,12 @@
             Arrastra y suelta una imagen o haz clic para seleccionar
           </p>
           
-          <div v-if="processing && progressData" class="mb-4">
+          <div v-if="processing" class="mb-4">
             <div class="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                class="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                :style="{ width: `${progressData.progress * 100}%` }"
-              />
+              <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300 animate-pulse" style="width: 100%" />
             </div>
             <p class="text-sm text-gray-600 mt-2">
-              {{ progressData.status }}
+              Analizando imagen con Gemini AI...
             </p>
           </div>
 
@@ -150,8 +147,96 @@
         :description="`Se encontraron ${extractedText.length} caracteres de texto.`"
       />
       
-      <!-- Display extracted text -->
-      <div class="mt-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+      <!-- Display production data table if available -->
+      <div v-if="productionData" class="mt-4">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="text-sm font-medium text-gray-900 flex items-center">
+            <Icon name="bx:table" class="w-4 h-4 mr-2" />
+            Datos de Producción
+          </h4>
+          <button
+            @click="copyToClipboard"
+            class="text-xs px-2 py-1 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition-colors flex items-center"
+          >
+            <Icon name="bx:copy" class="w-3 h-3 mr-1" />
+            Copiar Datos
+          </button>
+        </div>
+        
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Campo
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Valor
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr v-if="productionData.lote" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Lote</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.lote }}</td>
+                </tr>
+                <tr v-if="productionData.cliente" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Cliente</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.cliente }}</td>
+                </tr>
+                <tr v-if="productionData.producto" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Producto</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.producto }}</td>
+                </tr>
+                <tr v-if="productionData.pedido" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Pedido</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.pedido }}</td>
+                </tr>
+                <tr v-if="productionData.fechaFabricacion" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Fecha de Fabricación</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.fechaFabricacion }}</td>
+                </tr>
+                <tr v-if="productionData.codigoProducto" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Código de Producto</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.codigoProducto }}</td>
+                </tr>
+                <tr v-if="productionData.turno" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Turno</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.turno }}</td>
+                </tr>
+                <tr v-if="productionData.unidades" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Unidades</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.unidades }}</td>
+                </tr>
+                <tr v-if="productionData.jefeTurno" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Jefe de Turno</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.jefeTurno }}</td>
+                </tr>
+                <tr v-if="productionData.ordenCompra" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Orden de Compra</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.ordenCompra }}</td>
+                </tr>
+                <tr v-if="productionData.numeroOperario" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Nº Operario</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.numeroOperario }}</td>
+                </tr>
+                <tr v-if="productionData.maquina" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Máquina</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.maquina }}</td>
+                </tr>
+                <tr v-if="productionData.inspectorCalidad" class="hover:bg-gray-50">
+                  <td class="px-4 py-3 text-sm font-medium text-gray-900">Inspector de Calidad</td>
+                  <td class="px-4 py-3 text-sm text-gray-700">{{ productionData.inspectorCalidad }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Display raw text if no production data -->
+      <div v-else class="mt-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
         <div class="flex items-center justify-between mb-3">
           <h4 class="text-sm font-medium text-gray-900 flex items-center">
             <Icon name="bx:text" class="w-4 h-4 mr-2" />
@@ -168,13 +253,6 @@
         <div class="max-h-40 overflow-y-auto bg-gray-50 p-3 rounded border text-sm text-gray-700 font-mono whitespace-pre-wrap">{{ extractedText }}</div>
       </div>
       
-      <!-- Console info -->
-      <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-        <p class="text-xs text-blue-600">
-          <Icon name="bx:info-circle" class="w-3 h-3 inline mr-1" />
-          El texto también está disponible en la consola del navegador (F12).
-        </p>
-      </div>
     </div>
     </BaseCard>
     <template #fallback>
@@ -212,14 +290,36 @@
 </template>
 
 <script setup lang="ts">
-import { createWorker, PSM, type Worker } from 'tesseract.js'
 import BaseCard from '~/components/ui/BaseCard.vue'
 import BaseButton from '~/components/ui/BaseButton.vue'
 import BaseAlert from '~/components/ui/BaseAlert.vue'
 
-interface ProgressData {
-  progress: number
-  status: string
+interface ProductionData {
+  lote?: string
+  cliente?: string
+  producto?: string
+  pedido?: string
+  fechaFabricacion?: Date | string
+  codigoProducto?: string
+  turno?: string
+  unidades?: string
+  jefeTurno?: string
+  ordenCompra?: string
+  numeroOperario?: string
+  maquina?: string
+  inspectorCalidad?: string
+}
+
+interface OCRResponse {
+  text: string
+  productionData?: ProductionData
+  success: boolean
+  error?: string
+  metadata?: {
+    filename?: string
+    processedAt: string
+    model: string
+  }
 }
 
 // Reactive state - Inicializar con valores consistentes para SSR
@@ -232,15 +332,12 @@ const isDragOver = ref(false)
 const selectedFile = ref<File | null>(null)
 const previewUrl = ref<string>('')
 const processing = ref(false)
-const progressData = ref<ProgressData | null>(null)
 const error = ref<string>('')
 const extractedText = ref<string>('')
+const productionData = ref<ProductionData | null>(null)
 
 // Estado para indicar si estamos en el cliente
 const isClient = import.meta.client
-
-// Tesseract worker
-const tesseractWorker = ref<Worker | null>(null)
 
 // Computed
 const dropZoneClasses = computed(() => {
@@ -339,6 +436,7 @@ const selectFile = (file: File) => {
 const clearSelection = () => {
   selectedFile.value = null
   extractedText.value = ''
+  productionData.value = null
   error.value = ''
   
   // Solo ejecutar operaciones de DOM en el cliente
@@ -369,8 +467,7 @@ const copyToClipboard = async () => {
   
   try {
     await navigator.clipboard.writeText(extractedText.value)
-    // Aquí podrías agregar una notificación de éxito si tienes un sistema de toasts
-    console.log('Texto copiado al portapapeles')
+    // Texto copiado exitosamente
   } catch (err) {
     // Fallback para navegadores que no soportan clipboard API
     const textArea = document.createElement('textarea')
@@ -379,56 +476,27 @@ const copyToClipboard = async () => {
     textArea.select()
     document.execCommand('copy')
     document.body.removeChild(textArea)
-    console.log('Texto copiado al portapapeles (fallback)')
+    // Texto copiado exitosamente (fallback)
   }
 }
 
-const initWorker = async (): Promise<Worker> => {
-  if (!tesseractWorker.value) {
-    console.log('Inicializando Tesseract.js worker...')
-    
-    // Crear worker con configuración optimizada para calidad
-    tesseractWorker.value = await createWorker(['eng', 'spa'], 1, {
-      logger: (m) => {
-        console.log('Tesseract:', m)
-        
-        if (m.status && m.progress !== undefined) {
-          progressData.value = {
-            status: getSpanishStatus(m.status),
-            progress: m.progress
-          }
-        }
-      },
-      // Usar datos de idioma optimizados para calidad (por defecto)
-      langPath: 'https://tessdata.projectnaptha.com/4.0.0_best',
-    })
-    
-    // Configurar parámetros para mejor calidad
-    await tesseractWorker.value.setParameters({
-      tessedit_pageseg_mode: PSM.AUTO_OSD, // Detección automática de orientación y script
-      preserve_interword_spaces: '1', // Preservar espacios entre palabras
-      user_defined_dpi: '300', // DPI alto para mejor calidad
-    })
-    
-    console.log('Worker inicializado correctamente')
-  }
-  
-  return tesseractWorker.value
-}
-
-const getSpanishStatus = (status: string): string => {
-  const statusMap: Record<string, string> = {
-    'initializing api': 'Inicializando API...',
-    'initialized api': 'API inicializada',
-    'loading language traineddata': 'Cargando datos de idioma...',
-    'loaded language traineddata': 'Datos de idioma cargados',
-    'initializing tesseract': 'Inicializando Tesseract...',
-    'initialized tesseract': 'Tesseract inicializado',
-    'recognizing text': 'Reconociendo texto...',
-    'recognized text': 'Texto reconocido'
-  }
-  
-  return statusMap[status] || status
+const convertImageToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      // Extraer solo la parte base64 sin el prefijo data:image/...;base64,
+      const splitResult = result.split(',')
+      if (splitResult.length > 1 && splitResult[1]) {
+        const base64Data = splitResult[1]
+        resolve(base64Data)
+      } else {
+        reject(new Error('Formato de imagen inválido'))
+      }
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
 }
 
 const processImage = async () => {
@@ -436,39 +504,42 @@ const processImage = async () => {
   
   processing.value = true
   error.value = ''
-  progressData.value = null
+  extractedText.value = ''
+  productionData.value = null
   
   try {
-    console.log('Iniciando procesamiento de imagen:', selectedFile.value.name)
     
-    // Initialize worker
-    const worker = await initWorker()
+    // Convertir imagen a base64
+    const imageData = await convertImageToBase64(selectedFile.value)
     
-    // Process the image
-    const { data: { text } } = await worker.recognize(selectedFile.value)
+    // Hacer llamada al endpoint de backend
+    const response = await $fetch<OCRResponse>('/api/ocr/extract', {
+      method: 'POST',
+      body: {
+        imageData,
+        mimeType: selectedFile.value.type,
+        filename: selectedFile.value.name
+      }
+    })
     
-    extractedText.value = text.trim()
-    
-    // Log the extracted text to console
-    console.log('=== TEXTO EXTRAÍDO ===')
-    console.log('Archivo:', selectedFile.value.name)
-    console.log('Texto encontrado:')
-    console.log(text)
-    console.log('====================')
-    
-    if (!extractedText.value) {
-      console.warn('No se encontró texto en la imagen')
-      error.value = 'No se pudo extraer texto de la imagen. Verifica que la imagen contenga texto legible.'
+    if (response.success && response.text) {
+      extractedText.value = response.text.trim()
+      productionData.value = response.productionData || null
+      
     } else {
-      console.log(`Extracción exitosa: ${extractedText.value.length} caracteres encontrados`)
+        error.value = response.error || 'No se pudo extraer texto de la imagen. Verifica que la imagen contenga texto legible.'
     }
     
-  } catch (err) {
-    console.error('Error durante el procesamiento:', err)
-    error.value = 'Error al procesar la imagen. Por favor intenta nuevamente.'
+  } catch (err: any) {
+    
+    // Manejar errores específicos del servidor
+    if (err.statusCode) {
+      error.value = err.statusMessage || `Error del servidor (${err.statusCode})`
+    } else {
+      error.value = 'Error al procesar la imagen. Por favor intenta nuevamente.'
+    }
   } finally {
     processing.value = false
-    progressData.value = null
   }
 }
 
@@ -477,11 +548,6 @@ onUnmounted(() => {
   if (isClient) {
     if (previewUrl.value) {
       URL.revokeObjectURL(previewUrl.value)
-    }
-    
-    if (tesseractWorker.value) {
-      tesseractWorker.value.terminate()
-      tesseractWorker.value = null
     }
   }
 })
