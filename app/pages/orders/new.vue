@@ -63,13 +63,29 @@
                 alt="Label preview"
                 class="mx-auto max-w-32 max-h-32 object-cover rounded-lg">
                 <p class="text-sm font-medium text-green-600">{{ formData.labelImage.name }}</p>
-                <button 
-                  type="button" 
-                  class="text-indigo-600 hover:text-indigo-800 text-sm"
-                  @click.stop="removeImage"
-                >
-                  Cambiar imagen
-                </button>
+                <div class="flex justify-center space-x-3">
+                  <button 
+                    type="button" 
+                    class="text-indigo-600 hover:text-indigo-800 text-sm"
+                    @click.stop="removeImage"
+                  >
+                    Cambiar imagen
+                  </button>
+                  <span class="text-gray-300">|</span>
+                  <button 
+                    type="button" 
+                    :disabled="isProcessingOCR"
+                    :class="[
+                      'text-sm font-medium transition-colors',
+                      isProcessingOCR 
+                        ? 'text-gray-400 cursor-not-allowed'
+                        : 'text-blue-600 hover:text-blue-800'
+                    ]"
+                    @click.stop="processImageOCR"
+                  >
+                    {{ isProcessingOCR ? '🔄 Procesando...' : '🤖 Extraer datos con OCR' }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -88,6 +104,21 @@
               required
             >
             <p class="text-sm text-gray-500 mt-1">Solo números enteros positivos</p>
+          </div>
+          
+          <!-- OCR Success Indicator -->
+          <div v-if="ocrProcessed" class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <span class="text-green-400 text-xl">✅</span>
+              </div>
+              <div class="ml-3">
+                <h4 class="text-sm font-medium text-green-800">Datos OCR Extraídos</h4>
+                <p class="text-sm text-green-700 mt-1">
+                  Los campos del siguiente paso se han completado automáticamente con los datos de la imagen.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -707,10 +738,17 @@
 <script setup lang="ts">
 const toast = useToast()
 
+// OCR states
+const ocrProcessed = ref(false)
+
+// Composable de compresión de imágenes
+const { compressImage, needsCompression } = useImageCompression()
+
 // Reactive state
 const currentStep = ref(1)
 const totalSteps = 4
 const isSaving = ref(false)
+const isProcessingOCR = ref(false)
 
 // Form data
 const formData = reactive({
@@ -874,6 +912,117 @@ const formatDate = (dateString: string) => {
   })
 }
 
+// OCR Methods
+const convertImageToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = reader.result as string
+      // Extraer solo la parte base64 sin el prefijo data:image/...;base64,
+      const splitResult = result.split(',')
+      if (splitResult.length > 1 && splitResult[1]) {
+        const base64Data = splitResult[1]
+        resolve(base64Data)
+      } else {
+        reject(new Error('Formato de imagen inválido'))
+      }
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+const processImageOCR = async () => {
+  if (!formData.labelImage) return
+  
+  isProcessingOCR.value = true
+  
+  try {
+    let fileToProcess = formData.labelImage
+    
+    // Comprimir imagen si es necesario (mayor a 50KB)
+    if (needsCompression(formData.labelImage, 50)) {
+      const compressionResult = await compressImage(formData.labelImage, {
+        targetSizeKB: 50,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        quality: 0.8
+      })
+      fileToProcess = compressionResult.compressedFile
+    }
+    
+    // Convertir imagen a base64
+    const imageData = await convertImageToBase64(fileToProcess)
+    
+    // Hacer llamada al endpoint de OCR
+    const response = await $fetch('/api/ocr/extract', {
+      method: 'POST',
+      body: {
+        imageData,
+        mimeType: fileToProcess.type,
+        filename: fileToProcess.name
+      }
+    })
+    
+    if (response.success && response.productionData) {
+      handleOCRDataExtracted(response.productionData)
+      toast.success('¡Datos extraídos exitosamente!', 'Los campos se han completado automáticamente')
+      handleOCRSuccess()
+    } else {
+      toast.error('No se pudieron extraer datos', 'Verifica que la imagen contenga información de producción legible')
+    }
+    
+  } catch (error: any) {
+    console.error('Error en OCR:', error)
+    const errorMessage = error.statusMessage || 'Error al procesar la imagen. Por favor intenta nuevamente.'
+    toast.error('Error OCR', errorMessage)
+  } finally {
+    isProcessingOCR.value = false
+  }
+}
+
+const handleOCRDataExtracted = (productionData: any) => {
+  // Mapear los datos extraídos a los campos del formulario
+  if (productionData.cliente) formData.client = productionData.cliente
+  if (productionData.lote) formData.batch = productionData.lote
+  if (productionData.pedido) formData.order = productionData.pedido
+  if (productionData.producto) formData.product = productionData.producto
+  if (productionData.unidades) {
+    const units = parseInt(productionData.unidades.toString())
+    formData.units = isNaN(units) ? null : units
+  }
+  if (productionData.ordenCompra) formData.purchaseOrder = productionData.ordenCompra
+  if (productionData.maquina) formData.machine = productionData.maquina
+  if (productionData.fechaFabricacion) {
+    // Convertir fecha al formato requerido por el input date (YYYY-MM-DD)
+    const fecha = new Date(productionData.fechaFabricacion)
+    if (!isNaN(fecha.getTime())) {
+      formData.manufacturingDate = fecha.toISOString().split('T')[0]
+    }
+  }
+  if (productionData.turno) {
+    const turno = productionData.turno.toString().toLowerCase()
+    if (['mañana', 'tarde', 'noche'].includes(turno)) {
+      formData.shift = turno
+    }
+  }
+  if (productionData.jefeTurno) formData.shiftManager = productionData.jefeTurno
+  if (productionData.numeroOperario) formData.operator = productionData.numeroOperario
+  if (productionData.inspectorCalidad) formData.qualityInspector = productionData.inspectorCalidad
+  
+  ocrProcessed.value = true
+}
+
+const handleOCRSuccess = () => {
+  // Auto-avanzar al paso 2 después de un breve delay para que el usuario vea el éxito
+  setTimeout(() => {
+    if (canProceedFromStep1.value) {
+      nextStep()
+    }
+  }, 1500)
+}
+
+
 const saveForm = async () => {
   isSaving.value = true
   
@@ -909,6 +1058,7 @@ const saveForm = async () => {
       
       // Results
       overallResult: overallResult.value,
+      ocrProcessed: ocrProcessed.value,
       createdAt: new Date().toISOString()
     }
     

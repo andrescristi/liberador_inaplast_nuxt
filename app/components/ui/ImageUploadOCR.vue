@@ -35,7 +35,7 @@
         </div>
         
         <!-- Loading Animation -->
-        <div v-if="processing" class="mb-4">
+        <div v-if="processing || isCompressing" class="mb-4">
           <div class="flex items-center justify-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"/>
           </div>
@@ -43,19 +43,37 @@
 
         <!-- Text Content -->
         <div class="text-center">
-          <p v-if="!processing" class="text-lg font-medium text-gray-900 mb-2">
+          <p v-if="!processing && !isCompressing" class="text-lg font-medium text-gray-900 mb-2">
             {{ isDragOver ? 'Suelta la imagen aquí' : 'Selecciona una imagen para extraer texto' }}
+          </p>
+          
+          <p v-if="isCompressing" class="text-lg font-medium text-indigo-600 mb-2">
+            Comprimiendo imagen...
           </p>
           
           <p v-if="processing" class="text-lg font-medium text-indigo-600 mb-2">
             Procesando imagen...
           </p>
           
-          <p v-if="!processing" class="text-sm text-gray-500 mb-4">
+          <p v-if="!processing && !isCompressing" class="text-sm text-gray-500 mb-4">
             Arrastra y suelta una imagen o haz clic para seleccionar
           </p>
           
-          <div v-if="processing" class="mb-4">
+          <!-- Compression Progress -->
+          <div v-if="isCompressing" class="mb-4">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                :style="`width: ${compressionProgress}%`" 
+              />
+            </div>
+            <p class="text-sm text-gray-600 mt-2">
+              Reduciendo tamaño a 50 KB...
+            </p>
+          </div>
+          
+          <!-- Processing Progress -->
+          <div v-if="processing && !isCompressing" class="mb-4">
             <div class="w-full bg-gray-200 rounded-full h-2">
               <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300 animate-pulse" style="width: 100%" />
             </div>
@@ -65,8 +83,8 @@
           </div>
 
           <!-- Supported formats -->
-          <p v-if="!processing" class="text-xs text-gray-400">
-            Formatos soportados: JPG, PNG, WEBP, BMP, GIF
+          <p v-if="!processing && !isCompressing" class="text-xs text-gray-400">
+            Formatos soportados: JPG, PNG, WEBP, BMP, GIF (se comprimirán automáticamente a 50 KB)
           </p>
         </div>
       </div>
@@ -97,7 +115,7 @@
         
         <!-- Remove Button -->
         <BaseButton
-          v-if="!processing"
+          v-if="!processing && !isCompressing"
           variant="solid"
           color="secondary"
           size="sm"
@@ -113,11 +131,24 @@
         <p><strong>Nombre:</strong> {{ selectedFile.name }}</p>
         <p><strong>Tamaño:</strong> {{ formatFileSize(selectedFile.size) }}</p>
         <p><strong>Tipo:</strong> {{ selectedFile.type }}</p>
+        
+        <!-- Compression Info -->
+        <div v-if="compressionInfo" class="mt-2 p-2 bg-green-50 border border-green-200 rounded text-green-700">
+          <p class="flex items-center">
+            <Icon name="bx:compress" class="w-4 h-4 mr-1" />
+            <strong>Compresión aplicada:</strong>
+          </p>
+          <p class="text-xs ml-5 mt-1">
+            Tamaño original: {{ formatFileSize(compressionInfo.originalSize) }} →
+            Comprimido: {{ formatFileSize(compressionInfo.compressedSize) }}
+            ({{ compressionInfo.compressionRatio }}% reducido)
+          </p>
+        </div>
       </div>
     </div>
 
     <!-- Action Button -->
-    <div v-if="selectedFile && !processing" class="mt-6">
+    <div v-if="selectedFile && !processing && !isCompressing" class="mt-6">
       <BaseButton
         variant="solid"
         color="primary"
@@ -155,8 +186,8 @@
             Datos de Producción
           </h4>
           <button
-            @click="copyToClipboard"
             class="text-xs px-2 py-1 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition-colors flex items-center"
+            @click="copyToClipboard"
           >
             <Icon name="bx:copy" class="w-3 h-3 mr-1" />
             Copiar Datos
@@ -243,8 +274,8 @@
             Texto Extraído
           </h4>
           <button
-            @click="copyToClipboard"
             class="text-xs px-2 py-1 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition-colors flex items-center"
+            @click="copyToClipboard"
           >
             <Icon name="bx:copy" class="w-3 h-3 mr-1" />
             Copiar
@@ -335,15 +366,19 @@ const processing = ref(false)
 const error = ref<string>('')
 const extractedText = ref<string>('')
 const productionData = ref<ProductionData | null>(null)
+const compressionInfo = ref<{ originalSize: number; compressedSize: number; compressionRatio: number } | null>(null)
 
 // Estado para indicar si estamos en el cliente
 const isClient = import.meta.client
+
+// Composable de compresión de imágenes
+const { isCompressing, compressionProgress, compressImage, needsCompression, formatFileSize } = useImageCompression()
 
 // Computed
 const dropZoneClasses = computed(() => {
   const base = 'relative border-2 border-dashed rounded-lg cursor-pointer transition-all duration-300 hover:border-indigo-400 hover:bg-indigo-50'
   
-  if (processing.value) {
+  if (processing.value || isCompressing.value) {
     return `${base} border-indigo-300 bg-indigo-50 cursor-not-allowed`
   }
   
@@ -360,25 +395,25 @@ const dropZoneClasses = computed(() => {
 
 // Methods
 const triggerFileInput = () => {
-  if (!processing.value) {
+  if (!processing.value && !isCompressing.value) {
     fileInput.value?.click()
   }
 }
 
 const handleDragOver = (event: DragEvent) => {
-  if (processing.value) return
+  if (processing.value || isCompressing.value) return
   event.preventDefault()
   isDragOver.value = true
 }
 
 const handleDragLeave = (event: DragEvent) => {
-  if (processing.value) return
+  if (processing.value || isCompressing.value) return
   event.preventDefault()
   isDragOver.value = false
 }
 
 const handleDrop = (event: DragEvent) => {
-  if (processing.value) return
+  if (processing.value || isCompressing.value) return
   event.preventDefault()
   isDragOver.value = false
   
@@ -403,7 +438,7 @@ const handleFileSelect = (event: Event) => {
   }
 }
 
-const selectFile = (file: File) => {
+const selectFile = async (file: File) => {
   // Solo ejecutar en el cliente
   if (!isClient) return
   
@@ -420,17 +455,43 @@ const selectFile = (file: File) => {
     return
   }
   
-  // Clear previous errors
+  // Clear previous errors and data
   error.value = ''
   extractedText.value = ''
+  compressionInfo.value = null
   
-  selectedFile.value = file
-  
-  // Create preview URL - solo en cliente
-  if (previewUrl.value) {
-    URL.revokeObjectURL(previewUrl.value)
+  try {
+    let fileToUse = file
+    
+    // Comprimir imagen si es necesario (mayor a 50KB)
+    if (needsCompression(file, 50)) {
+      const compressionResult = await compressImage(file, {
+        targetSizeKB: 50,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        quality: 0.8
+      })
+      
+      fileToUse = compressionResult.compressedFile
+      compressionInfo.value = {
+        originalSize: compressionResult.originalSize,
+        compressedSize: compressionResult.compressedSize,
+        compressionRatio: compressionResult.compressionRatio
+      }
+    }
+    
+    selectedFile.value = fileToUse
+    
+    // Create preview URL - solo en cliente
+    if (previewUrl.value) {
+      URL.revokeObjectURL(previewUrl.value)
+    }
+    previewUrl.value = URL.createObjectURL(fileToUse)
+    
+  } catch (compressionError: any) {
+    error.value = `Error al comprimir la imagen: ${compressionError.message}`
+    selectedFile.value = null
   }
-  previewUrl.value = URL.createObjectURL(file)
 }
 
 const clearSelection = () => {
@@ -438,6 +499,7 @@ const clearSelection = () => {
   extractedText.value = ''
   productionData.value = null
   error.value = ''
+  compressionInfo.value = null
   
   // Solo ejecutar operaciones de DOM en el cliente
   if (isClient) {
@@ -452,15 +514,6 @@ const clearSelection = () => {
   }
 }
 
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
 
 const copyToClipboard = async () => {
   if (!extractedText.value) return
