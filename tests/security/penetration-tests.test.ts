@@ -138,7 +138,7 @@ describe('Tests de Penetración Defensiva', () => {
     })
 
     it('debe implementar retrasos progresivos', () => {
-      let attemptCount = 0
+      const attemptCount = 0
       
       const getLoginDelay = (attempts: number): number => {
         return Math.min(attempts * 1000, 30000) // Max 30 segundos
