@@ -128,7 +128,7 @@ export default defineEventHandler(async (event): Promise<PlanMuestreoResponse | 
         })
       })
     }
-    console.log(grupoMuestreo)
+    
     // PASO 2: Buscar en planes_de_muestreo usando el código obtenido y AQL 1.5
     const { data: planMuestreo, error: planError } = await supabase
       .from('planes_de_muestreo')
