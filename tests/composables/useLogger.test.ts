@@ -9,7 +9,7 @@ const mockLogger: Logger = {
   debug: vi.fn(),
   trace: vi.fn(),
   fatal: vi.fn()
-} as any
+} as Logger
 
 const mockNuxtApp = {
   $logger: mockLogger

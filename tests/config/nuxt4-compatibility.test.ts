@@ -17,37 +17,37 @@ describe('Nuxt 4 Compatibility', () => {
     expect(configFile).toContain("'~/composables/**'")
   })
 
-  it('debe tener estructura de directorios de Nuxt 4', () => {
-    const fs = require('fs')
+  it('debe tener estructura de directorios de Nuxt 4', async () => {
+    const { existsSync } = await import('fs')
     
     // Verificar que existe la estructura app/
-    expect(fs.existsSync('app/composables')).toBe(true)
-    expect(fs.existsSync('app/components')).toBe(true)
-    expect(fs.existsSync('app/plugins')).toBe(true)
-    expect(fs.existsSync('app/pages')).toBe(true)
-    expect(fs.existsSync('app/layouts')).toBe(true)
+    expect(existsSync('app/composables')).toBe(true)
+    expect(existsSync('app/components')).toBe(true)
+    expect(existsSync('app/plugins')).toBe(true)
+    expect(existsSync('app/pages')).toBe(true)
+    expect(existsSync('app/layouts')).toBe(true)
     
     // Verificar composables anidados
-    expect(fs.existsSync('app/composables/auth')).toBe(true)
-    expect(fs.existsSync('app/composables/useLogger.ts')).toBe(true)
+    expect(existsSync('app/composables/auth')).toBe(true)
+    expect(existsSync('app/composables/useLogger.ts')).toBe(true)
   })
 
-  it('debe tener plugins organizados correctamente', () => {
-    const fs = require('fs')
+  it('debe tener plugins organizados correctamente', async () => {
+    const { existsSync } = await import('fs')
     
     // Verificar plugins en app/
-    expect(fs.existsSync('app/plugins/logger.client.ts')).toBe(true)
-    expect(fs.existsSync('app/plugins/logger.server.ts')).toBe(true)
+    expect(existsSync('app/plugins/logger.client.ts')).toBe(true)
+    expect(existsSync('app/plugins/logger.server.ts')).toBe(true)
     
     // Verificar plugins del servidor
-    expect(fs.existsSync('server/plugins/logger.ts')).toBe(true)
+    expect(existsSync('server/plugins/logger.ts')).toBe(true)
   })
 
-  it('debe tener tipos TypeScript correctos', () => {
-    const fs = require('fs')
+  it('debe tener tipos TypeScript correctos', async () => {
+    const { existsSync } = await import('fs')
     
-    expect(fs.existsSync('types/logger.d.ts')).toBe(true)
-    expect(fs.existsSync('types/database.types.ts')).toBe(true)
+    expect(existsSync('types/logger.d.ts')).toBe(true)
+    expect(existsSync('types/database.types.ts')).toBe(true)
   })
 
   it('debe tener fecha de compatibilidad de Nuxt 4', () => {

@@ -14,7 +14,7 @@ const mockNuxtApp = {
 
 vi.mock('#app', () => ({
   useNuxtApp: () => mockNuxtApp,
-  defineNuxtPlugin: (fn: Function) => fn()
+  defineNuxtPlugin: (fn: () => unknown) => fn()
 }))
 
 // Mock directo del composable useLogger
@@ -67,11 +67,11 @@ describe('Logger Plugins Integration', () => {
       const clientPlugin = () => ({
         provide: {
           logger: {
-            info: console.info,
-            warn: console.warn,
-            error: console.error,
-            debug: console.debug,
-            fatal: console.error,
+            info: vi.fn(),
+            warn: vi.fn(),
+            error: vi.fn(),
+            debug: vi.fn(),
+            fatal: vi.fn(),
             child: () => ({})
           }
         }
@@ -79,8 +79,8 @@ describe('Logger Plugins Integration', () => {
 
       const plugin = clientPlugin()
       expect(plugin.provide.logger).toBeDefined()
-      expect(plugin.provide.logger.info).toBe(console.info)
-      expect(plugin.provide.logger.error).toBe(console.error)
+      expect(plugin.provide.logger.info).toBeDefined()
+      expect(plugin.provide.logger.error).toBeDefined()
     })
 
     it('debe tener estructura correcta para server plugin', () => {
