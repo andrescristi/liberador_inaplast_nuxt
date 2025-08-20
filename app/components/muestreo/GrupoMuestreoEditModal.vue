@@ -186,7 +186,15 @@ const loadPlanesDisponibles = async () => {
     const response = await muestreoAPI.getPlanesMuestreo({}, 1, 100)
     planesDisponibles.value = response.data
   } catch (error) {
-    console.error('Error loading planes:', error)
+    if (import.meta.server) {
+      const { $logger } = useNuxtApp()
+      if ($logger && typeof ($logger as any).error === 'function') {
+        ($logger as any).error({
+          error: error instanceof Error ? error.message : String(error),
+          context: 'GrupoMuestreoEditModal.cargarPlanesDisponibles'
+        }, 'Error loading available plans')
+      }
+    }
   } finally {
     loadingPlanes.value = false
   }

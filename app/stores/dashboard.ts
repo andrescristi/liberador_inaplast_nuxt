@@ -47,7 +47,6 @@ export const useDashboardStore = defineStore('dashboard', {
         this.recentOrders = recentOrders
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to fetch dashboard data'
-        console.error('Error fetching dashboard data:', error)
       } finally {
         this.loading = false
       }

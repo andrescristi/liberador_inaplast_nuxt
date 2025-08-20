@@ -58,7 +58,6 @@ export const useCustomersStore = defineStore('customers', {
         this.filters = filters
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to fetch customers'
-        console.error('Error fetching customers:', error)
       } finally {
         this.loading = false
       }
@@ -79,7 +78,6 @@ export const useCustomersStore = defineStore('customers', {
         this.currentCustomer = data
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to fetch customer'
-        console.error('Error fetching customer:', error)
       } finally {
         this.loading = false
       }
@@ -95,7 +93,6 @@ export const useCustomersStore = defineStore('customers', {
         return newCustomer
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to create customer'
-        console.error('Error creating customer:', error)
         throw error
       } finally {
         this.loading = false
@@ -121,7 +118,6 @@ export const useCustomersStore = defineStore('customers', {
         return updatedCustomer
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to update customer'
-        console.error('Error updating customer:', error)
         throw error
       } finally {
         this.loading = false
@@ -141,7 +137,6 @@ export const useCustomersStore = defineStore('customers', {
         }
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to delete customer'
-        console.error('Error deleting customer:', error)
         throw error
       } finally {
         this.loading = false
@@ -156,7 +151,16 @@ export const useCustomersStore = defineStore('customers', {
         const customers = await supabaseAPI.searchCustomersForOrder(query)
         return customers
       } catch (error) {
-        console.error('Error searching customers:', error)
+        if (import.meta.server) {
+          const { $logger } = useNuxtApp()
+          if ($logger && typeof ($logger as any).error === 'function') {
+            ($logger as any).error({
+              error: error instanceof Error ? error.message : String(error),
+              stack: error instanceof Error ? error.stack : undefined,
+              context: 'useCustomersStore.searchCustomersForOrder'
+            }, 'Error searching customers for order')
+          }
+        }
         return []
       }
     },

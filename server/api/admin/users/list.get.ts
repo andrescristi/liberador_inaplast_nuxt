@@ -94,8 +94,13 @@ export default defineEventHandler(async (event): Promise<PaginatedResponse<Profi
           email: authUser.user?.email || ''
         }
       } catch (error) {
-        // If getting the email fails, return profile without email
-        console.error(`Error getting email for user ${profile.user_id}:`, error)
+        // If getting the email fails, log error and return profile without email
+        event.context.logger.error({
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          userId: profile.user_id,
+          context: 'admin/users/list.get - getUserById'
+        }, 'Error getting user email')
         return {
           ...profile,
           full_name: `${profile.first_name} ${profile.last_name}`,

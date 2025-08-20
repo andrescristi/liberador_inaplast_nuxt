@@ -118,7 +118,6 @@ export default defineEventHandler(async (event): Promise<PlanMuestreoResponse | 
 
     if (grupoError || !grupoMuestreo) {
       // Si hay error SQL específico, lo registramos pero devolvemos mensaje genérico
-      console.error('Error consultando grupos_muestreo:', grupoError)
       
       throw createError({
         statusCode: 404,
@@ -139,7 +138,6 @@ export default defineEventHandler(async (event): Promise<PlanMuestreoResponse | 
 
     if (planError || !planMuestreo) {
       // Si hay error SQL específico, lo registramos pero devolvemos mensaje genérico
-      console.error('Error consultando planes_de_muestreo:', planError)
       
       throw createError({
         statusCode: 404,
@@ -170,7 +168,6 @@ export default defineEventHandler(async (event): Promise<PlanMuestreoResponse | 
     }
 
     // Para errores inesperados, registrar y devolver error genérico
-    console.error('Error inesperado en planes-muestreo endpoint:', error)
     
     throw createError({
       statusCode: 500,

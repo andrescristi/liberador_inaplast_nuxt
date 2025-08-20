@@ -265,7 +265,13 @@ const cargarPlanesAsignados = async () => {
     relacionesConPlan.value = response
     planesAsignados.value = response.map(r => r.plan_info)
   } catch (error) {
-    console.error('Error loading assigned plans:', error)
+    if (import.meta.server) {
+      const logger = useLogger()
+      logger.error({
+        error: error instanceof Error ? error.message : String(error),
+        context: 'GrupoMuestreoRelacionesModal.cargarPlanesAsignados'
+      }, 'Error loading assigned plans')
+    }
     toast.error('Error', 'No se pudieron cargar los planes asignados')
   } finally {
     loading.value = false
@@ -278,7 +284,13 @@ const cargarPlanesDisponibles = async () => {
     const response = await muestreoAPI.getPlanesMuestreo({}, 1, 100)
     planesDisponibles.value = response.data
   } catch (error) {
-    console.error('Error loading available plans:', error)
+    if (import.meta.server) {
+      const logger = useLogger()
+      logger.error({
+        error: error instanceof Error ? error.message : String(error),
+        context: 'GrupoMuestreoRelacionesModal.cargarPlanesDisponibles'
+      }, 'Error loading available plans')
+    }
     toast.error('Error', 'No se pudieron cargar los planes disponibles')
   } finally {
     loadingPlanes.value = false

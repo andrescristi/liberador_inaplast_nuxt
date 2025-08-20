@@ -66,7 +66,6 @@ export const useOrdersStore = defineStore('orders', {
         this.filters = filters
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to fetch orders'
-        console.error('Error fetching orders:', error)
       } finally {
         this.loading = false
       }
@@ -81,7 +80,6 @@ export const useOrdersStore = defineStore('orders', {
         this.currentOrder = order
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to fetch order'
-        console.error('Error fetching order:', error)
       } finally {
         this.loading = false
       }
@@ -97,7 +95,6 @@ export const useOrdersStore = defineStore('orders', {
         return newOrder
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to create order'
-        console.error('Error creating order:', error)
         throw error
       } finally {
         this.loading = false
@@ -129,7 +126,6 @@ export const useOrdersStore = defineStore('orders', {
         }
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to update order status'
-        console.error('Error updating order status:', error)
         throw error
       } finally {
         this.loading = false
@@ -149,7 +145,6 @@ export const useOrdersStore = defineStore('orders', {
         }
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to delete order'
-        console.error('Error deleting order:', error)
         throw error
       } finally {
         this.loading = false
@@ -162,7 +157,16 @@ export const useOrdersStore = defineStore('orders', {
         const orders = await supabaseAPI.getRecentOrders(limit)
         return orders
       } catch (error) {
-        console.error('Error fetching recent orders:', error)
+        if (import.meta.server) {
+          const { $logger } = useNuxtApp()
+          if ($logger && typeof ($logger as any).error === 'function') {
+            ($logger as any).error({
+              error: error instanceof Error ? error.message : String(error),
+              stack: error instanceof Error ? error.stack : undefined,
+              context: 'useOrdersStore.fetchRecentOrders'
+            }, 'Error fetching recent orders')
+          }
+        }
         return []
       }
     },

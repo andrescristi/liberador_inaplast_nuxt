@@ -235,8 +235,8 @@ const loadPlanRecomendado = async () => {
     if (response.data.length > 0) {
       planRecomendado.value = response.data[0]
     }
-  } catch (error) {
-    console.error('Error loading recommended plan:', error)
+  } catch {
+    // Error silencioso para el plan recomendado
   }
 }
 
@@ -246,8 +246,8 @@ const loadPlanesAsociados = async () => {
     // En una implementación real, harías una query más específica
     const response = await muestreoAPI.getPlanesMuestreo({}, 1, 50)
     planesAsociados.value = response.data.slice(0, 6) // Mostrar algunos planes como ejemplo
-  } catch (error) {
-    console.error('Error loading associated plans:', error)
+  } catch {
+    // Error silencioso para planes asociados
   }
 }
 

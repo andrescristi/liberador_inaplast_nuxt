@@ -178,12 +178,19 @@ app/
 │       ├── ToastContainer.vue # Toast notification container
 │       └── ToastNotification.vue # Individual toast notifications
 ├── composables/
-│   ├── useAuth.ts             # Authentication composable with role metadata
+│   ├── auth/                   # Specialized authentication composables
+│   │   ├── index.ts           # Auth composables barrel export
+│   │   ├── useAuthLogin.ts    # Login/logout operations
+│   │   ├── useAuthPassword.ts # Password reset and update
+│   │   ├── useAuthProfile.ts  # User profile management
+│   │   └── useAuthState.ts    # Authentication state management
+│   ├── useAuth.ts             # Main authentication composable (compatibility layer)
 │   ├── useDebounce.ts         # Debouncing utility for search/input handling
 │   ├── useAdminUserAPI.ts     # Admin user API operations via secure endpoints
 │   ├── useAdminUserManager.ts # Admin user management with state handling
 │   ├── useCalidadAPI.ts       # Quality sampling API operations for statistical plans
 │   ├── useImageCompression.ts # Image compression utility for OCR optimization
+│   ├── useLogger.ts           # Pino logger integration
 │   ├── useMuestreoAPI.ts      # Quality control & sampling API operations
 │   └── useToast.ts            # Toast notification management
 ├── layouts/
@@ -212,6 +219,11 @@ app/
 ├── types/                     # TypeScript type definitions
 ├── utils/
 │   └── formatters.ts          # Shared formatting utilities (currency, dates)
+├── plugins/
+│   ├── pinia.client.ts        # Pinia store configuration (client-side)
+│   ├── pinia.server.ts        # Pinia store configuration (server-side)
+│   ├── logger.client.ts       # Pino logger plugin (client-side)
+│   └── logger.server.ts       # Pino logger plugin (server-side)
 └── assets/
     ├── css/
     │   ├── main.css                    # Global styles, utilities, z-index scale, and CSS imports
@@ -243,6 +255,8 @@ server/
 │   ├── test-create-user.post.ts       # User creation testing
 │   ├── test-direct-supabase.post.ts   # Direct Supabase integration testing
 │   └── test-service-role.get.ts       # Service role testing
+├── plugins/
+│   └── logger.ts              # Server-side Pino logger configuration
 └── utils/                     # Server utilities and helper functions
 
 supabase/
@@ -463,6 +477,11 @@ pnpm build
 - ✅ **Database Type Safety**: Regenerated TypeScript types to include all sampling tables with proper schema validation
 - ✅ **Backend Integration**: Streamlined sampling module to leverage existing API endpoints for better performance and maintainability
 - ✅ **Read-Only Architecture**: Converted sampling tables to read-only operations aligned with backend implementation requirements
+- ✅ **Project Structure Reorganization**: Fixed Nuxt 3 directory structure by moving composables and plugins to correct `/app/` locations
+- ✅ **Authentication Module Refactoring**: Specialized authentication composables with focused responsibilities (login, password, profile, state)
+- ✅ **Plugin Architecture Cleanup**: Consolidated plugins into `/app/plugins/` following Nuxt 3 conventions
+- ✅ **Test Coverage Enhancement**: Added comprehensive unit tests for specialized authentication composables and logger utilities
+- ✅ **Import Path Corrections**: Fixed all TypeScript import errors after structural reorganization
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing

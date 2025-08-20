@@ -64,7 +64,6 @@ export const useProductsStore = defineStore('products', {
         this.filters = filters
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to fetch products'
-        console.error('Error fetching products:', error)
       } finally {
         this.loading = false
       }
@@ -85,7 +84,6 @@ export const useProductsStore = defineStore('products', {
         this.currentProduct = data
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to fetch product'
-        console.error('Error fetching product:', error)
       } finally {
         this.loading = false
       }
@@ -101,7 +99,6 @@ export const useProductsStore = defineStore('products', {
         return newProduct
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to create product'
-        console.error('Error creating product:', error)
         throw error
       } finally {
         this.loading = false
@@ -127,7 +124,6 @@ export const useProductsStore = defineStore('products', {
         return updatedProduct
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to update product'
-        console.error('Error updating product:', error)
         throw error
       } finally {
         this.loading = false
@@ -147,7 +143,6 @@ export const useProductsStore = defineStore('products', {
         }
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to delete product'
-        console.error('Error deleting product:', error)
         throw error
       } finally {
         this.loading = false
@@ -161,7 +156,16 @@ export const useProductsStore = defineStore('products', {
         const products = await supabaseAPI.searchProductsForOrder(query)
         return products
       } catch (error) {
-        console.error('Error searching products:', error)
+        if (import.meta.server) {
+          const { $logger } = useNuxtApp()
+          if ($logger && typeof ($logger as any).error === 'function') {
+            ($logger as any).error({
+              error: error instanceof Error ? error.message : String(error),
+              stack: error instanceof Error ? error.stack : undefined,
+              context: 'useProductsStore.searchProductsForOrder'
+            }, 'Error searching products for order')
+          }
+        }
         return []
       }
     },

@@ -207,7 +207,15 @@ const loadPlanesDisponibles = async () => {
     const response = await muestreoAPI.getPlanesMuestreo({}, 1, 100) // Cargar primeros 100 planes
     planesDisponibles.value = response.data
   } catch (error) {
-    console.error('Error loading planes:', error)
+    if (import.meta.server) {
+      const { $logger } = useNuxtApp()
+      if ($logger && typeof ($logger as any).error === 'function') {
+        ($logger as any).error({
+          error: error instanceof Error ? error.message : String(error),
+          context: 'GrupoMuestreoCreateModal.cargarPlanesDisponibles'
+        }, 'Error loading available plans')
+      }
+    }
     toast.error('Error', 'No se pudieron cargar los planes disponibles')
   } finally {
     loadingPlanes.value = false

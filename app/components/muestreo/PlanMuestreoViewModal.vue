@@ -226,8 +226,8 @@ const loadGruposAsociados = async () => {
       codigo_plan_muestreo: props.plan.codigo
     })
     gruposAsociados.value = response.data
-  } catch (error) {
-    console.error('Error loading associated groups:', error)
+  } catch {
+    // Error silencioso para grupos asociados
   }
 }
 
@@ -246,8 +246,7 @@ const testRecomendacion = async () => {
     } else {
       recomendacionResult.value = null
     }
-  } catch (error) {
-    console.error('Error testing recommendation:', error)
+  } catch {
     recomendacionResult.value = null
   }
 }
