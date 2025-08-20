@@ -108,7 +108,19 @@ export default defineNuxtConfig({
     }
   },
   
-  // ===== CONFIGURACIÓN DE AUTO-IMPORTACIÓN DE COMPONENTES =====
+  // ===== CONFIGURACIÓN DE AUTO-IMPORTACIÓN =====
+  
+  // Configuración de auto-imports para composables y utilidades
+  imports: {
+    dirs: [
+      // Auto-importar composables de directorio principal
+      '~/composables',
+      // Auto-importar composables anidados (como ~/composables/auth/*)
+      '~/composables/**'
+    ]
+  },
+
+  // Configuración de auto-importación de componentes
   components: {
     global: true, // Componentes disponibles globalmente sin imports explícitos
     

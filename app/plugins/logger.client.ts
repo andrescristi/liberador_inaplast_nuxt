@@ -17,7 +17,3 @@ export default defineNuxtPlugin(() => {
   }
 })
 
-// Composable for convenience
-export const useLogger = () => {
-  return useNuxtApp().$logger
-}
