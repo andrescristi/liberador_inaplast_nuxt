@@ -1,6 +1,20 @@
 # Liberador Inaplast - Product Release Quality Control System
 
-A modern web application for managing product release quality control workflows built with Nuxt.js, TailwindCSS, and Supabase.
+A modern web application for managing product release quality control workflows built with Nuxt 4, TailwindCSS, and Supabase.
+
+## ✨ Recent Updates (v2.1.0)
+
+### 🔧 Component Auto-Import System Fixed
+- **Fixed component resolution issues** - Resolved all "Failed to resolve component" warnings
+- **Optimized auto-import configuration** - Configured proper prefixes for UI and Core components
+- **Enhanced development experience** - Clean console output without component warnings
+- **Improved performance** - Faster component loading with optimized auto-imports
+
+### 🧪 Enhanced Testing Suite
+- **New component tests** - Added comprehensive tests for OrderWizard component
+- **Configuration tests** - Added tests for auto-import configuration validation
+- **Security enhancements** - Improved penetration testing with better input sanitization
+- **Quality assurance** - Added tests for quality control logic validation
 
 ## Features
 

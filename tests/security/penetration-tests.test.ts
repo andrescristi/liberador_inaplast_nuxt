@@ -264,6 +264,9 @@ function sanitizeInput(input: string): string {
     .replace(/[";']/g, '')
     .replace(/(DROP|DELETE|INSERT|UPDATE|SELECT)/gi, '')
     .replace(/\$[a-zA-Z]+/g, '')
+    .replace(/rm\s+-rf/gi, '')
+    .replace(/cat\s+\/etc/gi, '')
+    .replace(/&&|\|\|/g, '')
 }
 
 function maskSensitiveData(logMessage: string): string {

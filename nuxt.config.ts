@@ -121,16 +121,40 @@ export default defineNuxtConfig({
   },
 
   // Configuración de auto-importación de componentes
-  components: {
-    global: true, // Componentes disponibles globalmente sin imports explícitos
-    
-    // Directorios específicos para organización y auto-importación
-    dirs: [
-      '~/components',          // Componentes generales
-      '~/components/ui',       // Sistema de diseño base (BaseButton, BaseModal, etc.)
-      '~/components/core',     // Componentes core de la app (Navigation, etc.)
-      '~/components/feedback', // Componentes de UX (Toast, Loading, etc.)
-      '~/components/forms'     // Componentes específicos de formularios
-    ]
-  }
+  components: [
+    {
+      path: '~/components',
+      global: true
+    },
+    {
+      path: '~/components/ui',
+      prefix: 'Ui',
+      global: true
+    },
+    {
+      path: '~/components/core',
+      prefix: 'Core',
+      global: true
+    },
+    {
+      path: '~/components/feedback', 
+      global: true
+    },
+    {
+      path: '~/components/forms',
+      global: true
+    },
+    {
+      path: '~/components/orders',
+      global: true
+    },
+    {
+      path: '~/components/admin',
+      global: true
+    },
+    {
+      path: '~/components/muestreo',
+      global: true
+    }
+  ]
 })
