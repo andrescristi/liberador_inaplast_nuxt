@@ -16,64 +16,53 @@ const useNuxtAppMock = vi.fn(() => ({
 vi.stubGlobal('useNuxtApp', useNuxtAppMock)
 
 // Mock del composable useToast
+const toastErrorMock = vi.fn()
+const toastSuccessMock = vi.fn()
 const useToastMock = vi.fn(() => ({
-  error: vi.fn(),
-  success: vi.fn()
+  error: toastErrorMock,
+  success: toastSuccessMock
 }))
 vi.stubGlobal('useToast', useToastMock)
-
-// Mock de componentes hijos para evitar dependencias profundas
-vi.mock('~/components/orders/OrderWizardProgress.vue', () => ({
-  default: {
-    name: 'OrderWizardProgress',
-    template: '<div data-testid="wizard-progress">Progress Mock</div>',
-    props: ['currentStep', 'totalSteps', 'steps']
-  }
-}))
-
-vi.mock('~/components/orders/OrderWizardStep1.vue', () => ({
-  default: {
-    name: 'OrderWizardStep1',
-    template: '<div data-testid="wizard-step1">Step 1 Mock</div>',
-    props: ['modelValue'],
-    emits: ['update:modelValue', 'next', 'ocr-complete']
-  }
-}))
-
-vi.mock('~/components/orders/OrderWizardStep2.vue', () => ({
-  default: {
-    name: 'OrderWizardStep2',
-    template: '<div data-testid="wizard-step2">Step 2 Mock</div>',
-    props: ['modelValue'],
-    emits: ['update:modelValue', 'next', 'previous']
-  }
-}))
-
-vi.mock('~/components/orders/OrderWizardStep3.vue', () => ({
-  default: {
-    name: 'OrderWizardStep3',
-    template: '<div data-testid="wizard-step3">Step 3 Mock</div>',
-    props: ['modelValue'],
-    emits: ['update:modelValue', 'next', 'previous']
-  }
-}))
-
-vi.mock('~/components/orders/OrderWizardStep4.vue', () => ({
-  default: {
-    name: 'OrderWizardStep4',
-    template: '<div data-testid="wizard-step4">Step 4 Mock</div>',
-    props: ['modelValue', 'isSaving'],
-    emits: ['update:modelValue', 'previous', 'save']
-  }
-}))
 
 describe('OrderWizard', () => {
   let wrapper: any
 
   beforeEach(() => {
+    // Limpiar mocks
+    navigateToMock.mockClear()
+    toastErrorMock.mockClear()
+    toastSuccessMock.mockClear()
+
     wrapper = mount(OrderWizard, {
       global: {
-        plugins: [createTestingPinia({ createSpy: vi.fn })]
+        plugins: [createTestingPinia({ createSpy: vi.fn })],
+        stubs: {
+          // Stub todos los componentes hijos para evitar warnings
+          OrderWizardProgress: {
+            template: '<div data-testid="wizard-progress">Progress Mock</div>',
+            props: ['currentStep', 'totalSteps', 'steps']
+          },
+          OrderWizardStep1: {
+            template: '<div data-testid="wizard-step1">Step 1 Mock</div>',
+            props: ['modelValue'],
+            emits: ['update:modelValue', 'next', 'ocr-complete']
+          },
+          OrderWizardStep2: {
+            template: '<div data-testid="wizard-step2">Step 2 Mock</div>',
+            props: ['modelValue'],
+            emits: ['update:modelValue', 'next', 'previous']
+          },
+          OrderWizardStep3: {
+            template: '<div data-testid="wizard-step3">Step 3 Mock</div>',
+            props: ['modelValue'],
+            emits: ['update:modelValue', 'next', 'previous']
+          },
+          OrderWizardStep4: {
+            template: '<div data-testid="wizard-step4">Step 4 Mock</div>',
+            props: ['modelValue', 'isSaving'],
+            emits: ['update:modelValue', 'previous', 'save']
+          }
+        }
       }
     })
   })
@@ -208,15 +197,13 @@ describe('OrderWizard', () => {
     })
 
     it('maneja errores de guardado', async () => {
-      const toastMock = useToastMock()
-      
       // Simular error en navigateTo
       navigateToMock.mockRejectedValueOnce(new Error('Navigation error'))
       
       const vm = wrapper.vm
       await vm.handleSave()
       
-      expect(toastMock.error).toHaveBeenCalledWith(
+      expect(toastErrorMock).toHaveBeenCalledWith(
         'Error al guardar',
         'Por favor, intente nuevamente.'
       )

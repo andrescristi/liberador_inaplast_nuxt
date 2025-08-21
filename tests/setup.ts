@@ -27,8 +27,18 @@ process.env.SUPABASE_ANON_KEY = 'test-key'
 // Suppress console.warn during tests unless specifically testing for warnings
 const originalWarn = console.warn
 console.warn = (...args: unknown[]) => {
-  if (args[0] && typeof args[0] === 'string' && args[0].includes('test')) {
-    return
+  const message = args[0]
+  if (typeof message === 'string') {
+    // Suprimir warnings específicos de Vue en tests
+    if (message.includes('[Vue warn]') || 
+        message.includes('Failed to resolve component') ||
+        message.includes('If this is a native custom element')) {
+      return
+    }
+    // Suprimir warnings de testing no críticos
+    if (message.includes('test')) {
+      return
+    }
   }
   originalWarn(...args)
 }
