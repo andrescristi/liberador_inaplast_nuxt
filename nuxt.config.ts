@@ -140,10 +140,7 @@ export default defineNuxtConfig({
       path: '~/components/feedback', 
       global: true
     },
-    {
-      path: '~/components/forms',
-      global: true
-    },
+    
     {
       path: '~/components/orders',
       global: true

@@ -39,9 +39,9 @@
       <OrderWizardStep4
         v-if="currentStep === 4"
         v-model="formData"
+        :is-saving="isSaving"
         @previous="previousStep"
         @save="handleSave"
-        :is-saving="isSaving"
       />
     </div>
   </div>
@@ -135,12 +135,25 @@ const previousStep = () => {
   }
 }
 
-const handleOCRComplete = (ocrData: any) => {
-  // Update form data with OCR results
+interface OCRData {
+  customerName?: string
+  customerCode?: string
+  productName?: string
+  productCode?: string
+  lotNumber?: string
+  expirationDate?: string
+  productionDate?: string
+}
+
+const handleOCRComplete = (ocrData: OCRData) => {
+  // Update form data with OCR results immediately
   if (ocrData.customerName) formData.value.customerName = ocrData.customerName
   if (ocrData.productName) formData.value.productName = ocrData.productName
   if (ocrData.lotNumber) formData.value.lotNumber = ocrData.lotNumber
   if (ocrData.expirationDate) formData.value.expirationDate = ocrData.expirationDate
+  if (ocrData.customerCode) formData.value.customerCode = ocrData.customerCode
+  if (ocrData.productCode) formData.value.productCode = ocrData.productCode
+  if (ocrData.productionDate) formData.value.productionDate = ocrData.productionDate
 }
 
 const handleSave = async () => {
@@ -148,14 +161,14 @@ const handleSave = async () => {
   
   try {
     // Save order logic here
-    const orderData = {
+    const _orderData = {
       ...formData.value,
       createdAt: new Date().toISOString(),
       status: formData.value.finalResult
     }
     
     // Call API to save order
-    // await saveOrder(orderData)
+    // await saveOrder(_orderData)
     
     // Navigate to orders list
     await navigateTo('/orders')

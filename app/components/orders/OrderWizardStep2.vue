@@ -11,6 +11,12 @@
         <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
           <Icon name="bx:user" class="w-5 h-5 mr-2 text-indigo-500" />
           Información del Cliente
+          <Icon 
+            v-if="hasOCRData" 
+            name="bx:check-circle" 
+            class="w-4 h-4 ml-2 text-green-500" 
+            title="Datos precargados automáticamente"
+          />
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -45,6 +51,12 @@
         <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
           <Icon name="bx:package" class="w-5 h-5 mr-2 text-indigo-500" />
           Información del Producto
+          <Icon 
+            v-if="hasOCRData" 
+            name="bx:check-circle" 
+            class="w-4 h-4 ml-2 text-green-500" 
+            title="Datos precargados automáticamente"
+          />
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -169,6 +181,9 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+// State for tracking OCR pre-filled data
+const hasOCRData = ref(false)
+
 // Local reactive copy
 const localData = ref<StepData>({
   customerCode: props.modelValue.customerCode || '',
@@ -181,12 +196,48 @@ const localData = ref<StepData>({
   productionDate: props.modelValue.productionDate || ''
 })
 
+// Check if we have OCR data when component mounts
+onMounted(() => {
+  const hasData = props.modelValue.customerName || props.modelValue.productName || props.modelValue.lotNumber
+  if (hasData) {
+    hasOCRData.value = true
+    const toast = useToast()
+    toast.success('Datos precargados', 'Los campos se han completado automáticamente con los datos extraídos de la imagen')
+  }
+})
+
 // Watch for changes and emit updates
 watch(localData, (newValue) => {
   emit('update:modelValue', {
     ...props.modelValue,
     ...newValue
   })
+}, { deep: true })
+
+// Watch for incoming OCR data from parent
+watch(() => props.modelValue, (newValue, oldValue) => {
+  // Update local data with new values from OCR
+  localData.value = {
+    customerCode: newValue.customerCode || '',
+    customerName: newValue.customerName || '',
+    productCode: newValue.productCode || '',
+    productName: newValue.productName || '',
+    productCategory: newValue.productCategory || '',
+    expirationDate: newValue.expirationDate || '',
+    lotNumber: newValue.lotNumber || '',
+    productionDate: newValue.productionDate || ''
+  }
+  
+  // Show toast notification if new OCR data arrives
+  const hasNewData = (newValue.customerName && !oldValue?.customerName) || 
+                     (newValue.productName && !oldValue?.productName) ||
+                     (newValue.lotNumber && !oldValue?.lotNumber)
+  
+  if (hasNewData && !hasOCRData.value) {
+    hasOCRData.value = true
+    const toast = useToast()
+    toast.success('Datos precargados', 'Los campos se han completado automáticamente con los datos extraídos de la imagen')
+  }
 }, { deep: true })
 
 // Computed

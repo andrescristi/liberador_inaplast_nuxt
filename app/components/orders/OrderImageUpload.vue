@@ -40,7 +40,7 @@
           class="mx-auto max-w-32 max-h-32 object-cover rounded-lg"
         >
         <p class="text-sm font-medium text-green-600">{{ file.name }}</p>
-        <div class="flex justify-center space-x-3">
+        <div class="flex justify-center">
           <button 
             type="button" 
             class="text-indigo-600 hover:text-indigo-800 text-sm"
@@ -48,25 +48,10 @@
           >
             Cambiar imagen
           </button>
-          <span class="text-gray-300">|</span>
-          <button 
-            type="button" 
-            :disabled="isProcessingOCR"
-            :class="[
-              'text-sm font-medium transition-colors',
-              isProcessingOCR 
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-blue-600 hover:text-blue-800'
-            ]"
-            @click.stop="processImageOCR"
-          >
-            <Icon 
-              :name="isProcessingOCR ? 'bx:loader-alt' : 'bx:brain'" 
-              :class="['w-4 h-4 mr-1', { 'animate-spin': isProcessingOCR }]" 
-            />
-            {{ isProcessingOCR ? 'Procesando...' : 'Extraer datos con OCR' }}
-          </button>
         </div>
+        <p class="text-xs text-gray-500 mt-2 text-center">
+          Los datos se extraerán automáticamente al presionar "Siguiente"
+        </p>
       </div>
     </div>
   </div>
@@ -89,7 +74,6 @@ const emit = defineEmits<Emits>()
 
 // Refs
 const fileInput = ref<HTMLInputElement>()
-const isProcessingOCR = ref(false)
 
 // Methods
 const triggerFileInput = () => {
@@ -144,40 +128,4 @@ const removeImage = () => {
   }
 }
 
-const processImageOCR = async () => {
-  if (!props.file) return
-  
-  isProcessingOCR.value = true
-  const toast = useToast()
-  
-  try {
-    // Mock OCR processing - replace with actual OCR service
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // Mock OCR results
-    const ocrData = {
-      customerName: 'Cliente Ejemplo',
-      productName: 'Producto Ejemplo', 
-      lotNumber: 'LOT123456',
-      expirationDate: '2024-12-31'
-    }
-    
-    emit('ocr-complete', ocrData)
-    toast.success('OCR Completado', 'Datos extraídos exitosamente de la imagen')
-    
-  } catch (error) {
-    if (import.meta.server) {
-      const { $logger } = useNuxtApp()
-      if ($logger && typeof ($logger as any).error === 'function') {
-        ($logger as any).error({
-          error: error instanceof Error ? error.message : String(error),
-          context: 'OrderImageUpload.processImageOCR'
-        }, 'Error processing OCR')
-      }
-    }
-    toast.error('Error OCR', 'No se pudieron extraer los datos de la imagen')
-  } finally {
-    isProcessingOCR.value = false
-  }
-}
 </script>
