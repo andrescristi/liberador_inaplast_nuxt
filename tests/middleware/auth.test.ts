@@ -1,9 +1,10 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Mock de Nuxt composables
 const mockUser = { value: null }
 const mockCreateError = vi.fn()
 const mockNavigateTo = vi.fn()
+const mockSupabaseClient = { rpc: vi.fn() }
 
 vi.stubGlobal('useSupabaseUser', () => mockUser)
 vi.stubGlobal('createError', mockCreateError)
