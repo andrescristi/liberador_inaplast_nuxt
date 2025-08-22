@@ -48,7 +48,7 @@ Whenever you need to take an screenshot, save it in the screenshot folder, in th
 Always use pnpm instead of npm. Example: Bash(pnpm run lint)
 
 ## CHANGES
-Whenever you make changes to the codebase, use lint and tsc to check if there are any problems with the code. Always use Bash(npx tsc --noEmit) instead of typecheck
+Whenever you make changes to the codebase, use lint and tsc to check if there are any problems with the code. Always use Bash(npx tsc --noEmit) instead of typecheck. After doing this, you must run Bash(pnpm build)
 
 ## DEBUGGING
 Whenever you create an special file for debugging purposes and solve the issue, remember to delete the debugging file
