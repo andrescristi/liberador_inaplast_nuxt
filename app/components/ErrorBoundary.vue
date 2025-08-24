@@ -81,8 +81,8 @@ const handleError = (error: Error) => {
   // Log error to server if available
   if (import.meta.server) {
     const { $logger } = useNuxtApp()
-    if ($logger && typeof ($logger as any).error === 'function') {
-      ($logger as any).error({
+    if ($logger && typeof ($logger as { error?: (...args: unknown[]) => void }).error === 'function') {
+      ($logger as { error: (...args: unknown[]) => void }).error({
         error: error.message,
         stack: error.stack,
         timestamp: errorInfo.value.timestamp.toISOString(),

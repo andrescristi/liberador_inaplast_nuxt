@@ -57,8 +57,23 @@ interface StepData {
   boxQuantity: number
 }
 
+interface OrderData {
+  customerName: string
+  customerCode: string
+  productName: string
+  productCode: string
+  lotNumber: string
+  expirationDate: string
+  productionDate: string
+  packageImage: File | null
+  packageImagePreview: string
+  labelImage: File | null
+  labelImagePreview: string
+  boxQuantity: number
+}
+
 interface Props {
-  modelValue: any
+  modelValue: OrderData
 }
 
 interface OCRData {
@@ -72,7 +87,7 @@ interface OCRData {
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: any): void
+  (e: 'update:modelValue', value: OrderData): void
   (e: 'next'): void
   (e: 'ocr-complete', data: OCRData): void
 }
@@ -118,7 +133,7 @@ const handleNext = async () => {
       
       // After OCR completes, proceed to next step
       emit('next')
-    } catch (_error) {
+    } catch {
       // If OCR fails, still allow user to proceed
       const toast = useToast()
       toast.warning('OCR no completado', 'Puedes continuar y completar los datos manualmente')

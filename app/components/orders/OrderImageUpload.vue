@@ -66,10 +66,10 @@ interface Props {
 interface Emits {
   (e: 'update:file', file: File | null): void
   (e: 'update:preview', preview: string): void
-  (e: 'ocr-complete', data: any): void
+  (e: 'ocr-complete', data: unknown): void
 }
 
-const props = defineProps<Props>()
+const _props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // Refs

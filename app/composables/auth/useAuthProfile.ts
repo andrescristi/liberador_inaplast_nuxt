@@ -26,8 +26,8 @@ export const useAuthProfile = () => {
     if (error) {
       if (import.meta.server) {
         const { $logger } = useNuxtApp()
-        if ($logger && typeof ($logger as { error?: Function }).error === 'function') {
-          ($logger as { error: Function }).error({
+        if ($logger && typeof ($logger as { error?: (...args: unknown[]) => void }).error === 'function') {
+          ($logger as { error: (...args: unknown[]) => void }).error({
             error: error.message,
             userId: user.value.id,
             context: 'useAuthProfile.getCurrentUserProfile'

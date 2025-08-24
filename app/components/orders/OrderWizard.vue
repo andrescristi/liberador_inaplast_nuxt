@@ -175,8 +175,8 @@ const handleSave = async () => {
     
   } catch (error) {
     if (import.meta.server) {
-      if ($logger && typeof ($logger as any).error === 'function') {
-        ($logger as any).error({
+      if ($logger && typeof ($logger as { error?: (...args: unknown[]) => void }).error === 'function') {
+        ($logger as { error: (...args: unknown[]) => void }).error({
           error: error instanceof Error ? error.message : String(error),
           context: 'OrderWizard.handleSave'
         }, 'Error saving order')

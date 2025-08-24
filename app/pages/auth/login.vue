@@ -176,6 +176,7 @@ definePageMeta({
   auth: false
 })
 
+// Import composables explicitly for Vercel compatibility
 const { signIn, resetPassword } = useAuth()
 const toast = useToast()
 
