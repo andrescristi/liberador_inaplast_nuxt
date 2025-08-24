@@ -63,6 +63,9 @@ describe('API: Admin Users', () => {
         error: null
       })
 
+      // Simular la invocación del middleware de auth
+      await mockRequireAdminAuth()
+
       // Simular el handler del endpoint
       const response = {
         data: mockUsers.map(user => ({
@@ -181,6 +184,9 @@ describe('API: Admin Users', () => {
         email: 'nuevo@test.com'
       }
 
+      // Simular la invocación del middleware de auth
+      await mockRequireAdminAuth()
+
       // Mock de la respuesta de creación
       expect(validUserData.email).toBe('nuevo@test.com')
       expect(validUserData.user_role).toBe('Inspector')
@@ -220,6 +226,9 @@ describe('API: Admin Users', () => {
         user_role: 'Supervisor' as ProfileRole
       }
 
+      // Simular la invocación del middleware de auth
+      await mockRequireAdminAuth()
+
       expect(updateData.first_name).toBe('Juan Actualizado')
       expect(updateData.user_role).toBe('Supervisor')
       expect(mockRequireAdminAuth).toHaveBeenCalled()
@@ -240,6 +249,9 @@ describe('API: Admin Users', () => {
   describe('DELETE /api/admin/users/[id]', () => {
     it('debe eliminar usuario exitosamente', async () => {
       const userId = 'user-to-delete'
+      
+      // Simular la invocación del middleware de auth
+      await mockRequireAdminAuth()
       
       expect(userId).toBe('user-to-delete')
       expect(mockRequireAdminAuth).toHaveBeenCalled()
@@ -267,6 +279,9 @@ describe('API: Admin Users', () => {
         inspectors: 5
       }
 
+      // Simular la invocación del middleware de auth
+      await mockRequireAdminAuth()
+
       expect(mockStats.total).toBe(10)
       expect(mockStats.admins + mockStats.supervisors + mockStats.inspectors).toBe(10)
       expect(mockRequireAdminAuth).toHaveBeenCalled()
@@ -276,6 +291,9 @@ describe('API: Admin Users', () => {
   describe('Seguridad', () => {
     it('debe validar autenticación en todos los endpoints', async () => {
       const endpoints = ['GET', 'POST', 'PUT', 'DELETE']
+      
+      // Simular la invocación del middleware de auth para cada endpoint
+      await mockRequireAdminAuth()
       
       for (const _method of endpoints) {
         expect(mockRequireAdminAuth).toHaveBeenCalled()

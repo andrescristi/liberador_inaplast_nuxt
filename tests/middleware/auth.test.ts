@@ -156,7 +156,7 @@ describe('Auth Middleware', () => {
 
   describe('Seguridad', () => {
     it('debe validar integridad del token JWT', () => {
-      const mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+      const mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLWlkIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIn0.signature'
       
       // Verificar que el token tiene estructura JWT válida
       const parts = mockToken.split('.')

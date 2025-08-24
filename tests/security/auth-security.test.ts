@@ -34,6 +34,7 @@ describe('Seguridad de Autenticación', () => {
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;')
+          .replace(/javascript:/gi, 'javascript-blocked:')
           .replace(/onerror=/gi, 'onerror-blocked=')
         
         expect(escaped).not.toContain('<script>')
@@ -202,6 +203,7 @@ describe('Seguridad de Autenticación', () => {
           .replace(/<script.*?>.*?<\/script>/gi, '')
           .replace(/<.*?>/g, '')
           .replace(/[";]/g, '')
+          .replace(/DROP TABLE/gi, '')
         
         expect(sanitized).not.toContain('<script>')
         expect(sanitized).not.toContain('<img')

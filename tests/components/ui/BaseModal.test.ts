@@ -5,12 +5,18 @@ import BaseModal from '~/components/ui/BaseModal.vue'
 describe('BaseModal', () => {
   
   const createWrapper = (props = {}, slots = {}) => {
+    // Agregar contenido enfocable por defecto para evitar errores de FocusTrap
+    const defaultSlots = {
+      default: '<button>Test Button</button>',
+      ...slots
+    }
+    
     return mount(BaseModal, {
       props: {
         show: true,
         ...props
       },
-      slots,
+      slots: defaultSlots,
       global: {
         stubs: {
           Teleport: false
@@ -35,7 +41,7 @@ describe('BaseModal', () => {
     it('debe renderizar contenido en slot', () => {
       const wrapper = createWrapper(
         { show: true }, 
-        { default: '<p>Contenido del modal</p>' }
+        { default: '<p>Contenido del modal</p><button>Close</button>' }
       )
       expect(wrapper.html()).toContain('Contenido del modal')
     })
@@ -87,7 +93,7 @@ describe('BaseModal', () => {
         { show: true },
         { 
           header: '<h2>Título del Modal</h2>',
-          default: '<p>Contenido</p>'
+          default: '<p>Contenido</p><button>Action</button>'
         }
       )
       expect(wrapper.html()).toContain('Título del Modal')
@@ -97,7 +103,7 @@ describe('BaseModal', () => {
       const wrapper = createWrapper(
         { show: true },
         { 
-          default: '<p>Contenido</p>',
+          default: '<p>Contenido</p><input type="text">',
           footer: '<button>Guardar</button>'
         }
       )

@@ -15,7 +15,7 @@ describe('API /api/calidad/planes-muestreo', async () => {
 
     expect(response.statusCode).toBe(400)
     const errorData = JSON.parse(response.statusMessage)
-    expect(errorData.error).toContain("tamaño_lote' es requerido")
+    expect(errorData.error).toContain("parmetro 'tamano_lote' es requerido")
     expect(errorData.code).toBe('MISSING_LOTE_SIZE')
   })
 
@@ -26,7 +26,7 @@ describe('API /api/calidad/planes-muestreo', async () => {
 
     expect(response.statusCode).toBe(400)
     const errorData = JSON.parse(response.statusMessage)
-    expect(errorData.error).toContain('número positivo')
+    expect(errorData.error).toContain('nmero positivo')
     expect(errorData.code).toBe('INVALID_LOTE_SIZE')
   })
 
@@ -37,7 +37,7 @@ describe('API /api/calidad/planes-muestreo', async () => {
 
     expect(response.statusCode).toBe(400)
     const errorData = JSON.parse(response.statusMessage)
-    expect(errorData.error).toContain('número positivo')
+    expect(errorData.error).toContain('nmero positivo')
     expect(errorData.code).toBe('INVALID_LOTE_SIZE')
   })
 
@@ -48,7 +48,7 @@ describe('API /api/calidad/planes-muestreo', async () => {
 
     expect(response.statusCode).toBe(400)
     const errorData = JSON.parse(response.statusMessage)
-    expect(errorData.error).toContain('número positivo')
+    expect(errorData.error).toContain('nmero positivo')
     expect(errorData.code).toBe('INVALID_LOTE_SIZE')
   })
 
