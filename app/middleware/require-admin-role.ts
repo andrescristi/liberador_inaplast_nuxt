@@ -19,6 +19,7 @@
  * - 'auth': Solo verifica autenticación (cualquier usuario loggeado)
  * - 'require-admin-role': Verifica autenticación + rol Admin específico
  */
+import { useAuth } from '~/composables/auth'
 export default defineNuxtRouteMiddleware(async (_to, _from) => {
   // Obtener usuario autenticado de Supabase
   const user = useSupabaseUser()

@@ -1,5 +1,6 @@
 import type { Profile, ProfileRole, ProfileFilters, PaginatedResponse, CreateProfileForm, UpdateProfileForm } from '~/types'
 import type { Database } from '../../types/database.types'
+import { useAuth } from '~/composables/auth'
 
 export const useAdminUserManager = () => {
   const supabase = useSupabaseClient<Database>()
