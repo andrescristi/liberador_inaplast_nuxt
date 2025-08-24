@@ -58,3 +58,5 @@ agent-context/
 !CLAUDE.md
 !docs/*.md
 .mcp.json
+.vercel
+.env*.local

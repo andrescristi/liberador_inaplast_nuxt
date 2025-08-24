@@ -78,6 +78,27 @@ export default defineNuxtConfig({
     // Útil para apps que usan principalmente server-side rendering
     payloadExtraction: false
   },
+
+  // ===== CONFIGURACIÓN NITRO PARA VERCEL =====
+  nitro: {
+    preset: 'vercel',
+    rollupConfig: {
+      external: [],
+      output: {
+        format: 'esm'
+      }
+    }
+  },
+
+  // ===== CONFIGURACIÓN VITE PARA SSR =====
+  vite: {
+    ssr: {
+      noExternal: ['vue', '@vue/shared']
+    },
+    optimizeDeps: {
+      include: ['vue']
+    }
+  },
   
   // ===== CONFIGURACIÓN SEO Y META TAGS =====
   app: {
