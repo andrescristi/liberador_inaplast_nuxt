@@ -1,46 +1,48 @@
 import pino from 'pino'
-import fs from 'node:fs'
-import path from 'node:path'
+import type { NitroApp } from 'nitropack'
 
-declare module 'h3' {
-  interface H3EventContext {
-    logger: ReturnType<typeof pino>
-  }
-}
-
-export default defineNitroPlugin((nitroApp) => {
-  const logDir = path.join(process.cwd(), 'logs')
-  if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true })
-  }
-  const logFilePath = path.join(logDir, 'server.log')
-
-  // Create a writable stream for the log file
-  const dest = pino.destination({ dest: logFilePath, sync: false })
-
-  // Initialize Pino logger
+export default defineNitroPlugin((nitroApp: NitroApp) => {
+  // Logger configurado exclusivamente para stdout sin filesystem
   const logger = pino({
     level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-    formatters: {
-      level: (label) => ({ level: label }),
-    },
-    timestamp: () => `,"time":"${new Date(Date.now()).toISOString()}"`,
-  }, dest)
-
-  // Attach logger to h3 event context for API routes and server middleware
-  nitroApp.hooks.hook('request', (event) => {
-    event.context.logger = logger
+    transport: process.env.NODE_ENV === 'development' ? {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'yyyy-mm-dd HH:MM:ss'
+      }
+    } : undefined
   })
 
-  // Global error handling for Nitro
-  nitroApp.hooks.hook('error', (error, { event }) => {
-    const currentLogger = event?.context?.logger || logger
-    currentLogger.error({
-      error: error?.message,
-      stack: error?.stack,
-      url: event?.url,
-      method: event?.method,
-      statusCode: event?.res?.statusCode,
-    }, 'Unhandled server error')
+  // Hooks de Nitro para logging de requests
+  nitroApp.hooks.hook('request', (event: any) => {
+    event.context.logger = logger
+    logger.info({
+      url: event.node.req.url,
+      method: event.node.req.method,
+      userAgent: event.node.req.headers['user-agent']
+    }, 'Incoming request')
+  })
+
+  nitroApp.hooks.hook('beforeResponse', (event: any) => {
+    const logger = event.context.logger
+    if (logger) {
+      logger.info({
+        url: event.node.req.url,
+        method: event.node.req.method,
+        statusCode: event.node.res.statusCode
+      }, 'Request completed')
+    }
+  })
+
+  nitroApp.hooks.hook('error', (error: any, context: any) => {
+    const event = context?.event
+    const logger = event?.context?.logger || pino()
+    logger.error({
+      error: error.message,
+      stack: error.stack,
+      url: event?.node?.req?.url,
+      method: event?.node?.req?.method
+    }, 'Request error')
   })
 })
