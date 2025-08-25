@@ -404,7 +404,7 @@ const configuracionMenuItems = computed(() => {
   // Agregar Administración solo para usuarios Admin
   if (userProfile.value?.user_role === 'Admin') {
     items.push({
-      label: 'Administración',
+      label: 'Administración Usuarios',
       icon: 'bx:bxs-cog',
       to: '/admin/users'
     })

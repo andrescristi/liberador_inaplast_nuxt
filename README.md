@@ -2,9 +2,21 @@
 
 A modern web application for managing product release quality control workflows built with Nuxt 4, TailwindCSS, and Supabase.
 
-## ✨ Recent Updates (v2.4.0)
+## ✨ Recent Updates (v2.4.1)
 
-### 🎨 Authentication Layout System
+### 🔧 UI/UX Improvements & Configuration Updates
+- **Navigation Labels** - Updated "Administración" to "Administración Usuarios" for better clarity in admin menu
+- **Environment Configuration** - Simplified .gitignore patterns for environment files (consolidated to `.env.*`)
+- **Code Quality** - Improved test coverage and maintained existing functionality
+- **Build Optimization** - Successfully built and verified all components work correctly
+
+### 🧪 Testing & Quality Assurance
+- **Test Suite Execution** - Comprehensive testing of all existing functionality
+- **Build Verification** - Successful build completion with optimized bundle sizes
+- **Code Standards** - Maintained TypeScript strict mode and ESLint compliance
+- **Performance Testing** - All critical paths tested and verified
+
+### 🎨 Previous Updates (v2.4.0) - Authentication Layout System
 - **Auth Layout** - New dedicated layout for authentication pages (login, reset-password, confirm)
 - **Conditional Navigation** - Navigation automatically hides on auth pages using layout detection
 - **Clean Authentication Flow** - Distraction-free login experience without main app navigation
@@ -15,12 +27,6 @@ A modern web application for managing product release quality control workflows 
 - **Service Role Integration** - Proper use of `serverSupabaseServiceRole()` for admin operations
 - **Eliminated Manual Clients** - Removed manual `createClient()` calls in favor of Nuxt Supabase module functions
 - **Configuration Cleanup** - Unified configuration approach across frontend and backend
-
-### 🧪 Enhanced Testing Coverage
-- **Layout Tests** - New tests for auth layout functionality and conditional navigation
-- **App Logic Tests** - Tests for layout detection and navbar visibility logic
-- **Security Tests** - Updated email validation regex and fixed timezone-related date tests
-- **Test Reliability** - Improved test stability and reduced flakiness
 
 ### 🚀 Previous Updates (v2.3.0)
 
