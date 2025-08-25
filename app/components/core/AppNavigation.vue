@@ -392,20 +392,13 @@ const configuracionMenuItems = computed(() => {
     to: string
   }> = []
 
-  // Agregar Muestreo para usuarios con permisos de calidad
-  if (userProfile.value?.user_role === 'Admin' || userProfile.value?.user_role === 'Supervisor') {
-    items.push({
-      label: 'Muestreo',
-      icon: 'bx:bxs-pie-chart-alt-2',
-      to: '/muestreo'
-    })
-  }
+  
 
   // Agregar Administración solo para usuarios Admin
   if (userProfile.value?.user_role === 'Admin') {
     items.push({
-      label: 'Administración Usuarios',
-      icon: 'bx:bxs-cog',
+      label: 'Usuarios',
+      icon: 'bx:bxs-user-account',
       to: '/admin/users'
     })
   }
