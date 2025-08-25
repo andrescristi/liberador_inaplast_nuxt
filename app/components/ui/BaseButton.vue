@@ -23,7 +23,12 @@
       />
       
       <!-- Button Content -->
-      <div class="relative z-10 flex items-center justify-center">
+      <div
+        :class="[
+          'relative z-10 flex justify-center',
+          props.layout === 'vertical' ? 'flex-col items-center' : 'items-center'
+        ]"
+      >
         <!-- Loading with enhanced animation -->
         <div v-if="loading" class="mr-2">
           <div class="flex space-x-1">
@@ -38,7 +43,8 @@
           v-if="leadingIcon && !loading" 
           :name="leadingIcon" 
           :class="[
-            'w-4 h-4 mr-2 transition-transform duration-200',
+            'w-4 h-4 transition-transform duration-200',
+            props.layout === 'vertical' ? 'mb-1' : 'mr-2',
             isPressed ? 'scale-90' : 'scale-100'
           ]" 
         />
@@ -67,6 +73,52 @@
 </template>
 
 <script setup lang="ts">
+// Constantes fuera del componente para evitar re-creación en cada render
+const BUTTON_VARIANTS = {
+  solid: {
+    primary: 'bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500',
+    secondary: 'bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500',
+    success: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500',
+    danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
+    warning: 'bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500',
+    gray: 'bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500'
+  },
+  outline: {
+    primary: 'border border-indigo-600 text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500',
+    secondary: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500',
+    success: 'border border-green-600 text-green-600 hover:bg-green-50 focus:ring-green-500',
+    danger: 'border border-red-600 text-red-600 hover:bg-red-50 focus:ring-red-500',
+    warning: 'border border-yellow-600 text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500',
+    gray: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500'
+  },
+  ghost: {
+    primary: 'text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500',
+    secondary: 'text-gray-700 hover:bg-gray-50 focus:ring-gray-500',
+    success: 'text-green-600 hover:bg-green-50 focus:ring-green-500',
+    danger: 'text-red-600 hover:bg-red-50 focus:ring-red-500',
+    warning: 'text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500',
+    gray: 'text-gray-700 hover:bg-gray-50 focus:ring-gray-500'
+  },
+  link: {
+    primary: 'text-indigo-600 hover:text-indigo-500 underline-offset-4 hover:underline',
+    secondary: 'text-gray-700 hover:text-gray-500 underline-offset-4 hover:underline',
+    success: 'text-green-600 hover:text-green-500 underline-offset-4 hover:underline',
+    danger: 'text-red-600 hover:text-red-500 underline-offset-4 hover:underline',
+    warning: 'text-yellow-600 hover:text-yellow-500 underline-offset-4 hover:underline',
+    gray: 'text-gray-700 hover:text-gray-500 underline-offset-4 hover:underline'
+  }
+} as const
+
+const BUTTON_SIZES = {
+  xs: 'px-2.5 py-1.5 text-xs rounded min-h-[32px]',
+  sm: 'px-3 py-2 text-sm rounded-md min-h-[36px]',
+  md: 'px-4 py-2.5 text-sm rounded-md min-h-[44px]', // Mobile-friendly 44px touch target
+  lg: 'px-5 py-3 text-base rounded-md min-h-[48px]',
+  xl: 'px-6 py-3.5 text-base rounded-md min-h-[52px]'
+} as const
+
+const BASE_BUTTON_CLASSES = 'relative inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none transform hover:scale-[1.02] active:scale-95 touch-manipulation select-none'
+
 interface Props {
   variant?: 'solid' | 'outline' | 'ghost' | 'link'
   color?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'gray'
@@ -80,6 +132,8 @@ interface Props {
   leadingIcon?: string
   trailingIcon?: string
   mobileOptimized?: boolean // New prop for mobile-specific styling
+  special?: boolean // For special styling like bottom nav center button
+  layout?: 'horizontal' | 'vertical' // Layout direction for content
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -94,7 +148,9 @@ const props = withDefaults(defineProps<Props>(), {
   block: false,
   leadingIcon: undefined,
   trailingIcon: undefined,
-  mobileOptimized: false
+  mobileOptimized: false,
+  special: false,
+  layout: 'horizontal'
 })
 
 const emit = defineEmits<{
@@ -114,56 +170,15 @@ const isPressed = ref(false)
 const showRipple = ref(false)
 const rippleStyle = ref({})
 
+// Optimización: Computed separado para variante y tamaño para evitar re-render innecesario
+const variantClasses = computed(() => BUTTON_VARIANTS[props.variant][props.color])
+const sizeClasses = computed(() => BUTTON_SIZES[props.size])
+
 const buttonClasses = computed(() => {
-  const base = 'relative inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none transform hover:scale-[1.02] active:scale-95 touch-manipulation select-none'
-  
-  const variants = {
-    solid: {
-      primary: 'bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500',
-      secondary: 'bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500',
-      success: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500',
-      danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
-      warning: 'bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500',
-      gray: 'bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500'
-    },
-    outline: {
-      primary: 'border border-indigo-600 text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500',
-      secondary: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500',
-      success: 'border border-green-600 text-green-600 hover:bg-green-50 focus:ring-green-500',
-      danger: 'border border-red-600 text-red-600 hover:bg-red-50 focus:ring-red-500',
-      warning: 'border border-yellow-600 text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500',
-      gray: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500'
-    },
-    ghost: {
-      primary: 'text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500',
-      secondary: 'text-gray-700 hover:bg-gray-50 focus:ring-gray-500',
-      success: 'text-green-600 hover:bg-green-50 focus:ring-green-500',
-      danger: 'text-red-600 hover:bg-red-50 focus:ring-red-500',
-      warning: 'text-yellow-600 hover:bg-yellow-50 focus:ring-yellow-500',
-      gray: 'text-gray-700 hover:bg-gray-50 focus:ring-gray-500'
-    },
-    link: {
-      primary: 'text-indigo-600 hover:text-indigo-500 underline-offset-4 hover:underline',
-      secondary: 'text-gray-700 hover:text-gray-500 underline-offset-4 hover:underline',
-      success: 'text-green-600 hover:text-green-500 underline-offset-4 hover:underline',
-      danger: 'text-red-600 hover:text-red-500 underline-offset-4 hover:underline',
-      warning: 'text-yellow-600 hover:text-yellow-500 underline-offset-4 hover:underline',
-      gray: 'text-gray-700 hover:text-gray-500 underline-offset-4 hover:underline'
-    }
-  }
-  
-  const sizes = {
-    xs: 'px-2.5 py-1.5 text-xs rounded min-h-[32px]',
-    sm: 'px-3 py-2 text-sm rounded-md min-h-[36px]',
-    md: 'px-4 py-2.5 text-sm rounded-md min-h-[44px]', // Mobile-friendly 44px touch target
-    lg: 'px-5 py-3 text-base rounded-md min-h-[48px]',
-    xl: 'px-6 py-3.5 text-base rounded-md min-h-[52px]'
-  }
-  
   const classes = [
-    base,
-    variants[props.variant][props.color],
-    sizes[props.size]
+    BASE_BUTTON_CLASSES,
+    variantClasses.value,
+    sizeClasses.value
   ]
   
   if (props.block) {
@@ -177,7 +192,9 @@ const buttonClasses = computed(() => {
 const handleTouchStart = (event: TouchEvent) => {
   if (props.disabled || props.loading) return
   isPressed.value = true
-  createRippleEffect(event.touches[0])
+  if (event.touches[0]) {
+    createRippleEffect(event.touches[0])
+  }
 }
 
 const handleTouchEnd = () => {
@@ -204,13 +221,15 @@ const handleMouseLeave = () => {
   isPressed.value = false
 }
 
-const createRippleEffect = (event: TouchEvent['touches'][0] | MouseEvent) => {
-  const button = event.currentTarget as HTMLElement
+const createRippleEffect = (event: Touch | MouseEvent) => {
+  const button = (event.target as HTMLElement)?.closest('button') as HTMLElement
+  if (!button) return
+  
   const rect = button.getBoundingClientRect()
   
   const size = Math.max(rect.width, rect.height)
-  const x = 'clientX' in event ? event.clientX - rect.left - size / 2 : event.pageX - rect.left - size / 2
-  const y = 'clientY' in event ? event.clientY - rect.top - size / 2 : event.pageY - rect.top - size / 2
+  const x = event.clientX - rect.left - size / 2
+  const y = event.clientY - rect.top - size / 2
   
   rippleStyle.value = {
     width: size + 'px',

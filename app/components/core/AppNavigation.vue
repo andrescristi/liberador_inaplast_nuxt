@@ -30,13 +30,13 @@
         <div class="hidden md:flex items-center space-x-1">
           <!-- Enlace de Inicio -->
           <UiBaseButton
-            to="/"
+            :to="baseNavItems.home.to"
             variant="ghost"
             color="gray"
             class="font-medium"
-            :leading-icon="'bx:home-alt-2'"
+            :leading-icon="baseNavItems.home.icon"
           >
-            Inicio
+            {{ baseNavItems.home.label }}
           </UiBaseButton>
 
           <!-- Dropdown de Liberaciones -->
@@ -113,7 +113,11 @@
             color="gray"
             size="lg"
             class="w-11 h-11 p-0 mobile-menu-btn"
+            :aria-label="mobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'"
+            :aria-expanded="mobileMenuOpen"
+            aria-controls="mobile-menu"
             @click="toggleMobileMenu"
+            @keydown.esc="closeMobileMenu"
           >
             <!-- Icono hamburger animado con 3 líneas que se transforman -->
             <div class="hamburger-icon flex flex-col justify-around w-5 h-5 cursor-pointer" :class="{ 'open': mobileMenuOpen }">
@@ -121,6 +125,8 @@
               <span class="hamburger-line block h-0.5 w-full bg-current rounded-sm" />
               <span class="hamburger-line block h-0.5 w-full bg-current rounded-sm" />
             </div>
+            <!-- Screen reader text para botón de menú -->
+            <span class="sr-only">{{ mobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación' }}</span>
           </UiBaseButton>
         </div>
       </div>
@@ -141,21 +147,27 @@
         leave-from-class="opacity-100 translate-y-0 scale-100"
         leave-to-class="opacity-0 -translate-y-4 scale-95"
       >
-        <div v-if="mobileMenuOpen" class="md:hidden bg-white border-t border-gray-200 shadow-lg mobile-menu-content">
+        <div 
+          v-if="mobileMenuOpen" 
+          id="mobile-menu"
+          class="md:hidden bg-white border-t border-gray-200 shadow-lg mobile-menu-content" 
+          role="navigation" 
+          aria-label="Menú principal móvil"
+        >
           <div class="px-3 py-4 space-y-2">
             
-            <!-- Enlaces de Navegación Móvil con Animación Escalonada -->
+            <!-- Enlaces de Navegación Móvil Generados Dinámicamente -->
             <!-- Enlace de Inicio -->
             <div class="mobile-nav-item" style="--item-index: 0">
               <UiBaseButton
-                to="/"
+                :to="baseNavItems.home.to"
                 variant="ghost"
                 color="gray"
                 class="w-full justify-start font-medium text-base py-4 px-4 rounded-xl mobile-nav-btn"
-                :leading-icon="'bx:home-alt-2'"
+                :leading-icon="baseNavItems.home.icon"
                 @click="closeMobileMenu"
               >
-                Inicio
+                {{ baseNavItems.home.label }}
               </UiBaseButton>
             </div>
 
@@ -166,29 +178,21 @@
               </div>
             </div>
             
-            <div class="mobile-nav-item" style="--item-index: 2">
+            <div 
+              v-for="(item, index) in baseNavItems.liberaciones"
+              :key="item.to"
+              class="mobile-nav-item" 
+              :style="{ '--item-index': index + 2 }"
+            >
               <UiBaseButton
-                to="/orders/new"
+                :to="item.to"
                 variant="ghost"
                 color="gray"
                 class="w-full justify-start font-medium text-base py-4 px-4 pl-8 rounded-xl mobile-nav-btn"
-                :leading-icon="'bx:bxs-plus-square'"
+                :leading-icon="item.icon"
                 @click="closeMobileMenu"
               >
-                Nueva Liberación
-              </UiBaseButton>
-            </div>
-
-            <div class="mobile-nav-item" style="--item-index: 3">
-              <UiBaseButton
-                to="/orders"
-                variant="ghost"
-                color="gray"
-                class="w-full justify-start font-medium text-base py-4 px-4 pl-8 rounded-xl mobile-nav-btn"
-                :leading-icon="'bx:bxs-calendar-minus'"
-                @click="closeMobileMenu"
-              >
-                Historial
+                {{ item.label }}
               </UiBaseButton>
             </div>
 
@@ -200,37 +204,23 @@
                 </div>
               </div>
 
-              <!-- Muestreo (si el usuario tiene permisos) -->
-              <template v-if="userProfile?.user_role === 'Admin' || userProfile?.user_role === 'Supervisor'">
-                <div class="mobile-nav-item" style="--item-index: 5">
-                  <UiBaseButton
-                    to="/muestreo"
-                    variant="ghost"
-                    color="gray"
-                    class="w-full justify-start font-medium text-base py-4 px-4 pl-8 rounded-xl mobile-nav-btn"
-                    :leading-icon="'bx:bxs-pie-chart-alt-2'"
-                    @click="closeMobileMenu"
-                  >
-                    Muestreo
-                  </UiBaseButton>
-                </div>
-              </template>
-
-              <!-- Administración (solo para Admin) -->
-              <template v-if="userProfile?.user_role === 'Admin'">
-                <div class="mobile-nav-item" style="--item-index: 6">
-                  <UiBaseButton
-                    to="/admin/users"
-                    variant="ghost"
-                    color="gray"
-                    class="w-full justify-start font-medium text-base py-4 px-4 pl-8 rounded-xl mobile-nav-btn"
-                    :leading-icon="'bx:bxs-cog'"
-                    @click="closeMobileMenu"
-                  >
-                    Administración
-                  </UiBaseButton>
-                </div>
-              </template>
+              <div 
+                v-for="(item, index) in baseNavItems.configuracion"
+                :key="item.to"
+                class="mobile-nav-item" 
+                :style="{ '--item-index': index + 5 }"
+              >
+                <UiBaseButton
+                  :to="item.to"
+                  variant="ghost"
+                  color="gray"
+                  class="w-full justify-start font-medium text-base py-4 px-4 pl-8 rounded-xl mobile-nav-btn"
+                  :leading-icon="item.icon"
+                  @click="closeMobileMenu"
+                >
+                  {{ item.label }}
+                </UiBaseButton>
+              </div>
             </template>
             
             <!-- Separador Visual -->
@@ -262,7 +252,7 @@
               <div class="space-y-1">
                 <!-- Enlace a perfil -->
                 <UiBaseButton
-                  :to="'/auth/profile'"
+                  to="/auth/profile"
                   variant="ghost"
                   color="gray"
                   class="w-full justify-start text-sm py-2 px-3 rounded-lg"
@@ -312,8 +302,10 @@
           :to="item.to"
           :variant="item.variant"
           :color="item.color"
+          :special="item.special"
+          layout="vertical"
           :class="[
-            'flex-1 flex-col py-2 px-1 text-xs rounded-lg min-h-[56px] bottom-nav-btn',
+            'flex-1 py-2 px-1 text-xs rounded-lg min-h-[56px] bottom-nav-btn',
             item.special ? 'mx-1 scale-110 nav-gradient-button' : ''
           ]"
           :leading-icon="item.icon"
@@ -371,87 +363,98 @@ watchEffect(async () => {
 // ===== NAVEGACIÓN DINÁMICA BASADA EN ROLES =====
 //
 
-// Menú desplegable de Liberaciones
-const liberacionesMenuItems = computed(() => [
-  [{
-    label: 'Nueva Liberación',
-    icon: 'bx:bxs-plus-square',
-    to: '/orders/new'
-  }, {
-    label: 'Historial',
-    icon: 'bx:bxs-calendar-minus',
-    to: '/orders'
-  }]
-])
+//
+// ===== ELEMENTOS DE NAVEGACIÓN REUTILIZABLES =====
+//
 
-// Menú desplegable de Configuración
-const configuracionMenuItems = computed(() => {
-  const items: Array<{
-    label: string
-    icon: string
-    to: string
-  }> = []
+// Items base de navegación - reutilizados en desktop y mobile
+const baseNavItems = computed(() => ({
+  home: {
+    label: 'Inicio',
+    icon: 'bx:home-alt-2',
+    to: '/'
+  },
+  liberaciones: [
+    {
+      label: 'Nueva Liberación',
+      icon: 'bx:bxs-plus-square',
+      to: '/orders/new'
+    },
+    {
+      label: 'Historial',
+      icon: 'bx:bxs-calendar-minus',
+      to: '/orders'
+    }
+  ],
+  configuracion: (() => {
+    const items: Array<{
+      label: string
+      icon: string
+      to: string
+    }> = []
 
-  
+    // Agregar Administración solo para usuarios Admin
+    if (userProfile.value?.user_role === 'Admin') {
+      items.push({
+        label: 'Usuarios',
+        icon: 'bx:bxs-user-account',
+        to: '/admin/users'
+      })
+    }
 
-  // Agregar Administración solo para usuarios Admin
-  if (userProfile.value?.user_role === 'Admin') {
-    items.push({
-      label: 'Usuarios',
-      icon: 'bx:bxs-user-account',
-      to: '/admin/users'
-    })
-  }
+    return items
+  })()
+}))
 
-  return items.length > 0 ? [items] : []
-})
+// Menú desplegable de Liberaciones (formato para UiBaseDropdown)
+const liberacionesMenuItems = computed(() => [baseNavItems.value.liberaciones])
+
+// Menú desplegable de Configuración (formato para UiBaseDropdown)
+const configuracionMenuItems = computed(() => 
+  baseNavItems.value.configuracion.length > 0 ? [baseNavItems.value.configuracion] : []
+)
 
 // Computed para verificar si mostrar el botón de configuración
-const showConfiguracionMenu = computed(() => configuracionMenuItems.value.length > 0)
+const showConfiguracionMenu = computed(() => baseNavItems.value.configuracion.length > 0)
 
 
 // Navegación inferior móvil con configuración de estilos específica
 const bottomNavItems = computed(() => {
-  // Items base con variants específicos para bottom navigation
-  const baseItems = [
-    { to: '/', label: 'Inicio', icon: 'bx:home-alt-2', variant: 'ghost' as const, color: 'gray' as const },
+  // Items base reutilizando la estructura principal
+  const items = [
+    { 
+      ...baseNavItems.value.home,
+      variant: 'ghost' as const, 
+      color: 'gray' as const 
+    },
     { 
       // Botón central destacado - acción principal del sistema
-      to: '/orders/new', 
-      label: 'Nueva Liberación', 
-      icon: 'bx:bxs-plus-square', 
+      ...baseNavItems.value.liberaciones[0], // Nueva Liberación
       variant: 'solid' as const, 
       color: 'primary' as const,
       special: true  // Flag para aplicar scale-up CSS
     },
-    { to: '/orders', label: 'Historial', icon: 'bx:bxs-calendar-minus', variant: 'ghost' as const, color: 'gray' as const }
+    { 
+      ...baseNavItems.value.liberaciones[1], // Historial
+      variant: 'ghost' as const, 
+      color: 'gray' as const 
+    }
   ]
 
   // Para el bottom nav móvil mantenemos elementos individuales por espacio limitado
   // Solo agregamos el elemento más importante basado en rol
   
   // Si es Admin, priorizar Administración
-  if (userProfile.value?.user_role === 'Admin') {
-    baseItems.push({
-      to: '/admin/users',
+  if (userProfile.value?.user_role === 'Admin' && baseNavItems.value.configuracion.length > 0) {
+    items.push({
+      ...baseNavItems.value.configuracion[0], // Usuarios/Admin
       label: 'Admin', // Más corto para mobile
-      icon: 'bx:bxs-cog',
-      variant: 'ghost' as const,
-      color: 'gray' as const
-    })
-  } 
-  // Si es Supervisor (pero no Admin), mostrar Muestreo
-  else if (userProfile.value?.user_role === 'Supervisor') {
-    baseItems.push({
-      to: '/muestreo',
-      label: 'Calidad', // Más corto para mobile
-      icon: 'bx:bxs-pie-chart-alt-2',
       variant: 'ghost' as const,
       color: 'gray' as const
     })
   }
 
-  return baseItems
+  return items
 })
 
 //
@@ -526,7 +529,7 @@ const handleSignOut = async () => {
 // ===== GESTIÓN DE MENÚ MÓVIL =====
 //
 
-// Toggle del menú móvil con efectos de UX mejorados
+// Toggle del menú móvil con efectos de UX mejorados y accesibilidad
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
   
@@ -554,5 +557,54 @@ const closeMobileMenu = () => {
 watch(() => useRoute().path, () => {
   mobileMenuOpen.value = false
 })
+
+//
+// ===== MANEJO DE ACCESIBILIDAD Y NAVEGACIÓN POR TECLADO =====
+//
+
+// Manejo global de tecla ESC para cerrar el menú móvil
+const handleGlobalKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && mobileMenuOpen.value) {
+    closeMobileMenu()
+    // Devolver foco al botón de menú después de cerrar
+    nextTick(() => {
+      const menuButton = document.querySelector('.mobile-menu-btn button, .mobile-menu-btn a')
+      if (menuButton instanceof HTMLElement) {
+        menuButton.focus()
+      }
+    })
+  }
+}
+
+// Gestión de focus trap cuando el menú móvil está abierto
+const manageFocusTrap = () => {
+  if (!import.meta.client) return
+  
+  if (mobileMenuOpen.value) {
+    // Agregar listener para ESC global
+    document.addEventListener('keydown', handleGlobalKeydown)
+    
+    // Focus en el primer elemento del menú
+    nextTick(() => {
+      const firstFocusableElement = document.querySelector('#mobile-menu button, #mobile-menu a')
+      if (firstFocusableElement instanceof HTMLElement) {
+        firstFocusableElement.focus()
+      }
+    })
+  } else {
+    // Remover listener cuando se cierre el menú
+    document.removeEventListener('keydown', handleGlobalKeydown)
+  }
+}
+
+// Watch para manejar focus trap cuando cambie el estado del menú
+watch(mobileMenuOpen, manageFocusTrap)
+
+// Cleanup en unmount
+if (import.meta.client) {
+  onUnmounted(() => {
+    document.removeEventListener('keydown', handleGlobalKeydown)
+  })
+}
 </script>
 
