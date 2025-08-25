@@ -244,7 +244,7 @@ describe('Seguridad de Autenticación', () => {
         'user name@domain.com'
       ]
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
 
       validEmails.forEach(email => {
         expect(emailRegex.test(email)).toBe(true)
