@@ -4,8 +4,8 @@ export default defineEventHandler(async (event) => {
   const { email, password, first_name, last_name } = body
   
   try {
-    // Verificar autenticación SOLO con serverSupabaseUser
-    const { serverSupabaseUser } = await import('#supabase/server')
+    // Verificar autenticación del usuario
+    const { serverSupabaseUser, serverSupabaseServiceRole } = await import('#supabase/server')
     const user = await serverSupabaseUser(event)
     if (!user) {
       throw createError({
@@ -14,18 +14,8 @@ export default defineEventHandler(async (event) => {
       })
     }
     
-    // Cliente directo como el que funciona
-    const { createClient } = await import('@supabase/supabase-js')
-    const supabase = createClient(
-      'https://ohgyqnxrtvjjambumksj.supabase.co',
-      process.env.SUPABASE_SERVICE_KEY!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    )
+    // Usar cliente de servicio del módulo Nuxt Supabase
+    const supabase = serverSupabaseServiceRole(event)
     
     // Verificar que sea admin
     const { data: profile } = await supabase

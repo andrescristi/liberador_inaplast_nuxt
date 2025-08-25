@@ -56,7 +56,7 @@ export default defineEventHandler(async (event): Promise<OCRResponse> => {
     }
 
     // Verificar que la API key esté configurada
-    const apiKey = process.env.GEMINI_API_KEY
+    const apiKey = process.env.NUXT_GEMINI_API_KEY
     if (!apiKey) {
       throw createError({
         statusCode: 500,

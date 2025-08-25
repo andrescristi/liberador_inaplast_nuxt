@@ -49,8 +49,8 @@ export default defineNuxtConfig({
   
   // ===== CONFIGURACIÓN SUPABASE =====
   supabase: {
-    url: process.env.SUPABASE_URL,       // URL del proyecto Supabase
-    key: process.env.SUPABASE_ANON_KEY,  // Clave anónima (safe para cliente)
+    url: process.env.NUXT_SUPABASE_URL,       // URL del proyecto Supabase
+    key: process.env.NUXT_SUPABASE_ANON_KEY,  // Clave anónima (safe para cliente)
     types: './types/database.types.ts',  // Tipos TypeScript generados de DB
     
     // Configuración de redirecciones para flujos de auth
