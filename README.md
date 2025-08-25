@@ -2,32 +2,39 @@
 
 A modern web application for managing product release quality control workflows built with Nuxt 4, TailwindCSS, and Supabase.
 
-## ✨ Recent Updates (v2.3.0)
+## ✨ Recent Updates (v2.4.0)
 
-### 🚀 Production Deployment & Performance
+### 🎨 Authentication Layout System
+- **Auth Layout** - New dedicated layout for authentication pages (login, reset-password, confirm)
+- **Conditional Navigation** - Navigation automatically hides on auth pages using layout detection
+- **Clean Authentication Flow** - Distraction-free login experience without main app navigation
+- **Layout Separation** - Clear separation between authenticated and unauthenticated user experiences
+
+### 🔧 Supabase Configuration Refactoring  
+- **Consistent Environment Variables** - Standardized NUXT_ prefixed variables across all files
+- **Service Role Integration** - Proper use of `serverSupabaseServiceRole()` for admin operations
+- **Eliminated Manual Clients** - Removed manual `createClient()` calls in favor of Nuxt Supabase module functions
+- **Configuration Cleanup** - Unified configuration approach across frontend and backend
+
+### 🧪 Enhanced Testing Coverage
+- **Layout Tests** - New tests for auth layout functionality and conditional navigation
+- **App Logic Tests** - Tests for layout detection and navbar visibility logic
+- **Security Tests** - Updated email validation regex and fixed timezone-related date tests
+- **Test Reliability** - Improved test stability and reduced flakiness
+
+### 🚀 Previous Updates (v2.3.0)
+
+#### Production Deployment & Performance
 - **Vercel Deployment Ready** - Complete Vercel configuration with Nitro preset and SSR optimization
 - **Server Logger Fixed** - Resolved critical H3Error with pino-pretty dependency installation
 - **Production Logging** - Optimized logger configuration for development (pino-pretty) and production (stdout)
 - **Deployment Success** - Successfully deployed to https://liberador-inaplast-nuxt.vercel.app
 
-### 🧭 Navigation System Enhancement  
+#### Navigation System Enhancement  
 - **CoreAppNavigation Component** - Complete navbar system with responsive design
 - **Mobile-First Navigation** - Hamburger menu for desktop + bottom navigation for mobile
 - **Role-Based Navigation** - Dynamic menu items based on user permissions
 - **User Experience** - Clean navigation with brand consistency and proper mobile optimization
-
-### 🧪 Comprehensive Testing Infrastructure
-- **E2E Testing** - New Playwright tests for Vercel deployment verification
-- **Logger Testing** - Unit tests for pino-pretty configuration and error handling
-- **Component Testing** - Tests for CoreAppNavigation with responsive behavior
-- **Configuration Testing** - Vercel deployment settings validation
-- **Manual Test Support** - 20-second wait periods for user credential input during E2E tests
-
-### 🔧 Technical Improvements
-- **Vite SSR Configuration** - Optimized server-side rendering with proper external dependencies
-- **Build Optimization** - ESM format output for better Vercel compatibility
-- **Git Integration** - Added .vercel directory to gitignore for clean repository
-- **Error Handling** - Improved error boundaries and H3 error resolution
 
 ## Features
 
