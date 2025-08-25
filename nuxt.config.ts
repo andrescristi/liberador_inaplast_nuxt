@@ -66,8 +66,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       supabase: {
-        url: process.env.SUPABASE_URL,       // Disponible en cliente para SDK
-        key: process.env.SUPABASE_ANON_KEY   // Disponible en cliente (segura)
+        url: process.env.NUXT_SUPABASE_URL,       // Disponible en cliente para SDK
+        key: process.env.NUXT_SUPABASE_ANON_KEY   // Disponible en cliente (segura)
       }
     }
   },
