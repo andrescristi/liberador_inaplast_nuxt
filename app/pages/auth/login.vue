@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-indigo-50 to-white">
+  <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
       <UiBaseCard class="backdrop-blur-sm shadow-xl">
         <!-- Header -->
@@ -171,8 +171,9 @@
 <script setup lang="ts">
 import { z } from 'zod'
 
+// Usar layout de autenticación sin navegación
 definePageMeta({
-  layout: false,
+  layout: 'auth',
   auth: false
 })
 

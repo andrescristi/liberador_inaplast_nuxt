@@ -1,12 +1,18 @@
 <template>
   <div>
     <NuxtLayout>
-      <CoreAppNavigation/>
+      <!-- Solo mostrar navegación si no es layout de auth -->
+      <CoreAppNavigation v-if="!isAuthLayout" />
       <NuxtPage />
     </NuxtLayout>
   </div>
 </template>
 
 <script setup lang="ts">
-// Versión restaurada sin componentes problemáticos
+// Detectar si estamos en layout de autenticación
+const route = useRoute()
+const isAuthLayout = computed(() => {
+  // Verificar si la página usa layout 'auth'
+  return route.meta.layout === 'auth'
+})
 </script>
