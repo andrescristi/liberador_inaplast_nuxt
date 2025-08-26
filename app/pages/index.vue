@@ -240,27 +240,16 @@ const toast = useToast()
 const { getCurrentProfile } = useProfile()
 
 // Estado reactivo del componente
-/** Control de estado de carga para mostrar spinners y skeleton states */
-const loading = ref(true)
-
 /** Perfil del usuario autenticado actual con información de rol */
 const userProfile = ref<Profile | null>(null)
 
-/**
- * Métricas del dashboard que varían según el rol del usuario
- * - Inspector: Solo sus propias métricas
- * - Admin/Supervisor: Métricas globales del sistema
- */
-const metrics = ref({
-  /** Número de inspecciones pendientes */
-  pending: 25,
-  /** Número de inspecciones completadas/aceptadas */
-  completed: 120,
-  /** Número de inspecciones rechazadas */
-  rejected: 8,
-  /** Número total de clientes (para referencia futura) */
-  customers: 45
-})
+// Usar composable para métricas del dashboard con endpoints reales
+const {
+  metrics,
+  loading,
+  error: metricsError,
+  fetchMetrics
+} = useDashboardMetrics()
 
 /** Lista de órdenes recientes para mostrar en la tabla del dashboard */
 const recentOrders = ref([])
@@ -281,57 +270,31 @@ onMounted(async () => {
 /**
  * Carga todos los datos necesarios para el dashboard
  * 
- * Esta función gestiona la carga inicial de datos basándose en el rol del usuario:
+ * Esta función gestiona la carga inicial de datos:
  * - Obtiene el perfil del usuario autenticado
- * - Carga métricas específicas según el rol (Inspector vs Admin/Supervisor)
+ * - Carga métricas desde endpoint real basándose en el rol del usuario
  * - Maneja estados de error y loading apropiadamente
  * 
  * @async
  * @throws {Error} Si hay problemas de conectividad con la API o Supabase
- * 
- * @todo Implementar llamadas a API reales para métricas:
- *       - GET /api/metrics/inspector/:userId para inspectores
- *       - GET /api/metrics/global para admin/supervisor
- * @todo Reemplazar datos mock con endpoints reales de Supabase
  */
 async function loadDashboardData() {
   try {
-    loading.value = true
-
     // Obtener perfil del usuario actual para determinar rol y permisos
     userProfile.value = await getCurrentProfile()
     
-    // Cargar métricas específicas basadas en el rol del usuario
-    if (userProfile.value?.user_role === 'Inspector') {
-      // Para Inspectores: solo sus propias estadísticas
-      // TODO: Implementar llamada a API para métricas específicas del usuario
-      metrics.value = {
-        pending: 5,    // Inspecciones pendientes del inspector
-        completed: 12, // Inspecciones completadas del inspector  
-        rejected: 2,   // Inspecciones rechazadas del inspector
-        customers: 8   // Clientes asignados al inspector
-      }
-    } else {
-      // Para Admin y Supervisor: mostrar estadísticas globales del sistema
-      // TODO: Implementar llamada a API para métricas globales
-      metrics.value = {
-        pending: 25,   // Total de inspecciones pendientes en el sistema
-        completed: 120, // Total de inspecciones completadas
-        rejected: 8,   // Total de inspecciones rechazadas
-        customers: 45  // Total de clientes en el sistema
-      }
+    // Cargar métricas reales desde la API
+    await fetchMetrics()
+
+    // Si hay error en las métricas, mostrar notificación
+    if (metricsError.value) {
+      toast.warning('Datos Parciales', 'Algunas métricas no pudieron cargarse completamente')
     }
-    
-    // Simulación de tiempo de carga (remover cuando se implementen APIs reales)
-    await new Promise(resolve => setTimeout(resolve, 1000))
 
   } catch (error) {
     // Manejo de errores durante la carga de datos
     console.error('Error loading dashboard data:', error)
     toast.error('Error', 'Error al cargar los datos del dashboard')
-  } finally {
-    // Asegurar que el loading se desactive independientemente del resultado
-    loading.value = false
   }
 }
 
