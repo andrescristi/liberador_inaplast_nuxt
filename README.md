@@ -2,19 +2,32 @@
 
 A modern web application for managing product release quality control workflows built with Nuxt 4, TailwindCSS, and Supabase.
 
-## ✨ Recent Updates (v2.4.1)
+## ✨ Recent Updates (v2.5.0)
 
-### 🔧 UI/UX Improvements & Configuration Updates
-- **Navigation Labels** - Updated "Administración" to "Administración Usuarios" for better clarity in admin menu
-- **Environment Configuration** - Simplified .gitignore patterns for environment files (consolidated to `.env.*`)
-- **Code Quality** - Improved test coverage and maintained existing functionality
-- **Build Optimization** - Successfully built and verified all components work correctly
+### 🏗️ Major Architecture & Quality Improvements
+- **Dashboard Metrics API** - New real-time dashboard metrics endpoint with role-based data filtering
+- **SSR-Safe State Management** - Migrated complex store patterns to Nuxt 4 compatible `useState` patterns  
+- **Code Quality Analysis** - Comprehensive analysis and cleanup of components and pages folders
+- **Test Coverage Enhancement** - Added 55+ new tests covering critical functionality and edge cases
+- **Security Hardening** - Removed development-only files and implemented proper authentication patterns
 
-### 🧪 Testing & Quality Assurance
-- **Test Suite Execution** - Comprehensive testing of all existing functionality
-- **Build Verification** - Successful build completion with optimized bundle sizes
-- **Code Standards** - Maintained TypeScript strict mode and ESLint compliance
-- **Performance Testing** - All critical paths tested and verified
+### 🔧 Backend & API Enhancements
+- **Real Dashboard API** - `/api/dashboard/metrics.get.ts` with JWT authentication and role-based data
+- **Composable Architecture** - New `useDashboardMetrics.ts` composable for reactive dashboard state
+- **Inspector vs Admin Data** - Differentiated metrics display based on user role (Inspector sees personal data, Admin/Supervisor see global metrics)
+- **Error Handling** - Robust fallback systems with proper error states and loading indicators
+
+### 🧪 Testing & Quality Assurance  
+- **New Test Suites** - Comprehensive tests for dashboard metrics, composables, and page functionality
+- **Edge Case Coverage** - Tests for authentication, error handling, SSR compatibility, and role permissions
+- **Test Infrastructure** - Fixed existing test issues and improved mocking patterns
+- **Quality Metrics** - All critical user paths now have comprehensive test coverage
+
+### 🧹 Code Cleanup & Security
+- **Removed Development Files** - Eliminated `extractor-ocr.vue` test page and related middleware
+- **Configuration Cleanup** - Removed unused development flags and simplified config structure
+- **Security Audit** - Removed potential security vulnerabilities in development endpoints
+- **Bundle Optimization** - Cleaner production builds with reduced bundle size
 
 ### 🎨 Previous Updates (v2.4.0) - Authentication Layout System
 - **Auth Layout** - New dedicated layout for authentication pages (login, reset-password, confirm)
