@@ -157,6 +157,37 @@
 </template>
 
 <script setup lang="ts">
+// Define la estructura completa de datos de la orden
+interface OrderData {
+  // Step 1 - Informacion General
+  boxQuantity: number
+  requester: string
+  requestDate: string
+  priority: 'low' | 'medium' | 'high'
+  
+  // Step 2 - Customer & Product Info
+  customerCode: string
+  customerName: string
+  productCode: string
+  productName: string
+  productCategory: string
+  expirationDate: string
+  lotNumber: string
+  productionDate: string
+  
+  // Step 3 - Quality Tests
+  packagingTest?: boolean
+  labelingTest?: boolean
+  sealingTest?: boolean
+  weightTest?: boolean
+  qualityNotes?: string
+  
+  // Step 4 - Final Results
+  finalResult?: 'approved' | 'rejected' | 'conditional'
+  rejectionReason?: string
+  recommendations?: string
+}
+
 interface StepData {
   customerCode: string
   customerName: string
@@ -169,13 +200,12 @@ interface StepData {
 }
 
 interface Props {
-  modelValue: any
+  modelValue: OrderData
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: any): void
-  (e: 'next'): void
-  (e: 'previous'): void
+  (e: 'update:modelValue', value: OrderData): void
+  (e: 'next' | 'previous'): void
 }
 
 const props = defineProps<Props>()

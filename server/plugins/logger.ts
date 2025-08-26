@@ -1,6 +1,31 @@
 import pino from 'pino'
 import type { NitroApp } from 'nitropack'
 
+interface RequestEvent {
+  context: {
+    logger?: pino.Logger
+  }
+  node: {
+    req: {
+      url?: string
+      method?: string
+      headers: { [key: string]: string | undefined }
+    }
+    res: {
+      statusCode?: number
+    }
+  }
+}
+
+interface ErrorContext {
+  event?: RequestEvent
+}
+
+interface RequestError extends Error {
+  message: string
+  stack?: string
+}
+
 export default defineNitroPlugin((nitroApp: NitroApp) => {
   // Logger configurado exclusivamente para stdout sin filesystem
   const logger = pino({
@@ -15,7 +40,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   })
 
   // Hooks de Nitro para logging de requests
-  nitroApp.hooks.hook('request', (event: any) => {
+  nitroApp.hooks.hook('request', (event: RequestEvent) => {
     event.context.logger = logger
     logger.info({
       url: event.node.req.url,
@@ -24,7 +49,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     }, 'Incoming request')
   })
 
-  nitroApp.hooks.hook('beforeResponse', (event: any) => {
+  nitroApp.hooks.hook('beforeResponse', (event: RequestEvent) => {
     const logger = event.context.logger
     if (logger) {
       logger.info({
@@ -35,7 +60,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     }
   })
 
-  nitroApp.hooks.hook('error', (error: any, context: any) => {
+  nitroApp.hooks.hook('error', (error: RequestError, context: ErrorContext) => {
     const event = context?.event
     const logger = event?.context?.logger || pino()
     logger.error({

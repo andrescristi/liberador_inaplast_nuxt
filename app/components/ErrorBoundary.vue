@@ -17,7 +17,7 @@
             <h3 class="text-lg font-medium text-gray-900 mb-2">Detalles del Error</h3>
             <div class="bg-red-50 border border-red-200 rounded-md p-3">
               <p class="text-sm text-red-800 font-mono">{{ errorInfo.message }}</p>
-              <details v-if="errorInfo.stack" class="mt-2">
+              <details v-if="errorInfo.stack && showStack" class="mt-2">
                 <summary class="text-xs text-red-600 cursor-pointer">Stack trace</summary>
                 <pre class="text-xs text-red-600 mt-1 overflow-auto">{{ errorInfo.stack }}</pre>
               </details>
@@ -26,24 +26,25 @@
           
           <div class="flex flex-col space-y-3">
             <button
-              @click="retry"
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              @click="retry"
             >
               <Icon name="bx:refresh" class="w-4 h-4 mr-2" />
               Intentar de Nuevo
             </button>
             
             <button
-              @click="goHome"
               class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              @click="goHome"
             >
               <Icon name="bx:home" class="w-4 h-4 mr-2" />
               Ir al Inicio
             </button>
             
             <button
-              @click="toggleDetails"
+              v-if="showStack"
               class="w-full flex justify-center py-2 px-4 text-sm text-gray-500 hover:text-gray-700"
+              @click="toggleDetails"
             >
               {{ showDetails ? 'Ocultar' : 'Mostrar' }} Detalles Técnicos
             </button>
@@ -69,6 +70,9 @@ const errorInfo = ref<ErrorInfo>({
   timestamp: new Date()
 })
 const showDetails = ref(false)
+
+// Show stack traces only in development and on client side for security
+const showStack = import.meta.dev && import.meta.client
 
 const handleError = (error: Error) => {
   hasError.value = true

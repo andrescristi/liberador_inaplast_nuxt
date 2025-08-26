@@ -36,20 +36,69 @@ class="h-5 w-5 text-gray-400" />
 </template>
 
 <script setup lang="ts">
+/**
+ * Componente BaseInput - Campo de entrada versátil con soporte para múltiples tipos y estados
+ * 
+ * Características principales:
+ * - Soporte para input y textarea automático
+ * - 3 tamaños: sm, md, lg con touch targets optimizados para móvil (44px mínimo)
+ * - Estados visuales: normal, error, focus, disabled
+ * - Iconos opcionales (leading/trailing) con slots personalizables
+ * - Efectos visuales: focus ring animado, success animation
+ * - Optimizaciones móviles: inputmode automático, teclado específico
+ * - Validaciones numéricas: min, max, step
+ * - Animaciones de interacción: scale en focus, success feedback
+ * 
+ * @example
+ * <BaseInput
+ *   v-model="email"
+ *   type="email"
+ *   placeholder="Ingrese su email"
+ *   leading-icon="bx:envelope"
+ *   :error="emailError"
+ *   @blur="validateEmail"
+ * />
+ * 
+ * @example
+ * <BaseInput
+ *   v-model="description"
+ *   type="textarea"
+ *   placeholder="Descripción del producto"
+ *   :rows="4"
+ *   size="lg"
+ * />
+ */
+
+/**
+ * Props del componente BaseInput
+ */
 interface Props {
+  /** Valor del campo vinculado con v-model */
   modelValue?: string | number
+  /** Tipo de input HTML o 'textarea' para área de texto */
   type?: string
+  /** Texto placeholder mostrado cuando el campo está vacío */
   placeholder?: string
+  /** Estado deshabilitado que previene edición */
   disabled?: boolean
+  /** Estado de error que aplica estilos de validación fallida */
   error?: boolean
+  /** Tamaño del campo que afecta padding y altura mínima */
   size?: 'sm' | 'md' | 'lg'
+  /** Icono mostrado al inicio del campo */
   leadingIcon?: string
+  /** Icono mostrado al final del campo */
   trailingIcon?: string
+  /** Número de filas para textarea */
   rows?: number
+  /** Valor mínimo para inputs numéricos */
   min?: string | number
+  /** Valor máximo para inputs numéricos */
   max?: string | number
+  /** Incremento para inputs numéricos */
   step?: string | number
-  mobileOptimized?: boolean // New prop for mobile-specific styling
+  /** Optimizaciones específicas para móviles */
+  mobileOptimized?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -73,16 +122,30 @@ const isFocused = ref(false)
 const showSuccessAnimation = ref(false)
 const inputElement = ref<HTMLInputElement | HTMLTextAreaElement | null>(null)
 
-const emit = defineEmits<{
-  'update:modelValue': [value: string | number]
-  focus: [event: FocusEvent]
-  blur: [event: FocusEvent]
-}>()
+/**
+ * Eventos emitidos por el componente BaseInput
+ */
+interface Emits {
+  /** Emitido cuando el valor del campo cambia (v-model) */
+  (e: 'update:modelValue', value: string | number): void
+  /** Emitido cuando el campo recibe o pierde foco */
+  (e: 'focus' | 'blur', event: FocusEvent): void
+}
 
+const emit = defineEmits<Emits>()
+
+/**
+ * Determina el tag HTML a renderizar (input o textarea)
+ * @returns 'textarea' para tipo textarea, 'input' para todos los demás
+ */
 const tag = computed(() => {
   return props.type === 'textarea' ? 'textarea' : 'input'
 })
 
+/**
+ * Atributos HTML dinámicos basados en el tipo de input
+ * @returns Objeto con atributos específicos del tipo de campo
+ */
 const inputAttrs = computed(() => {
   const attrs: Record<string, string | number | undefined> = {}
   
@@ -109,6 +172,10 @@ const inputAttrs = computed(() => {
   return attrs
 })
 
+/**
+ * Clases CSS del input combinando estilos base, tamaño, estado y iconos
+ * @returns String con todas las clases CSS aplicables al elemento input
+ */
 const inputClasses = computed(() => {
   const base = 'block w-full border-gray-300 rounded-md shadow-sm focus:ring-transparent focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 transition-all duration-300 touch-manipulation relative z-10 bg-white'
   
@@ -139,6 +206,11 @@ const inputClasses = computed(() => {
   return classes.join(' ')
 })
 
+/**
+ * Maneja cambios en el valor del input
+ * Emite evento update:modelValue y gestiona animación de éxito
+ * @param event - Evento de input nativo
+ */
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   emit('update:modelValue', target.value)
@@ -154,6 +226,11 @@ const handleInput = (event: Event) => {
   }
 }
 
+/**
+ * Maneja el evento focus del input
+ * Activa estado visual y animación sutil de escala
+ * @param event - Evento de focus nativo
+ */
 const handleFocus = (event: FocusEvent) => {
   isFocused.value = true
   
@@ -170,12 +247,20 @@ const handleFocus = (event: FocusEvent) => {
   emit('focus', event)
 }
 
+/**
+ * Maneja el evento blur del input
+ * Desactiva estado de foco visual
+ * @param event - Evento de blur nativo
+ */
 const handleBlur = (event: FocusEvent) => {
   isFocused.value = false
   emit('blur', event)
 }
 
-// Add mobile keyboard optimizations
+/**
+ * Watcher para optimizaciones de teclado móvil
+ * Configura automáticamente el inputmode apropiado según el tipo
+ */
 watch(() => props.type, (newType) => {
   if (import.meta.client && inputElement.value) {
     // Set appropriate input modes for mobile keyboards

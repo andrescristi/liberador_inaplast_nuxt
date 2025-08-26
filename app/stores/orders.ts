@@ -159,8 +159,8 @@ export const useOrdersStore = defineStore('orders', {
       } catch (error) {
         if (import.meta.server) {
           const { $logger } = useNuxtApp()
-          if ($logger && typeof ($logger as any).error === 'function') {
-            ($logger as any).error({
+          if ($logger && typeof ($logger as { error: (msg: object, context: string) => void }).error === 'function') {
+            ($logger as { error: (msg: object, context: string) => void }).error({
               error: error instanceof Error ? error.message : String(error),
               stack: error instanceof Error ? error.stack : undefined,
               context: 'useOrdersStore.fetchRecentOrders'

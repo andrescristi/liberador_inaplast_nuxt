@@ -48,10 +48,43 @@ class="relative z-10"
 </template>
 
 <script setup lang="ts">
+/**
+ * Componente BaseModal - Modal reutilizable con transiciones suaves y múltiples tamaños
+ * 
+ * Características principales:
+ * - Basado en Headless UI para accesibilidad completa
+ * - 5 tamaños predefinidos: sm, md, lg, xl, full
+ * - Transiciones CSS optimizadas para entrada/salida
+ * - Backdrop con desenfoque (backdrop-blur)
+ * - Slots estructurados: header, default, footer
+ * - Auto-manejo de foco y escape key
+ * - Click fuera del modal para cerrar
+ * 
+ * @example
+ * <BaseModal :show="isModalOpen" size="md" @close="closeModal">
+ *   <template #header>
+ *     <h3 class="text-lg font-medium">Título del Modal</h3>
+ *   </template>
+ *   
+ *   <p>Contenido principal del modal</p>
+ *   
+ *   <template #footer>
+ *     <div class="flex justify-end space-x-2">
+ *       <BaseButton @click="closeModal">Cancelar</BaseButton>
+ *       <BaseButton color="primary">Confirmar</BaseButton>
+ *     </div>
+ *   </template>
+ * </BaseModal>
+ */
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 
+/**
+ * Props del componente BaseModal
+ */
 interface Props {
+  /** Controla la visibilidad del modal */
   show: boolean
+  /** Tamaño del modal que determina el ancho máximo */
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
 }
 
@@ -59,10 +92,21 @@ const props = withDefaults(defineProps<Props>(), {
   size: 'md'
 })
 
-defineEmits<{
-  close: []
-}>()
+/**
+ * Eventos emitidos por el componente BaseModal
+ */
+interface Emits {
+  /** Emitido cuando el modal debe cerrarse (click fuera, escape key, etc.) */
+  (e: 'close'): void
+}
 
+defineEmits<Emits>()
+
+/**
+ * Clases CSS del panel del modal basadas en el tamaño seleccionado
+ * Combina estilos base con tamaños responsivos
+ * @returns String con clases CSS para el panel del modal
+ */
 const panelClasses = computed(() => {
   const base = 'relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all'
   

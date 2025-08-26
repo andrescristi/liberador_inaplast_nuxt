@@ -319,6 +319,36 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Componente AppNavigation - Sistema de navegación principal completo para la aplicación
+ * 
+ * Características principales:
+ * - Navegación dual: top navbar (desktop) + bottom nav (mobile)
+ * - Sistema de navegación responsivo con breakpoints optimizados
+ * - Menú móvil deslizable con animaciones sofisticadas
+ * - Navegación basada en roles dinámico (Admin/User)
+ * - Dropdown menus con Headless UI para accesibilidad
+ * - Estados de autenticación reactivos con Supabase
+ * - Efectos visuales avanzados: backdrop blur, ripple, gradientes
+ * - Optimizaciones móviles: touch targets 44px+, feedback háptico
+ * - Manejo completo de accesibilidad y navegación por teclado
+ * - Auto-gestión de foco y focus trapping
+ * 
+ * Estructura de navegación:
+ * - Desktop: Logo + Nav links + User dropdown
+ * - Mobile: Logo + Hamburger → Slide-out menu + Bottom tab bar
+ * - Bottom nav: Home + Nueva Liberación (destacada) + Historial + Admin (condicional)
+ * 
+ * @example
+ * <AppNavigation />
+ * 
+ * El componente es completamente autónomo y maneja:
+ * - Estado de autenticación
+ * - Perfiles de usuario con roles
+ * - Navegación reactiva basada en permisos
+ * - Logout con confirmación
+ * - Animaciones y transiciones
+ */
 import type { Profile } from '~/types'
 
 // 
@@ -367,7 +397,11 @@ watchEffect(async () => {
 // ===== ELEMENTOS DE NAVEGACIÓN REUTILIZABLES =====
 //
 
-// Items base de navegación - reutilizados en desktop y mobile
+/**
+ * Items base de navegación reutilizados en desktop y mobile
+ * Estructura reactiva que se adapta según el rol del usuario
+ * @returns Objeto con elementos de navegación organizados por sección
+ */
 const baseNavItems = computed(() => ({
   home: {
     label: 'Inicio',
@@ -406,19 +440,32 @@ const baseNavItems = computed(() => ({
   })()
 }))
 
-// Menú desplegable de Liberaciones (formato para UiBaseDropdown)
+/**
+ * Items del menú desplegable de Liberaciones
+ * Formato adaptado para el componente UiBaseDropdown
+ */
 const liberacionesMenuItems = computed(() => [baseNavItems.value.liberaciones])
 
-// Menú desplegable de Configuración (formato para UiBaseDropdown)
+/**
+ * Items del menú desplegable de Configuración
+ * Solo se incluye si hay elementos disponibles
+ */
 const configuracionMenuItems = computed(() => 
   baseNavItems.value.configuracion.length > 0 ? [baseNavItems.value.configuracion] : []
 )
 
-// Computed para verificar si mostrar el botón de configuración
+/**
+ * Determina si mostrar el menú de configuración basado en permisos
+ * @returns true si el usuario tiene acceso a funciones de configuración
+ */
 const showConfiguracionMenu = computed(() => baseNavItems.value.configuracion.length > 0)
 
 
-// Navegación inferior móvil con configuración de estilos específica
+/**
+ * Items de navegación inferior móvil (bottom tab bar)
+ * Configuración específica para pantallas móviles con elementos limitados
+ * @returns Array de elementos optimizados para navegación táctil
+ */
 const bottomNavItems = computed(() => {
   // Items base reutilizando la estructura principal
   const items = [
@@ -461,7 +508,11 @@ const bottomNavItems = computed(() => {
 // ===== MENÚ DROPDOWN DE USUARIO =====
 //
 
-// Estructura de menú contextual para dropdown de usuario
+/**
+ * Items del menú desplegable de usuario
+ * Estructura contextual que incluye info de perfil, enlaces y acciones
+ * @returns Array estructurado para el componente UiBaseDropdown
+ */
 const userMenuItems = computed(() => {
   const menuItems: Array<Array<{
     slot?: string
@@ -499,7 +550,10 @@ const userMenuItems = computed(() => {
 // ===== MANEJADORES DE EVENTOS =====
 //
 
-// Función para manejar logout con UX optimizada
+/**
+ * Maneja el proceso de logout con UX optimizada
+ * Incluye estado de loading, feedback visual y manejo de errores
+ */
 const handleSignOut = async () => {
   try {
     // Activar estado de loading para feedback inmediato
@@ -529,7 +583,10 @@ const handleSignOut = async () => {
 // ===== GESTIÓN DE MENÚ MÓVIL =====
 //
 
-// Toggle del menú móvil con efectos de UX mejorados y accesibilidad
+/**
+ * Toggle del menú móvil con efectos de UX mejorados y accesibilidad
+ * Incluye feedback háptico para mejorar la experiencia táctil
+ */
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
   
@@ -543,7 +600,10 @@ const toggleMobileMenu = () => {
   }
 }
 
-// Función específica para cerrar menú (usada en navegación)
+/**
+ * Cierra el menú móvil
+ * Función específica usada en elementos de navegación
+ */
 const closeMobileMenu = () => {
   mobileMenuOpen.value = false
 }
@@ -562,7 +622,11 @@ watch(() => useRoute().path, () => {
 // ===== MANEJO DE ACCESIBILIDAD Y NAVEGACIÓN POR TECLADO =====
 //
 
-// Manejo global de tecla ESC para cerrar el menú móvil
+/**
+ * Manejo global de tecla ESC para cerrar el menú móvil
+ * Incluye restauración de foco para accesibilidad
+ * @param event - Evento de teclado nativo
+ */
 const handleGlobalKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Escape' && mobileMenuOpen.value) {
     closeMobileMenu()
@@ -576,7 +640,10 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
   }
 }
 
-// Gestión de focus trap cuando el menú móvil está abierto
+/**
+ * Gestión de focus trap cuando el menú móvil está abierto
+ * Asegura que el foco se mantenga dentro del menú para accesibilidad
+ */
 const manageFocusTrap = () => {
   if (!import.meta.client) return
   

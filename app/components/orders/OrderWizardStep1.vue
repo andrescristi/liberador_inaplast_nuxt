@@ -19,15 +19,20 @@
           📦 Cantidad de unidades embalajes a analizar (cajas, bolsas, etc) *
         </label>
         <input 
-          v-model.number="localData.boxQuantity"
+          v-model.number="boxQuantity"
           type="number" 
           min="1" 
           max="1000"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+          :class="{
+            'border-red-300 focus:ring-red-500 focus:border-red-500': boxQuantityError,
+            'border-gray-300': !boxQuantityError
+          }"
           placeholder="Ej: 10"
           required
         >
-        <p class="text-xs text-gray-500 mt-1">Cantidad de embalajes que se van a inspeccionar</p>
+        <p v-if="boxQuantityError" class="text-xs text-red-600 mt-1">{{ boxQuantityError }}</p>
+        <p v-else class="text-xs text-gray-500 mt-1">Cantidad de embalajes que se van a inspeccionar</p>
       </div>
 
       <!-- Navigation -->
@@ -43,7 +48,7 @@
             name="bx:loader-alt" 
             class="w-4 h-4 mr-2 animate-spin" 
           />
-          {{ isProcessingOCR ? 'Procesando OCR...' : 'Siguiente' }}
+          {{ isProcessingOCR ? `Procesando OCR${ocrAttempts > 0 ? ` (${ocrAttempts}/3)` : '...'}` : 'Siguiente' }}
         </button>
       </div>
     </div>
@@ -51,39 +56,12 @@
 </template>
 
 <script setup lang="ts">
-interface StepData {
-  labelImage: File | null
-  labelImagePreview: string
-  boxQuantity: number
-}
-
-interface OrderData {
-  customerName: string
-  customerCode: string
-  productName: string
-  productCode: string
-  lotNumber: string
-  expirationDate: string
-  productionDate: string
-  packageImage: File | null
-  packageImagePreview: string
-  labelImage: File | null
-  labelImagePreview: string
-  boxQuantity: number
-}
+import { stepDataSchema, type StepData, type OrderData, type OCRData } from '~/schemas/order'
+import { useField, useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 
 interface Props {
   modelValue: OrderData
-}
-
-interface OCRData {
-  customerName?: string
-  customerCode?: string
-  productName?: string
-  productCode?: string
-  lotNumber?: string
-  expirationDate?: string
-  productionDate?: string
 }
 
 interface Emits {
@@ -95,82 +73,152 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Local reactive copy
-const localData = ref<StepData>({
-  labelImage: props.modelValue.labelImage,
-  labelImagePreview: props.modelValue.labelImagePreview,
-  boxQuantity: props.modelValue.boxQuantity || 1
+// Configuración de OCR
+const { processOCRWithRetry, validateImageForOCR, useMockOCR } = useOCRConfig()
+const toast = useToast()
+const logger = useLogger('OrderWizardStep1')
+
+// Configuración de validación con vee-validate y Zod
+const validationSchema = toTypedSchema(stepDataSchema.pick({ boxQuantity: true }))
+
+const { handleSubmit, errors, values } = useForm({
+  validationSchema,
+  initialValues: {
+    boxQuantity: props.modelValue.boxQuantity || 1
+  }
 })
 
-// Watch for changes and emit updates
-watch(localData, (newValue) => {
+// Campos individuales para mejor control
+const { value: boxQuantity, errorMessage: boxQuantityError } = useField('boxQuantity')
+
+// Local reactive copy para datos no validados por el esquema
+const localData = ref<Omit<StepData, 'boxQuantity'>>({
+  labelImage: props.modelValue.labelImage,
+  labelImagePreview: props.modelValue.labelImagePreview
+})
+
+// Watch para sincronizar cambios
+watch([localData, values], ([localValue, formValues]) => {
   emit('update:modelValue', {
     ...props.modelValue,
-    ...newValue
+    ...localValue,
+    boxQuantity: formValues.boxQuantity || 1
   })
 }, { deep: true })
 
 // Computed
 const canProceed = computed(() => {
-  return localData.value.labelImage && localData.value.boxQuantity > 0
+  return localData.value.labelImage && 
+         (values.boxQuantity || 0) > 0 && 
+         Object.keys(errors.value).length === 0
 })
 
-// State for tracking OCR processing
+// Estado para seguimiento de procesamiento OCR
 const isProcessingOCR = ref(false)
 const ocrData = ref<OCRData | null>(null)
+const ocrAttempts = ref(0)
+const ocrError = ref<string | null>(null)
 
-// Methods
-const handleNext = async () => {
-  if (!canProceed.value) return
+// Métodos
+const handleNext = handleSubmit(async () => {
+  if (!canProceed.value) {
+    logger.warn('Intento de proceder con datos inválidos')
+    return
+  }
   
-  // If we have an image but no OCR data yet, process OCR first
+  // Si tenemos imagen pero no datos OCR, procesar OCR primero
   if (localData.value.labelImage && !ocrData.value) {
     isProcessingOCR.value = true
+    ocrError.value = null
     
     try {
-      // Trigger OCR processing automatically
+      logger.info('Iniciando procesamiento OCR', {
+        fileName: localData.value.labelImage.name,
+        fileSize: localData.value.labelImage.size,
+        useMock: useMockOCR.value
+      })
+      
+      // Procesar OCR con reintentos
       await processImageOCR()
       
-      // After OCR completes, proceed to next step
+      logger.info('OCR completado exitosamente')
       emit('next')
-    } catch {
-      // If OCR fails, still allow user to proceed
-      const toast = useToast()
-      toast.warning('OCR no completado', 'Puedes continuar y completar los datos manualmente')
-      emit('next')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido en OCR'
+      logger.error('Error en procesamiento OCR', { error: errorMessage, attempts: ocrAttempts.value })
+      ocrError.value = errorMessage
+      
+      // Mostrar opción de continuar sin OCR
+      const shouldContinue = confirm(
+        'El procesamiento OCR falló después de varios intentos. \n\n' +
+        'Puedes continuar y completar los datos manualmente, o puedes cancelar para intentar con otra imagen. \n\n' +
+        '¿Deseas continuar sin OCR?'
+      )
+      
+      if (shouldContinue) {
+        toast.warning('OCR no completado', 'Completa los datos manualmente en el siguiente paso')
+        emit('next')
+      } else {
+        toast.info('Operación cancelada', 'Puedes intentar con otra imagen')
+      }
     } finally {
       isProcessingOCR.value = false
     }
   } else {
-    // If no image or OCR already processed, proceed normally
+    // Si no hay imagen o OCR ya procesado, proceder normalmente
+    logger.info('Procediendo al siguiente paso sin OCR')
     emit('next')
   }
-}
+})
 
 const processImageOCR = async () => {
-  if (!localData.value.labelImage) return
+  if (!localData.value.labelImage) {
+    throw new Error('No hay imagen para procesar')
+  }
+  
+  // Validar imagen antes de procesamiento
+  const validation = validateImageForOCR(localData.value.labelImage)
+  if (!validation.valid) {
+    throw new Error(validation.error || 'Imagen no válida para OCR')
+  }
   
   try {
-    // Mock OCR processing - replace with actual OCR service
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    ocrAttempts.value = 0
     
-    // Mock OCR results
-    const mockOcrData: OCRData = {
-      customerName: 'Industrias Alimentarias S.A.',
-      customerCode: 'CLI001',
-      productName: 'Bolsa de Polietileno 25kg', 
-      productCode: 'BOL25KG',
-      lotNumber: 'LOT20241215001',
-      expirationDate: '2025-06-15',
-      productionDate: '2024-12-15'
-    }
+    const extractedData = await processOCRWithRetry(
+      localData.value.labelImage,
+      (attempt, error) => {
+        ocrAttempts.value = attempt
+        logger.warn(`Reintento de OCR #${attempt}`, { error: error.message })
+        toast.info(
+          `Reintento ${attempt}/3`, 
+          `OCR falló: ${error.message}. Reintentando...`
+        )
+      }
+    )
     
-    ocrData.value = mockOcrData
-    emit('ocr-complete', mockOcrData)
+    ocrData.value = extractedData
+    emit('ocr-complete', extractedData)
+    
+    logger.info('Datos OCR extraídos', {
+      customerName: extractedData.customerName,
+      productCode: extractedData.productCode,
+      lotNumber: extractedData.lotNumber
+    })
     
   } catch (error) {
-    const toast = useToast()
-    toast.error('Error OCR', 'No se pudieron extraer los datos de la imagen')
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido en OCR'
+    logger.error('Fallo definitivo de OCR', {
+      error: errorMessage,
+      attempts: ocrAttempts.value,
+      fileName: localData.value.labelImage.name
+    })
+    
+    toast.error(
+      'Error de OCR', 
+      `No se pudieron extraer los datos después de ${ocrAttempts.value} intentos: ${errorMessage}`
+    )
+    
     throw error
   }
 }
