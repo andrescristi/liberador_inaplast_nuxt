@@ -428,39 +428,18 @@ const statusOptions: StatusOption[] = [
   { value: 'cancelled', label: 'Rechazado' },
 ]
 
-// Store initialization - segura para SSR
-let ordersStore: ReturnType<typeof useOrdersStore>
+// Store initialization - usando useState para SSR correcto
+const ordersStore = useOrdersStore()
 
-try {
-  if (import.meta.client) {
-    ordersStore = useOrdersStore()
-  } else {
-    // Durante SSR, crear una instancia mock del store
-    ordersStore = {
-      orders: [],
-      pagination: { total: 0, total_pages: 0, page: 1, per_page: 20 },
-      loading: false,
-      fetchOrders: async () => {},
-      updateOrderStatus: async () => {},
-      deleteOrder: async () => {}
-    } as unknown as ReturnType<typeof useOrdersStore>
-  }
-} catch {
-  // Fallback en caso de error
-  ordersStore = {
-    orders: [],
-    pagination: { total: 0, total_pages: 0, page: 1, per_page: 20 },
-    loading: false,
-    fetchOrders: async () => {},
-    updateOrderStatus: async () => {},
-    deleteOrder: async () => {}
-  } as unknown as ReturnType<typeof useOrdersStore>
-}
-
-// Computed properties
-const orders = computed(() => ordersStore.orders || [])
-const pagination = computed(() => ordersStore.pagination || { total: 0, total_pages: 0, page: 1, per_page: 20 })
-const loading = computed(() => ordersStore.loading || false)
+// Estados locales usando useState para SSR-safe
+const orders = useState('orders-page-data', () => [])
+const pagination = useState('orders-page-pagination', () => ({ 
+  total: 0, 
+  total_pages: 0, 
+  page: 1, 
+  per_page: 20 
+}))
+const loading = useState('orders-page-loading', () => false)
 
 const hasActiveFilters = computed(() => {
   try {
@@ -474,12 +453,22 @@ const hasActiveFilters = computed(() => {
 
 // Methods
 const loadOrders = async (page = 1) => {
-  if (!ordersStore.fetchOrders) {
-    console.warn('Store not ready yet')
-    return
+  try {
+    loading.value = true
+    currentPage.value = page
+    
+    // Usar el store para obtener los datos
+    await ordersStore.fetchOrders(page, { ...filters.value })
+    
+    // Sincronizar con el estado local para SSR
+    orders.value = ordersStore.orders
+    pagination.value = ordersStore.pagination
+  } catch (error) {
+    console.error('Error loading orders:', error)
+    // Mantener estado previo en caso de error
+  } finally {
+    loading.value = false
   }
-  currentPage.value = page
-  await ordersStore.fetchOrders(page, { ...filters.value })
 }
 
 const applyFilters = () => {
@@ -573,27 +562,8 @@ const getStatusLabel = (status: string) => {
   return statusLabels[status as keyof typeof statusLabels] || status
 }
 
-// Load initial data on client side
-onMounted(async () => {
-  // Usar nextTick para asegurar que Pinia esté completamente inicializado
-  await nextTick()
-  try {
-    // Re-initialize store on client side para asegurar funcionalidad completa
-    ordersStore = useOrdersStore()
-    await loadOrders()
-  } catch (error) {
-    console.error('Error initializing orders store:', error)
-    // Retry after a short delay
-    setTimeout(async () => {
-      try {
-        ordersStore = useOrdersStore()
-        await loadOrders()
-      } catch (retryError) {
-        console.error('Retry failed:', retryError)
-      }
-    }, 100)
-  }
-})
+// Load initial data - usando await para SSR correcto
+await loadOrders()
 
 // SEO
 useSeoMeta({
