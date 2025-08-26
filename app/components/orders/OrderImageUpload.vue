@@ -58,6 +58,8 @@
 </template>
 
 <script setup lang="ts">
+import type { OCRData } from '~/schemas/order'
+
 interface Props {
   file: File | null
   preview: string
@@ -66,10 +68,10 @@ interface Props {
 interface Emits {
   (e: 'update:file', file: File | null): void
   (e: 'update:preview', preview: string): void
-  (e: 'ocr-complete', data: unknown): void
+  (e: 'ocr-complete', data: OCRData): void
 }
 
-const _props = defineProps<Props>()
+defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // Refs

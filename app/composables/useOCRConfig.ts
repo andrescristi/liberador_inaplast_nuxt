@@ -1,31 +1,36 @@
 import type { OCRData } from '~/schemas/order'
 
+interface OCRResponse {
+  text: string
+  productionData?: {
+    lote?: string
+    cliente?: string
+    producto?: string
+    pedido?: string
+    fechaFabricacion?: string
+    codigoProducto?: string
+    turno?: string
+    unidades?: string
+    jefeTurno?: string
+    ordenCompra?: string
+    numeroOperario?: string
+    maquina?: string
+    inspectorCalidad?: string
+  }
+  success: boolean
+  error?: string
+  metadata?: {
+    filename?: string
+    processedAt: string
+    model: string
+  }
+}
+
 /**
  * Composable para gestionar configuración de OCR
- * Permite alternar entre servicio real y mock usando feature flags
+ * Conecta con el endpoint api/ocr/extract para procesamiento de imágenes
  */
 export function useOCRConfig() {
-  const config = useRuntimeConfig()
-  
-  // Feature flag para usar mock OCR (desarrollo vs producción)
-  const useMockOCR = computed(() => {
-    // En desarrollo siempre usar mock
-    if (import.meta.dev) return true
-    
-    // En producción, verificar env variable
-    return config.public.enableMockOCR === 'true'
-  })
-
-  // Datos mock para desarrollo y testing
-  const mockOCRData: OCRData = {
-    customerName: 'Industrias Alimentarias S.A.',
-    customerCode: 'CLI001',
-    productName: 'Bolsa de Polietileno 25kg',
-    productCode: 'BOL25KG',
-    lotNumber: 'LOT20241215001',
-    expirationDate: '2025-06-15',
-    productionDate: '2024-12-15'
-  }
 
   // Configuración de reintentos
   const retryConfig = {
@@ -35,57 +40,69 @@ export function useOCRConfig() {
   }
 
   /**
-   * Procesa OCR con mock o servicio real según configuración
+   * Convierte archivo de imagen a base64
    */
-  const processOCR = async (imageFile: File): Promise<OCRData> => {
-    if (useMockOCR.value) {
-      return processOCRMock(imageFile)
-    }
-    return processOCRReal(imageFile)
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const result = reader.result as string
+        // Remover el prefijo data URL para obtener solo el base64
+        const base64 = result.split(',')[1]
+        if (base64) {
+          resolve(base64)
+        } else {
+          reject(new Error('Error convirtiendo archivo a base64'))
+        }
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
   }
 
   /**
-   * Procesa OCR con datos mock
+   * Mapea datos del endpoint a formato OCRData
    */
-  const processOCRMock = async (imageFile: File): Promise<OCRData> => {
-    // Simular tiempo de procesamiento
-    const processingTime = Math.random() * 2000 + 1000 // 1-3 segundos
-    await new Promise(resolve => setTimeout(resolve, processingTime))
-    
-    // Simular ocasional fallo (5% de probabilidad)
-    if (Math.random() < 0.05) {
-      throw new Error('Error simulado de OCR')
-    }
-    
-    // Agregar variación a los datos mock basada en el nombre del archivo
-    const fileName = imageFile.name
-    const hash = fileName.split('').reduce((a, b) => {
-      a = ((a << 5) - a) + b.charCodeAt(0)
-      return a & a
-    }, 0)
-    
-    const variations = [
-      { customerCode: 'CLI002', lotNumber: 'LOT20241215002' },
-      { customerCode: 'CLI003', lotNumber: 'LOT20241215003' },
-      { customerCode: 'CLI004', lotNumber: 'LOT20241215004' },
-    ]
-    
-    const variation = variations[Math.abs(hash) % variations.length]
+  const mapToOCRData = (response: OCRResponse): OCRData => {
+    const production = response.productionData
     
     return {
-      ...mockOCRData,
-      ...variation
+      customerName: production?.cliente || undefined,
+      customerCode: production?.cliente || undefined, // Usar cliente como código si no hay código específico  
+      productName: production?.producto || undefined,
+      productCode: production?.codigoProducto || undefined,
+      lotNumber: production?.lote || undefined,
+      expirationDate: undefined, // El endpoint no retorna fecha de expiración
+      productionDate: production?.fechaFabricacion || undefined
     }
   }
 
   /**
-   * Procesa OCR con servicio real (implementar cuando esté disponible)
+   * Procesa OCR usando el endpoint api/ocr/extract
    */
-  const processOCRReal = async (_imageFile: File): Promise<OCRData> => {
-    // TODO: Implementar integración con servicio real de OCR
-    // Por ejemplo: Google Cloud Vision, AWS Textract, Azure Cognitive Services
-    
-    throw new Error('Servicio real de OCR no implementado aún')
+  const processOCR = async (imageFile: File): Promise<OCRData> => {
+    try {
+      // Convertir imagen a base64
+      const imageData = await fileToBase64(imageFile)
+      
+      // Llamar al endpoint
+      const response = await $fetch<OCRResponse>('/api/ocr/extract', {
+        method: 'POST',
+        body: {
+          imageData,
+          mimeType: imageFile.type,
+          filename: imageFile.name
+        }
+      })
+      
+      if (!response.success) {
+        throw new Error(response.error || 'Error procesando OCR')
+      }
+      
+      return mapToOCRData(response)
+    } catch (error) {
+      throw new Error(`Error procesando OCR: ${error instanceof Error ? error.message : 'Error desconocido'}`)
+    }
   }
 
   /**
@@ -160,12 +177,8 @@ export function useOCRConfig() {
   }
 
   return {
-    useMockOCR: readonly(useMockOCR),
-    mockOCRData: readonly(ref(mockOCRData)),
     retryConfig: readonly(ref(retryConfig)),
     processOCR,
-    processOCRMock,
-    processOCRReal,
     processOCRWithRetry,
     validateImageForOCR
   }

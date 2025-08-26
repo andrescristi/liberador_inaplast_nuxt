@@ -74,7 +74,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // Configuración de OCR
-const { processOCRWithRetry, validateImageForOCR, useMockOCR } = useOCRConfig()
+const { processOCRWithRetry, validateImageForOCR } = useOCRConfig()
 const toast = useToast()
 const logger = useLogger('OrderWizardStep1')
 
@@ -134,8 +134,7 @@ const handleNext = handleSubmit(async () => {
     try {
       logger.info('Iniciando procesamiento OCR', {
         fileName: localData.value.labelImage.name,
-        fileSize: localData.value.labelImage.size,
-        useMock: useMockOCR.value
+        fileSize: localData.value.labelImage.size
       })
       
       // Procesar OCR con reintentos
