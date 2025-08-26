@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest'
 describe('Lógica de Pruebas de Calidad', () => {
   
   // Función helper para evaluar resultado general
-  const evaluateOverallTestResult = (test1: any, test2: any, test3: any): boolean => {
+  const evaluateOverallTestResult = (test1: unknown, test2: unknown, test3: unknown): boolean => {
     // Convertir explícitamente a boolean para manejar casos edge
     const t1 = Boolean(test1)
     const t2 = Boolean(test2)

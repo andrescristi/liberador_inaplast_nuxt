@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 describe('Pino Pretty Fix', () => {
   it('should have pino-pretty installed as dev dependency', async () => {

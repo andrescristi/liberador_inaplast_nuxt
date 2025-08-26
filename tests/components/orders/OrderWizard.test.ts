@@ -7,6 +7,19 @@ import OrderWizard from '~/components/orders/OrderWizard.vue'
 const navigateToMock = vi.fn()
 vi.stubGlobal('navigateTo', navigateToMock)
 
+// Mock del composable useRouter
+const useRouterMock = vi.fn(() => ({
+  push: vi.fn(),
+  back: vi.fn(),
+  currentRoute: {
+    value: {
+      path: '/orders/new',
+      params: {}
+    }
+  }
+}))
+vi.stubGlobal('useRouter', useRouterMock)
+
 // Mock del composable useNuxtApp
 const useNuxtAppMock = vi.fn(() => ({
   $logger: {
@@ -25,7 +38,7 @@ const useToastMock = vi.fn(() => ({
 vi.stubGlobal('useToast', useToastMock)
 
 describe('OrderWizard', () => {
-  let wrapper: any
+  let wrapper: ReturnType<typeof mount>
 
   beforeEach(() => {
     // Limpiar mocks

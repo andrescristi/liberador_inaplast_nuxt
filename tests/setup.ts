@@ -17,6 +17,7 @@ global.nextTick = nextTick
 global.computed = computed
 global.ref = ref
 global.reactive = reactive
+global.readonly = vi.fn((val) => val) // Mock readonly to pass through value
 global.onMounted = onMounted
 global.watch = watch
 

@@ -41,7 +41,7 @@ test.describe('Diagnóstico de /orders/new', () => {
       try {
         await page.waitForURL('http://localhost:3000/', { timeout: 60000 });
         console.log('✅ Login completado, redirigido al dashboard');
-      } catch (error) {
+      } catch {
         console.log('⚠️ Timeout esperando login o no se redirigió al dashboard');
         console.log('🔄 Continuando con el análisis desde la página actual...');
       }
