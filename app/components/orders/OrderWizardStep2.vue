@@ -18,6 +18,18 @@
             title="Datos precargados automáticamente"
           />
         </h3>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Número de Lote *
+            </label>
+            <input 
+              v-model="localData.lotNumber"
+              type="text" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Ej: LOT20241201"
+              required
+            >
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -83,33 +95,7 @@
               required
             >
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Categoría
-            </label>
-            <select 
-              v-model="localData.productCategory"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="">Seleccionar categoría</option>
-              <option value="bolsas">Bolsas</option>
-              <option value="films">Films</option>
-              <option value="contenedores">Contenedores</option>
-              <option value="otros">Otros</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Número de Lote *
-            </label>
-            <input 
-              v-model="localData.lotNumber"
-              type="text" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Ej: LOT20241201"
-              required
-            >
-          </div>
+          
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Fecha de Producción *
@@ -119,16 +105,6 @@
               type="date" 
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               required
-            >
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Fecha de Vencimiento
-            </label>
-            <input 
-              v-model="localData.expirationDate"
-              type="date" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
           </div>
         </div>
