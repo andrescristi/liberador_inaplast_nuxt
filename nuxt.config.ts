@@ -68,7 +68,10 @@ export default defineNuxtConfig({
       supabase: {
         url: process.env.NUXT_SUPABASE_URL,       // Disponible en cliente para SDK
         key: process.env.NUXT_SUPABASE_ANON_KEY   // Disponible en cliente (segura)
-      }
+      },
+      // Feature flags para alternar funcionalidades
+      enableMockOCR: process.env.NUXT_ENABLE_MOCK_OCR || 'true', // Default a true para desarrollo
+      enableDebugMode: process.env.NUXT_ENABLE_DEBUG_MODE || 'false'
     }
   },
   
