@@ -2,7 +2,27 @@
 
 A modern web application for managing product release quality control workflows built with Nuxt 4, TailwindCSS, and Supabase.
 
-## ✨ Recent Updates (v2.5.0)
+## ✨ Recent Updates (v2.6.0)
+
+### 🤖 OCR System Integration with Gemini AI
+- **Real OCR Processing** - Connected `useOCRConfig` composable with `/api/ocr/extract` endpoint using Google Gemini AI
+- **Automatic Data Population** - Order form fields now populate automatically from extracted image data
+- **Production Data Mapping** - Smart mapping from Gemini response to application data structure
+- **Error Handling & Retry Logic** - Robust retry mechanism for failed OCR processing with exponential backoff
+
+### 🧪 Enhanced Testing Coverage
+- **OCR Composable Tests** - Comprehensive test suite for `useOCRConfig` with mocked API responses
+- **API Integration Tests** - Data validation tests for OCR endpoint structure and mapping
+- **Type Safety Improvements** - Fixed TypeScript errors in OCR data flow components
+- **Mock System Updates** - Removed deprecated mock OCR system in favor of real Gemini integration
+
+### 🔧 Technical Improvements
+- **Data Flow Optimization** - Streamlined OCR data from Step 1 image upload to Step 2 form population
+- **Type System Enhancement** - Proper TypeScript interfaces for OCR data throughout the application
+- **Component Updates** - Fixed event typing issues in OrderImageUpload and wizard components
+- **API Endpoint Validation** - Improved request validation and error responses
+
+## ✨ Previous Updates (v2.5.0)
 
 ### 🏗️ Major Architecture & Quality Improvements
 - **Dashboard Metrics API** - New real-time dashboard metrics endpoint with role-based data filtering
