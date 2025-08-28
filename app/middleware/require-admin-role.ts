@@ -11,7 +11,7 @@
  * - Rutas como panel de usuarios, configuración del sistema, etc.
  * 
  * SEGURIDAD:
- * - Consulta base de datos en tiempo real para verificar rol actual
+ * - Usa endpoint API server-side para verificar rol actual
  * - No confía en cache del cliente o datos obsoletos
  * - Errores descriptivos para debugging pero sin exponer información sensible
  * 
@@ -19,27 +19,33 @@
  * - 'auth': Solo verifica autenticación (cualquier usuario loggeado)
  * - 'require-admin-role': Verifica autenticación + rol Admin específico
  */
-import { useAuth } from '~/composables/auth'
-export default defineNuxtRouteMiddleware(async (_to, _from) => {
-  // Obtener usuario autenticado de Supabase
-  const user = useSupabaseUser()
-  const { getCurrentUserProfile } = useAuth()
 
-  // PASO 1: Verificar autenticación básica
-  // Si no hay usuario, lanzar error 401 (no redirigir porque es una verificación estricta)
-  if (!user.value) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Authentication required' // Mensaje en inglés para consistencia con APIs
-    })
+export default defineNuxtRouteMiddleware(async () => {
+  // Solo ejecutar en el servidor
+  if (import.meta.client) {
+    return
   }
 
   try {
-    // PASO 2: Obtener perfil completo con rol desde base de datos
-    // Esto hace una consulta fresh, no usa cache para garantizar datos actuales
-    const profile = await getCurrentUserProfile()
+    // PASO 1: Verificar autenticación básica usando Nuxt utilities
+    const user = useSupabaseUser()
     
-    // Verificar que el perfil existe (usuario válido pero sin perfil configurado)
+    if (!user.value) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Authentication required'
+      })
+    }
+
+    // PASO 2: Obtener perfil usando endpoint API server-side con cookies incluidas
+    const event = useRequestEvent()
+    const profile = await $fetch('/api/auth/profile', {
+      headers: {
+        // Pasar las cookies de la solicitud original
+        cookie: event?.node.req.headers.cookie || ''
+      }
+    })
+    
     if (!profile) {
       throw createError({
         statusCode: 403,
@@ -48,8 +54,6 @@ export default defineNuxtRouteMiddleware(async (_to, _from) => {
     }
 
     // PASO 3: Verificación estricta de rol de administrador
-    // Solo usuarios con rol exacto 'Admin' pueden acceder
-    // Supervisors e Inspectors son rechazados aquí
     if (profile.user_role !== 'Admin') {
       throw createError({
         statusCode: 403,
@@ -57,27 +61,23 @@ export default defineNuxtRouteMiddleware(async (_to, _from) => {
       })
     }
     
-    // Si llega aquí, el usuario está autenticado Y autorizado como Admin
-    // El middleware permite continuar con la navegación
+    // Usuario autenticado y autorizado como Admin
     
   } catch (error: unknown) {
-    // Manejo robusto de errores para evitar crashes del middleware
-    // Preserva códigos de error existentes o usa 500 como fallback
+    // Si es error de $fetch con statusCode, preservarlo
+    if (error && typeof error === 'object' && 'statusCode' in error) {
+      throw error
+    }
     
-    // Extraer statusCode si existe (errores de createError anteriores)
-    const statusCode = error && typeof error === 'object' && 'statusCode' in error 
-      ? (error.statusCode as number) 
-      : 500 // Error de servidor si algo falla inesperadamente
+    // Si es error de createError, preservarlo
+    if (error && typeof error === 'object' && 'statusMessage' in error) {
+      throw error
+    }
     
-    // Extraer mensaje si existe, o usar mensaje genérico
-    const statusMessage = error && typeof error === 'object' && 'statusMessage' in error 
-      ? (error.statusMessage as string) 
-      : 'Failed to verify admin access'
-    
-    // Re-lanzar error con formato consistente de Nuxt
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     throw createError({
-      statusCode,
-      statusMessage
+      statusCode: 500,
+      statusMessage: `Failed to verify admin access: ${errorMessage}`
     })
   }
 })

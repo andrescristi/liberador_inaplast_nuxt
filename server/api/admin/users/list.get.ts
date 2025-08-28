@@ -1,5 +1,5 @@
 import type { Profile, PaginatedResponse } from '~/types'
-import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 import type { Database } from '../../../../types/database.types'
 
 export default defineEventHandler(async (event): Promise<PaginatedResponse<Profile>> => {
@@ -17,10 +17,8 @@ export default defineEventHandler(async (event): Promise<PaginatedResponse<Profi
   const searchTerm = search as string || ''
   const roleFilter = role_filter as string || ''
 
-  // Create regular client first to verify user auth
-  const userClient = await serverSupabaseClient<Database>(event)
   // Create service role client for admin operations (bypasses RLS)
-  const supabase = await serverSupabaseServiceRole<Database>(event)
+  const supabase = serverSupabaseServiceRole<Database>(event)
 
   try {
     // Get user from the request headers (Nuxt should handle auth)
@@ -33,8 +31,8 @@ export default defineEventHandler(async (event): Promise<PaginatedResponse<Profi
       })
     }
 
-    // Check if user is admin using regular client (RLS applies)
-    const { data: adminCheck } = await userClient
+    // Check if user is admin using service role client (bypasses RLS)
+    const { data: adminCheck } = await supabase
       .from('profiles')
       .select('user_role')
       .eq('user_id', supabaseUser.id)
