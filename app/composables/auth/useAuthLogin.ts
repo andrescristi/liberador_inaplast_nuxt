@@ -1,11 +1,28 @@
 /**
  * Composable especializado para operaciones de login/logout
- * Maneja únicamente la autenticación básica de usuarios
+ * Usa endpoints API del servidor en lugar de conexión directa a Supabase
  */
-import type { Database } from '../../../types/database.types'
+import { useAuthState } from './useAuthState'
+
+interface LoginResponse {
+  success: boolean
+  message: string
+  user?: {
+    id: string
+    email: string
+    [key: string]: unknown
+  }
+}
+
+interface LogoutResponse {
+  success: boolean
+  message: string
+  logged_out: boolean
+  timestamp: string
+}
 
 export const useAuthLogin = () => {
-  const supabase = useSupabaseClient<Database>()
+  const { clearUser, refreshUser } = useAuthState()
 
   /**
    * Inicia sesión de usuario con validación y manejo de errores
@@ -15,36 +32,66 @@ export const useAuthLogin = () => {
       throw new Error('Email y contraseña son requeridos')
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password
-    })
+    try {
+      // Usar endpoint del servidor para login
+      const response = await $fetch<LoginResponse>('/api/auth/login', {
+        method: 'POST',
+        body: {
+          email: email.trim(),
+          password
+        }
+      })
 
-    if (error) {
-      let errorMessage = error.message
-      if (error.message.includes('Invalid login credentials')) {
+      if (!response.success) {
+        throw new Error(response.message || 'Error durante el inicio de sesión')
+      }
+
+      // Refrescar el estado del usuario después del login exitoso
+      await refreshUser()
+
+      return response
+    } catch (error: unknown) {
+      // Mapear errores comunes de Supabase a mensajes en español
+      const errorObj = error as { data?: { message?: string }, message?: string }
+      let errorMessage = errorObj?.data?.message || errorObj?.message || 'Error desconocido'
+      
+      if (errorMessage.includes('Invalid login credentials')) {
         errorMessage = 'Credenciales incorrectas. Verifica tu email y contraseña.'
-      } else if (error.message.includes('Email not confirmed')) {
+      } else if (errorMessage.includes('Email not confirmed')) {
         errorMessage = 'Por favor confirma tu email antes de iniciar sesión.'
-      } else if (error.message.includes('Too many requests')) {
+      } else if (errorMessage.includes('Too many requests')) {
         errorMessage = 'Demasiados intentos. Intenta de nuevo en unos minutos.'
       }
+      
       throw new Error(errorMessage)
     }
-
-    return data
   }
 
   /**
-   * Cierra la sesión del usuario actual y redirige a login
+   * Cierra la sesión del usuario actual usando API del servidor
    */
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      throw new Error(`Error durante el logout: ${error.message}`)
+    try {
+      const response = await $fetch<LogoutResponse>('/api/auth/logout', {
+        method: 'POST'
+      })
+
+      if (!response.success) {
+        throw new Error(response.message || 'Error durante el cierre de sesión')
+      }
+
+      // Limpiar el estado local del usuario
+      clearUser()
+      
+      // Redirigir a la página de login
+      await navigateTo('/auth/login')
+      
+      return response
+    } catch (error: unknown) {
+      const errorObj = error as { data?: { message?: string }, message?: string }
+      const errorMessage = errorObj?.data?.message || errorObj?.message || 'Error durante el logout'
+      throw new Error(errorMessage)
     }
-    
-    await navigateTo('/auth/login')
   }
 
   return {

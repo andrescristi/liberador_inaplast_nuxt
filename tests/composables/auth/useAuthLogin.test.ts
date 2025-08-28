@@ -1,51 +1,89 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Mock de Supabase client
-const mockSupabaseClient = {
-  auth: {
-    signInWithPassword: vi.fn(),
-    signOut: vi.fn()
-  }
-}
+// Mock de $fetch y navegateTo
+const mockFetch = vi.fn()
+const mockNavigateTo = vi.fn()
 
-vi.mock('#app', () => ({
-  useSupabaseClient: () => mockSupabaseClient,
-  navigateTo: vi.fn()
+// Mock de useAuthState
+const mockClearUser = vi.fn()
+const mockRefreshUser = vi.fn()
+
+vi.mock('ofetch', () => ({
+  $fetch: mockFetch
 }))
 
-// Mock directo del composable para evitar problemas de importación
+vi.mock('#app', () => ({
+  navigateTo: mockNavigateTo
+}))
+
+vi.mock('~/composables/auth/useAuthState', () => ({
+  useAuthState: () => ({
+    clearUser: mockClearUser,
+    refreshUser: mockRefreshUser
+  })
+}))
+
+// Mock del composable refactorizado que usa API endpoints
 const useAuthLogin = () => {
-  const supabase = mockSupabaseClient
+  const { clearUser, refreshUser } = {
+    clearUser: mockClearUser,
+    refreshUser: mockRefreshUser
+  }
 
   const signIn = async (email: string, password: string) => {
     if (!email || !password) {
       throw new Error('Email y contraseña son requeridos')
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password
-    })
+    try {
+      const response = await mockFetch('/api/auth/login', {
+        method: 'POST',
+        body: {
+          email: email.trim(),
+          password
+        }
+      })
 
-    if (error) {
-      let errorMessage = error.message
-      if (error.message.includes('Invalid login credentials')) {
+      if (!response.success) {
+        throw new Error(response.message || 'Error durante el inicio de sesión')
+      }
+
+      await refreshUser()
+      return response
+    } catch (error: unknown) {
+      const errorObj = error as { data?: { message?: string }, message?: string }
+      let errorMessage = errorObj?.data?.message || errorObj?.message || 'Error desconocido'
+      
+      if (errorMessage.includes('Invalid login credentials')) {
         errorMessage = 'Credenciales incorrectas. Verifica tu email y contraseña.'
-      } else if (error.message.includes('Email not confirmed')) {
+      } else if (errorMessage.includes('Email not confirmed')) {
         errorMessage = 'Por favor confirma tu email antes de iniciar sesión.'
-      } else if (error.message.includes('Too many requests')) {
+      } else if (errorMessage.includes('Too many requests')) {
         errorMessage = 'Demasiados intentos. Intenta de nuevo en unos minutos.'
       }
+      
       throw new Error(errorMessage)
     }
-
-    return data
   }
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      throw new Error(`Error durante el logout: ${error.message}`)
+    try {
+      const response = await mockFetch('/api/auth/logout', {
+        method: 'POST'
+      })
+
+      if (!response.success) {
+        throw new Error(response.message || 'Error durante el cierre de sesión')
+      }
+
+      clearUser()
+      await mockNavigateTo('/auth/login')
+      
+      return response
+    } catch (error: unknown) {
+      const errorObj = error as { data?: { message?: string }, message?: string }
+      const errorMessage = errorObj?.data?.message || errorObj?.message || 'Error durante el logout'
+      throw new Error(errorMessage)
     }
   }
 
@@ -62,17 +100,25 @@ describe('useAuthLogin Composable', () => {
 
   describe('signIn', () => {
     it('debe hacer login exitoso con credenciales válidas', async () => {
-      const mockData = { user: { id: 'test-id', email: 'test@example.com' } }
-      mockSupabaseClient.auth.signInWithPassword.mockResolvedValue({ data: mockData, error: null })
+      const mockResponse = { 
+        success: true, 
+        message: 'Login exitoso',
+        user: { id: 'test-id', email: 'test@example.com' }
+      }
+      mockFetch.mockResolvedValue(mockResponse)
 
       const { signIn } = useAuthLogin()
       const result = await signIn('test@example.com', 'password123')
       
-      expect(mockSupabaseClient.auth.signInWithPassword).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'password123'
+      expect(mockFetch).toHaveBeenCalledWith('/api/auth/login', {
+        method: 'POST',
+        body: {
+          email: 'test@example.com',
+          password: 'password123'
+        }
       })
-      expect(result).toEqual(mockData)
+      expect(mockRefreshUser).toHaveBeenCalled()
+      expect(result).toEqual(mockResponse)
     })
 
     it('debe rechazar email y contraseña vacíos', async () => {
@@ -83,17 +129,18 @@ describe('useAuthLogin Composable', () => {
     })
 
     it('debe limpiar espacios en blanco del email', async () => {
-      mockSupabaseClient.auth.signInWithPassword.mockResolvedValue({ 
-        data: { user: {} }, 
-        error: null 
-      })
+      const mockResponse = { success: true, message: 'Login exitoso' }
+      mockFetch.mockResolvedValue(mockResponse)
 
       const { signIn } = useAuthLogin()
       await signIn('  test@example.com  ', 'password')
       
-      expect(mockSupabaseClient.auth.signInWithPassword).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'password'
+      expect(mockFetch).toHaveBeenCalledWith('/api/auth/login', {
+        method: 'POST',
+        body: {
+          email: 'test@example.com',
+          password: 'password'
+        }
       })
     })
 
@@ -116,9 +163,9 @@ describe('useAuthLogin Composable', () => {
       const { signIn } = useAuthLogin()
 
       for (const { error, expected } of errorScenarios) {
-        mockSupabaseClient.auth.signInWithPassword.mockResolvedValue({
-          data: null,
-          error: { message: error }
+        mockFetch.mockRejectedValue({
+          data: { message: error },
+          message: error
         })
 
         await expect(signIn('test@email.com', 'password')).rejects.toThrow(expected)
@@ -128,22 +175,29 @@ describe('useAuthLogin Composable', () => {
 
   describe('signOut', () => {
     it('debe hacer logout exitoso', async () => {
-      mockSupabaseClient.auth.signOut.mockResolvedValue({ error: null })
+      const mockResponse = { success: true, message: 'Logout exitoso' }
+      mockFetch.mockResolvedValue(mockResponse)
 
       const { signOut } = useAuthLogin()
-      await expect(signOut()).resolves.not.toThrow()
+      const result = await signOut()
       
-      expect(mockSupabaseClient.auth.signOut).toHaveBeenCalled()
+      expect(mockFetch).toHaveBeenCalledWith('/api/auth/logout', {
+        method: 'POST'
+      })
+      expect(mockClearUser).toHaveBeenCalled()
+      expect(mockNavigateTo).toHaveBeenCalledWith('/auth/login')
+      expect(result).toEqual(mockResponse)
     })
 
     it('debe manejar errores de logout', async () => {
       const errorMessage = 'Logout failed'
-      mockSupabaseClient.auth.signOut.mockResolvedValue({
-        error: { message: errorMessage }
+      mockFetch.mockRejectedValue({
+        data: { message: errorMessage },
+        message: errorMessage
       })
 
       const { signOut } = useAuthLogin()
-      await expect(signOut()).rejects.toThrow(`Error durante el logout: ${errorMessage}`)
+      await expect(signOut()).rejects.toThrow('Logout failed')
     })
   })
 })

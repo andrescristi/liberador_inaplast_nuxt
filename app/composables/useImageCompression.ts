@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 
 interface CompressionOptions {
   targetSizeKB?: number
@@ -6,7 +6,17 @@ interface CompressionOptions {
   maxHeight?: number
   quality?: number
   mimeType?: string
+  maxFileSizeMB?: number
 }
+
+interface ImageValidationResult {
+  isValid: boolean
+  error?: string
+}
+
+const MAX_FILE_SIZE_MB = 50
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+const MAX_DIMENSION = 4096
 
 interface CompressionResult {
   compressedFile: File
@@ -18,6 +28,78 @@ interface CompressionResult {
 export const useImageCompression = () => {
   const isCompressing = ref(false)
   const compressionProgress = ref(0)
+  const canvasRefs = new Set<HTMLCanvasElement>()
+  const imageUrls = new Set<string>()
+
+  /**
+   * Valida archivo de imagen antes del procesamiento
+   */
+  const validateImageFile = (file: File, maxFileSizeMB: number = MAX_FILE_SIZE_MB): ImageValidationResult => {
+    try {
+      // Validar tipo de archivo
+      if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+        return {
+          isValid: false,
+          error: `Tipo de archivo no soportado. Permitidos: ${ALLOWED_MIME_TYPES.join(', ')}`
+        }
+      }
+
+      // Validar tamaño
+      const maxSizeBytes = maxFileSizeMB * 1024 * 1024
+      if (file.size > maxSizeBytes) {
+        return {
+          isValid: false,
+          error: `Archivo demasiado grande. Máximo ${maxFileSizeMB}MB`
+        }
+      }
+
+      // Validar que el archivo no esté corrupto
+      if (file.size === 0) {
+        return {
+          isValid: false,
+          error: 'Archivo está vacío o corrupto'
+        }
+      }
+
+      return { isValid: true }
+    } catch (error) {
+      return {
+        isValid: false,
+        error: `Error al validar archivo: ${error instanceof Error ? error.message : 'Error desconocido'}`
+      }
+    }
+  }
+
+  /**
+   * Limpia recursos de canvas para evitar memory leaks
+   */
+  const cleanupCanvas = (canvas: HTMLCanvasElement) => {
+    try {
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+      }
+      canvas.width = 0
+      canvas.height = 0
+      canvasRefs.delete(canvas)
+    } catch {
+      // Error silencioso en cleanup
+    }
+  }
+
+  /**
+   * Limpia URLs de objetos para evitar memory leaks
+   */
+  const cleanupImageUrl = (url: string) => {
+    try {
+      if (imageUrls.has(url)) {
+        URL.revokeObjectURL(url)
+        imageUrls.delete(url)
+      }
+    } catch {
+      // Error silencioso en cleanup
+    }
+  }
 
   /**
    * Redimensiona una imagen a las dimensiones especificadas
@@ -44,24 +126,35 @@ export const useImageCompression = () => {
       }
     }
 
+    // Validar dimensiones
+    const clampedWidth = Math.min(Math.max(width, 1), MAX_DIMENSION)
+    const clampedHeight = Math.min(Math.max(height, 1), MAX_DIMENSION)
+
     // Configurar canvas
-    canvas.width = width
-    canvas.height = height
+    canvas.width = clampedWidth
+    canvas.height = clampedHeight
 
-    // Dibujar imagen redimensionada
+    // Dibujar imagen redimensionada con mejor calidad
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.drawImage(img, 0, 0, width, height)
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
+    ctx.drawImage(img, 0, 0, clampedWidth, clampedHeight)
 
-    return { width, height }
+    return { width: clampedWidth, height: clampedHeight }
   }
 
   /**
-   * Convierte un canvas a Blob con calidad específica
+   * Convierte un canvas a Blob con calidad específica y timeout
    */
   const canvasToBlob = (canvas: HTMLCanvasElement, mimeType: string, quality: number): Promise<Blob> => {
     return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Timeout al convertir canvas a blob'))
+      }, 30000) // 30 segundos timeout
+
       canvas.toBlob(
         (blob) => {
+          clearTimeout(timeout)
           if (blob) {
             resolve(blob)
           } else {
@@ -69,7 +162,7 @@ export const useImageCompression = () => {
           }
         },
         mimeType,
-        quality
+        Math.max(0.1, Math.min(1, quality)) // Clamp quality entre 0.1 y 1
       )
     })
   }
@@ -86,29 +179,47 @@ export const useImageCompression = () => {
       maxWidth = 1920,
       maxHeight = 1080,
       quality: initialQuality = 0.8,
-      mimeType = 'image/jpeg'
+      mimeType = 'image/jpeg',
+      maxFileSizeMB = MAX_FILE_SIZE_MB
     } = options
+
+    // Validar archivo antes de procesar
+    const validation = validateImageFile(file, maxFileSizeMB)
+    if (!validation.isValid) {
+      throw new Error(validation.error)
+    }
 
     isCompressing.value = true
     compressionProgress.value = 0
 
+    let canvas: HTMLCanvasElement | null = null
+    let imageUrl: string | null = null
+
     try {
       // Crear elementos necesarios
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
+      canvas = document.createElement('canvas')
+      canvasRefs.add(canvas) // Trackear para cleanup
+      
+      const ctx = canvas.getContext('2d', { willReadFrequently: false })
       if (!ctx) {
         throw new Error('No se pudo obtener el contexto del canvas')
       }
 
-      // Cargar la imagen
+      // Cargar la imagen con timeout
       const img = new Image()
-      const imageUrl = URL.createObjectURL(file)
+      imageUrl = URL.createObjectURL(file)
+      imageUrls.add(imageUrl) // Trackear para cleanup
       
-      await new Promise((resolve, reject) => {
-        img.onload = resolve
-        img.onerror = reject
-        img.src = imageUrl
-      })
+      await Promise.race([
+        new Promise((resolve, reject) => {
+          img.onload = resolve
+          img.onerror = () => reject(new Error('Error al cargar la imagen'))
+          img.src = imageUrl!
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout al cargar imagen')), 15000)
+        )
+      ])
 
       compressionProgress.value = 25
 
@@ -157,9 +268,6 @@ export const useImageCompression = () => {
         lastModified: Date.now()
       })
 
-      // Limpiar recursos
-      URL.revokeObjectURL(imageUrl)
-
       const result: CompressionResult = {
         compressedFile,
         originalSize: file.size,
@@ -170,8 +278,16 @@ export const useImageCompression = () => {
       return result
 
     } catch (error) {
-      throw new Error(`Error al comprimir imagen: ${error}`)
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
+      throw new Error(`Error al comprimir imagen: ${errorMessage}`)
     } finally {
+      // Limpiar recursos siempre
+      if (canvas) {
+        cleanupCanvas(canvas)
+      }
+      if (imageUrl) {
+        cleanupImageUrl(imageUrl)
+      }
       isCompressing.value = false
       compressionProgress.value = 0
     }
@@ -198,11 +314,37 @@ export const useImageCompression = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
+  /**
+   * Limpia todos los recursos cuando el composable se desmonta
+   */
+  const cleanup = () => {
+    try {
+      // Limpiar todos los canvas
+      for (const canvas of canvasRefs) {
+        cleanupCanvas(canvas)
+      }
+      canvasRefs.clear()
+
+      // Limpiar todas las URLs
+      for (const url of imageUrls) {
+        cleanupImageUrl(url)
+      }
+      imageUrls.clear()
+    } catch {
+      // Error silencioso en cleanup
+    }
+  }
+
+  // Auto-cleanup cuando el componente se desmonta
+  onUnmounted(cleanup)
+
   return {
     isCompressing: readonly(isCompressing),
     compressionProgress: readonly(compressionProgress),
     compressImage,
     needsCompression,
-    formatFileSize
+    formatFileSize,
+    validateImageFile,
+    cleanup
   }
 }

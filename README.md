@@ -2,7 +2,27 @@
 
 A modern web application for managing product release quality control workflows built with Nuxt 4, TailwindCSS, and Supabase.
 
-## ✨ Recent Updates (v2.6.0)
+## ✨ Recent Updates (v2.7.0)
+
+### 🔐 Authentication Architecture Refactoring
+- **Server-Side Authentication** - Complete migration from client-side Supabase connections to secure API endpoints
+- **New Auth API Endpoints** - Created `/api/auth/user`, `/api/auth/profile`, `/api/auth/login`, and `/api/auth/logout` for centralized authentication
+- **Component Security** - Refactored `AppNavigation.vue` to eliminate direct `useSupabaseUser()` usage in favor of server-managed authentication
+- **Composable Architecture** - Enhanced auth composables (`useAuthState`, `useAuthLogin`, `useAuthProfile`) to use API endpoints exclusively
+
+### 🧪 Comprehensive Authentication Testing
+- **API Endpoint Tests** - Complete test coverage for new authentication endpoints with proper error handling validation
+- **Composable Test Refactoring** - Updated all auth-related composable tests to match new API-based implementation
+- **End-to-End Auth Testing** - Comprehensive authentication flow testing using MCP Playwright for login/logout scenarios
+- **Test Infrastructure Enhancement** - 32+ new authentication tests ensuring robust security and functionality
+
+### 🏗️ Security & Architecture Improvements
+- **API-First Authentication** - All authentication operations now handled server-side for improved security
+- **Token Management** - Centralized JWT/session handling through Nuxt Supabase module
+- **Component Separation** - Clear separation between UI components and authentication logic
+- **Error Handling Enhancement** - Improved Spanish error messages and user-friendly authentication feedback
+
+## ✨ Previous Updates (v2.6.0)
 
 ### 🤖 OCR System Integration with Gemini AI
 - **Real OCR Processing** - Connected `useOCRConfig` composable with `/api/ocr/extract` endpoint using Google Gemini AI
@@ -78,12 +98,15 @@ A modern web application for managing product release quality control workflows 
 ## Features
 
 ### 🔐 Authentication & User Management
-- **Secure Login System** - Email/password authentication via Supabase Auth
+- **Server-Side Authentication** - Secure authentication handled exclusively through API endpoints (`/api/auth/*`)
+- **Centralized Auth State** - Unified authentication state management using `useAuthState` composable
+- **API-First Security** - All Supabase connections managed server-side, eliminating client-side auth vulnerabilities
+- **Secure Login System** - Email/password authentication via `/api/auth/login` endpoint
+- **Session Management** - Server-managed JWT/session handling through Nuxt Supabase integration
 - **Password Reset** - Forgot password functionality with email verification
-- **User Profiles** - Complete profile management with role-based access
+- **User Profiles** - Complete profile management via `/api/auth/profile` endpoint with role-based access
 - **Protected Routes** - All application routes require authentication
-- **User Session Management** - Automatic login/logout handling
-- **Conditional Navigation** - Navigation only displays when user is authenticated
+- **Conditional Navigation** - Navigation dynamically rendered based on server-side authentication state
 - **Role-Based Access Control** - Three user roles: Admin, Supervisor, Inspector
 - **User Administration** - Complete admin panel for user management (Admin only)
 - **Activity Audit Trail** - Comprehensive logging of all user management actions
@@ -310,6 +333,11 @@ app/
 
 server/
 ├── api/
+│   ├── auth/                  # Authentication API endpoints
+│   │   ├── user.get.ts        # Get authenticated user (replaces useSupabaseUser)
+│   │   ├── profile.get.ts     # Get user profile with role information
+│   │   ├── login.post.ts      # Handle login with server-side Supabase Auth
+│   │   └── logout.post.ts     # Handle logout and session cleanup
 │   ├── admin/
 │   │   └── users/             # User management API endpoints
 │   │       ├── index.get.ts   # List users with pagination
@@ -423,12 +451,15 @@ The project uses a completely refactored modular CSS architecture for maximum ma
 
 ### Authentication Flow
 
-1. **Route Protection**: All routes use the `auth` middleware
-2. **Login Required**: Unauthenticated users are redirected to `/auth/login`
-3. **Clean Auth Experience**: Navigation is hidden on login/auth pages for cleaner UX
-4. **Session Persistence**: Supabase handles session management automatically
-5. **Profile Access**: Users can access their profile page via the navigation menu
-6. **Logout**: Available through the user menu in the navigation
+1. **Server-Side Architecture**: All authentication operations handled through `/api/auth/*` endpoints
+2. **API-First Security**: Components use `useAuthState` composable instead of direct Supabase connections
+3. **Route Protection**: All routes use the `auth` middleware with server-side user verification
+4. **Login Process**: Authentication handled via `/api/auth/login` endpoint with server-side Supabase Auth
+5. **Session Management**: JWT/session management handled server-side through Nuxt Supabase module
+6. **User State**: Centralized user state via `/api/auth/user` endpoint (replaces `useSupabaseUser`)
+7. **Profile Access**: User profiles accessed via `/api/auth/profile` endpoint with role information
+8. **Logout Process**: Session cleanup handled through `/api/auth/logout` endpoint
+9. **Clean Auth Experience**: Navigation dynamically rendered based on authentication state
 
 ### Database Schema
 
@@ -610,6 +641,12 @@ pnpm build
 - ✅ **Navigation System**: Complete CoreAppNavigation component with responsive design and mobile optimization
 - ✅ **Testing Infrastructure**: Comprehensive E2E and unit tests for deployment, navigation, and core functionality
 - ✅ **Vercel Integration**: Full Vercel deployment pipeline with proper Nitro configuration and build optimization
+- ✅ **Authentication Architecture Refactoring**: Complete migration from client-side Supabase to server-side API authentication
+- ✅ **Auth API Endpoints**: Created `/api/auth/user`, `/api/auth/profile`, `/api/auth/login`, `/api/auth/logout` for centralized authentication
+- ✅ **Component Security Enhancement**: Refactored AppNavigation.vue to use `useAuthState` instead of `useSupabaseUser` 
+- ✅ **Auth Composable Restructuring**: Updated auth composables to use API endpoints exclusively for improved security
+- ✅ **Authentication Testing Suite**: Comprehensive test coverage (32+ tests) for auth endpoints and composables
+- ✅ **Server-Side Auth Security**: All authentication operations now handled server-side with proper JWT/session management
 - 🔄 **Database Integration**: Supabase integration for release data and quality control
 
 ## Contributing

@@ -1,373 +1,289 @@
+/**
+ * Composable principal para gestión administrativa de usuarios
+ * 
+ * Actúa como orquestador principal que combina todos los composables especializados
+ * manteniendo compatibilidad hacia atrás con la API existente.
+ * 
+ * REFACTORIZADO v2.5.0:
+ * - Dividido en múltiples composables especializados
+ * - Mejorado manejo de errores con logging consistente
+ * - Agregadas validaciones con Zod
+ * - Implementado patrón Repository
+ * - Consolidada funcionalidad con useAdminUserAPI
+ * 
+ * @author Inaplast Development Team
+ * @since v1.0.0
+ * @version v2.5.0 - Refactorización arquitectónica mayor
+ */
+
 import type { Profile, ProfileRole, ProfileFilters, PaginatedResponse, CreateProfileForm, UpdateProfileForm } from '~/types'
-import type { Database } from '../../types/database.types'
-import { useAuth } from '~/composables/auth'
+import { useAdminUserCRUD } from './admin/useAdminUserCRUD'
+import { useAdminUserState } from './admin/useAdminUserState'
+import { useLogger } from './useLogger'
 
+/**
+ * Composable principal de administración de usuarios
+ * 
+ * Proporciona una interfaz unificada y compatible hacia atrás para todas
+ * las operaciones de administración de usuarios.
+ * 
+ * @example
+ * ```typescript
+ * const {
+ *   getAllUsers,
+ *   createUser,
+ *   updateUser,
+ *   deleteUser,
+ *   getUserStats
+ * } = useAdminUserManager()
+ * ```
+ */
 export const useAdminUserManager = () => {
-  const supabase = useSupabaseClient<Database>()
-  const user = useSupabaseUser()
-  const { getCurrentUserProfile } = useAuth()
+  const crud = useAdminUserCRUD()
+  const state = useAdminUserState()
+  const logger = useLogger()
 
-  const checkIsAdmin = async (): Promise<boolean> => {
-    const profile = await getCurrentUserProfile()
-    return profile?.user_role === 'Admin'
-  }
-
+  /**
+   * Obtiene lista paginada de usuarios con filtros
+   * 
+   * Mantiene la misma interfaz que la versión anterior pero ahora
+   * utiliza la arquitectura refactorizada con mejor manejo de errores.
+   * 
+   * @param filters - Filtros de búsqueda y rol
+   * @param page - Número de página (base 1)
+   * @param pageSize - Elementos por página
+   * @returns Lista paginada de usuarios
+   */
   const getAllUsers = async (
     filters: ProfileFilters = {},
     page = 1,
     pageSize = 20
   ): Promise<PaginatedResponse<Profile>> => {
-    if (!await checkIsAdmin()) {
-      throw new Error('Acceso denegado. Se requieren privilegios de administrador.')
-    }
-
     try {
-      // Calculate offset for pagination
-      const offset = (page - 1) * pageSize
-
-      // Build the query
-      let query = supabase
-        .from('profiles')
-        .select(`
-          id,
-          user_id,
-          first_name,
-          last_name,
-          user_role,
-          created_at,
-          updated_at
-        `, { count: 'exact' })
-
-      // Apply filters
-      if (filters.search) {
-        query = query.or(`first_name.ilike.%${filters.search}%,last_name.ilike.%${filters.search}%`)
-      }
-
-      if (filters.role_filter) {
-        query = query.eq('user_role', filters.role_filter)
-      }
-
-      // Apply pagination
-      query = query.range(offset, offset + pageSize - 1)
-
-      const { data, error, count } = await query
-
-      if (error) {
-        throw error
-      }
-
-      // Transform profiles and add full_name
-      const profilesWithEmails = (data || []).map((profile) => ({
-        ...profile,
-        full_name: `${profile.first_name} ${profile.last_name}`,
-        email: '' // Email will be populated separately if needed
-      }))
-
-      return {
-        data: profilesWithEmails,
-        total: count || 0,
+      logger.debug('useAdminUserManager.getAllUsers llamado', {
+        filters,
         page,
-        per_page: pageSize,
-        total_pages: Math.ceil((count || 0) / pageSize)
-      }
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-      throw new Error(`Error al obtener usuarios: ${errorMessage}`)
-    }
-  }
-
-  const getUserById = async (userId: string): Promise<Profile | null> => {
-    if (!await checkIsAdmin()) {
-      throw new Error('Access denied. Admin privileges required.')
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select(`
-          id,
-          user_id,
-          first_name,
-          last_name,
-          user_role,
-          created_at,
-          updated_at
-        `)
-        .eq('user_id', userId)
-        .single()
-
-      if (error) {
-        if (error.code === 'PGRST116') return null
-        throw error
-      }
-
-      const { data: authUser } = await supabase.auth.admin.getUserById(userId)
+        pageSize,
+        action: 'admin_manager_get_all_users'
+      })
       
-      return {
-        id: data.id,
-        user_id: data.user_id,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        user_role: data.user_role,
-        created_at: data.created_at,
-        updated_at: data.updated_at,
-        full_name: `${data.first_name} ${data.last_name}`,
-        email: authUser.user?.email || ''
-      }
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      throw new Error(`Failed to fetch user: ${errorMessage}`)
+      return await crud.getAllUsers(filters, page, pageSize)
+    } catch (error) {
+      logger.error('Error en useAdminUserManager.getAllUsers', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        filters,
+        page,
+        pageSize,
+        action: 'admin_manager_get_all_users'
+      })
+      throw error
     }
   }
 
+  /**
+   * Obtiene un usuario específico por ID
+   * 
+   * @param userId - ID del usuario a obtener
+   * @returns Usuario encontrado o null si no existe
+   */
+  const getUserById = async (userId: string): Promise<Profile | null> => {
+    try {
+      logger.debug('useAdminUserManager.getUserById llamado', {
+        userId,
+        action: 'admin_manager_get_user_by_id'
+      })
+      
+      return await crud.getUserById(userId)
+    } catch (error) {
+      logger.error('Error en useAdminUserManager.getUserById', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        userId,
+        action: 'admin_manager_get_user_by_id'
+      })
+      throw error
+    }
+  }
+
+  /**
+   * Crea un nuevo usuario con cuenta de autenticación
+   * 
+   * @param email - Email del nuevo usuario
+   * @param password - Contraseña temporal
+   * @param profileData - Datos del perfil
+   * @returns Usuario creado
+   */
   const createUser = async (
     email: string,
     password: string,
     profileData: CreateProfileForm
   ): Promise<Profile> => {
-    if (!await checkIsAdmin()) {
-      throw new Error('Access denied. Admin privileges required.')
-    }
-
     try {
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      logger.info('useAdminUserManager.createUser llamado', {
         email,
-        password,
-        email_confirm: true,
-        user_metadata: {
-          first_name: profileData.first_name,
-          last_name: profileData.last_name
-        }
-      })
-
-      if (authError) throw authError
-
-      if (!authData.user) {
-        throw new Error('Failed to create user account')
-      }
-
-      const { data: profileUpdateData, error: profileError } = await supabase
-        .from('profiles')
-        .update({
+        profileData: {
           first_name: profileData.first_name,
           last_name: profileData.last_name,
           user_role: profileData.user_role
-        })
-        .eq('user_id', authData.user.id)
-        .select()
-        .single()
-
-      if (profileError) throw profileError
-
-      // Log the activity
-      // TODO: Implement log_user_activity function in database
-      // await supabase.rpc('log_user_activity', {
-      //   p_actor_user_id: user.value?.id,
-      //   p_target_user_id: authData.user.id,
-      //   p_activity_type: 'user_created',
-      //   p_activity_description: `Created user: ${profileData.first_name} ${profileData.last_name} (${email}) with role ${profileData.user_role}`,
-      //   p_metadata: {
-      //     email,
-      //     role: profileData.user_role,
-      //     name: `${profileData.first_name} ${profileData.last_name}`
-      //   }
-      // })
-
-      return {
-        id: profileUpdateData.id,
-        user_id: profileUpdateData.user_id,
-        first_name: profileUpdateData.first_name,
-        last_name: profileUpdateData.last_name,
-        user_role: profileUpdateData.user_role,
-        created_at: profileUpdateData.created_at,
-        updated_at: profileUpdateData.updated_at,
-        full_name: `${profileUpdateData.first_name} ${profileUpdateData.last_name}`,
-        email: authData.user.email || ''
-      }
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      throw new Error(`Failed to create user: ${errorMessage}`)
+        },
+        action: 'admin_manager_create_user'
+      })
+      
+      return await crud.createUser(email, password, profileData)
+    } catch (error) {
+      logger.error('Error en useAdminUserManager.createUser', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        email,
+        profileData,
+        action: 'admin_manager_create_user'
+      })
+      throw error
     }
   }
 
+  /**
+   * Actualiza un usuario existente
+   * 
+   * @param userId - ID del usuario a actualizar
+   * @param profileData - Datos a actualizar
+   * @param email - Nuevo email (opcional)
+   * @returns Usuario actualizado
+   */
   const updateUser = async (
     userId: string,
     profileData: UpdateProfileForm,
     email?: string
   ): Promise<Profile> => {
-    if (!await checkIsAdmin()) {
-      throw new Error('Access denied. Admin privileges required.')
-    }
-
     try {
-      if (email) {
-        const { error: authError } = await supabase.auth.admin.updateUserById(userId, {
-          email
-        })
-        if (authError) throw authError
-      }
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({
-          ...profileData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', userId)
-        .select()
-        .single()
-
-      if (error) throw error
-
-      const { data: authUser } = await supabase.auth.admin.getUserById(userId)
-
-      // Log the activity
-      const changes = []
-      if (profileData.first_name) changes.push(`first_name: ${profileData.first_name}`)
-      if (profileData.last_name) changes.push(`last_name: ${profileData.last_name}`)
-      if (profileData.user_role) changes.push(`role: ${profileData.user_role}`)
-      if (email) changes.push(`email: ${email}`)
-
-      // TODO: Implement log_user_activity function in database
-      // await supabase.rpc('log_user_activity', {
-      //   p_actor_user_id: user.value?.id,
-      //   p_target_user_id: userId,
-      //   p_activity_type: profileData.user_role ? 'user_role_changed' : 'user_updated',
-      //   p_activity_description: `Updated user: ${changes.join(', ')}`,
-      //   p_metadata: JSON.parse(JSON.stringify({
-      //     changes: profileData,
-      //     new_email: email
-      //   }))
-      // })
-
-      return {
-        id: data.id,
-        user_id: data.user_id,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        user_role: data.user_role,
-        created_at: data.created_at,
-        updated_at: data.updated_at,
-        full_name: `${data.first_name} ${data.last_name}`,
-        email: authUser.user?.email || ''
-      }
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      throw new Error(`Failed to update user: ${errorMessage}`)
+      logger.info('useAdminUserManager.updateUser llamado', {
+        userId,
+        profileData,
+        emailUpdate: !!email,
+        action: 'admin_manager_update_user'
+      })
+      
+      return await crud.updateUser(userId, profileData, email)
+    } catch (error) {
+      logger.error('Error en useAdminUserManager.updateUser', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        userId,
+        profileData,
+        email,
+        action: 'admin_manager_update_user'
+      })
+      throw error
     }
   }
 
+  /**
+   * Elimina un usuario y su cuenta de autenticación
+   * 
+   * @param userId - ID del usuario a eliminar
+   */
   const deleteUser = async (userId: string): Promise<void> => {
-    if (!await checkIsAdmin()) {
-      throw new Error('Access denied. Admin privileges required.')
-    }
-
-    const currentUser = user.value
-    if (currentUser?.id === userId) {
-      throw new Error('Cannot delete your own account')
-    }
-
     try {
-      // Get user info before deletion for logging
-      const { data: _userData } = await supabase.auth.admin.getUserById(userId)
-      const { data: _profileData } = await supabase
-        .from('profiles')
-        .select('first_name, last_name, user_role')
-        .eq('user_id', userId)
-        .single()
-
-      const { error } = await supabase.auth.admin.deleteUser(userId)
-      if (error) throw error
-
-      // Log the activity
-      // TODO: Implement log_user_activity function in database
-      // if (userData.user && profileData) {
-      //   await supabase.rpc('log_user_activity', {
-      //     p_actor_user_id: user.value?.id,
-      //     p_target_user_id: null, // User is deleted, so no target
-      //     p_activity_type: 'user_deleted',
-      //     p_activity_description: `Deleted user: ${profileData.first_name} ${profileData.last_name} (${userData.user.email})`,
-      //     p_metadata: {
-      //       deleted_user_email: userData.user.email,
-      //       deleted_user_name: `${profileData.first_name} ${profileData.last_name}`,
-      //       deleted_user_role: profileData.user_role
-      //     }
-      //   })
-      // }
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      throw new Error(`Failed to delete user: ${errorMessage}`)
+      logger.info('useAdminUserManager.deleteUser llamado', {
+        userId,
+        action: 'admin_manager_delete_user'
+      })
+      
+      await crud.deleteUser(userId)
+    } catch (error) {
+      logger.error('Error en useAdminUserManager.deleteUser', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        userId,
+        action: 'admin_manager_delete_user'
+      })
+      throw error
     }
   }
 
+  /**
+   * Reinicia la contraseña de un usuario
+   * 
+   * @param userId - ID del usuario
+   */
   const resetUserPassword = async (userId: string): Promise<void> => {
-    if (!await checkIsAdmin()) {
-      throw new Error('Access denied. Admin privileges required.')
-    }
-
     try {
-      const { data: userData } = await supabase.auth.admin.getUserById(userId)
-      if (!userData.user?.email) {
-        throw new Error('User email not found')
-      }
-
-      const { error } = await supabase.auth.resetPasswordForEmail(userData.user.email)
-      if (error) throw error
-
-      // Log the activity
-      // TODO: Implement log_user_activity function in database
-      // await supabase.rpc('log_user_activity', {
-      //   p_actor_user_id: user.value?.id,
-      //   p_target_user_id: userId,
-      //   p_activity_type: 'password_reset',
-      //   p_activity_description: `Password reset requested for user: ${userData.user.email}`,
-      //   p_metadata: {
-      //     reset_email: userData.user.email
-      //   }
-      // })
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      throw new Error(`Failed to reset password: ${errorMessage}`)
+      logger.info('useAdminUserManager.resetUserPassword llamado', {
+        userId,
+        action: 'admin_manager_reset_password'
+      })
+      
+      await crud.resetUserPassword(userId)
+    } catch (error) {
+      logger.error('Error en useAdminUserManager.resetUserPassword', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        userId,
+        action: 'admin_manager_reset_password'
+      })
+      throw error
     }
   }
 
+  /**
+   * Obtiene estadísticas de usuarios por rol
+   * 
+   * @returns Estadísticas agregadas por rol
+   */
   const getUserStats = async (): Promise<{
     total: number
     admins: number
     supervisors: number
     inspectors: number
   }> => {
-    if (!await checkIsAdmin()) {
-      throw new Error('Access denied. Admin privileges required.')
-    }
-
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('user_role')
-
-      if (error) throw error
-
-      const stats = {
-        total: data.length,
-        admins: data.filter(p => p.user_role === 'Admin').length,
-        supervisors: data.filter(p => p.user_role === 'Supervisor').length,
-        inspectors: data.filter(p => p.user_role === 'Inspector').length
-      }
-
-      return stats
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      throw new Error(`Failed to fetch user statistics: ${errorMessage}`)
+      logger.debug('useAdminUserManager.getUserStats llamado', {
+        action: 'admin_manager_get_stats'
+      })
+      
+      return await crud.getUserStats()
+    } catch (error) {
+      logger.error('Error en useAdminUserManager.getUserStats', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        action: 'admin_manager_get_stats'
+      })
+      throw error
     }
   }
 
-  const getRoleOptions = (): { label: string; value: ProfileRole }[] => [
-    { label: 'Administrador', value: 'Admin' },
-    { label: 'Supervisor', value: 'Supervisor' },
-    { label: 'Inspector', value: 'Inspector' }
-  ]
+  /**
+   * Obtiene opciones de roles disponibles
+   * 
+   * @returns Lista de opciones de rol con etiquetas localizadas
+   */
+  const getRoleOptions = (): { label: string; value: ProfileRole }[] => {
+    return crud.getRoleOptions()
+  }
 
+  /**
+   * Verifica si el usuario actual es administrador
+   * 
+   * @returns true si es administrador, false de lo contrario
+   */
+  const checkIsAdmin = async (): Promise<boolean> => {
+    try {
+      return await crud.checkIsAdmin()
+    } catch (error) {
+      logger.error('Error en useAdminUserManager.checkIsAdmin', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        action: 'admin_manager_check_admin'
+      })
+      return false
+    }
+  }
+
+  /**
+   * Obtiene logs de actividad del sistema
+   * 
+   * NOTA: Esta función está pendiente de implementación en la base de datos.
+   * Actualmente retorna un array vacío para mantener compatibilidad.
+   * 
+   * @param _limit - Límite de registros (no usado actualmente)
+   * @param _offset - Offset para paginación (no usado actualmente)
+   * @param _activityType - Tipo de actividad a filtrar (no usado actualmente)
+   * @param _targetUserId - ID del usuario objetivo (no usado actualmente)
+   * @returns Array vacío hasta que se implemente la función en BD
+   */
   const getActivityLogs = async (
     _limit = 50,
     _offset = 0,
@@ -382,12 +298,18 @@ export const useAdminUserManager = () => {
     metadata: Record<string, unknown>;
     created_at: string;
   }[]> => {
-    if (!await checkIsAdmin()) {
-      throw new Error('Access denied. Admin privileges required.')
-    }
-
     try {
-      // TODO: Implement get_activity_logs function in database
+      await crud.checkIsAdmin() // Verificar permisos
+      
+      logger.info('useAdminUserManager.getActivityLogs llamado', {
+        limit: _limit,
+        offset: _offset,
+        activityType: _activityType,
+        targetUserId: _targetUserId,
+        action: 'admin_manager_get_activity_logs'
+      })
+      
+      // TODO: Implementar función get_activity_logs en la base de datos
       // const { data, error } = await supabase.rpc('get_activity_logs', {
       //   p_limit: limit,
       //   p_offset: offset,
@@ -397,15 +319,24 @@ export const useAdminUserManager = () => {
       // if (error) throw error
       // return data || []
       
-      // Return empty array until function is implemented
+      logger.warn('getActivityLogs no implementado - retornando array vacío', {
+        action: 'admin_manager_get_activity_logs'
+      })
+      
       return []
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      throw new Error(`Failed to fetch activity logs: ${errorMessage}`)
+    } catch (error) {
+      logger.error('Error en useAdminUserManager.getActivityLogs', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        action: 'admin_manager_get_activity_logs'
+      })
+      throw new Error(`Error al obtener logs de actividad: ${error instanceof Error ? error.message : 'Error desconocido'}`)
     }
   }
 
+  // Interfaz pública del composable
+  // Mantiene 100% compatibilidad hacia atrás con la versión anterior
   return {
+    // Operaciones CRUD principales (interfaz compatible)
     getAllUsers,
     getUserById,
     createUser,
@@ -415,6 +346,13 @@ export const useAdminUserManager = () => {
     getUserStats,
     getRoleOptions,
     getActivityLogs,
-    checkIsAdmin
+    checkIsAdmin,
+    
+    // Acceso a funcionalidades avanzadas de la nueva arquitectura
+    // (para uso avanzado sin romper compatibilidad)
+    _internal: {
+      crud,
+      state
+    }
   }
 }

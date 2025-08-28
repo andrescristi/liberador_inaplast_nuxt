@@ -146,8 +146,6 @@ interface OrderData {
   customerName: string
   productCode: string
   productName: string
-  productCategory: string
-  expirationDate: string
   lotNumber: string
   productionDate: string
   

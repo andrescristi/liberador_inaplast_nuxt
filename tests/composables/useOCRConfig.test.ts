@@ -8,9 +8,9 @@ vi.stubGlobal('$fetch', mockFetch)
 
 // Mock FileReader
 const mockFileReader = {
-  onload: null as any,
-  onerror: null as any,
-  result: null as any,
+  onload: null as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+  onerror: null as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+  result: null as any, // eslint-disable-line @typescript-eslint/no-explicit-any
   readAsDataURL: vi.fn()
 }
 

@@ -25,168 +25,20 @@
       </div>
 
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg
-class="h-6 w-6 text-gray-400"
-fill="none"
-stroke="currentColor"
-viewBox="0 0 24 24">
-                  <path
-stroke-linecap="round"
-stroke-linejoin="round"
-stroke-width="2"
-d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">
-                    Total Usuarios
-                  </dt>
-                  <dd class="text-lg font-medium text-gray-900">
-                    {{ stats?.total || 0 }}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg
-class="h-6 w-6 text-blue-400"
-fill="none"
-stroke="currentColor"
-viewBox="0 0 24 24">
-                  <path
-stroke-linecap="round"
-stroke-linejoin="round"
-stroke-width="2"
-d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">
-                    Administradores
-                  </dt>
-                  <dd class="text-lg font-medium text-gray-900">
-                    {{ stats?.admins || 0 }}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg
-class="h-6 w-6 text-green-400"
-fill="none"
-stroke="currentColor"
-viewBox="0 0 24 24">
-                  <path
-stroke-linecap="round"
-stroke-linejoin="round"
-stroke-width="2"
-d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">
-                    Supervisores
-                  </dt>
-                  <dd class="text-lg font-medium text-gray-900">
-                    {{ stats?.supervisors || 0 }}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg
-class="h-6 w-6 text-yellow-400"
-fill="none"
-stroke="currentColor"
-viewBox="0 0 24 24">
-                  <path
-stroke-linecap="round"
-stroke-linejoin="round"
-stroke-width="2"
-d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V9a2 2 0 00-2-2h-6zM9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">
-                    Inspectores
-                  </dt>
-                  <dd class="text-lg font-medium text-gray-900">
-                    {{ stats?.inspectors || 0 }}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <UserStatsCards 
+        v-if="!hasPermissionsError" 
+        :stats="stats" 
+        class="mb-8" 
+      />
 
       <!-- Search and Filters -->
-      <BaseCard v-if="!hasPermissionsError" class="mb-6">
-        <div class="p-6">
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div class="sm:col-span-2">
-              <BaseInput
-                v-model="searchTerm"
-                placeholder="Buscar por nombre o email..."
-                @input="debouncedSearch"
-              >
-                <template #prepend>
-                  <svg
-class="w-5 h-5 text-gray-400"
-fill="none"
-stroke="currentColor"
-viewBox="0 0 24 24">
-                    <path
-stroke-linecap="round"
-stroke-linejoin="round"
-stroke-width="2"
-d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                  </svg>
-                </template>
-              </BaseInput>
-            </div>
-            <div>
-              <select
-                v-model="selectedRole"
-                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                @change="fetchUsers"
-              >
-                <option value="">Todos los roles</option>
-                <option value="Admin">Administrador</option>
-                <option value="Supervisor">Supervisor</option>
-                <option value="Inspector">Inspector</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </BaseCard>
+      <UserFilters
+        v-if="!hasPermissionsError"
+        v-model:search-term="searchTerm"
+        v-model:selected-role="selectedRole"
+        @search="debouncedSearch"
+        @role-change="fetchUsers"
+      />
 
       <!-- Permissions Error Message -->
       <div v-if="hasPermissionsError" class="mb-6">
@@ -229,65 +81,24 @@ d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </div>
 
       <!-- Users Table -->
-      <BaseCard v-if="!hasPermissionsError">
-        <div class="px-4 py-5 sm:p-6">
-          <BaseTable
-            :columns="tableHeaders"
-            :rows="users"
-          >
-            <template #user_role-data="{ row }">
-              <BaseBadge
-                :color="getRoleBadgeVariant((row as unknown as Profile).user_role)"
-              >
-                {{ getRoleLabel((row as unknown as Profile).user_role) }}
-              </BaseBadge>
-            </template>
-            <template #created_at-data="{ row }">
-              {{ formatDate((row as unknown as Profile).created_at) }}
-            </template>
-            <template #actions-data="{ row }">
-              <div class="flex space-x-2">
-                <button
-                  class="text-blue-600 hover:text-blue-900 text-sm font-medium"
-                  @click="editUser(row as unknown as Profile)"
-                >
-                  Editar
-                </button>
-                <button
-                  v-if="(row as unknown as Profile).user_role !== 'Admin'"
-                  class="text-red-600 hover:text-red-900 text-sm font-medium"
-                  @click="confirmDeleteUser(row as unknown as Profile)"
-                >
-                  Eliminar
-                </button>
-              </div>
-            </template>
-          </BaseTable>
-        </div>
-      </BaseCard>
+      <UserTable
+        v-if="!hasPermissionsError"
+        :users="users"
+        @edit="editUser"
+        @delete="confirmDeleteUser"
+        @reset-password="confirmResetPassword"
+      />
 
       <!-- Pagination -->
-      <div v-if="totalPages > 1 && !hasPermissionsError" class="mt-6 flex items-center justify-between">
-        <div class="text-sm text-gray-700">
-          Mostrando {{ ((currentPage - 1) * pageSize) + 1 }} a {{ Math.min(currentPage * pageSize, totalUsers) }} de {{ totalUsers }} usuarios
-        </div>
-        <div class="flex space-x-2">
-          <BaseButton
-            :disabled="currentPage === 1"
-            variant="outline"
-            @click="previousPage"
-          >
-            Anterior
-          </BaseButton>
-          <BaseButton
-            :disabled="currentPage === totalPages"
-            variant="outline"
-            @click="nextPage"
-          >
-            Siguiente
-          </BaseButton>
-        </div>
-      </div>
+      <UserPagination
+        v-if="!hasPermissionsError"
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        :total-users="totalUsers"
+        :page-size="pageSize"
+        @next-page="nextPage"
+        @previous-page="previousPage"
+      />
     </div>
     
     <!-- Create User Modal -->
@@ -305,28 +116,17 @@ d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       @updated="handleUserUpdated"
     />
 
-    <!-- Delete Confirmation Modal -->
-    <BaseModal
-      :show="showDeleteModal"
-      @close="showDeleteModal = false"
-    >
-      <div class="p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">
-          Confirmar Eliminación
-        </h3>
-        <p class="text-sm text-gray-500 mb-6">
-          ¿Estás seguro de que deseas eliminar a <strong>{{ userToDelete?.full_name }}</strong>? Esta acción no se puede deshacer.
-        </p>
-        <div class="flex justify-end space-x-3">
-          <BaseButton variant="outline" @click="showDeleteModal = false">
-            Cancelar
-          </BaseButton>
-          <BaseButton color="danger" @click="deleteUser">
-            Eliminar
-          </BaseButton>
-        </div>
-      </div>
-    </BaseModal>
+    <!-- Confirmation Modals -->
+    <UserConfirmationModals
+      :show-delete-modal="showDeleteModal"
+      :show-reset-password-modal="showResetPasswordModal"
+      :user-to-delete="userToDelete"
+      :user-to-reset-password="userToResetPassword"
+      @close:delete="showDeleteModal = false"
+      @close:reset-password="showResetPasswordModal = false"
+      @confirm:delete="deleteUser"
+      @confirm:reset-password="resetPassword"
+    />
   </div>
 </template>
 
@@ -335,13 +135,14 @@ import type { Profile, ProfileRole } from '~/types'
 
 // Import components explicitly to fix SSR resolution issues
 import BaseButton from '~/components/ui/BaseButton.vue'
-import BaseInput from '~/components/ui/BaseInput.vue'
-import BaseCard from '~/components/ui/BaseCard.vue'
-import BaseBadge from '~/components/ui/BaseBadge.vue'
-import BaseTable from '~/components/ui/BaseTable.vue'
-import BaseModal from '~/components/ui/BaseModal.vue'
 import UserCreateModal from '~/components/admin/UserCreateModal.vue'
 import UserEditModal from '~/components/admin/UserEditModal.vue'
+import UserStatsCards from '~/components/admin/UserStatsCards.vue'
+import UserFilters from '~/components/admin/UserFilters.vue'
+import UserTable from '~/components/admin/UserTable.vue'
+import UserPagination from '~/components/admin/UserPagination.vue'
+import UserConfirmationModals from '~/components/admin/UserConfirmationModals.vue'
+import { useAdminUserAPI } from '~/composables/admin/useAdminUserAPI'
 
 definePageMeta({
   middleware: 'require-admin-role',
@@ -369,17 +170,10 @@ const permissionsErrorMessage = ref('')
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
+const showResetPasswordModal = ref(false)
 const selectedUser = ref<Profile | null>(null)
 const userToDelete = ref<Profile | null>(null)
-
-// Table configuration
-const tableHeaders = [
-  { key: 'full_name', label: 'Nombre' },
-  { key: 'email', label: 'Email' },
-  { key: 'user_role', label: 'Rol' },
-  { key: 'created_at', label: 'Fecha de Creación' },
-  { key: 'actions', label: 'Acciones' }
-]
+const userToResetPassword = ref<Profile | null>(null)
 
 // Methods
 const fetchUsers = async () => {
@@ -392,8 +186,8 @@ const fetchUsers = async () => {
     if (searchTerm.value) filters.search = searchTerm.value
     if (selectedRole.value) filters.role_filter = selectedRole.value
 
-    // Use API endpoint instead of direct Supabase client to bypass RLS issues
-    const response = await userAPI.getAllUsersFromAPI(filters, currentPage.value, pageSize)
+    // Use HTTP API endpoint instead of direct Supabase client to bypass RLS issues
+    const response = await userAPI.getAllUsersViaHTTP(filters, currentPage.value, pageSize)
     users.value = response.data
     totalUsers.value = response.total
     totalPages.value = response.total_pages
@@ -422,7 +216,20 @@ const fetchUsers = async () => {
 
 const fetchStats = async () => {
   try {
-    stats.value = await userAPI.getUserStatsFromAPI()
+    // Llamada directa al endpoint de API para debugging
+    const response = await $fetch<{
+      total: number
+      admins: number
+      supervisors: number
+      inspectors: number
+    }>('/api/admin/users/stats')
+    
+    stats.value = {
+      total: response.total,
+      admins: response.admins,
+      supervisors: response.supervisors,
+      inspectors: response.inspectors
+    }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'No se pudieron cargar las estadísticas'
     
@@ -446,24 +253,6 @@ const fetchStats = async () => {
   }
 }
 
-const getRoleBadgeVariant = (role: ProfileRole) => {
-  switch (role) {
-    case 'Admin': return 'blue'
-    case 'Supervisor': return 'green'
-    case 'Inspector': return 'yellow'
-    default: return 'gray'
-  }
-}
-
-const getRoleLabel = (role: ProfileRole) => {
-  switch (role) {
-    case 'Admin': return 'Administrador'
-    case 'Supervisor': return 'Supervisor'
-    case 'Inspector': return 'Inspector'
-    default: return role
-  }
-}
-
 const editUser = (user: Profile) => {
   selectedUser.value = user
   showEditModal.value = true
@@ -472,6 +261,11 @@ const editUser = (user: Profile) => {
 const confirmDeleteUser = (user: Profile) => {
   userToDelete.value = user
   showDeleteModal.value = true
+}
+
+const confirmResetPassword = (user: Profile) => {
+  userToResetPassword.value = user
+  showResetPasswordModal.value = true
 }
 
 const deleteUser = async () => {
@@ -488,6 +282,20 @@ const deleteUser = async () => {
     await fetchStats()
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Error al eliminar usuario'
+    toast.error('Error', errorMessage)
+  }
+}
+
+const resetPassword = async () => {
+  if (!userToResetPassword.value) return
+  
+  try {
+    await userAPI.resetUserPasswordViaHTTP(userToResetPassword.value.user_id)
+    toast.success('Éxito', `Email de recuperación enviado a ${userToResetPassword.value.full_name}`)
+    showResetPasswordModal.value = false
+    userToResetPassword.value = null
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Error al resetear contraseña'
     toast.error('Error', errorMessage)
   }
 }
@@ -522,14 +330,6 @@ const previousPage = () => {
 }
 
 const debouncedSearch = debounce(fetchUsers, 300)
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  })
-}
 
 // Lifecycle
 onMounted(async () => {

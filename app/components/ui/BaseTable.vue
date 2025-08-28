@@ -7,7 +7,10 @@
             v-for="column in columns"
             :key="column.key"
             scope="col"
-            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            :class="[
+              'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider',
+              column.width || ''
+            ]"
           >
             {{ column.label }}
           </th>
@@ -26,7 +29,11 @@
           <td
             v-for="column in columns"
             :key="column.key"
-            class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+            :class="[
+              'px-6 py-4 text-sm text-gray-900',
+              column.key === 'actions' ? '' : 'whitespace-nowrap',
+              column.width || ''
+            ]"
           >
             <slot 
               :name="column.key + '-data'" 
@@ -70,6 +77,7 @@ d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 
 interface Column {
   key: string
   label: string
+  width?: string
 }
 
 interface Props {

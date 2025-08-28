@@ -1,64 +1,129 @@
 /**
  * Composable especializado para gestión de perfiles de usuario
  * Maneja operaciones relacionadas con datos de perfil y roles
+ * Usa endpoints API personalizados en lugar de Supabase directo
  */
 import type { Profile } from '../../types'
-import type { Database } from '../../../types/database.types'
+import { useAuthState } from './useAuthState'
+
+/**
+ * Respuesta completa del perfil desde API
+ */
+interface ProfileResponse {
+  // Datos de autenticación
+  id: string
+  email: string
+  email_confirmed_at?: string
+  last_sign_in_at?: string
+  
+  // Datos del perfil
+  profile_id: string
+  user_id: string
+  first_name: string
+  last_name: string
+  full_name: string
+  user_role: string
+  
+  // Timestamps
+  auth_created_at?: string
+  auth_updated_at?: string
+  profile_created_at?: string
+  profile_updated_at?: string
+  
+  // Estado
+  authenticated: boolean
+}
 
 export const useAuthProfile = () => {
-  const supabase = useSupabaseClient<Database>()
-  const user = useSupabaseUser()
+  const { isAuthenticated } = useAuthState()
+
+  // Estados reactivos para cache
+  const profile = ref<Profile | null>(null)
+  const isProfileLoading = ref(false)
+  const profileError = ref<string | null>(null)
+  const lastProfileFetch = ref<Date | null>(null)
+  const PROFILE_CACHE_DURATION = 60 * 1000 // 1 minuto
 
   /**
    * Obtiene el perfil completo del usuario autenticado actual
+   * Usa el endpoint /api/auth/profile en lugar de Supabase directo
    */
-  const getCurrentUserProfile = async (): Promise<Profile | null> => {
-    if (!user.value) {
+  const getCurrentUserProfile = async (force = false): Promise<Profile | null> => {
+    if (!isAuthenticated.value) {
       return null
     }
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', user.value.id)
-      .single()
-
-    if (error) {
-      if (import.meta.server) {
-        const { $logger } = useNuxtApp()
-        if ($logger && typeof ($logger as { error?: (...args: unknown[]) => void }).error === 'function') {
-          ($logger as { error: (...args: unknown[]) => void }).error({
-            error: error.message,
-            userId: user.value.id,
-            context: 'useAuthProfile.getCurrentUserProfile'
-          }, 'Error fetching user profile')
-        }
+    // Verificar cache si no es forzado
+    if (!force && profile.value && lastProfileFetch.value) {
+      const timeSinceLastFetch = Date.now() - lastProfileFetch.value.getTime()
+      if (timeSinceLastFetch < PROFILE_CACHE_DURATION) {
+        return profile.value
       }
-      return null
     }
 
-    return {
-      ...data,
-      full_name: `${data.first_name} ${data.last_name}`,
-      email: user.value.email || ''
-    } as Profile
+    try {
+      isProfileLoading.value = true
+      profileError.value = null
+      
+      const response = await $fetch<ProfileResponse>('/api/auth/profile')
+      
+      // Convertir respuesta API a formato Profile
+      const profileData: Profile = {
+        id: response.profile_id,
+        user_id: response.user_id,
+        first_name: response.first_name,
+        last_name: response.last_name,
+        user_role: response.user_role as Profile['user_role'],
+        created_at: response.profile_created_at || null,
+        updated_at: response.profile_updated_at || null,
+        full_name: response.full_name,
+        email: response.email
+      }
+      
+      profile.value = profileData
+      lastProfileFetch.value = new Date()
+      
+      return profileData
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
+      profileError.value = errorMessage
+      profile.value = null
+      
+      // Log del error
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching user profile:', errorMessage)
+      }
+      
+      return null
+    } finally {
+      isProfileLoading.value = false
+    }
   }
 
   /**
    * Actualiza el perfil del usuario autenticado
+   * TODO: Implementar endpoint /api/auth/profile PUT cuando sea necesario
    */
-  const updateUserProfile = async (updates: Partial<Profile>) => {
-    if (!user.value) {
+  const updateUserProfile = async (_updates: Partial<Profile>) => {
+    if (!isAuthenticated.value) {
       throw new Error('No hay usuario autenticado')
     }
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('user_id', user.value.id)
-
-    if (error) {
-      throw new Error(`Error actualizando perfil: ${error.message}`)
+    try {
+      // Por ahora lanza error - endpoint no implementado
+      throw new Error('Actualización de perfil no implementada aún - usar panel de admin')
+      
+      // TODO: Implementar cuando se cree el endpoint
+      // await $fetch('/api/auth/profile', {
+      //   method: 'PUT',
+      //   body: updates
+      // })
+      // 
+      // // Refrescar cache después de actualizar
+      // await getCurrentUserProfile(true)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
+      throw new Error(`Error actualizando perfil: ${errorMessage}`)
     }
   }
 
@@ -66,8 +131,8 @@ export const useAuthProfile = () => {
    * Verifica si el usuario tiene un rol específico
    */
   const hasRole = async (role: string): Promise<boolean> => {
-    const profile = await getCurrentUserProfile()
-    return profile?.user_role === role
+    const userProfile = await getCurrentUserProfile()
+    return userProfile?.user_role === role
   }
 
   /**
@@ -76,11 +141,53 @@ export const useAuthProfile = () => {
   const isAdmin = async (): Promise<boolean> => {
     return await hasRole('Admin')
   }
+  
+  /**
+   * Verifica si el usuario es supervisor
+   */
+  const isSupervisor = async (): Promise<boolean> => {
+    return await hasRole('Supervisor')
+  }
+  
+  /**
+   * Verifica si el usuario es inspector
+   */
+  const isInspector = async (): Promise<boolean> => {
+    return await hasRole('Inspector')
+  }
+  
+  /**
+   * Refresca el cache del perfil
+   */
+  const refreshProfile = () => getCurrentUserProfile(true)
+  
+  /**
+   * Limpia el cache del perfil
+   */
+  const clearProfile = () => {
+    profile.value = null
+    lastProfileFetch.value = null
+    profileError.value = null
+  }
 
   return {
+    // Estados
+    profile: readonly(profile),
+    isProfileLoading: readonly(isProfileLoading),
+    profileError: readonly(profileError),
+    
+    // Acciones principales
     getCurrentUserProfile,
     updateUserProfile,
+    
+    // Verificación de roles
     hasRole,
-    isAdmin
+    isAdmin,
+    isSupervisor,
+    isInspector,
+    
+    // Gestión de cache
+    refreshProfile,
+    clearProfile
   }
 }

@@ -11,10 +11,11 @@ export default defineConfig({
     include: ['tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['tests/e2e/**/*', 'node_modules/**/*'],
     // Configuración para suprimir warnings de Vue en tests
-    onConsoleLog(log: string, type: 'stdout' | 'stderr'): false | void {
+    onConsoleLog(log: string, type: 'stdout' | 'stderr'): false | undefined {
       if (type === 'stderr' && log.includes('[Vue warn]')) {
         return false // Suprimir warnings de Vue
       }
+      return undefined
     },
     coverage: {
       provider: 'v8',

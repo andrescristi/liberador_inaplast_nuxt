@@ -1,5 +1,5 @@
 import type { Profile, PaginatedResponse } from '~/types'
-import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 import type { Database } from '../../../../types/database.types'
 
 export default defineEventHandler(async (event): Promise<PaginatedResponse<Profile>> => {
@@ -17,8 +17,10 @@ export default defineEventHandler(async (event): Promise<PaginatedResponse<Profi
   const searchTerm = search as string || ''
   const roleFilter = role_filter as string || ''
 
-  // Create service role client for admin operations
-  const serviceSupabase = serverSupabaseServiceRole<Database>(event)
+  // Create regular client first to verify user auth
+  const userClient = await serverSupabaseClient<Database>(event)
+  // Create service role client for admin operations (bypasses RLS)
+  const supabase = await serverSupabaseServiceRole<Database>(event)
 
   try {
     // Get user from the request headers (Nuxt should handle auth)
@@ -31,8 +33,8 @@ export default defineEventHandler(async (event): Promise<PaginatedResponse<Profi
       })
     }
 
-    // Check if user is admin using service client
-    const { data: adminCheck } = await serviceSupabase
+    // Check if user is admin using regular client (RLS applies)
+    const { data: adminCheck } = await userClient
       .from('profiles')
       .select('user_role')
       .eq('user_id', supabaseUser.id)
@@ -48,8 +50,8 @@ export default defineEventHandler(async (event): Promise<PaginatedResponse<Profi
     // Calculate offset for pagination
     const offset = (currentPage - 1) * pageSize
 
-    // Build the query using service client (bypasses RLS)
-    let query_builder = serviceSupabase
+    // Build the query using service role client (bypasses RLS to get all users)
+    let query_builder = supabase
       .from('profiles')
       .select(`
         id,
@@ -87,7 +89,7 @@ export default defineEventHandler(async (event): Promise<PaginatedResponse<Profi
     // Get emails for all users using admin client
     const profilesWithEmails = await Promise.all((data || []).map(async (profile) => {
       try {
-        const { data: authUser } = await serviceSupabase.auth.admin.getUserById(profile.user_id)
+        const { data: authUser } = await supabase.auth.admin.getUserById(profile.user_id)
         return {
           ...profile,
           full_name: `${profile.first_name} ${profile.last_name}`,

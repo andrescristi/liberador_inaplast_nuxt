@@ -1,209 +1,119 @@
 // Profile management composable for user profiles and roles
 import type { Profile, ProfileRole, CreateProfileForm, UpdateProfileForm, ProfileFilters, PaginatedResponse } from '~/types'
-import type { Database } from '../../types/database.types'
 
 export const useProfile = () => {
-  const supabase = useSupabaseClient<Database>()
-  const user = useSupabaseUser()
 
   // Get current user's profile
   const getCurrentProfile = async (): Promise<Profile | null> => {
-    if (!user.value) return null
-
-    // Getting current user profile
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select(`
-        id,
-        user_id,
-        first_name,
-        last_name,
-        user_role,
-        created_at,
-        updated_at
-      `)
-      .eq('user_id', user.value.id)
-      .single()
-
-    if (error) {
-      // Handle user profile fetch error
-      throw new Error('Failed to fetch user profile: ' + error.message)
+    try {
+      const data = await $fetch<Profile>('/api/profiles')
+      return data
+    } catch {
+      throw new Error('Error al obtener perfil del usuario')
     }
-
-    // Add computed fields
-    if (data) {
-      const profile: Profile = {
-        ...data,
-        full_name: `${data.first_name} ${data.last_name}`,
-        email: user.value.email || ''
-      }
-      return profile
-    }
-
-    return null
   }
 
   // Get profile by user ID
   const getProfileByUserId = async (userId: string): Promise<Profile | null> => {
-    const { data, error } = await supabase
-      .rpc('get_user_profile', { user_id_param: userId })
-
-    if (error) {
-      // Handle profile fetch error
-      throw new Error('Failed to fetch profile')
+    try {
+      const data = await $fetch<Profile>(`/api/profiles/${userId}`)
+      return data
+    } catch {
+      throw new Error('Error al obtener perfil')
     }
-
-    return (data as unknown) as Profile || null
   }
 
   // Update current user's profile
   const updateProfile = async (profileData: UpdateProfileForm): Promise<Profile> => {
-    if (!user.value) {
-      throw new Error('User not authenticated')
+    try {
+      const data = await $fetch<Profile>('/api/profiles', {
+        method: 'PUT',
+        body: profileData
+      })
+      return data
+    } catch {
+      throw new Error('Error al actualizar perfil')
     }
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .update(profileData)
-      .eq('user_id', user.value.id)
-      .select()
-      .single()
-
-    if (error) {
-      // Handle profile update error
-      throw new Error('Failed to update profile')
-    }
-
-    // Add computed fields with the updated data
-    const profile: Profile = {
-      ...data,
-      full_name: `${data.first_name || ''} ${data.last_name || ''}`.trim(),
-      email: user.value.email || ''
-    }
-    return profile
   }
 
   // Check if current user has specific role
   const hasRole = async (role: ProfileRole): Promise<boolean> => {
-    if (!user.value) return false
-
-    const { data, error } = await supabase
-      .rpc('user_has_role', { 
-        required_role: role, 
-        user_id_param: user.value.id 
-      })
-
-    if (error) {
-      // Handle user role check error
+    try {
+      const profile = await getCurrentProfile()
+      return profile?.user_role === role || false
+    } catch {
       return false
     }
-
-    return data || false
   }
 
   // Check if current user is admin
   const isAdmin = async (): Promise<boolean> => {
-    if (!user.value) return false
-
-    const { data, error } = await supabase
-      .rpc('is_admin')
-
-    if (error) {
-      // Handle admin status check error
+    try {
+      const profile = await getCurrentProfile()
+      return profile?.user_role === 'Admin' || false
+    } catch {
       return false
     }
-
-    return data || false
   }
 
-  // Get all profiles (admin only)
+  // Get all profiles (admin only) - usar admin/users/list endpoint existente
   const getAllProfiles = async (
     page = 1,
     perPage = 20,
     filters: ProfileFilters = {}
   ): Promise<PaginatedResponse<Profile>> => {
-    const { data, error } = await supabase
-      .rpc('get_all_profiles', {
-        search_term: filters.search || undefined,
-        role_filter: filters.role_filter || undefined,
-        page_num: page,
-        page_size: perPage
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        per_page: perPage.toString(),
+        ...(filters.search && { search: filters.search }),
+        ...(filters.role_filter && { role_filter: filters.role_filter })
       })
-
-    if (error) {
-      // Handle all profiles fetch error
-      throw new Error('Failed to fetch profiles')
-    }
-
-    const profiles = data || []
-    const totalCount = profiles[0]?.total_count || 0
-
-    return {
-      data: profiles.map((row: Record<string, unknown>) => ({
-        id: row.id as string,
-        user_id: row.user_id as string,
-        first_name: row.first_name as string,
-        last_name: row.last_name as string,
-        full_name: row.full_name as string,
-        user_role: row.user_role as ProfileRole,
-        email: row.email as string,
-        created_at: row.created_at as string,
-        updated_at: row.updated_at as string
-      })),
-      total: totalCount,
-      page,
-      per_page: perPage,
-      total_pages: Math.ceil(totalCount / perPage)
+      
+      const data = await $fetch<PaginatedResponse<Profile>>(`/api/admin/users/list?${params}`)
+      return data
+    } catch {
+      throw new Error('Error al obtener perfiles')
     }
   }
 
-  // Create new profile (admin only)
+  // Create new profile (admin only) - usar admin/users endpoint existente
   const createProfile = async (userId: string, profileData: CreateProfileForm): Promise<Profile> => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .insert({
-        user_id: userId,
-        ...profileData
+    try {
+      const data = await $fetch<Profile>('/api/admin/users', {
+        method: 'POST',
+        body: {
+          user_id: userId,
+          ...profileData
+        }
       })
-      .select()
-      .single()
-
-    if (error) {
-      // Handle profile creation error
-      throw new Error('Failed to create profile')
+      return data
+    } catch {
+      throw new Error('Error al crear perfil')
     }
-
-    return data
   }
 
-  // Update any profile (admin only)
-  const updateAnyProfile = async (profileId: string, profileData: UpdateProfileForm): Promise<Profile> => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .update(profileData)
-      .eq('id', profileId)
-      .select()
-      .single()
-
-    if (error) {
-      // Handle profile update error
-      throw new Error('Failed to update profile')
+  // Update any profile (admin only) - usar admin/users endpoint existente
+  const updateAnyProfile = async (userId: string, profileData: UpdateProfileForm): Promise<Profile> => {
+    try {
+      const data = await $fetch<Profile>(`/api/admin/users/${userId}`, {
+        method: 'PUT',
+        body: profileData
+      })
+      return data
+    } catch {
+      throw new Error('Error al actualizar perfil')
     }
-
-    return data
   }
 
-  // Delete profile (admin only, cannot delete own profile)
-  const deleteProfile = async (profileId: string): Promise<void> => {
-    const { error } = await supabase
-      .from('profiles')
-      .delete()
-      .eq('id', profileId)
-
-    if (error) {
-      // Handle profile deletion error
-      throw new Error('Failed to delete profile')
+  // Delete profile (admin only) - usar admin/users endpoint existente
+  const deleteProfile = async (userId: string): Promise<void> => {
+    try {
+      await $fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE'
+      })
+    } catch {
+      throw new Error('Error al eliminar perfil')
     }
   }
 

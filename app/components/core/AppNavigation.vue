@@ -30,6 +30,7 @@
         <div class="hidden md:flex items-center space-x-1">
           <!-- Enlace de Inicio -->
           <UiBaseButton
+            v-if="baseNavItems?.home"
             :to="baseNavItems.home.to"
             variant="ghost"
             color="gray"
@@ -158,7 +159,7 @@
             
             <!-- Enlaces de Navegación Móvil Generados Dinámicamente -->
             <!-- Enlace de Inicio -->
-            <div class="mobile-nav-item" style="--item-index: 0">
+            <div v-if="baseNavItems?.home" class="mobile-nav-item" style="--item-index: 0">
               <UiBaseButton
                 :to="baseNavItems.home.to"
                 variant="ghost"
@@ -328,7 +329,7 @@
  * - Menú móvil deslizable con animaciones sofisticadas
  * - Navegación basada en roles dinámico (Admin/User)
  * - Dropdown menus con Headless UI para accesibilidad
- * - Estados de autenticación reactivos con Supabase
+ * - Estados de autenticación reactivos usando API endpoints
  * - Efectos visuales avanzados: backdrop blur, ripple, gradientes
  * - Optimizaciones móviles: touch targets 44px+, feedback háptico
  * - Manejo completo de accesibilidad y navegación por teclado
@@ -350,14 +351,15 @@
  * - Animaciones y transiciones
  */
 import type { Profile } from '~/types'
+import { useAuthState } from '~/composables/auth/useAuthState'
 
 // 
 // ===== CONFIGURACIÓN DE COMPONENTE =====
 //
 
-// Composables de Nuxt/Supabase para autenticación y UI
-const user = useSupabaseUser() // Usuario reactivo de Supabase Auth
-const { signOut, getCurrentUserProfile } = useAuth() // Funciones de autenticación personalizada
+// Composables de autenticación personalizados usando API endpoints
+const { user, isAuthenticated } = useAuthState() // Usuario reactivo desde API
+const { signOut, getCurrentUserProfile } = useAuth() // Funciones de autenticación usando API
 const toast = useToast() // Sistema de notificaciones toast
 
 // 
@@ -375,9 +377,9 @@ const userProfile = ref<Profile | null>(null) // Perfil completo con rol del usu
 // Auto-fetch del perfil cuando el usuario cambia (login/logout)
 // Se ejecuta reactivamente cada vez que user.value cambia
 watchEffect(async () => {
-  if (user.value) {
+  if (isAuthenticated.value) {
     try {
-      // Obtener perfil completo desde la tabla profiles (incluye rol)
+      // Obtener perfil completo desde el endpoint /api/auth/profile
       userProfile.value = await getCurrentUserProfile()
     } catch {
       // Error silencioso - el perfil no es crítico para la navegación básica
