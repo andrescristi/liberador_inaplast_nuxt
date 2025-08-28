@@ -44,13 +44,15 @@ Sistema interno de **Inaplast** para digitalizar y optimizar los procesos de con
 - **Campos**: Lote, Cliente, Producto, Fecha, Turno, Inspector, etc.
 - **Integración**: Auto-llena formularios del Paso 2
 
-### 4. Panel de Administración - **v2.6.0**
+### 4. Panel de Administración - **v2.7.0**
 - **Gestión avanzada de usuarios**: CRUD completo con componentes modulares
 - **Componentes especializados**: `UserTable`, `UserFilters`, `UserStatsCards`, `UserPagination`
 - **Arquitectura composable**: Sistema `useAdminUser*` para separación de responsabilidades
-- **API endpoints**: `/api/admin/users/*` con validación y autorización
+- **API endpoints**: `/api/admin/users/*` con validación y autorización usando ServiceRole
+- **Middleware seguro**: Verificación de permisos admin con cookies server-side
 - **Estadísticas en tiempo real**: Métricas detalladas por roles y períodos
 - **Sistema de roles**: Reset de contraseñas, activación/desactivación de usuarios
+- **Fix crítico**: Resuelto problema de autenticación que impedía acceso a administradores
 
 ### 5. Sistema de Muestreo Estadístico
 - **Planes de Muestreo**: Configuración AQL y niveles de inspección
@@ -261,3 +263,17 @@ Este sistema es propiedad exclusiva de Inaplast y contiene información confiden
 ---
 
 **Desarrollado para Inaplast** | Sistema de Control de Calidad v2.7.0
+
+## 📋 Changelog v2.7.0
+
+### 🔧 Fixes Críticos
+- **Admin Users Access**: Resuelto problema crítico que impedía acceso a `/admin/users` 
+- **Middleware Authentication**: Corregida verificación de permisos server-side con cookies
+- **ServiceRole Implementation**: API endpoints admin ahora usan ServiceRole para bypass RLS
+- **SSR Compatibility**: Middleware compatible con server-side rendering
+
+### 🛠️ Mejoras Técnicas
+- **Authentication Flow**: Middleware `require-admin-role` usa endpoint API con cookies
+- **API Security**: Endpoints `/api/admin/users/*` optimizados con verificación ServiceRole
+- **Error Handling**: Mejor manejo de errores en verificación de permisos
+- **TypeScript**: Limpieza de warnings y imports no utilizados
