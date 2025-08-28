@@ -17,9 +17,9 @@
  */
 
 import type { Profile, ProfileRole, ProfileFilters, PaginatedResponse, CreateProfileForm, UpdateProfileForm } from '~/types'
-import { useAdminUserCRUD } from './admin/useAdminUserCRUD'
-import { useAdminUserState } from './admin/useAdminUserState'
-import { useLogger } from './useLogger'
+import { useAdminUserCRUD } from './useAdminUserCRUD'
+import { useAdminUserState } from './useAdminUserState'
+import { useLogger } from '../useLogger'
 
 /**
  * Composable principal de administración de usuarios

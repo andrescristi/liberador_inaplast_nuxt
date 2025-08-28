@@ -135,7 +135,7 @@ clip-rule="evenodd"/>
 
 <script setup lang="ts">
 import type { Profile } from '~/types'
-import { updateUserSchema, type UpdateUserForm } from '~/schemas/user'
+import { updateUserSchema, type UpdateUserForm } from '~/schemas/admin/user'
 
 // Import components explicitly to fix SSR resolution issues
 import BaseButton from '~/components/ui/BaseButton.vue'

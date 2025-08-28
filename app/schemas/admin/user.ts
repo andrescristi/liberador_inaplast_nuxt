@@ -58,18 +58,7 @@ export const updateUserSchema = z.object({
   user_role: userRoleSchema.optional(),
 })
 
-/**
- * Esquema para validar paso 1 de OrderWizard con file opcional
- */
-export const orderStep1Schema = z.object({
-  boxQuantity: z.number()
-    .min(1, 'La cantidad debe ser mayor a 0')
-    .max(1000, 'La cantidad no puede ser mayor a 1000')
-    .int('La cantidad debe ser un número entero'),
-})
-
 // Tipos derivados de los esquemas
 export type UserRole = z.infer<typeof userRoleSchema>
 export type CreateUserForm = z.infer<typeof createUserSchema>
 export type UpdateUserForm = z.infer<typeof updateUserSchema>
-export type OrderStep1Form = z.infer<typeof orderStep1Schema>

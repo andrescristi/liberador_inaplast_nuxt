@@ -1,4 +1,4 @@
-import type { OCRData } from '~/schemas/order'
+import type { OCRData } from '~/schemas/orders/ocr'
 
 interface OCRResponse {
   text: string
@@ -16,6 +16,7 @@ interface OCRResponse {
     numeroOperario?: string
     maquina?: string
     inspectorCalidad?: string
+    
   }
   success: boolean
   error?: string
@@ -68,12 +69,11 @@ export function useOCRConfig() {
     
     return {
       customerName: production?.cliente || undefined,
-      customerCode: production?.cliente || undefined, // Usar cliente como código si no hay código específico  
       productName: production?.producto || undefined,
       productCode: production?.codigoProducto || undefined,
       lotNumber: production?.lote || undefined,
-      expirationDate: undefined, // El endpoint no retorna fecha de expiración
-      productionDate: production?.fechaFabricacion || undefined
+      productionDate: production?.fechaFabricacion || undefined,
+      orderNumber: production?.pedido || undefined
     }
   }
 

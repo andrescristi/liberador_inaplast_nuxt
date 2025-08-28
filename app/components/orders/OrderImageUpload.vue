@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import type { OCRData } from '~/schemas/order'
+import type { OCRData } from '~/schemas/orders/ocr'
 
 interface Props {
   file: File | null

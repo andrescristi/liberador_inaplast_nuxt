@@ -149,7 +149,7 @@ clip-rule="evenodd"/>
 </template>
 
 <script setup lang="ts">
-import { createUserSchema, type CreateUserForm } from '~/schemas/user'
+import { createUserSchema, type CreateUserForm } from '~/schemas/admin/user'
 
 // Import components explicitly  
 import BaseModal from '~/components/ui/BaseModal.vue'

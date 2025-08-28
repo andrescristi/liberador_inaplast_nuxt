@@ -97,13 +97,13 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              Cantidad unidades *
+              Cantidad unidades por embalaje*
             </label>
             <input 
               v-model="localData.units"
               type="number" 
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="45"
+              placeholder="0"
               required
             >
           </div>

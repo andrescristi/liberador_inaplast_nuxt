@@ -171,15 +171,15 @@
 <script setup lang="ts">
 import { z } from 'zod'
 
+// Import composables explicitly for Vercel compatibility
+const { signIn, resetPassword } = useAuth()
+const toast = useToast()
+
 // Usar layout de autenticación sin navegación
 definePageMeta({
   layout: 'auth',
   auth: false
 })
-
-// Import composables explicitly for Vercel compatibility
-const { signIn, resetPassword } = useAuth()
-const toast = useToast()
 
 // Form schemas
 const loginSchema = z.object({

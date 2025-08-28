@@ -48,7 +48,7 @@
             name="bx:loader-alt" 
             class="w-4 h-4 mr-2 animate-spin" 
           />
-          {{ isProcessingOCR ? `Procesando OCR${ocrAttempts > 0 ? ` (${ocrAttempts}/3)` : '...'}` : 'Siguiente' }}
+          {{ isProcessingOCR ? `Procesando${ocrAttempts > 0 ? ` (${ocrAttempts}/3)` : '...'}` : 'Siguiente' }}
         </button>
       </div>
     </div>
@@ -56,7 +56,8 @@
 </template>
 
 <script setup lang="ts">
-import { stepDataSchema, type StepData, type OrderData, type OCRData } from '~/schemas/order'
+import { orderStep1Schema as stepDataSchema, type OrderStep1Data as StepData, type NewOrderData as OrderData } from '~/schemas/orders/new_order'
+import type { OCRData } from '~/schemas/orders/ocr'
 import { useField, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 

@@ -127,11 +127,21 @@ const LOG_LEVELS: Record<LogLevel, number> = {
   fatal: 60
 }
 
-export const useLogger = (): SafeLogger => {
+export const useLogger = (explicitComponentName?: string): SafeLogger => {
   const nuxtApp = useNuxtApp()
   const pinoLogger = nuxtApp.$logger as Logger
   const minLevel = getMinLogLevel()
   const minLevelValue = LOG_LEVELS[minLevel]
+  
+  // Detectar nombre de componente si no se proporciona explícitamente
+  const instance = getCurrentInstance?.()
+  const detectedName =
+    explicitComponentName ||
+    (instance && ((instance.type as any)?.name || (instance.type as any)?.__name)) ||
+    undefined
+  
+  // Identificador de rate limit por componente
+  const rateLimitIdBase = detectedName ? `cmp:${detectedName}` : 'default'
   
   const createLogMethod = (level: LogLevel) => {
     return (message: unknown, data?: unknown) => {
@@ -142,7 +152,7 @@ export const useLogger = (): SafeLogger => {
         }
         
         // Rate limiting
-        if (!checkRateLimit()) {
+        if (!checkRateLimit(`${rateLimitIdBase}:${level}`)) {
           return
         }
         
@@ -156,6 +166,7 @@ export const useLogger = (): SafeLogger => {
           timestamp: new Date().toISOString(),
           level,
           environment: process.env.NODE_ENV || 'development',
+          component: detectedName,
           ...safeData
         }
         
