@@ -10,6 +10,10 @@ export default defineConfig({
     setupFiles: ['./tests/setup.ts'],
     include: ['tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['tests/e2e/**/*', 'node_modules/**/*'],
+    alias: {
+      '#supabase/server': fileURLToPath(new URL('./tests/mocks/supabase-server.ts', import.meta.url)),
+      'h3': fileURLToPath(new URL('./tests/mocks/h3.ts', import.meta.url))
+    },
     // Configuración para suprimir warnings de Vue en tests
     onConsoleLog(log: string, type: 'stdout' | 'stderr'): false | undefined {
       if (type === 'stderr' && log.includes('[Vue warn]')) {

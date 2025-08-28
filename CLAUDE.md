@@ -64,3 +64,5 @@ All messages to the user and errors must be in spanish
 - **Testing**: Comprehensive test coverage with Vitest and Playwright
 - **TypeScript**: Strict mode enabled with proper type safety
 
+
+- This is not an open source project. It is a private project for an industrial Company

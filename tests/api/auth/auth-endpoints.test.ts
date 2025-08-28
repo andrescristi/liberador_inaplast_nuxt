@@ -44,9 +44,9 @@ describe('/api/auth endpoints', () => {
             password: 'wrongpassword'
           }
         })
-      } catch (error: any) {
-        expect(error.statusCode).toBe(400)
-        expect(error.statusMessage).toBeDefined()
+      } catch (error: unknown) {
+        expect((error as { statusCode: number }).statusCode).toBe(400)
+        expect((error as { statusMessage: string }).statusMessage).toBeDefined()
       }
     })
 
@@ -57,7 +57,7 @@ describe('/api/auth endpoints', () => {
           method: 'POST',
           body: {}
         })
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Debe existir y responder, aunque falle por validación
         expect(error.statusCode).toBeGreaterThanOrEqual(400)
         expect(error.statusCode).toBeLessThan(500)
@@ -72,7 +72,7 @@ describe('/api/auth endpoints', () => {
         await $fetch('/api/auth/logout', {
           method: 'POST'
         })
-      } catch (error: any) {
+      } catch (error: unknown) {
         expect(error.statusCode).toBeGreaterThanOrEqual(400)
       }
     })
@@ -83,7 +83,7 @@ describe('/api/auth endpoints', () => {
       // Sin autenticación, debe fallar pero el endpoint debe existir
       try {
         await $fetch('/api/auth/user')
-      } catch (error: any) {
+      } catch (error: unknown) {
         expect(error.statusCode).toBeGreaterThanOrEqual(400)
       }
     })
@@ -94,7 +94,7 @@ describe('/api/auth endpoints', () => {
       // Sin autenticación, debe fallar pero el endpoint debe existir
       try {
         await $fetch('/api/auth/profile')
-      } catch (error: any) {
+      } catch (error: unknown) {
         expect(error.statusCode).toBeGreaterThanOrEqual(400)
       }
     })
@@ -115,7 +115,7 @@ describe('/api/auth endpoints', () => {
             method: endpoint.method as any,
             body: endpoint.body
           })
-        } catch (error: any) {
+        } catch (error: unknown) {
           // Los endpoints deben existir y responder (aunque fallen por auth)
           expect(error.statusCode).toBeDefined()
           expect(error.statusCode).toBeGreaterThanOrEqual(400)

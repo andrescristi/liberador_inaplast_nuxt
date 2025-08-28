@@ -11,6 +11,23 @@ global.useProfile = vi.fn()
 global.navigateTo = vi.fn()
 global.useSeoMeta = vi.fn()
 global.definePageMeta = vi.fn()
+global.useNuxtApp = vi.fn(() => ({
+  $fetch: global.$fetch
+}))
+global.$fetch = vi.fn()
+global.useRuntimeConfig = vi.fn(() => ({
+  public: {
+    supabase: {
+      url: process.env.SUPABASE_URL,
+      anonKey: process.env.SUPABASE_ANON_KEY
+    }
+  }
+}))
+
+// Mock defineEventHandler
+global.defineEventHandler = vi.fn((handler) => handler)
+global.readBody = vi.fn()
+global.createError = vi.fn()
 
 // Use real Vue reactivity functions
 global.nextTick = nextTick

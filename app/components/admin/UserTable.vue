@@ -22,8 +22,8 @@
               color="primary"
               size="xs"
               leading-icon="bx:edit"
-              @click="$emit('edit', row as unknown as Profile)"
               class="min-w-0 px-2"
+              @click="$emit('edit', row as unknown as Profile)"
             >
               Editar
             </BaseButton>
@@ -32,8 +32,8 @@
               color="warning"
               size="xs"
               leading-icon="bx:key"
-              @click="$emit('resetPassword', row as unknown as Profile)"
               class="min-w-0 px-2"
+              @click="$emit('resetPassword', row as unknown as Profile)"
             >
               Resetear
             </BaseButton>
@@ -43,8 +43,8 @@
               color="danger"
               size="xs"
               leading-icon="bx:trash"
-              @click="$emit('delete', row as unknown as Profile)"
               class="min-w-0 px-2"
+              @click="$emit('delete', row as unknown as Profile)"
             >
               Eliminar
             </BaseButton>

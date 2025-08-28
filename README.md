@@ -1,662 +1,263 @@
-# Liberador Inaplast - Product Release Quality Control System
+# Liberador Inaplast - Sistema de Control de Calidad
 
-A modern web application for managing product release quality control workflows built with Nuxt 4, TailwindCSS, and Supabase.
+**Aplicación web corporativa** para gestión de flujos de trabajo de control de calidad de productos en **Inaplast**. Construido con **Nuxt 4**, **Vue 3**, **TailwindCSS** y **Supabase**.
 
-## ✨ Recent Updates (v2.7.0)
+> 📋 **Proyecto Corporativo Privado** - Sistema interno desarrollado específicamente para las operaciones de control de calidad de Inaplast.
 
-### 🔐 Authentication Architecture Refactoring
-- **Server-Side Authentication** - Complete migration from client-side Supabase connections to secure API endpoints
-- **New Auth API Endpoints** - Created `/api/auth/user`, `/api/auth/profile`, `/api/auth/login`, and `/api/auth/logout` for centralized authentication
-- **Component Security** - Refactored `AppNavigation.vue` to eliminate direct `useSupabaseUser()` usage in favor of server-managed authentication
-- **Composable Architecture** - Enhanced auth composables (`useAuthState`, `useAuthLogin`, `useAuthProfile`) to use API endpoints exclusively
+## 🎯 Propósito del Sistema
 
-### 🧪 Comprehensive Authentication Testing
-- **API Endpoint Tests** - Complete test coverage for new authentication endpoints with proper error handling validation
-- **Composable Test Refactoring** - Updated all auth-related composable tests to match new API-based implementation
-- **End-to-End Auth Testing** - Comprehensive authentication flow testing using MCP Playwright for login/logout scenarios
-- **Test Infrastructure Enhancement** - 32+ new authentication tests ensuring robust security and functionality
+Sistema interno de **Inaplast** para digitalizar y optimizar los procesos de control de calidad:
 
-### 🏗️ Security & Architecture Improvements
-- **API-First Authentication** - All authentication operations now handled server-side for improved security
-- **Token Management** - Centralized JWT/session handling through Nuxt Supabase module
-- **Component Separation** - Clear separation between UI components and authentication logic
-- **Error Handling Enhancement** - Improved Spanish error messages and user-friendly authentication feedback
+- **Control de calidad** de productos con flujo de 4 pasos estandarizado
+- **Gestión de personal** con roles definidos (Admin, Supervisor, Inspector)
+- **Extracción automática** de datos desde etiquetas de producción usando OCR con Gemini AI
+- **Planes de muestreo** estadístico según estándares industriales (MIL-STD)
+- **Panel administrativo** con trazabilidad completa de operaciones
 
-## ✨ Previous Updates (v2.6.0)
+## 🏗️ Arquitectura del Sistema
 
-### 🤖 OCR System Integration with Gemini AI
-- **Real OCR Processing** - Connected `useOCRConfig` composable with `/api/ocr/extract` endpoint using Google Gemini AI
-- **Automatic Data Population** - Order form fields now populate automatically from extracted image data
-- **Production Data Mapping** - Smart mapping from Gemini response to application data structure
-- **Error Handling & Retry Logic** - Robust retry mechanism for failed OCR processing with exponential backoff
-
-### 🧪 Enhanced Testing Coverage
-- **OCR Composable Tests** - Comprehensive test suite for `useOCRConfig` with mocked API responses
-- **API Integration Tests** - Data validation tests for OCR endpoint structure and mapping
-- **Type Safety Improvements** - Fixed TypeScript errors in OCR data flow components
-- **Mock System Updates** - Removed deprecated mock OCR system in favor of real Gemini integration
-
-### 🔧 Technical Improvements
-- **Data Flow Optimization** - Streamlined OCR data from Step 1 image upload to Step 2 form population
-- **Type System Enhancement** - Proper TypeScript interfaces for OCR data throughout the application
-- **Component Updates** - Fixed event typing issues in OrderImageUpload and wizard components
-- **API Endpoint Validation** - Improved request validation and error responses
-
-## ✨ Previous Updates (v2.5.0)
-
-### 🏗️ Major Architecture & Quality Improvements
-- **Dashboard Metrics API** - New real-time dashboard metrics endpoint with role-based data filtering
-- **SSR-Safe State Management** - Migrated complex store patterns to Nuxt 4 compatible `useState` patterns  
-- **Code Quality Analysis** - Comprehensive analysis and cleanup of components and pages folders
-- **Test Coverage Enhancement** - Added 55+ new tests covering critical functionality and edge cases
-- **Security Hardening** - Removed development-only files and implemented proper authentication patterns
-
-### 🔧 Backend & API Enhancements
-- **Real Dashboard API** - `/api/dashboard/metrics.get.ts` with JWT authentication and role-based data
-- **Composable Architecture** - New `useDashboardMetrics.ts` composable for reactive dashboard state
-- **Inspector vs Admin Data** - Differentiated metrics display based on user role (Inspector sees personal data, Admin/Supervisor see global metrics)
-- **Error Handling** - Robust fallback systems with proper error states and loading indicators
-
-### 🧪 Testing & Quality Assurance  
-- **New Test Suites** - Comprehensive tests for dashboard metrics, composables, and page functionality
-- **Edge Case Coverage** - Tests for authentication, error handling, SSR compatibility, and role permissions
-- **Test Infrastructure** - Fixed existing test issues and improved mocking patterns
-- **Quality Metrics** - All critical user paths now have comprehensive test coverage
-
-### 🧹 Code Cleanup & Security
-- **Removed Development Files** - Eliminated `extractor-ocr.vue` test page and related middleware
-- **Configuration Cleanup** - Removed unused development flags and simplified config structure
-- **Security Audit** - Removed potential security vulnerabilities in development endpoints
-- **Bundle Optimization** - Cleaner production builds with reduced bundle size
-
-### 🎨 Previous Updates (v2.4.0) - Authentication Layout System
-- **Auth Layout** - New dedicated layout for authentication pages (login, reset-password, confirm)
-- **Conditional Navigation** - Navigation automatically hides on auth pages using layout detection
-- **Clean Authentication Flow** - Distraction-free login experience without main app navigation
-- **Layout Separation** - Clear separation between authenticated and unauthenticated user experiences
-
-### 🔧 Supabase Configuration Refactoring  
-- **Consistent Environment Variables** - Standardized NUXT_ prefixed variables across all files
-- **Service Role Integration** - Proper use of `serverSupabaseServiceRole()` for admin operations
-- **Eliminated Manual Clients** - Removed manual `createClient()` calls in favor of Nuxt Supabase module functions
-- **Configuration Cleanup** - Unified configuration approach across frontend and backend
-
-### 🚀 Previous Updates (v2.3.0)
-
-#### Production Deployment & Performance
-- **Vercel Deployment Ready** - Complete Vercel configuration with Nitro preset and SSR optimization
-- **Server Logger Fixed** - Resolved critical H3Error with pino-pretty dependency installation
-- **Production Logging** - Optimized logger configuration for development (pino-pretty) and production (stdout)
-- **Deployment Success** - Successfully deployed to https://liberador-inaplast-nuxt.vercel.app
-
-#### Navigation System Enhancement  
-- **CoreAppNavigation Component** - Complete navbar system with responsive design
-- **Mobile-First Navigation** - Hamburger menu for desktop + bottom navigation for mobile
-- **Role-Based Navigation** - Dynamic menu items based on user permissions
-- **User Experience** - Clean navigation with brand consistency and proper mobile optimization
-
-## Features
-
-### 🔐 Authentication & User Management
-- **Server-Side Authentication** - Secure authentication handled exclusively through API endpoints (`/api/auth/*`)
-- **Centralized Auth State** - Unified authentication state management using `useAuthState` composable
-- **API-First Security** - All Supabase connections managed server-side, eliminating client-side auth vulnerabilities
-- **Secure Login System** - Email/password authentication via `/api/auth/login` endpoint
-- **Session Management** - Server-managed JWT/session handling through Nuxt Supabase integration
-- **Password Reset** - Forgot password functionality with email verification
-- **User Profiles** - Complete profile management via `/api/auth/profile` endpoint with role-based access
-- **Protected Routes** - All application routes require authentication
-- **Conditional Navigation** - Navigation dynamically rendered based on server-side authentication state
-- **Role-Based Access Control** - Three user roles: Admin, Supervisor, Inspector
-- **User Administration** - Complete admin panel for user management (Admin only)
-- **Activity Audit Trail** - Comprehensive logging of all user management actions
-
-### 🏭 Product Release Management
-- **Dashboard** - Overview of inspections, approvals, and rejections with Spanish localization
-- **Nueva Liberación** - 4-step quality control workflow:
-  - Step 1: Initial data (label image upload, box quantity)
-  - Step 2: Product details (client, batch, order info, personnel, sampling levels)
-  - Step 3: Quality tests (dimensions, resistance, appearance)
-  - Step 4: Results summary and approval/rejection
-- **Release Tracking** - View and manage release status and quality test results
-- **Historial** - Complete release history with filtering and search capabilities
-- **Order Management** - Full orders interface with SSR-compatible state management
-- **Status Management** - Simplified order states: "Aceptado" (Accepted) and "Rechazado" (Rejected)
-
-### 📄 OCR Text Extraction
-- **Advanced OCR System** - Gemini AI-powered optical character recognition for superior text extraction from production labels
-- **Structured Data Extraction** - Automatically extracts and organizes production data into structured fields:
-  - Lote, Cliente, Producto, Pedido, Fecha Fabricación, Código Producto
-  - Turno, Unidades, Jefe de Turno, Orden de Compra, N° Operario
-  - Máquina, Inspector de Calidad
-- **Intelligent Table Display** - Presents extracted data in organized, professional table format
-- **Production Label Focus** - Optimized specifically for industrial production label recognition
-- **Multi-Language Support** - English and Spanish text recognition capabilities
-- **Image Format Support** - Supports JPG, PNG, WEBP, BMP, and GIF image formats (max 10MB)
-- **Text Export** - Copy extracted data to clipboard with one-click functionality
-- **Drag & Drop Interface** - User-friendly file upload with visual feedback
-- **Clean Processing** - No console logging for cleaner production experience
-- **Smart Fallback** - Falls back to raw text display when structured data is not available
-
-### 🔬 Quality Control & Sampling
-- **Muestreo System** - Complete sampling management module for quality control
-- **Plan de Muestreo** - Sampling plan management with AQL (Acceptable Quality Level) configuration
-- **Grupo de Muestreo** - Sampling group management with lot size ranges and inspection levels
-- **Statistical Sampling** - MIL-STD based sampling plans for quality assurance
-- **Inspection Management** - Multi-level inspection support (General, Special, Reduced)
-- **Quality Metrics** - Comprehensive quality control metrics and reporting
-
-### 👥 Administrative Features
-- **User Management Dashboard** - Complete CRUD operations for user accounts with real email display
-- **User Creation & Editing** - Full user lifecycle management with secure server-side validation
-- **Role Assignment** - Assign and modify user roles (Admin, Supervisor, Inspector)
-- **Email Management** - Edit user emails with real-time validation and Supabase Auth integration
-- **Password Reset System** - Admin-initiated password reset with secure email notifications
-- **User Statistics** - Real-time metrics including user counts by role and activity
-- **Inspector Activity Tracking** - Monitor inspector performance with 7-day activity reports
-- **User Search & Filtering** - Advanced search and role-based filtering
-- **Account Security** - Comprehensive password reset functionality and account management
-- **Audit Logging** - Complete activity trail of all administrative actions
-- **Permission Error Handling** - Graceful handling of access denied scenarios with clear user messaging
-- **Security Protection** - Admin routes protected with intelligent error detection and user-friendly feedback
-- **API-First Architecture** - Statistics and user data served through secure API endpoints with service role authentication
-- **RLS Bypass** - Admin operations use service role to bypass Row Level Security issues while maintaining security
-- **Clean Auth Experience** - Navbar correctly hidden during authentication flows and logout transitions
-- **Profile Management Migration** - User profile functionality moved to auth section with updated navigation routes
-
-## Tech Stack
-
-- **Frontend**: Nuxt.js 4 (Latest), Vue.js 3, TailwindCSS
-- **UI Components**: Custom component system with Headless UI
+### Stack Tecnológico
+- **Frontend**: Nuxt 4 + Vue 3 + TypeScript
+- **Styling**: TailwindCSS + componentes personalizados
 - **Backend**: Supabase (PostgreSQL, Auth, Real-time)
-- **State Management**: Pinia
-- **Icons**: @nuxt/icon with Boxicons
-- **OCR Engine**: Google Gemini AI (@google/genai) for superior text recognition and data extraction
-- **Testing**: Vitest (unit tests), Playwright (E2E tests), Vue Testing Library
-- **Package Manager**: pnpm
-- **Deployment**: Deployed on Vercel with complete SSR support
-- **Production Logging**: Pino logger with pino-pretty for development, stdout for production
-- **Architecture**: Nuxt 4 directory structure with optimized auto-imports
+- **OCR**: Google Gemini AI
+- **Testing**: Vitest + Playwright
+- **Deploy**: Vercel
 
-## Quick Start
+## 🚀 Funcionalidades Principales
 
-### Prerequisites
-- Node.js 18+ 
-- pnpm (recommended) or npm
-- Supabase account
+### 1. Sistema de Autenticación (Server-Side) - **v2.6.0**
+- **API Endpoints**: `/api/auth/login`, `/api/auth/user`, `/api/auth/profile`, `/api/auth/logout`, `/api/auth/update-password`
+- **Composables**: `useAuthState`, `useAuthLogin`, `useAuthProfile`, `useAuthPassword` - arquitectura API-first
+- **Roles**: Admin, Supervisor, Inspector con permisos granulares
+- **Seguridad**: Autenticación server-side completa, validación con Zod, manejo robusto de errores
+- **Reset de contraseñas**: Sistema completo con tokens seguros y validación
 
-### Installation
+### 2. Control de Calidad (4 Pasos)
+- **Paso 1**: Subida de imagen de etiqueta + cantidad de cajas
+- **Paso 2**: Detalles del producto (datos del OCR + manual)
+- **Paso 3**: Pruebas de calidad (dimensiones, resistencia, apariencia)
+- **Paso 4**: Resumen y decisión (Aceptado/Rechazado)
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/andrescristi/liberador_inaplast_nuxt.git
-   cd liberador_inaplast_nuxt
-   ```
+### 3. OCR con Gemini AI
+- **Endpoint**: `/api/ocr/extract` - extrae datos estructurados de etiquetas
+- **Campos**: Lote, Cliente, Producto, Fecha, Turno, Inspector, etc.
+- **Integración**: Auto-llena formularios del Paso 2
 
-2. **Install dependencies**
-   ```bash
-   pnpm install
-   # or
-   npm install
-   ```
+### 4. Panel de Administración - **v2.6.0**
+- **Gestión avanzada de usuarios**: CRUD completo con componentes modulares
+- **Componentes especializados**: `UserTable`, `UserFilters`, `UserStatsCards`, `UserPagination`
+- **Arquitectura composable**: Sistema `useAdminUser*` para separación de responsabilidades
+- **API endpoints**: `/api/admin/users/*` con validación y autorización
+- **Estadísticas en tiempo real**: Métricas detalladas por roles y períodos
+- **Sistema de roles**: Reset de contraseñas, activación/desactivación de usuarios
 
-3. **Environment Setup**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Update `.env` with your Supabase credentials:
-   ```env
-   SUPABASE_URL=your_supabase_project_url
-   SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+### 5. Sistema de Muestreo Estadístico
+- **Planes de Muestreo**: Configuración AQL y niveles de inspección
+- **Grupos de Muestreo**: Rangos de tamaño de lote
+- **Standards**: Basado en MIL-STD para aseguramiento de calidad
 
-4. **Database Setup**
-   ```bash
-   # Initialize Supabase (if using local development)
-   npx supabase start
-   
-   # Or apply migrations to your Supabase project
-   npx supabase db push
-   ```
+## 💻 Cómo Funciona el Código
 
-5. **Start Development Server**
-   ```bash
-   pnpm dev
-   # or
-   npm run dev
-   ```
-
-### Creating Users
-
-#### Method 1: Admin Panel (Recommended)
-Once you have an admin user, you can create new users through the admin interface:
-1. Log in as an admin user
-2. Navigate to "Administración" in the navigation menu
-3. Click "Crear Usuario" 
-4. Fill in user details and assign a role
-5. The new user will receive an email confirmation automatically
-
-#### Method 2: Supabase Dashboard (Initial Setup)
-For creating your first admin user, use the Supabase dashboard:
-1. Go to your Supabase project dashboard
-2. Navigate to Authentication > Users
-3. Click "Add user" 
-4. Enter email and password (e.g., `admin@example.com` / `123456`)
-5. In the Database > Profiles table, update the user's role to 'Admin'
-
-**Test Credentials**: Create an admin user with `admin@example.com` and password `123456` for testing.
-
-## Project Structure
-
+### Estructura de Directorios (Nuxt 4)
 ```
-app/
-├── components/
-│   ├── admin/                 # Admin panel components
-│   │   ├── UserCreateModal.vue # User creation modal form
-│   │   └── UserEditModal.vue   # User editing modal form
-│   ├── core/                  # Core app components (navigation)
-│   ├── muestreo/              # Quality control & sampling components
-│   │   ├── GrupoMuestreoCreateModal.vue    # Sampling group creation
-│   │   ├── GrupoMuestreoEditModal.vue      # Sampling group editing
-│   │   ├── GrupoMuestreoRelacionesModal.vue # Group-plan relations
-│   │   ├── GrupoMuestreoViewModal.vue      # Sampling group details
-│   │   └── PlanMuestreoViewModal.vue       # Sampling plan details
-│   └── ui/                    # Custom UI components (TailwindCSS-based)
-│       ├── BaseAlert.vue      # Alert/notification component
-│       ├── BaseBadge.vue      # Status badges
-│       ├── BaseButton.vue     # Button component with variants
-│       ├── BaseCard.vue       # Card component
-│       ├── BaseDropdown.vue   # Dropdown menu
-│       ├── BaseInput.vue      # Form input component
-│       ├── BaseModal.vue      # Modal dialog
-│       ├── BaseTable.vue      # Data table component
-│       ├── ImageUploadOCR.vue # OCR text extraction component
-│       ├── ToastContainer.vue # Toast notification container
-│       └── ToastNotification.vue # Individual toast notifications
-├── composables/
-│   ├── auth/                   # Specialized authentication composables
-│   │   ├── index.ts           # Auth composables barrel export
-│   │   ├── useAuthLogin.ts    # Login/logout operations
-│   │   ├── useAuthPassword.ts # Password reset and update
-│   │   ├── useAuthProfile.ts  # User profile management
-│   │   └── useAuthState.ts    # Authentication state management
-│   ├── useDebounce.ts         # Debouncing utility for search/input handling
-│   ├── useAdminUserAPI.ts     # Admin user API operations via secure endpoints
-│   ├── useAdminUserManager.ts # Admin user management with state handling
-│   ├── useImageCompression.ts # Image compression utility for OCR optimization
-│   ├── useLogger.ts           # Pino logger integration
-│   ├── useMuestreoAPI.ts      # Quality control & sampling API operations
-│   └── useToast.ts            # Toast notification management
-├── layouts/
-│   └── default.vue            # Main layout with navigation
-├── middleware/
-│   ├── auth.ts                # Route protection middleware
-│   └── require-admin-role.ts  # Admin-only route protection
-├── pages/
-│   ├── admin/
-│   │   └── users.vue          # User administration dashboard
-│   ├── auth/
-│   │   ├── confirm.vue        # Email confirmation handler
-│   │   ├── login.vue          # Login page with password reset
-│   │   ├── profile.vue        # User profile management (relocated to auth)
-│   │   └── reset-password.vue # Password reset page
-│   ├── orders/
-│   │   ├── [id].vue           # Individual release details
-│   │   ├── index.vue          # Release history and management
-│   │   └── new.vue            # 4-step quality control workflow
-│   ├── muestreo/              # Quality control & sampling pages
-│   │   ├── index.vue          # Sampling dashboard
-│   │   ├── grupos.vue         # Sampling groups management
-│   │   └── planes.vue         # Sampling plans management
-│   ├── extractor-ocr.vue      # Production OCR system for structured data extraction
-│   └── index.vue              # Dashboard with metrics
-├── types/                     # TypeScript type definitions
-├── utils/
-│   └── formatters.ts          # Shared formatting utilities (currency, dates)
-├── plugins/
-│   ├── pinia.client.ts        # Pinia store configuration (client-side)
-│   ├── pinia.server.ts        # Pinia store configuration (server-side)
-│   ├── logger.client.ts       # Pino logger plugin (client-side)
-│   └── logger.server.ts       # Pino logger plugin (server-side)
-└── assets/
-    ├── css/
-    │   ├── main.css                    # Global styles, utilities, z-index scale, and CSS imports
-    │   ├── ui-components.css           # Button ripple effects, input animations, loading states
-    │   ├── navigation.css              # Hamburger animations, mobile nav transitions
-    │   ├── notifications.css           # Toast transitions and positioning
-    │   ├── effects.css                 # Confetti celebrations and magical particles
-    │   ├── dashboard.css               # Dashboard-specific styles and animations
-    │   ├── profile.css                # Profile page micro-interactions
-    │   └── mobile-optimizations.css    # Mobile-first responsive optimizations
-    └── images/                # Application images
+app/                          # Código fuente principal
+├── components/               # Componentes Vue reutilizables
+│   ├── admin/               # Gestión de usuarios
+│   ├── auth/                # Autenticación
+│   ├── core/                # Navegación principal
+│   └── ui/                  # Sistema de componentes base
+├── composables/             # Lógica reutilizable
+│   ├── auth/               # Autenticación (useAuthState, etc.)
+│   └── admin/              # Administración de usuarios
+├── pages/                   # Rutas de la aplicación
+│   ├── auth/               # Login, perfil, reset password
+│   ├── admin/              # Panel administrativo
+│   ├── orders/             # Gestión de liberaciones
+│   └── muestreo/           # Control de calidad
+└── middleware/              # Protección de rutas
 
-server/
+server/                       # API Backend (Nitro)
 ├── api/
-│   ├── auth/                  # Authentication API endpoints
-│   │   ├── user.get.ts        # Get authenticated user (replaces useSupabaseUser)
-│   │   ├── profile.get.ts     # Get user profile with role information
-│   │   ├── login.post.ts      # Handle login with server-side Supabase Auth
-│   │   └── logout.post.ts     # Handle logout and session cleanup
-│   ├── admin/
-│   │   └── users/             # User management API endpoints
-│   │       ├── index.get.ts   # List users with pagination
-│   │       ├── index.post.ts  # Create new user
-│   │       ├── create-user-simple.post.ts # Simplified user creation endpoint
-│   │       ├── list.get.ts    # Enhanced user listing with filters
-│   │       ├── [id].put.ts    # Update user details
-│   │       ├── [id].delete.ts # Delete user account
-│   │       └── stats.get.ts   # User statistics and activity
-│   ├── calidad/
-│   │   └── planes-muestreo.get.ts  # Statistical sampling plan API endpoint
-│   ├── ocr/
-│   │   └── extract.post.ts    # Gemini AI OCR endpoint for structured data extraction
-│   ├── test-admin-creation.post.ts    # Testing endpoints for admin functionality
-│   ├── test-create-user.post.ts       # User creation testing
-│   ├── test-direct-supabase.post.ts   # Direct Supabase integration testing
-│   └── test-service-role.get.ts       # Service role testing
-├── plugins/
-│   └── logger.ts              # Server-side Pino logger configuration
-└── utils/                     # Server utilities and helper functions
-
-supabase/
-└── migrations/
-    ├── 20250811000001_add_user_activity_logs.sql # Audit trail system
-    └── 20250815000001_fix_role_change_permissions.sql # Role change permission fixes
-
-docs/
-├── ARCHITECTURE.md         # System architecture documentation
-├── CONFIGURATION.md        # Configuration guide
-├── DATABASE_STRUCTURE.md   # Database schema and relationships
-├── DEVELOPMENT.md          # Development guidelines
-├── RLS_POLICIES.md         # Row Level Security policies
-└── SEGURIDAD_SUPABASE.md   # Supabase security configuration (Service Role Key setup)
+│   ├── auth/               # Endpoints de autenticación
+│   ├── admin/              # Gestión de usuarios
+│   ├── ocr/                # Extracción OCR
+│   └── profiles/           # Perfiles de usuario
 ```
 
-## Development
+### Flujo de Autenticación - **v2.6.0**
+1. **Login**: `useAuthLogin` → `/api/auth/login` → server-side Supabase Auth con validación Zod
+2. **Estado**: `useAuthState` → `/api/auth/user` → estado reactivo centralizado con cache
+3. **Perfil**: `useAuthProfile` → `/api/auth/profile` → datos completos + rol + cache inteligente
+4. **Contraseñas**: `useAuthPassword` → `/api/auth/update-password` → cambio seguro de contraseñas
+5. **Protección**: Middleware `auth.ts` verifica en cada ruta protegida
+6. **Logout**: `/api/auth/logout` → limpieza completa de sesión + redirección
+7. **Reset**: Sistema completo de reset de contraseñas con tokens y validación
 
-### Available Scripts
-
-```bash
-pnpm dev             # Start development server
-pnpm build           # Build for production
-pnpm generate        # Generate static site
-pnpm preview         # Preview production build
-pnpm lint            # Run ESLint to check code quality
-pnpm lint:fix        # Automatically fix ESLint issues
-pnpm test            # Run unit tests with Vitest
-pnpm test:ui         # Run tests with UI interface
-pnpm test:coverage   # Run tests with coverage report
-pnpm test:e2e        # Run end-to-end tests with Playwright
-pnpm test:e2e:ui     # Run E2E tests with Playwright UI
-```
-
-### Custom UI Component System
-
-This project uses a custom component system built with TailwindCSS and Headless UI:
-
-- **BaseButton**: Multi-variant button (solid, outline, ghost, link) with loading states
-- **BaseCard**: Flexible card with header, body, and footer slots
-- **BaseInput**: Form input with validation states and icon support
-- **BaseModal**: Modal dialogs with smooth transitions
-- **BaseAlert**: Notification alerts with multiple variants
-- **BaseDropdown**: Dropdown menus with keyboard navigation
-- **BaseBadge**: Status badges with color variants
-- **BaseTable**: Data tables with selection support
-- **Toast System**: Global notification management
-
-All components are auto-imported and include full TypeScript support.
-
-### Code Quality & Linting
-
-This project maintains high code quality standards with:
-
-- **ESLint Configuration**: Comprehensive rules for Vue.js, TypeScript, and Nuxt.js
-- **TypeScript Support**: Full type safety with proper prop definitions and strict type checking
-- **Component Prop Types**: Optimized for @nuxt/icon compatibility with Boxicons
-- **Clean Code Standards**: Automated linting with `pnpm lint` and `pnpm lint:fix`
-- **Zero ESLint Errors**: Complete elimination of all TypeScript 'any' types and lint violations
-- **Type Safety**: Replaced all 'any' types with proper TypeScript interfaces and error handling
-- **Dead Code Elimination**: Removed unused variables, functions, and commented-out code
-- **Shared Utilities**: Created reusable formatting functions to eliminate code duplication
-- **Production Ready**: All pages optimized for maintainability and performance
-
-### CSS Architecture & Organization
-
-The project uses a completely refactored modular CSS architecture for maximum maintainability and performance:
-
-- **External CSS Files**: All inline component CSS moved to organized external stylesheets
-- **Zero CSS Duplication**: Common patterns extracted and consolidated across 400+ lines of code
-- **Component-Specific Organization**: CSS grouped by functionality (UI, navigation, effects, notifications)
-- **Consistent Z-Index Scale**: Standardized layering system using CSS custom properties
-- **Global Optimizations**: Universal transitions, reduced-motion preferences, and accessibility
-- **Performance Focused**: Minimized CSS redundancy and optimized loading
-
-**CSS Architecture:**
-- `main.css` - Global styles, z-index scale, common utilities, and CSS imports
-- `ui-components.css` - Button ripple effects, input focus rings, loading animations
-- `navigation.css` - Hamburger menu animations, mobile nav transitions, gradient backgrounds
-- `notifications.css` - Toast transitions, positioning, and progress animations
-- `effects.css` - Confetti celebrations, magical particles, and visual effects
-- `dashboard.css` - Dashboard metrics animations and hover effects
-- `profile.css` - Profile page micro-interactions and delightful animations
-- `mobile-optimizations.css` - Mobile-first responsive design and touch optimizations
-
-**Refactoring Achievements:**
-- ✅ **Eliminated 400+ lines** of duplicated CSS from Vue components
-- ✅ **Standardized z-index values** using CSS custom properties (`--z-*`)
-- ✅ **Extracted common animation patterns** (ripple effects, gradient shifts, fade transitions)
-- ✅ **Maintained all functionality** - zero behavior changes during refactoring
-- ✅ **Improved maintainability** - centralized styling with clean separation of concerns
-
-### Authentication Flow
-
-1. **Server-Side Architecture**: All authentication operations handled through `/api/auth/*` endpoints
-2. **API-First Security**: Components use `useAuthState` composable instead of direct Supabase connections
-3. **Route Protection**: All routes use the `auth` middleware with server-side user verification
-4. **Login Process**: Authentication handled via `/api/auth/login` endpoint with server-side Supabase Auth
-5. **Session Management**: JWT/session management handled server-side through Nuxt Supabase module
-6. **User State**: Centralized user state via `/api/auth/user` endpoint (replaces `useSupabaseUser`)
-7. **Profile Access**: User profiles accessed via `/api/auth/profile` endpoint with role information
-8. **Logout Process**: Session cleanup handled through `/api/auth/logout` endpoint
-9. **Clean Auth Experience**: Navigation dynamically rendered based on authentication state
-
-### Database Schema
-
-The application uses the following main tables:
-- `profiles` - User profiles with role-based access control
-- `user_activity_logs` - Comprehensive audit trail for all user management actions
-- `orders` - Product release records with quality control data
-- `order_items` - Individual items and test results within releases
-- `planes_de_muestreo` - Statistical sampling plans with AQL configurations
-- `grupos_muestreo` - Sampling groups with lot size ranges and inspection levels
-- `grupos_planes` - Many-to-many relationship between groups and sampling plans
-
-**Role-Based Access Control:**
-- **Admin**: Full system access including user management, quality control sampling, and administrative functions
-- **Supervisor**: Can manage orders, access quality control sampling (muestreo), and view all data
-- **Inspector**: Can create and manage assigned orders (no access to sampling or admin functions)
-
-See `supabase/migrations/` for complete schema definitions and security policies.
-
-## Deployment
-
-### Production Deployment (Vercel)
-
-The application is production-ready and deployed on Vercel:
-
-**Live Application**: https://liberador-inaplast-nuxt.vercel.app
-
-#### Vercel Deployment Steps
-
-1. **Install Vercel CLI**:
-   ```bash
-   npm install -g vercel
-   ```
-
-2. **Deploy to Preview**:
-   ```bash
-   vercel deploy
-   ```
-
-3. **Deploy to Production**:
-   ```bash
-   vercel --prod
-   ```
-
-#### Vercel Configuration
-
-The application includes optimized Vercel configuration:
-
+### Patrón de Composables
 ```typescript
-// nuxt.config.ts
-nitro: {
-  preset: 'vercel',
-  rollupConfig: {
-    external: [],
-    output: {
-      format: 'esm'
-    }
-  }
-}
+// ❌ ANTES: Conexión directa
+const user = useSupabaseUser()
+
+// ✅ AHORA: API-first
+const { user, isAuthenticated } = useAuthState()
 ```
 
-### Environment Variables
+### Sistema de Componentes UI
+- **BaseButton**, **BaseCard**, **BaseModal**, **BaseTable**, etc.
+- **Auto-import**: Disponibles globalmente sin imports
+- **TypeScript**: Props totalmente tipadas
+- **TailwindCSS**: Variantes y estados consistentes
 
-Ensure these environment variables are set in your deployment platform:
+### Cobertura de Testing - **v2.6.0**
+- **Tests unitarios**: 387+ tests passing con Vitest
+- **Tests de API**: Cobertura completa de endpoints de auth y admin
+- **Tests de composables**: Validación de `useAuth*`, `useAdmin*`
+- **Tests de componentes**: UserTable y componentes administrativos
+- **Mocks avanzados**: Sistema de mocking para Supabase y Nuxt APIs
+- **Integración continua**: Tests automatizados en cada commit
 
-```env
-SUPABASE_URL=your_supabase_project_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-### Local Build and Deploy
+## 🔧 Setup Rápido
 
 ```bash
-# Build the application
-pnpm build
+# 1. Acceso al repositorio (requiere permisos corporativos)
+git clone [repositorio_corporativo]
+cd liberador_inaplast_nuxt
+pnpm install
 
-# The .output directory contains the built application
-# Deploy the .output directory to your hosting platform
+# 2. Configurar Supabase
+cp .env.example .env
+# Actualizar SUPABASE_URL y SUPABASE_ANON_KEY
+
+# 3. Base de datos
+npx supabase db push
+
+# 4. Ejecutar
+pnpm dev
 ```
 
-## Security Considerations
+### Configuración de Usuarios
+1. **Admin Inicial**: Contactar al administrador del sistema para credenciales
+2. **Usuarios Operativos**: Crear desde el panel de administración interno
+3. **Roles**: Asignados según jerarquía organizacional de Inaplast
 
-- **Authentication Required**: All routes are protected by default
-- **Row Level Security**: Database tables use RLS policies
-- **Environment Variables**: Sensitive data stored in environment variables
-- **Session Management**: Secure session handling via Supabase Auth
+## 🧪 Testing
 
-## Development Status
+### Cobertura Actual
+- **Auth Endpoints**: 7/7 tests ✅
+- **Auth Composables**: 25/25 tests ✅ 
+- **Total**: 32+ tests de autenticación
+- **E2E**: Playwright para flujos completos
 
-- ✅ **Authentication System**: Complete with login/logout/password reset and conditional navigation
-- ✅ **Custom UI System**: Modern component library with TailwindCSS + Headless UI
-- ✅ **Route Protection**: All pages require authentication  
-- ✅ **User Interface**: Dashboard, navigation, and responsive design with Spanish localization
-- ✅ **Navigation System**: Streamlined navigation with improved user experience
-- ✅ **Toast Notifications**: Global notification system
-- ✅ **Component Architecture**: 12+ base components with TypeScript support
-- ✅ **Code Quality**: Complete TypeScript compliance with zero ESLint errors
-- ✅ **Type Safety**: Eliminated all 'any' types, implemented strict TypeScript checking
-- ✅ **Vue Component Optimization**: Fixed prop type issues and component resolution
-- ✅ **Icon System**: Migrated from Heroicons to Boxicons via @nuxt/icon
-- ✅ **Package Management**: Clean dependencies with pnpm, resolved version conflicts
-- ✅ **Theme System**: Classic blue color palette with simplified theme management
-- ✅ **Quality Control Workflow**: 4-step product release process with image upload
-- ✅ **Project Structure Optimization**: Removed unused customer/product management, focused on liberador workflow
-- ✅ **CSS Architecture Refactor**: Complete CSS reorganization with external stylesheets, eliminated 400+ lines of duplicated code
-- ✅ **Configuration Management**: Updated nuxt.config.ts with SEO optimization, performance settings, and proper auth routing
-- ✅ **Framework Upgrade**: Successfully upgraded to Nuxt 4.0.3 with improved performance and type safety
-- ✅ **Codebase Cleanup**: Comprehensive cleanup completed across all pages - removed unused code, dead functions, and duplicate utilities
-- ✅ **Shared Utilities**: Created centralized formatting utilities to eliminate code duplication and improve maintainability
-- ✅ **User Administration System**: Complete admin panel with role-based access control, user CRUD operations, and activity auditing
-- ✅ **Role-Based Security**: Three-tier role system (Admin/Supervisor/Inspector) with granular permissions and route protection
-- ✅ **Activity Audit Trail**: Comprehensive logging system tracking all user management actions with database triggers and functions
-- ✅ **Profile Management**: Full user profile functionality with real-time name updates and validation
-- ✅ **Internationalization**: Complete Spanish localization with all user-facing messages translated
-- ✅ **Error Handling**: Robust error handling with user-friendly Spanish error messages
-- ✅ **Permission Error Handling**: Intelligent error detection for access denied scenarios with user-friendly messaging
-- ✅ **Admin Security**: Protected admin routes with graceful permission error handling and clear user feedback
-- ✅ **SSR Compatibility**: Full server-side rendering support with Pinia state management
-- ✅ **Order Status System**: Simplified order management with "Aceptado/Rechazado" states
-- ✅ **Component Resolution Issues**: Fixed Vue component auto-import issues with explicit imports for critical UI components
-- ✅ **TypeScript Compliance**: Resolved all TypeScript errors in admin user interface with proper type casting and prop handling
-- ✅ **Vue 3 Hydration**: Eliminated SSR hydration mismatch warnings and improved client-side rendering performance
-- ✅ **UI Component Compatibility**: Updated BaseTable, BaseBadge, and BaseModal components with correct prop interfaces and slot handling
-- ✅ **TypeScript Database Integration**: Complete Supabase type safety with properly typed RPC functions and database schemas
-- ✅ **Database Type Safety**: Fixed all TypeScript errors in database composables with proper Database generic types and RPC function definitions
-- ✅ **Admin API Refactoring**: Modular admin user management with separate API composables for better code organization
-- ✅ **Testing Infrastructure**: Comprehensive testing endpoints for admin functionality and direct Supabase integration
-- ✅ **Server Utilities**: Centralized server-side utilities for improved code reusability
-- ✅ **Statistics API Integration**: Fixed admin user statistics display issues by implementing API-first approach with service role authentication
-- ✅ **RLS Bypass Architecture**: Admin operations now use secure API endpoints that bypass Row Level Security restrictions while maintaining security
-- ✅ **Enhanced User Authentication**: Added role metadata to JWT claims for improved authorization handling
-- ✅ **Modal Component Improvements**: Refactored admin user modals with better styling and proper composable integration
-- ✅ **Code Cleanup**: Removed redundant composables and consolidated admin user management logic
-- ✅ **User Creation System**: Fixed critical architecture flaw in user creation modal to use secure server-side API endpoints instead of client-side admin operations
-- ✅ **Security Architecture**: Corrected user creation flow to properly use service role authentication through server endpoints for admin operations
-- ✅ **User Deletion System**: Fixed user deletion functionality to use secure server-side API endpoints with proper admin authentication and role validation
-- ✅ **User Edit System**: Complete user editing functionality with secure server-side API endpoints, email updates, and password reset functionality
-- ✅ **Email Integration**: Fixed user email fetching in admin interface using Supabase Auth admin API for accurate email display and editing
-- ✅ **Auth UI/UX**: Resolved navbar display issues on authentication pages with route-based conditional rendering
-- ✅ **Admin Operations Security**: Complete CRUD operations now properly use server-side endpoints with service role authentication instead of client-side admin calls
-- ✅ **Password Reset System**: Added secure admin-initiated password reset functionality with email notifications
-- ✅ **Testing Infrastructure**: Complete testing setup with Vitest for unit/integration tests and Playwright for E2E testing with multi-browser support
-- ✅ **Profile Route Migration**: Moved user profile from root to auth section for better organization and improved navigation consistency
-- ✅ **Component Testing**: Comprehensive test structure for components, composables, middleware, stores, and utilities
-- ✅ **Role Change Permissions Fix**: Resolved critical issue with role change validation in admin panel by fixing database trigger conflicts with service role operations
-- ✅ **Navigation Structure Enhancement**: Improved navbar organization with grouped navigation items (Liberaciones, Configuración) and role-based conditional display
-- ✅ **Quality Control Module**: Complete sampling management system with statistical sampling plans and group management for quality assurance
-- ✅ **Advanced OCR System**: Gemini AI-powered text extraction with structured data parsing for production labels
-- ✅ **Structured Data Extraction**: Intelligent parsing of production label fields into organized table format
-- ✅ **OCR User Interface**: Complete UI component with drag-and-drop, smart table display, clipboard integration, and production-focused experience
-- ✅ **Production Label Recognition**: Specialized OCR system optimized for industrial quality control labels
-- ✅ **Quality Sampling API**: Complete API endpoint for statistical sampling plan queries with range-based lot size lookup
-- ✅ **JavaScript Console Cleanup**: Resolved all Vue component resolution errors, hydration mismatches, and missing component references
-- ✅ **Component System Integrity**: Fixed error page component imports and ensured proper BaseButton, MagicalParticles, and ConfettiCelebration resolution
-- ✅ **Database Query Optimization**: Corrected sampling plan database queries with proper column references and AQL format handling
-- ✅ **SSR/CSR Compatibility**: Eliminated hydration mismatch errors for seamless server-side and client-side rendering
-- ✅ **Sampling Composable Optimization**: Refactored useMuestreoAPI to use backend endpoints instead of duplicate frontend logic
-- ✅ **Database Type Safety**: Regenerated TypeScript types to include all sampling tables with proper schema validation
-- ✅ **Backend Integration**: Streamlined sampling module to leverage existing API endpoints for better performance and maintainability
-- ✅ **Read-Only Architecture**: Converted sampling tables to read-only operations aligned with backend implementation requirements
-- ✅ **Project Structure Reorganization**: Fixed Nuxt 3 directory structure by moving composables and plugins to correct `/app/` locations
-- ✅ **Authentication Module Refactoring**: Specialized authentication composables with focused responsibilities (login, password, profile, state)
-- ✅ **Plugin Architecture Cleanup**: Consolidated plugins into `/app/plugins/` following Nuxt 3 conventions
-- ✅ **Test Coverage Enhancement**: Added comprehensive unit tests for specialized authentication composables and logger utilities
-- ✅ **Import Path Corrections**: Fixed all TypeScript import errors after structural reorganization
-- ✅ **Nuxt 4 Best Practices Implementation**: Complete migration to Nuxt 4 standards with optimized auto-imports configuration
-- ✅ **Auto-Imports Configuration**: Enhanced imports configuration for nested composables with `~/composables/**` pattern support
-- ✅ **Nuxt 4 Directory Structure**: Fully compliant with Nuxt 4 conventions using `srcDir: 'app/'` and proper plugin organization
-- ✅ **Composable Auto-Import Optimization**: Nested authentication composables now auto-imported without manual exports
-- ✅ **Plugin Architecture Refinement**: Cleaned duplicate exports and optimized plugin structure for Nuxt 4 compatibility
-- ✅ **Test Coverage for Nuxt 4**: Comprehensive test suite validating Nuxt 4 configuration, auto-imports, and compatibility
-- ✅ **Build System Optimization**: Resolved critical build errors by eliminating unused files and fixing import issues
-- ✅ **Codebase Cleanup**: Removed 8+ unused files including stores (customers, products, dashboard), composables (useAuth, useCalidadAPI), and components (OrderImageOCR)
-- ✅ **Bundle Size Reduction**: Optimized build performance with fewer modules to process (530 vs 534 modules)
-- ✅ **Dead Code Elimination**: Comprehensive cleanup of unused stores, composables, backup files, and empty directories
-- ✅ **Build Stability**: Achieved consistent successful builds with proper TypeScript compliance and dependency resolution
-- ✅ **Production Deployment**: Successfully deployed to Vercel with complete SSR support and optimized configuration
-- ✅ **Server Logger Implementation**: Fixed H3Error with pino-pretty dependency, optimized for development/production environments
-- ✅ **Navigation System**: Complete CoreAppNavigation component with responsive design and mobile optimization
-- ✅ **Testing Infrastructure**: Comprehensive E2E and unit tests for deployment, navigation, and core functionality
-- ✅ **Vercel Integration**: Full Vercel deployment pipeline with proper Nitro configuration and build optimization
-- ✅ **Authentication Architecture Refactoring**: Complete migration from client-side Supabase to server-side API authentication
-- ✅ **Auth API Endpoints**: Created `/api/auth/user`, `/api/auth/profile`, `/api/auth/login`, `/api/auth/logout` for centralized authentication
-- ✅ **Component Security Enhancement**: Refactored AppNavigation.vue to use `useAuthState` instead of `useSupabaseUser` 
-- ✅ **Auth Composable Restructuring**: Updated auth composables to use API endpoints exclusively for improved security
-- ✅ **Authentication Testing Suite**: Comprehensive test coverage (32+ tests) for auth endpoints and composables
-- ✅ **Server-Side Auth Security**: All authentication operations now handled server-side with proper JWT/session management
-- 🔄 **Database Integration**: Supabase integration for release data and quality control
+```bash
+pnpm test              # Unit tests (Vitest)
+pnpm test:e2e          # E2E tests (Playwright)
+pnpm test:coverage     # Cobertura de código
+```
 
-## Contributing
+## 📊 Base de Datos (Supabase)
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Ensure tests pass
-5. Submit a pull request
+### Tablas Principales
+- `profiles` - Perfiles con roles (Admin/Supervisor/Inspector)
+- `orders` - Registros de liberaciones de productos
+- `order_items` - Items y resultados de pruebas
+- `planes_de_muestreo` - Planes estadísticos de muestreo
+- `grupos_muestreo` - Grupos con rangos de tamaño de lote
+- `user_activity_logs` - Auditoría de acciones administrativas
 
-## License
+### Control de Acceso (RLS)
+- **Admin**: Acceso completo + gestión de usuarios
+- **Supervisor**: Gestión de órdenes + muestreo + vista global
+- **Inspector**: Solo órdenes asignadas (sin admin ni muestreo)
 
-This project is licensed under the MIT License.
+## 🚀 Scripts Disponibles
+
+```bash
+pnpm dev              # Servidor de desarrollo
+pnpm build            # Build para producción
+pnpm lint             # ESLint + corrección automática
+pnpm test             # Tests unitarios (Vitest)
+pnpm test:e2e         # Tests E2E (Playwright)
+```
+
+## 🌐 Deploy (Entorno Corporativo)
+
+**Producción**: Desplegado en infraestructura corporativa de Inaplast
+
+### Variables de Entorno
+```env
+SUPABASE_URL=tu_supabase_project_url
+SUPABASE_ANON_KEY=tu_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key  # Para ops admin
+```
+
+### Configuración Vercel
+- **Preset**: `vercel` en `nuxt.config.ts`
+- **SSR**: Completamente soportado
+- **Deploy**: `vercel --prod`
+
+## 🔑 Decisiones de Arquitectura Clave
+
+### 1. **API-First Authentication**
+❌ **Antes**: `useSupabaseUser()` en componentes (inseguro)  
+✅ **Ahora**: `/api/auth/*` endpoints → composables → componentes
+
+### 2. **Composables Especializados**
+- `useAuthState` - Estado reactivo centralizado
+- `useAuthLogin` - Login/logout operations
+- `useAuthProfile` - Gestión de perfiles con roles
+- `useAdminUserManager` - CRUD usuarios (solo Admin)
+
+### 3. **Componentes Auto-Importados**
+```vue
+<!-- Sin imports necesarios -->
+<BaseButton variant="primary" @click="handleAction">
+  Acción
+</BaseButton>
+```
+
+### 4. **Testing Estratificado**
+- **Unit**: Composables + utilidades (Vitest)
+- **Integration**: API endpoints + database
+- **E2E**: Flujos completos (Playwright)
+
+### 5. **TypeScript Strict**
+- Zero `any` types en producción
+- Props completamente tipadas
+- Database types auto-generados
+
+## 📈 Estado del Proyecto
+
+**Sistema Completamente Funcional en Producción** ✅
+- Autenticación server-side segura
+- Panel admin con auditoría completa
+- OCR con Gemini AI para extracción de datos
+- Sistema de muestreo estadístico
+- 32+ tests de cobertura crítica
+- Deploy automático en Vercel
+
+## 🔧 Desarrollo (Equipo Interno)
+
+**Para desarrolladores autorizados de Inaplast:**
+
+1. Solicitar acceso al repositorio corporativo
+2. Crear rama de feature: `git checkout -b feature/nueva-funcionalidad`
+3. Implementar cambios siguiendo estándares corporativos
+4. Ejecutar suite completa: `pnpm test && pnpm lint`
+5. Solicitar revisión de código al líder técnico
+6. Deploy tras aprobación del área de calidad
+
+### Contacto Técnico
+- **Líder de Proyecto**: [Contacto interno]
+- **Administrador del Sistema**: [Contacto interno]
+- **Soporte Técnico**: [Contacto interno]
+
+## 📄 Información Legal
+
+**Propiedad Corporativa de Inaplast** - Todos los derechos reservados.
+
+Este sistema es propiedad exclusiva de Inaplast y contiene información confidencial y procesos industriales propietarios. El uso, modificación o distribución está restringido al personal autorizado.
+
+---
+
+**Desarrollado para Inaplast** | Sistema de Control de Calidad v2.7.0

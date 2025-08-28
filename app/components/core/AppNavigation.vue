@@ -159,7 +159,11 @@
             
             <!-- Enlaces de Navegación Móvil Generados Dinámicamente -->
             <!-- Enlace de Inicio -->
-            <div v-if="baseNavItems?.home" class="mobile-nav-item" style="--item-index: 0">
+            <div 
+              v-if="baseNavItems?.home" 
+              class="mobile-nav-item" 
+              style="--item-index: 0"
+            >
               <UiBaseButton
                 :to="baseNavItems.home.to"
                 variant="ghost"

@@ -8,6 +8,9 @@ const mockSupabaseClient = {
   }
 }
 
+// Mock de $fetch
+const mockFetch = vi.fn()
+
 // Mock global de window
 Object.defineProperty(window, 'location', {
   value: {
@@ -17,8 +20,12 @@ Object.defineProperty(window, 'location', {
 })
 
 vi.mock('#app', () => ({
-  useSupabaseClient: () => mockSupabaseClient
+  useSupabaseClient: () => mockSupabaseClient,
+  $fetch: mockFetch
 }))
+
+// Mock global de $fetch
+globalThis.$fetch = mockFetch
 
 // Mock directo del composable
 const useAuthPassword = () => {
@@ -46,12 +53,24 @@ const useAuthPassword = () => {
       throw new Error('La contraseña debe tener al menos 6 caracteres')
     }
 
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword
-    })
+    try {
+      const response = await mockFetch('/api/auth/update-password', {
+        method: 'POST',
+        body: {
+          password: newPassword
+        }
+      })
 
-    if (error) {
-      throw new Error(`Error actualizando contraseña: ${error.message}`)
+      return response
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'data' in error && 
+          error.data && typeof error.data === 'object' && 'statusMessage' in error.data) {
+        throw new Error(error.data.statusMessage as string)
+      }
+      if (error instanceof Error) {
+        throw new Error(error.message)
+      }
+      throw new Error('Error actualizando contraseña')
     }
   }
 
@@ -64,6 +83,7 @@ const useAuthPassword = () => {
 describe('useAuthPassword Composable', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockFetch.mockClear()
   })
 
   describe('resetPassword', () => {
@@ -113,14 +133,18 @@ describe('useAuthPassword Composable', () => {
 
   describe('updatePassword', () => {
     it('debe actualizar contraseña correctamente', async () => {
-      mockSupabaseClient.auth.updateUser.mockResolvedValue({ error: null })
+      mockFetch.mockResolvedValue({ success: true, message: 'Contraseña actualizada exitosamente' })
 
       const { updatePassword } = useAuthPassword()
-      await updatePassword('newpassword123')
+      const result = await updatePassword('newpassword123')
       
-      expect(mockSupabaseClient.auth.updateUser).toHaveBeenCalledWith({
-        password: 'newpassword123'
+      expect(mockFetch).toHaveBeenCalledWith('/api/auth/update-password', {
+        method: 'POST',
+        body: {
+          password: 'newpassword123'
+        }
       })
+      expect(result).toEqual({ success: true, message: 'Contraseña actualizada exitosamente' })
     })
 
     it('debe rechazar contraseñas muy cortas', async () => {
@@ -140,15 +164,20 @@ describe('useAuthPassword Composable', () => {
     })
 
     it('debe manejar errores de actualización', async () => {
-      const errorMessage = 'Password update failed'
-      mockSupabaseClient.auth.updateUser.mockResolvedValue({
-        error: { message: errorMessage }
+      const errorMessage = 'Error en la contraseña: Password too weak'
+      mockFetch.mockRejectedValue({
+        data: { statusMessage: errorMessage }
       })
 
       const { updatePassword } = useAuthPassword()
-      await expect(updatePassword('newpassword123')).rejects.toThrow(
-        `Error actualizando contraseña: ${errorMessage}`
-      )
+      await expect(updatePassword('newpassword123')).rejects.toThrow(errorMessage)
+    })
+
+    it('debe manejar errores de red', async () => {
+      mockFetch.mockRejectedValue(new Error('Network error'))
+
+      const { updatePassword } = useAuthPassword()
+      await expect(updatePassword('newpassword123')).rejects.toThrow('Network error')
     })
   })
 })

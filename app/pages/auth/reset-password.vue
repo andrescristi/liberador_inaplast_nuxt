@@ -16,7 +16,7 @@
             <label for="password" class="block text-sm font-medium text-gray-700">
               Nueva Contraseña
             </label>
-            <Input
+            <UiBaseInput
               id="password"
               v-model="form.password"
               type="password"
@@ -30,7 +30,7 @@
             <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
               Confirmar Contraseña
             </label>
-            <Input
+            <UiBaseInput
               id="confirmPassword"
               v-model="form.confirmPassword"
               type="password"
@@ -42,14 +42,14 @@
         </div>
 
         <div>
-          <Button
+          <UiBaseButton
             type="submit"
             class="w-full"
             :disabled="loading"
           >
             <span v-if="loading">Actualizando...</span>
             <span v-else>Actualizar Contraseña</span>
-          </Button>
+          </UiBaseButton>
         </div>
 
         <div v-if="error" class="bg-red-50 border border-red-200 rounded-md p-4">
@@ -80,14 +80,9 @@ const handleUpdatePassword = async () => {
   loading.value = true
   error.value = ''
 
+  // Validación básica del lado del cliente
   if (form.password !== form.confirmPassword) {
     error.value = 'Las contraseñas no coinciden'
-    loading.value = false
-    return
-  }
-
-  if (form.password.length < 6) {
-    error.value = 'La contraseña debe tener al menos 6 caracteres'
     loading.value = false
     return
   }

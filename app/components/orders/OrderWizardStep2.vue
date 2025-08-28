@@ -95,7 +95,18 @@
               required
             >
           </div>
-          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Cantidad unidades *
+            </label>
+            <input 
+              v-model="localData.units"
+              type="number" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="45"
+              required
+            >
+          </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Fecha de Producción *
@@ -148,6 +159,7 @@ interface OrderData {
   productName: string
   lotNumber: string
   productionDate: string
+  units: number
   
   // Step 3 - Quality Tests
   packagingTest?: boolean
@@ -167,10 +179,10 @@ interface StepData {
   customerName: string
   productCode: string
   productName: string
-  productCategory: string
-  expirationDate: string
   lotNumber: string
   productionDate: string
+  units: number
+  
 }
 
 interface Props {
@@ -194,10 +206,9 @@ const localData = ref<StepData>({
   customerName: props.modelValue.customerName || '',
   productCode: props.modelValue.productCode || '',
   productName: props.modelValue.productName || '',
-  productCategory: props.modelValue.productCategory || '',
-  expirationDate: props.modelValue.expirationDate || '',
   lotNumber: props.modelValue.lotNumber || '',
-  productionDate: props.modelValue.productionDate || ''
+  productionDate: props.modelValue.productionDate || '',
+  units: props.modelValue.units || 0
 })
 
 // Check if we have OCR data when component mounts
@@ -226,10 +237,9 @@ watch(() => props.modelValue, (newValue, oldValue) => {
     customerName: newValue.customerName || '',
     productCode: newValue.productCode || '',
     productName: newValue.productName || '',
-    productCategory: newValue.productCategory || '',
-    expirationDate: newValue.expirationDate || '',
     lotNumber: newValue.lotNumber || '',
-    productionDate: newValue.productionDate || ''
+    productionDate: newValue.productionDate || '',
+    units: newValue.units || 0
   }
   
   // Show toast notification if new OCR data arrives
