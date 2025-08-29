@@ -118,12 +118,11 @@ describe('useOCRConfig', () => {
 
       const expectedResult: OCRData = {
         customerName: 'Empresa Test S.A.',
-        customerCode: 'Empresa Test S.A.',
         productName: 'Bolsa Test 25kg',
         productCode: 'BOLTEST001',
         lotNumber: 'LOT20241201001',
-        expirationDate: undefined,
-        productionDate: '2024-12-01'
+        productionDate: '2024-12-01',
+        orderNumber: undefined
       }
 
       expect(result).toEqual(expectedResult)
@@ -257,12 +256,11 @@ describe('useOCRConfig', () => {
       
       return processOCR(testFile).then(result => {
         expect(result.customerName).toBe('Empresa Complete S.A.')
-        expect(result.customerCode).toBe('Empresa Complete S.A.') 
         expect(result.productName).toBe('Producto Complete')
         expect(result.productCode).toBe('PROD001')
         expect(result.lotNumber).toBe('LOT001')
         expect(result.productionDate).toBe('2024-12-01')
-        expect(result.expirationDate).toBeUndefined()
+        expect(result.orderNumber).toBeUndefined()
       })
     })
 
@@ -291,12 +289,11 @@ describe('useOCRConfig', () => {
       
       return processOCR(testFile).then(result => {
         expect(result.customerName).toBe('Solo Cliente')
-        expect(result.customerCode).toBe('Solo Cliente')
         expect(result.productName).toBeUndefined()
         expect(result.productCode).toBeUndefined()
         expect(result.lotNumber).toBe('LOT002')
         expect(result.productionDate).toBeUndefined()
-        expect(result.expirationDate).toBeUndefined()
+        expect(result.orderNumber).toBeUndefined()
       })
     })
   })
