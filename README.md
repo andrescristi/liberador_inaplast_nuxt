@@ -264,6 +264,30 @@ Este sistema es propiedad exclusiva de Inaplast y contiene información confiden
 
 **Desarrollado para Inaplast** | Sistema de Control de Calidad v2.7.0
 
+## 📋 Changelog v2.7.1
+
+### ⚡ Build & Bundle Optimizations
+- **Circular Dependency Fix**: Resueltas dependencias circulares entre `useModalForm` y admin components
+- **Manual Chunking**: Configuración de bundling inteligente por dominio (admin, UI, auth, orders)
+- **Auto-Import Cleanup**: Eliminados imports duplicados y reorganizada estructura de composables
+- **TypeScript Strict**: Mejorada type safety removiendo usos de `any` en `useOrderState` y `useLogger`
+
+### 🧪 Test Coverage Expansion
+- **useModalForm Tests**: Nueva suite de 18 tests cubriendo validación Zod y manejo de formularios
+- **useOrderState Tests**: 22 tests para type safety y nuevos campos de Order interface
+- **Auto-Import Tests**: Verificación de configuración manual de chunks y eliminación de duplicados
+- **OCR Tests Fixed**: Corregidos tests de mapeo de datos OCR con estructura correcta
+
+### 🔧 Order Interface Enhancement
+- **New Fields**: `order_number`, `customer_name`, `part_number` opcionales en Order interface
+- **Search Capability**: OrderFilters incluye nuevo campo `customer` para búsquedas
+- **Type Safety**: useOrderState usa tipos explícitos en lugar de `any` para orderStats
+
+### 🏗️ Architecture Improvements
+- **Bundle Strategy**: Admin components y useModalForm agrupados para prevenir circular deps
+- **Import Organization**: Estructura jerárquica de auto-imports (`~/composables/**`)
+- **Component Prefixes**: UI (Ui), Core (Core), Admin (sin prefijo) para mejor organización
+
 ## 📋 Changelog v2.7.0
 
 ### 🔧 Fixes Críticos

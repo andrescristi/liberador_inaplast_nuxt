@@ -419,7 +419,7 @@ describe('API: Admin Users (ServiceRole Fixes)', () => {
       })
 
       expect(error.message).toBe('Usuario no autenticado')
-      expect((error as any).statusCode).toBe(401)
+      expect((error as { statusCode?: number }).statusCode).toBe(401)
     })
   })
 
