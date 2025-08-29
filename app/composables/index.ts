@@ -24,10 +24,3 @@ export * from './muestreo'
 // Composables de dashboard
 export * from './dashboard'
 
-// Composables individuales del directorio raíz
-export { useAuth } from './useAuth'
-export { useDebounce } from './useDebounce'
-export { useImageCompression } from './useImageCompression'
-export { useLogger } from './useLogger'
-export { useOCRConfig } from './useOCRConfig'
-export { useProfile } from './useProfile'

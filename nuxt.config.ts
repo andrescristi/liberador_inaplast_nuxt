@@ -100,6 +100,39 @@ export default defineNuxtConfig({
     },
     optimizeDeps: {
       include: ['vue']
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            // Agrupar admin components y useModalForm juntos para evitar dependencias circulares
+            if (id.includes('components/admin/') || 
+                id.includes('composables/ui/useModalForm') ||
+                id.includes('composables/ui/index')) {
+              return 'admin-bundle'
+            }
+            
+            // Agrupar todos los componentes UI base juntos
+            if (id.includes('components/ui/')) {
+              return 'ui-components'
+            }
+            
+            // Agrupar composables por dominio
+            if (id.includes('composables/auth/')) {
+              return 'auth-composables'
+            }
+            
+            if (id.includes('composables/orders/')) {
+              return 'orders-composables'
+            }
+            
+            // Vendors
+            if (id.includes('node_modules')) {
+              return 'vendor'
+            }
+          }
+        }
+      }
     }
   },
   

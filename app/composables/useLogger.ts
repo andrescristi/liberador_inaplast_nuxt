@@ -137,7 +137,7 @@ export const useLogger = (explicitComponentName?: string): SafeLogger => {
   const instance = getCurrentInstance?.()
   const detectedName =
     explicitComponentName ||
-    (instance && ((instance.type as any)?.name || (instance.type as any)?.__name)) ||
+    (instance && ((instance.type as { name?: string; __name?: string })?.name || (instance.type as { name?: string; __name?: string })?.__name)) ||
     undefined
   
   // Identificador de rate limit por componente

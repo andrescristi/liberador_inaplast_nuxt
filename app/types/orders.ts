@@ -53,6 +53,10 @@ export interface Order {
   updated_at: string
   customer?: Customer // Optional populated field
   order_items?: OrderItem[] // Optional populated field
+  // Campos adicionales para búsqueda y display
+  order_number?: string
+  customer_name?: string
+  part_number?: string
 }
 
 /**
@@ -127,6 +131,7 @@ export interface CreateProductForm {
 export interface OrderFilters {
   status?: OrderStatus
   customer_id?: string
+  customer?: string
   date_from?: string
   date_to?: string
   search?: string

@@ -42,7 +42,7 @@ export const useOrderState = () => {
     
     // Actualizar orden actual si es la misma
     if (currentOrder.value?.id === orderId) {
-      currentOrder.value = { ...currentOrder.value, ...updates }
+      currentOrder.value = { ...currentOrder.value, ...updates } as Order
     }
   }
   
@@ -115,8 +115,9 @@ export const useOrderState = () => {
     }
     
     orders.value.forEach(order => {
-      if (order.status in stats) {
-        (stats as any)[order.status]++
+      const statusKey = order.status as keyof typeof stats
+      if (statusKey in stats) {
+        stats[statusKey]++
       }
     })
     
