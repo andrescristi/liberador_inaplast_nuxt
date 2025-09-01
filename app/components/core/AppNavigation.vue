@@ -120,12 +120,8 @@
             @click="toggleMobileMenu"
             @keydown.esc="closeMobileMenu"
           >
-            <!-- Icono hamburger animado con 3 líneas que se transforman -->
-            <div class="hamburger-icon flex flex-col justify-around w-5 h-5 cursor-pointer" :class="{ 'open': mobileMenuOpen }">
-              <span class="hamburger-line block h-0.5 w-full bg-current rounded-sm" />
-              <span class="hamburger-line block h-0.5 w-full bg-current rounded-sm" />
-              <span class="hamburger-line block h-0.5 w-full bg-current rounded-sm" />
-            </div>
+            <!-- Icono hamburger -->
+            <Icon :name="mobileMenuOpen ? 'bx:x' : 'bx:menu'" class="w-8 h-8" />
             <!-- Screen reader text para botón de menú -->
             <span class="sr-only">{{ mobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación' }}</span>
           </UiBaseButton>
@@ -417,11 +413,13 @@ const baseNavItems = computed(() => ({
   liberaciones: [
     {
       label: 'Nueva Liberación',
+      mobileLabel: 'Nueva',
       icon: 'bx:bxs-plus-square',
       to: '/orders/new'
     },
     {
       label: 'Historial',
+      mobileLabel: 'Historial',
       icon: 'bx:bxs-calendar-minus',
       to: '/orders'
     }
@@ -483,6 +481,7 @@ const bottomNavItems = computed(() => {
     { 
       // Botón central destacado - acción principal del sistema
       ...baseNavItems.value.liberaciones[0], // Nueva Liberación
+      label: baseNavItems.value.liberaciones[0]?.mobileLabel || baseNavItems.value.liberaciones[0]?.label,
       variant: 'solid' as const, 
       color: 'primary' as const,
       special: true  // Flag para aplicar scale-up CSS
@@ -501,7 +500,7 @@ const bottomNavItems = computed(() => {
   if (userProfile.value?.user_role === 'Admin' && baseNavItems.value.configuracion.length > 0) {
     items.push({
       ...baseNavItems.value.configuracion[0], // Usuarios/Admin
-      label: 'Admin', // Más corto para mobile
+      label: 'Usuarios', // Más descriptivo para mobile
       variant: 'ghost' as const,
       color: 'gray' as const
     })
