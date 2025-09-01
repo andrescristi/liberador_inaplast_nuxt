@@ -236,8 +236,8 @@ const ordersStore = useOrdersStore()
 ### Patrón de Composables
 
 ```typescript
-// app/composables/useProfile.ts
-export const useProfile = () => {
+// app/composables/admin/useAdminProfileManager.ts
+export const useAdminProfileManager = () => {
   const profile = ref<Profile | null>(null)
   
   const getCurrentProfile = async () => {
