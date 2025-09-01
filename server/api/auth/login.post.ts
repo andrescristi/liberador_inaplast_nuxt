@@ -3,6 +3,7 @@ import { serverSupabaseClient } from '#supabase/server'
 /**
  * Endpoint para manejar el inicio de sesión del usuario
  * Procesa la autenticación con Supabase desde el servidor
+ * Con soporte mejorado para sesiones móviles
  * 
  * @returns Confirmación de login exitoso con datos del usuario
  */
@@ -41,6 +42,17 @@ export default defineEventHandler(async (event) => {
         statusCode: 400,
         statusMessage: errorMessage
       })
+    }
+
+    // Configurar headers para mejorar compatibilidad móvil
+    if (data.session) {
+      // Configurar headers de cache para sesiones
+      setHeader(event, 'Cache-Control', 'private, no-cache, no-store, must-revalidate')
+      setHeader(event, 'Expires', '0')
+      setHeader(event, 'Pragma', 'no-cache')
+      
+      // Headers específicos para mobile
+      setHeader(event, 'Vary', 'User-Agent')
     }
 
     // Opcional: Log del evento para auditoría

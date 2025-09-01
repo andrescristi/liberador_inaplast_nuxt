@@ -58,6 +58,13 @@ export default defineNuxtConfig({
       login: '/auth/login',                     // Redirect si no autenticado
       callback: '/auth/confirm',               // Después de login exitoso
       exclude: ['/auth/login', '/auth/reset-password', '/auth/confirm', '/ocr-test'] // Páginas públicas
+    },
+    
+    // Configuración de cookies para compatibilidad móvil
+    cookieOptions: {
+      maxAge: 60 * 60 * 24 * 7, // 7 días de duración
+      sameSite: 'lax',          // Permite cookies en navegadores móviles
+      secure: process.env.NODE_ENV === 'production' // Solo HTTPS en producción
     }
   },
   

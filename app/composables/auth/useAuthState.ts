@@ -47,8 +47,11 @@ export const useAuthState = () => {
 
   /**
    * Obtiene el usuario actual desde la API
+   * Con soporte mejorado para dispositivos móviles
    */
-  const fetchUser = async (force = false): Promise<void> => {
+  const fetchUser = async (force = false, retryCount = 0): Promise<void> => {
+    const MAX_RETRIES = 2
+    
     // Verificar cache si no es forzado
     if (!force && lastFetch.value) {
       const timeSinceLastFetch = Date.now() - lastFetch.value.getTime()
@@ -61,7 +64,12 @@ export const useAuthState = () => {
       isLoading.value = true
       error.value = null
       
-      const response = await $fetch<AuthUserResponse>('/api/auth/user')
+      const response = await $fetch<AuthUserResponse>('/api/auth/user', {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
       
       user.value = response.authenticated ? response.user : null
       lastFetch.value = new Date()
@@ -70,9 +78,15 @@ export const useAuthState = () => {
       error.value = errorMessage
       user.value = null
       
+      // Reintentar para dispositivos móviles en caso de error de sesión
+      if (retryCount < MAX_RETRIES && errorMessage.includes('Auth session missing')) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)))
+        return fetchUser(true, retryCount + 1)
+      }
+      
       // Log del error en desarrollo
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching user:', errorMessage)
+        console.error('Error fetching user:', errorMessage, 'Retry count:', retryCount)
       }
     } finally {
       isLoading.value = false
