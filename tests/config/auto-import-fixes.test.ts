@@ -256,7 +256,7 @@ describe('Circular Dependency Prevention', () => {
       const nuxtConfig = readFileSync(nuxtConfigPath, 'utf-8')
       
       // Esta es la configuración clave que resuelve la dependencia circular
-      const adminBundleConfig = `// Agrupar admin components y useModalForm juntos para evitar dependencias circulares
+      const _adminBundleConfig = `// Agrupar admin components y useModalForm juntos para evitar dependencias circulares
             if (id.includes('components/admin/') || 
                 id.includes('composables/ui/useModalForm') ||
                 id.includes('composables/ui/index')) {

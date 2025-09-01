@@ -112,7 +112,7 @@ describe('/api/auth endpoints', () => {
       for (const endpoint of endpoints) {
         try {
           await $fetch(endpoint.path, {
-            method: endpoint.method as any,
+            method: endpoint.method as 'GET' | 'POST',
             body: endpoint.body
           })
         } catch (error: unknown) {

@@ -5,7 +5,7 @@
  * y las mejoras recientes en validación de campos individuales
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { nextTick } from 'vue'
+// import { nextTick } from 'vue'
 import { z } from 'zod'
 import { useModalForm } from '~/composables/ui/useModalForm'
 

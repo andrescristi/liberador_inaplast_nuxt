@@ -89,7 +89,7 @@ const useAuthState = () => {
 }
 
 describe('useAuthState Composable', () => {
-  let consoleSpy: any
+  let consoleSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
     vi.clearAllMocks()

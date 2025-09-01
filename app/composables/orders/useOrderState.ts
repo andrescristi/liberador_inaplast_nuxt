@@ -37,7 +37,7 @@ export const useOrderState = () => {
   const updateOrder = (orderId: string, updates: Partial<Order>) => {
     const index = orders.value.findIndex(o => o.id === orderId)
     if (index !== -1) {
-      orders.value[index] = { ...orders.value[index], ...updates }
+      orders.value[index] = { ...orders.value[index], ...updates } as Order
     }
     
     // Actualizar orden actual si es la misma

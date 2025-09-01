@@ -4,7 +4,7 @@
  * Cubre las mejoras recientes en TypeScript type safety,
  * nuevos campos de Order interface, y fixes en orderStats
  */
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import type { Order, OrderStatus } from '~/types/orders'
 import { useOrderState } from '~/composables/orders/useOrderState'
 
