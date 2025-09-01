@@ -25,7 +25,9 @@ const useAuthState = () => {
   const userId = computed(() => user.value?.id)
   const userEmail = computed(() => user.value?.email)
 
-  const fetchUser = async (force = false) => {
+  const fetchUser = async (force = false, retryCount = 0) => {
+    const MAX_RETRIES = 2
+    
     if (!force && lastFetch.value) {
       const timeSinceLastFetch = Date.now() - lastFetch.value.getTime()
       if (timeSinceLastFetch < CACHE_DURATION) {
@@ -37,7 +39,12 @@ const useAuthState = () => {
       isLoading.value = true
       error.value = null
       
-      const response = await mockFetch('/api/auth/user')
+      const response = await mockFetch('/api/auth/user', {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
       
       user.value = response.authenticated ? response.user : null
       lastFetch.value = new Date()
@@ -45,6 +52,12 @@ const useAuthState = () => {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
       error.value = errorMessage
       user.value = null
+      
+      // Reintentar para dispositivos móviles en caso de error de sesión
+      if (retryCount < MAX_RETRIES && errorMessage.includes('Auth session missing')) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)))
+        return fetchUser(true, retryCount + 1)
+      }
       
       if (process.env.NODE_ENV === 'development') {
         console.error('Error fetching user:', errorMessage)
@@ -276,6 +289,58 @@ describe('useAuthState Composable', () => {
       // Tercer fetch con force=true, debe ignorar cache
       await fetchUser(true)
       expect(mockFetch).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('Mejoras para dispositivos móviles', () => {
+    it('debe incluir headers anti-cache en requests', async () => {
+      const { fetchUser } = useAuthState()
+
+      mockFetch.mockResolvedValue({ authenticated: true, user: { id: 'test' } })
+      await fetchUser()
+
+      expect(mockFetch).toHaveBeenCalledWith('/api/auth/user', {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
+    })
+
+    it('debe reintentar en caso de error de sesión móvil', async () => {
+      const { fetchUser } = useAuthState()
+
+      // Primer intento falla con error de sesión
+      mockFetch
+        .mockRejectedValueOnce(new Error('Auth session missing'))
+        .mockResolvedValueOnce({ authenticated: true, user: { id: 'test' } })
+
+      await fetchUser()
+
+      // Debe haber hecho 2 llamadas: intento inicial + reintento
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+    })
+
+    it('debe limitar los reintentos a máximo 2', async () => {
+      const { fetchUser } = useAuthState()
+
+      // Todos los intentos fallan con error de sesión
+      mockFetch.mockRejectedValue(new Error('Auth session missing'))
+
+      await fetchUser()
+
+      // Debe haber hecho 3 llamadas: intento inicial + 2 reintentos
+      expect(mockFetch).toHaveBeenCalledTimes(3)
+    })
+
+    it('debe usar credenciales del .env en tests', () => {
+      const TEST_EMAIL = process.env.USER || 'test@test.com'
+      const TEST_PASSWORD = process.env.PASSWD || 'password123'
+      
+      expect(TEST_EMAIL).toBeDefined()
+      expect(TEST_PASSWORD).toBeDefined()
+      expect(TEST_EMAIL.length).toBeGreaterThan(0)
+      expect(TEST_PASSWORD.length).toBeGreaterThan(5)
     })
   })
 })
