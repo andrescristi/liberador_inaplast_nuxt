@@ -30,9 +30,8 @@ export default defineNuxtRouteMiddleware(async (_to) => {
     if (!response.authenticated) {
       return navigateTo('/auth/login')
     }
-  } catch (error) {
+  } catch {
     // If we can't verify auth status, assume not authenticated
-    console.warn('Auth middleware: Unable to verify auth status, redirecting to login')
     return navigateTo('/auth/login')
   }
   
