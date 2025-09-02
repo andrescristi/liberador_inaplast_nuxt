@@ -134,28 +134,14 @@ export default defineNuxtConfig({
     build: {
       // Disable minification to prevent variable hoisting issues
       minify: false,
-      // Ensure proper module format
-      target: 'esnext',
+      // Ensure compatibility with older JS engines
+      target: 'es2020',
       // Disable tree shaking temporarily to prevent order issues
       rollupOptions: {
         treeshake: false,
         output: {
-          // More conservative chunk splitting
-          manualChunks: {
-            // Single vendor chunk for all dependencies
-            'vendor': [
-              'vue', 
-              '@vue/shared',
-              '@supabase/supabase-js',
-              'pinia',
-              '@vueuse/core',
-              'zod'
-            ],
-            // Single framework chunk
-            'framework': [
-              '@nuxt/kit'
-            ]
-          },
+          // Disable manual chunking completely to avoid initialization order issues
+          manualChunks: undefined,
           // Ensure proper variable names and avoid minification conflicts
           generatedCode: {
             constBindings: true
