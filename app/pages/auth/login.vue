@@ -170,6 +170,8 @@
 
 <script setup lang="ts">
 import { z } from 'zod'
+import { useAuth } from '~/composables/auth'
+import { useToast } from '~/composables/ui'
 
 // Import composables explicitly for Vercel compatibility
 const { signIn, resetPassword } = useAuth()
@@ -213,14 +215,11 @@ const emailError = ref('')
 const passwordError = ref('')
 const resetEmailError = ref('')
 
-// Computed
+// Form validation computed
 const isFormValid = computed(() => {
-  try {
-    loginSchema.parse(formState)
-    return true
-  } catch {
-    return false
-  }
+  const emailValid = formState.email && formState.email.includes('@') && formState.email.includes('.')
+  const passwordValid = formState.password && formState.password.length >= 6
+  return emailValid && passwordValid
 })
 
 // Validation
@@ -263,10 +262,17 @@ const validateResetForm = () => {
 
 // Form handlers
 const handleLogin = async () => {
-  if (!validateForm()) return
+  console.log('handleLogin called!')
+  console.log('Form state:', formState)
+  
+  if (!validateForm()) {
+    console.log('Form validation failed')
+    return
+  }
   
   loading.value = true
   error.value = ''
+  console.log('Starting login process...')
 
   try {
     await signIn(formState.email.trim(), formState.password)
@@ -280,6 +286,7 @@ const handleLogin = async () => {
     await navigateTo('/')
     
   } catch (err: unknown) {
+    console.error('Login error:', err)
     // Handle login error silently or use proper error reporting
     error.value = (err as { message?: string }).message || 'Error al iniciar sesión. Verifica tus credenciales.'
     
@@ -318,6 +325,8 @@ const cancelReset = () => {
   Object.assign(resetState, { email: '' })
   resetEmailError.value = ''
 }
+
+// No se necesita inicialización manual
 
 // SEO
 useSeoMeta({
