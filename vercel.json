@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "server/api/**/*.ts": {
+    ".vercel/output/functions/__nitro.func/index.mjs": {
       "memory": 1024,
       "maxDuration": 15
     }
@@ -10,7 +10,5 @@
     "env": {
       "NODE_ENV": "production"
     }
-  },
-  "outputDirectory": ".output/public",
-  "buildCommand": "pnpm build"
+  }
 }
