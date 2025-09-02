@@ -82,16 +82,30 @@
             block
             size="lg"
             :loading="loading"
-            :disabled="!isFormValid || !isClientReady"
+            :disabled="!isFormValid || !isClientReady || !!initializationError"
             class="font-medium"
             :leading-icon="!loading ? 'bx:log-in' : undefined"
           >
-            {{ loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+            {{ 
+              initializationError ? 'Sistema no disponible' :
+              loading ? 'Iniciando sesión...' : 
+              !isClientReady ? 'Cargando...' :
+              'Iniciar Sesión' 
+            }}
           </UiBaseButton>
           
-          <!-- Error Alert -->
+          <!-- Initialization Error -->
           <UiBaseAlert
-            v-if="error"
+            v-if="initializationError"
+            variant="error"
+            title="Error de inicialización"
+            :description="initializationError + '. Recarga la página para continuar.'"
+            :closable="false"
+          />
+          
+          <!-- Authentication Error -->
+          <UiBaseAlert
+            v-else-if="error"
             variant="error"
             title="Error de autenticación"
             :description="error"
@@ -173,33 +187,60 @@ import { z } from 'zod'
 import { useAuth } from '~/composables/auth'
 import { useToast } from '~/composables/ui'
 
-// Initialize composables with better error handling
+// Defensive composable initialization
 let auth: ReturnType<typeof useAuth> | null = null
 let toast: ReturnType<typeof useToast> | null = null
 
-// Client-side initialization flag
+// Client readiness tracking
 const isClientReady = ref(false)
+const initializationError = ref('')
 
-// Ensure proper client-side initialization
-if (import.meta.client) {
-  onMounted(async () => {
+// Improved initialization with retry mechanism
+const initializeComposables = async (retries = 3) => {
+  for (let i = 0; i < retries; i++) {
     try {
-      // Initialize composables after mount to avoid SSR issues
+      // Wait for proper DOM and Vue readiness
+      await nextTick()
+      
+      // Verify Nuxt app is ready
+      const nuxtApp = useNuxtApp()
+      if (!nuxtApp.$supabase) {
+        throw new Error('Supabase not initialized')
+      }
+      
+      // Initialize composables
       auth = useAuth()
       toast = useToast()
       
-      // Mark client as ready after successful initialization
-      await nextTick()
+      // Verify they're working
+      if (!auth || !toast) {
+        throw new Error('Composables failed to initialize')
+      }
+      
       isClientReady.value = true
+      initializationError.value = ''
+      console.log('[Login] Composables initialized successfully')
+      return
+      
     } catch (error) {
-      console.error('Error initializing auth composables:', error)
-      // Still mark as ready to allow UI to render
-      isClientReady.value = true
+      console.warn(`[Login] Initialization attempt ${i + 1} failed:`, error)
+      
+      if (i === retries - 1) {
+        initializationError.value = `Initialization failed after ${retries} attempts`
+        isClientReady.value = false
+      } else {
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 100 * (i + 1)))
+      }
     }
+  }
+}
+
+// Client-side initialization
+if (import.meta.client) {
+  onMounted(() => {
+    initializeComposables()
   })
-} else {
-  // Server-side - mark as not ready to prevent form submission
-  isClientReady.value = false
 }
 
 // Usar layout de autenticación sin navegación
@@ -240,16 +281,23 @@ const emailError = ref('')
 const passwordError = ref('')
 const resetEmailError = ref('')
 
-// Form validation computed - more robust
+// Enhanced form validation
 const isFormValid = computed(() => {
-  // Prevent computation during SSR
-  if (import.meta.server || !isClientReady.value) return false
+  // Prevent computation during SSR or if not ready
+  if (import.meta.server || !isClientReady.value || initializationError.value) {
+    return false
+  }
   
   try {
-    const emailValid = formState.email && formState.email.includes('@') && formState.email.includes('.')
-    const passwordValid = formState.password && formState.password.length >= 6
+    const emailValid = formState.email && 
+                      formState.email.includes('@') && 
+                      formState.email.includes('.') && 
+                      formState.email.length > 5
+    const passwordValid = formState.password && 
+                         formState.password.length >= 6
     return emailValid && passwordValid
-  } catch {
+  } catch (error) {
+    console.warn('[Login] Form validation error:', error)
     return false
   }
 })
@@ -292,18 +340,37 @@ const validateResetForm = () => {
   }
 }
 
-// Form handlers - more robust error handling
+// Enhanced form handlers with better error recovery
 const handleLogin = async () => {
-  // Prevent execution during SSR to avoid initialization errors
+  // Prevent execution during SSR
   if (import.meta.server) {
-    console.warn('Login attempted during SSR - ignored')
+    console.warn('[Login] Attempted during SSR - ignored')
     return
   }
   
-  // Wait for client to be ready and composables to be initialized
-  if (!isClientReady.value || !auth || !toast) {
-    console.warn('Client not ready for login or composables not initialized')
+  // Check if initialization failed
+  if (initializationError.value) {
+    error.value = 'Sistema no inicializado correctamente. Recarga la página.'
     return
+  }
+  
+  // Wait for client readiness or try to re-initialize
+  if (!isClientReady.value || !auth || !toast) {
+    console.warn('[Login] Composables not ready, attempting re-initialization')
+    loading.value = true
+    
+    try {
+      await initializeComposables(1) // Single retry
+      if (!auth || !toast) {
+        throw new Error('Re-initialization failed')
+      }
+    } catch (_err) {
+      error.value = 'Error de inicialización. Recarga la página.'
+      loading.value = false
+      return
+    }
+    
+    loading.value = false
   }
   
   console.log('handleLogin called!')
@@ -344,8 +411,12 @@ const handleLogin = async () => {
 }
 
 const handleResetPassword = async () => {
-  // Prevent execution during SSR or if composables not ready
-  if (import.meta.server || !isClientReady.value || !auth || !toast) {
+  // Prevent execution during SSR
+  if (import.meta.server) return
+  
+  // Check initialization state  
+  if (initializationError.value || !isClientReady.value || !auth || !toast) {
+    toast?.error?.('Error', 'Sistema no inicializado correctamente')
     return
   }
   

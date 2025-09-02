@@ -85,10 +85,25 @@ export default defineNuxtConfig({
   // ===== OPTIMIZACIONES DE PERFORMANCE =====
   experimental: {
     // Deshabilitar extracción de payload para reducir JavaScript bundle
-    // Útil para apps que usan principalmente server-side rendering
     payloadExtraction: false,
     // Enable view transitions for better UX
-    viewTransition: true
+    viewTransition: true,
+    // Disable async components that might cause initialization issues
+    asyncContext: false,
+    // Ensure proper SSR compatibility
+    emitRouteChunkError: 'automatic'
+  },
+
+  // ===== CONFIGURACIÓN DE RENDERING =====
+  ssr: true,
+
+  // ===== OPTIMIZACIÓN DE IMPORTS =====
+  build: {
+    // Ensure proper transpilation
+    transpile: [
+      '@supabase/supabase-js',
+      '@vueuse/core'
+    ]
   },
 
   // ===== CONFIGURACIÓN NITRO PARA VERCEL =====
@@ -102,42 +117,52 @@ export default defineNuxtConfig({
     }
   },
 
-  // ===== CONFIGURACIÓN VITE PARA SSR =====
+  // ===== CONFIGURACIÓN VITE OPTIMIZADA =====
   vite: {
     ssr: {
-      noExternal: ['vue', '@vue/shared']
+      noExternal: ['vue', '@vue/shared', '@supabase/supabase-js']
     },
     optimizeDeps: {
-      include: ['vue']
+      include: [
+        'vue', 
+        '@vue/shared', 
+        '@supabase/supabase-js',
+        'pinia'
+      ],
+      exclude: ['@nuxt/kit']
     },
     build: {
+      // Disable minification to prevent variable hoisting issues
+      minify: false,
+      // Ensure proper module format
+      target: 'esnext',
+      // Disable tree shaking temporarily to prevent order issues
       rollupOptions: {
+        treeshake: false,
         output: {
-          // Simplified chunking strategy to avoid initialization order issues
-          manualChunks: (id) => {
-            // Keep all Vue ecosystem together
-            if (id.includes('node_modules/vue') || 
-                id.includes('node_modules/@vue') ||
-                id.includes('node_modules/nuxt') ||
-                id.includes('node_modules/@nuxt')) {
-              return 'vue-framework'
-            }
-            
-            // Group ALL app code together to prevent initialization issues
-            if (id.includes('app/composables/') || 
-                id.includes('app/components/') ||
-                id.includes('app/pages/') ||
-                id.includes('app/middleware/') ||
-                id.includes('app/plugins/') ||
-                id.includes('app/stores/')) {
-              return 'app-code'
-            }
-            
-            // Single vendor chunk for everything else
-            if (id.includes('node_modules')) {
-              return 'vendor'
-            }
-          }
+          // More conservative chunk splitting
+          manualChunks: {
+            // Single vendor chunk for all dependencies
+            'vendor': [
+              'vue', 
+              '@vue/shared',
+              '@supabase/supabase-js',
+              'pinia',
+              '@vueuse/core',
+              'zod'
+            ],
+            // Single framework chunk
+            'framework': [
+              '@nuxt/kit'
+            ]
+          },
+          // Ensure proper variable names and avoid minification conflicts
+          generatedCode: {
+            constBindings: true
+          },
+          // More predictable naming for debugging
+          chunkFileNames: '[name]-[hash].js',
+          entryFileNames: 'entry-[hash].js'
         }
       }
     }
