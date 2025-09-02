@@ -1,4 +1,5 @@
 import type { H3Event } from 'h3'
+import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 
 /**
  * Middleware de autenticación y autorización para endpoints administrativos
@@ -19,8 +20,6 @@ import type { H3Event } from 'h3'
  * @throws 403 - Si hay token pero usuario no es Admin
  */
 export async function requireAdminAuth(event: H3Event) {
-  // Importación dinámica para optimizar cold starts en serverless
-  const { serverSupabaseUser, serverSupabaseServiceRole } = await import('#supabase/server')
   
   // PASO 1: Verificar autenticación JWT
   // Extrae y valida el token del header Authorization o cookies

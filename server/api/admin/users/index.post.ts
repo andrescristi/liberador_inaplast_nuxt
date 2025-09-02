@@ -1,4 +1,5 @@
 import { requireAdminAuth as _requireAdminAuth } from '../../../utils/auth'
+import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   // POST /api/admin/users - Iniciando creación de usuario
@@ -41,7 +42,6 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Verificar autenticación del usuario
-    const { serverSupabaseUser, serverSupabaseServiceRole } = await import('#supabase/server')
     const user = await serverSupabaseUser(event)
     if (!user) {
       throw createError({

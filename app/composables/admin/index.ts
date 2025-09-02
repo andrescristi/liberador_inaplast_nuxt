@@ -23,6 +23,7 @@ import { useAdminUserRepository } from './useAdminUserRepository'
 import { useAdminUserState } from './useAdminUserState'
 import { useAdminUserCRUD } from './useAdminUserCRUD'
 import { useAdminUserAPI } from './useAdminUserAPI'
+import { useAdminProfileManager } from './useAdminProfileManager'
 
 // Composables especializados
 export { useAdminUserAuth } from './useAdminUserAuth'
@@ -31,6 +32,7 @@ export { useAdminUserRepository } from './useAdminUserRepository'
 export { useAdminUserState } from './useAdminUserState'
 export { useAdminUserCRUD } from './useAdminUserCRUD'
 export { useAdminUserAPI } from './useAdminUserAPI'
+export { useAdminProfileManager } from './useAdminProfileManager'
 
 /**
  * Composable unificado que combina toda la funcionalidad
@@ -66,6 +68,7 @@ export const useAdminUserSystem = () => {
   const state = useAdminUserState()
   const crud = useAdminUserCRUD()
   const api = useAdminUserAPI()
+  const profileManager = useAdminProfileManager()
 
   return {
     auth,
@@ -73,7 +76,8 @@ export const useAdminUserSystem = () => {
     repository,
     state,
     crud,
-    api
+    api,
+    profileManager
   }
 }
 

@@ -4,6 +4,21 @@
 
 > 📋 **Proyecto Corporativo Privado** - Sistema interno desarrollado específicamente para las operaciones de control de calidad de Inaplast.
 
+## 🆕 Últimas Mejoras - Optimización Mobile
+
+### ✨ Navegación Móvil Optimizada
+- **Ícono hamburger visible**: Reemplazado por ícono de Nuxt Icon con tamaño w-8 h-8 (32px)
+- **Texto optimizado**: "Nueva Liberación" → "Nueva" en bottom navigation
+- **Etiquetas descriptivas**: "Admin" → "Usuarios" para mayor claridad
+- **Menu desplegable completo**: Con información de usuario y selector de perfil
+
+### 📱 Tabla de Usuarios Responsiva
+- **Vista Desktop**: Tabla tradicional (md+)
+- **Vista Móvil**: Tarjetas adaptativas con información completa
+- **Badge corregido**: Texto de rol no se corta, layout con flex-shrink-0
+- **Botones organizados**: Distribución flex-1 para mejor UX táctil
+- **Estado vacío optimizado**: Diseño específico para móvil sin datos
+
 ## 🏗️ Arquitectura Técnica del Codebase
 
 ### Stack Tecnológico Actual
@@ -207,6 +222,13 @@ Sistema interno de **Inaplast** para digitalizar y optimizar los procesos de con
 - **Estadísticas en tiempo real**: Métricas detalladas por roles y períodos
 - **Sistema de roles**: Reset de contraseñas, activación/desactivación de usuarios
 - **Fix crítico**: Resuelto problema de autenticación que impedía acceso a administradores
+
+### 5. Optimización para Dispositivos Móviles - **v2.7.2**
+- **Autenticación móvil**: Configuración de cookies `sameSite: 'lax'` para compatibilidad cross-browser
+- **Reintentos automáticos**: Sistema de retry para errores de sesión en dispositivos móviles
+- **Headers optimizados**: Cache control y Vary header específicos para User-Agent móvil
+- **Tests especializados**: Cobertura de testing para flujos de autenticación móvil
+- **Credenciales desde .env**: Tests actualizados para usar credenciales reales del archivo .env
 
 ### 5. Sistema de Muestreo Estadístico
 - **Planes de Muestreo**: Configuración AQL y niveles de inspección
@@ -743,13 +765,46 @@ export default defineNuxtConfig({
 
 ## 🔑 Decisiones de Arquitectura Clave
 
-### 1. **API-First Authentication**
+### 1. **API-First Authentication + Soporte Móvil Optimizado**
 ❌ **Antes**: `useSupabaseUser()` en componentes (inseguro)  
 ✅ **Ahora**: `/api/auth/*` endpoints → composables → componentes
 
+🔥 **Mejoras para dispositivos móviles (v2.7.2)**:
+```typescript
+// Configuración de cookies optimizada para móviles
+supabase: {
+  cookieOptions: {
+    maxAge: 60 * 60 * 24 * 7, // 7 días de duración
+    sameSite: 'lax',          // Permite cookies en navegadores móviles
+    secure: process.env.NODE_ENV === 'production'
+  }
+}
+
+// Headers específicos para móviles en endpoints
+setHeader(event, 'Cache-Control', 'private, no-cache, no-store, must-revalidate')
+setHeader(event, 'Vary', 'User-Agent')
+
+// Reintentos automáticos para sesiones móviles
+const fetchUser = async (force = false, retryCount = 0) => {
+  try {
+    const response = await $fetch('/api/auth/user', {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    })
+  } catch (err) {
+    // Reintentar si es error de sesión móvil
+    if (retryCount < MAX_RETRIES && err.message.includes('Auth session missing')) {
+      return fetchUser(true, retryCount + 1)
+    }
+  }
+}
+```
+
 ### 2. **Composables Especializados**
-- `useAuthState` - Estado reactivo centralizado
-- `useAuthLogin` - Login/logout operations
+- `useAuthState` - Estado reactivo centralizado con soporte móvil
+- `useAuthLogin` - Login/logout operations optimizadas
 - `useAuthProfile` - Gestión de perfiles con roles
 - `useAdminUserManager` - CRUD usuarios (solo Admin)
 

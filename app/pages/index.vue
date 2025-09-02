@@ -237,7 +237,7 @@ import type { Profile } from '~/types'
 
 // Composables y utilitiesystem/toast
 const toast = useToast()
-const { getCurrentProfile } = useProfile()
+const { getCurrentUserProfile } = useAuthProfile()
 
 // Estado reactivo del componente
 /** Perfil del usuario autenticado actual con información de rol */
@@ -281,7 +281,7 @@ onMounted(async () => {
 async function loadDashboardData() {
   try {
     // Obtener perfil del usuario actual para determinar rol y permisos
-    userProfile.value = await getCurrentProfile()
+    userProfile.value = await getCurrentUserProfile()
     
     // Cargar métricas reales desde la API
     await fetchMetrics()

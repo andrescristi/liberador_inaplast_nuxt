@@ -1,3 +1,5 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
+
 /**
  * API Endpoint: GET /api/calidad/planes-muestreo
  * 
@@ -104,7 +106,6 @@ export default defineEventHandler(async (event): Promise<PlanMuestreoResponse | 
     }
 
     // Obtener cliente de Supabase
-    const { serverSupabaseServiceRole } = await import('#supabase/server')
     const supabase = serverSupabaseServiceRole(event)
     
     // PASO 1: Buscar en grupos_muestreo por rango de tamaño y nivel S1

@@ -9,7 +9,7 @@
  */
 
 import { useAuth } from '~/composables/auth'
-import { useLogger } from '~/composables/useLogger'
+import { useLogger } from '~/composables/tools/useLogger'
 
 export const useAdminUserAuth = () => {
   const { getCurrentUserProfile } = useAuth()

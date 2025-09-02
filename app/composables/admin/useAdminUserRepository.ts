@@ -17,7 +17,7 @@ import type {
   PaginatedResponse 
 } from '~/types'
 import type { Database } from '../../../types/database.types'
-import { useLogger } from '~/composables/useLogger'
+import { useLogger } from '~/composables/tools/useLogger'
 
 export const useAdminUserRepository = () => {
   const supabase = useSupabaseClient<Database>()

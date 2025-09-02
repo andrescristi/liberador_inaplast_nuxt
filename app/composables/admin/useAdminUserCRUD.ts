@@ -20,7 +20,7 @@ import { useAdminUserRepository } from './useAdminUserRepository'
 import { useAdminUserValidation } from './useAdminUserValidation'
 import { useAdminUserAuth } from './useAdminUserAuth'
 import { useAdminUserState } from './useAdminUserState'
-import { useLogger } from '~/composables/useLogger'
+import { useLogger } from '~/composables/tools/useLogger'
 
 export const useAdminUserCRUD = () => {
   const repository = useAdminUserRepository()

@@ -5,8 +5,8 @@
     <!-- Progress Bar -->
     <OrderWizardProgress 
       :current-step="currentStep" 
-      :total-steps="totalSteps" 
-      :steps="stepLabels"
+      :total-steps="4" 
+      :steps="['Paso 1: Datos Iniciales', 'Paso 2: Detalles del Producto', 'Paso 3: Pruebas de Calidad', 'Paso 4: Resumen y Resultados']"
     />
 
     <!-- Wizard Content -->
@@ -78,60 +78,23 @@ interface OrderFormData {
   recommendations: string
 }
 
-// Composables y utilidades
-const { $logger } = useNuxtApp()
+interface OCRData {
+  customerName?: string
+  customerCode?: string
+  productName?: string
+  productCode?: string
+  lotNumber?: string
+  expirationDate?: string
+  productionDate?: string
+}
+
+// Composables
 const toast = useToast()
 const router = useRouter()
 
-// Logger estandarizado para el componente
-const logger = {
-  info: (message: string, context?: Record<string, unknown>) => {
-    if ($logger && typeof ($logger as { info?: (...args: unknown[]) => void }).info === 'function') {
-      ($logger as { info: (...args: unknown[]) => void }).info({ context: 'OrderWizard', ...context }, message)
-    } else if (import.meta.dev) {
-      // En desarrollo, fallback a console para debug local
-      console.info('[OrderWizard]', message, context)
-    }
-  },
-  error: (message: string, error: unknown, context?: Record<string, unknown>) => {
-    const errorDetails = {
-      context: 'OrderWizard',
-      error: error instanceof Error ? {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      } : String(error),
-      ...context
-    }
-    
-    if ($logger && typeof ($logger as { error?: (...args: unknown[]) => void }).error === 'function') {
-      ($logger as { error: (...args: unknown[]) => void }).error(errorDetails, message)
-    } else if (import.meta.dev) {
-      // En desarrollo, fallback a console para debug local
-      console.error('[OrderWizard]', message, errorDetails)
-    }
-  },
-  warn: (message: string, context?: Record<string, unknown>) => {
-    if ($logger && typeof ($logger as { warn?: (...args: unknown[]) => void }).warn === 'function') {
-      ($logger as { warn: (...args: unknown[]) => void }).warn({ context: 'OrderWizard', ...context }, message)
-    } else if (import.meta.dev) {
-      // En desarrollo, fallback a console para debug local
-      console.warn('[OrderWizard]', message, context)
-    }
-  }
-}
-
 // State
 const currentStep = ref(1)
-const totalSteps = 4
 const isSaving = ref(false)
-
-const stepLabels = [
-  'Paso 1: Datos Iniciales',
-  'Paso 2: Detalles del Producto', 
-  'Paso 3: Pruebas de Calidad',
-  'Paso 4: Resumen y Resultados'
-]
 
 const formData = ref<OrderFormData>({
   // Step 1
@@ -162,53 +125,21 @@ const formData = ref<OrderFormData>({
   recommendations: ''
 })
 
-// Methods con logging mejorado
+// Methods
 const nextStep = () => {
-  if (currentStep.value < totalSteps) {
-    const previousStepValue = currentStep.value
+  if (currentStep.value < 4) {
     currentStep.value++
-    logger.info('Navegando al siguiente paso', { 
-      from: previousStepValue, 
-      to: currentStep.value 
-    })
-  } else {
-    logger.warn('Intento de avanzar más allá del último paso', { 
-      currentStep: currentStep.value, 
-      totalSteps 
-    })
   }
 }
 
 const previousStep = () => {
   if (currentStep.value > 1) {
-    const previousStepValue = currentStep.value
     currentStep.value--
-    logger.info('Navegando al paso anterior', { 
-      from: previousStepValue, 
-      to: currentStep.value 
-    })
-  } else {
-    logger.warn('Intento de retroceder más allá del primer paso', { 
-      currentStep: currentStep.value 
-    })
   }
-}
-
-interface OCRData {
-  customerName?: string
-  customerCode?: string
-  productName?: string
-  productCode?: string
-  lotNumber?: string
-  expirationDate?: string
-  productionDate?: string
 }
 
 const handleOCRComplete = (ocrData: OCRData) => {
   try {
-    logger.info('Procesando datos de OCR', { ocrData })
-    
-    // Update form data with OCR results immediately
     let updatedFields = 0
     
     if (ocrData.customerName) {
@@ -240,102 +171,45 @@ const handleOCRComplete = (ocrData: OCRData) => {
       updatedFields++
     }
     
-    // Mostrar feedback positivo al usuario
     if (updatedFields > 0) {
       toast.success('OCR Completado', `Se llenaron automáticamente ${updatedFields} campo${updatedFields > 1 ? 's' : ''}`)
-      logger.info('OCR completado exitosamente', { updatedFields })
     } else {
       toast.info('OCR Procesado', 'No se detectaron datos válidos en la imagen')
-      logger.warn('OCR no detectó campos válidos', { ocrData })
     }
     
-  } catch (error) {
-    logger.error('Error procesando datos de OCR', error, { ocrData })
+  } catch {
     toast.error('Error en OCR', 'No se pudieron procesar los datos de la imagen. Por favor, ingrese los datos manualmente.')
   }
 }
 
 const handleSave = async () => {
-  if (isSaving.value) {
-    logger.warn('Intento de guardado mientras ya se está guardando')
-    return
-  }
+  if (isSaving.value) return
   
   isSaving.value = true
   
   try {
-    logger.info('Iniciando guardado de orden', { 
-      currentStep: currentStep.value, 
-      hasLabelImage: !!formData.value.labelImage 
-    })
-    
-    // Validar datos básicos antes del guardado
-    if (!formData.value.customerName || !formData.value.productName) {
-      throw new Error('Faltan datos obligatorios: nombre del cliente y producto')
-    }
-    
-    // Preparar datos para guardar
-    const orderData = {
-      ...formData.value,
-      createdAt: new Date().toISOString(),
-      status: formData.value.finalResult,
-      // Convertir File a string si existe (para logging)
-      labelImageInfo: formData.value.labelImage ? {
-        name: formData.value.labelImage.name,
-        size: formData.value.labelImage.size,
-        type: formData.value.labelImage.type
-      } : null
-    }
-    
-    logger.info('Datos de orden preparados', { orderData })
-    
-    // TODO: Implementar guardado real
+    // TODO: Implementar guardado real con API
+    // const orderData = {
+    //   ...formData.value,
+    //   createdAt: new Date().toISOString(),
+    //   status: formData.value.finalResult
+    // }
     // const savedOrder = await $fetch('/api/orders', {
     //   method: 'POST',
     //   body: orderData
     // })
     
-    // Simular guardado por ahora
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // Mostrar éxito al usuario
     toast.success('Orden Guardada', 'El liberador de producto se creó exitosamente')
-    logger.info('Orden guardada exitosamente', { orderId: 'mock-id' })
-    
-    // Navegación segura con manejo de errores
-    try {
-      await router.push('/orders')
-    } catch (navError) {
-      logger.error('Error en navegación después del guardado', navError)
-      // No mostrar error al usuario, la orden sí se guardó
-      // Solo loggeamos para debug
-    }
+    await router.push('/orders')
     
   } catch (error) {
-    logger.error('Error guardando orden', error, {
-      formData: {
-        customerName: formData.value.customerName,
-        productName: formData.value.productName,
-        finalResult: formData.value.finalResult
-      }
-    })
-    
-    // Mostrar error específico basado en el tipo de error
     if (error instanceof Error) {
-      if (error.message.includes('obligatorios')) {
-        toast.error('Datos Incompletos', error.message)
-      } else if (error.message.includes('network') || error.message.includes('fetch')) {
-        toast.error('Error de Conexión', 'Verifique su conexión a internet y reintente')
-      } else {
-        toast.error('Error al Guardar', `${error.message}. Por favor, intente nuevamente.`)
-      }
+      toast.error('Error al Guardar', error.message)
     } else {
-      toast.error('Error Inesperado', 'Ocurrió un error desconocido. Por favor, intente nuevamente.')
+      toast.error('Error Inesperado', 'Ocurrió un error. Por favor, intente nuevamente.')
     }
-    
   } finally {
     isSaving.value = false
-    logger.info('Proceso de guardado finalizado', { isSaving: isSaving.value })
   }
 }
 </script>

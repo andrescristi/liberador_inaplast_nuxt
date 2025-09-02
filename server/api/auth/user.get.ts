@@ -33,6 +33,15 @@ export default defineEventHandler(async (event) => {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
     
+    // Si es un error de sesión faltante, retornar no autenticado sin lanzar error
+    if (errorMessage.includes('Auth session missing') || errorMessage.includes('session missing')) {
+      return {
+        user: null,
+        authenticated: false
+      }
+    }
+    
+    // Para otros errores, lanzar error
     throw createError({
       statusCode: 500,
       statusMessage: `Error al obtener usuario actual: ${errorMessage}`

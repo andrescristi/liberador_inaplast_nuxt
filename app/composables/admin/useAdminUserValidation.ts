@@ -10,7 +10,7 @@
 
 import { z } from 'zod'
 import type { ProfileRole } from '~/types'
-import { useLogger } from '~/composables/useLogger'
+import { useLogger } from '~/composables/tools/useLogger'
 
 /**
  * Schema de validación para creación de usuarios

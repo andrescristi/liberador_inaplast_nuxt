@@ -301,7 +301,7 @@
 <script setup lang="ts">
 import type { Profile, UpdateProfileForm } from '~/types'
 
-const { getCurrentProfile, updateProfile } = useProfile()
+const { getCurrentUserProfile, updateUserProfile } = useAuthProfile()
 
 // Reactive state
 const profile = ref<Profile | null>(null)
@@ -341,7 +341,7 @@ const loadProfile = async () => {
       currentLoadingMessage.value = (currentLoadingMessage.value + 1) % LOADING_CONFIG.messages.length
     }, LOADING_CONFIG.messageInterval)
     
-    profile.value = await getCurrentProfile()
+    profile.value = await getCurrentUserProfile()
     
     clearInterval(messageInterval)
     
@@ -387,7 +387,7 @@ const cancelEdit = () => {
 const saveProfile = async () => {
   try {
     saving.value = true
-    const updatedProfile = await updateProfile(editForm.value)
+    const updatedProfile = await updateUserProfile(editForm.value)
     profile.value = updatedProfile
     
     // Add a small delay for better UX

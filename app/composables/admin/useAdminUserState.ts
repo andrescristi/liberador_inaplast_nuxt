@@ -9,7 +9,7 @@
  */
 
 import type { ProfileRole, ProfileFilters, Profile } from '~/types'
-import { useLogger } from '~/composables/useLogger'
+import { useLogger } from '~/composables/tools/useLogger'
 
 interface UserListState {
   users: Profile[]

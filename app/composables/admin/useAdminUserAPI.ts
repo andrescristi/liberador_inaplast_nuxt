@@ -11,7 +11,7 @@
 
 import type { ProfileFilters, PaginatedResponse, Profile } from '~/types'
 import { useAdminUserCRUD } from './useAdminUserCRUD'
-import { useLogger } from '~/composables/useLogger'
+import { useLogger } from '~/composables/tools/useLogger'
 
 export const useAdminUserAPI = () => {
   const crud = useAdminUserCRUD()

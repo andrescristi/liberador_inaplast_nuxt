@@ -50,10 +50,10 @@ export default defineEventHandler(async (event) => {
     
     // Count users by role
     const stats = {
+      total: profiles.length,
       admins: profiles.filter(p => p.user_role === 'Admin').length,
       supervisors: profiles.filter(p => p.user_role === 'Supervisor').length,
       inspectors: profiles.filter(p => p.user_role === 'Inspector').length
-      
     }
 
     return stats

@@ -1,7 +1,13 @@
-// Profile management composable for user profiles and roles
+/**
+ * Composable para administración de perfiles de terceros
+ * Permite a administradores gestionar perfiles de cualquier usuario del sistema
+ * 
+ * @author Inaplast Development Team
+ * @since v2.7.1
+ */
 import type { Profile, ProfileRole, CreateProfileForm, UpdateProfileForm, ProfileFilters, PaginatedResponse } from '~/types'
 
-export const useProfile = () => {
+export const useAdminProfileManager = () => {
 
   // Get current user's profile
   const getCurrentProfile = async (): Promise<Profile | null> => {
