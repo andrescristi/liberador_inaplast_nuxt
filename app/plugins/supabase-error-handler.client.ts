@@ -21,11 +21,11 @@ export default defineNuxtPlugin(() => {
       keysToRemove.forEach(key => {
         try {
           localStorage.removeItem(key)
-        } catch (e) {
+        } catch {
           // Silently ignore errors
         }
       })
-    } catch (error) {
+    } catch {
       // Silently ignore errors
     }
   }

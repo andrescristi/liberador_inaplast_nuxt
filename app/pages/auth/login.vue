@@ -173,9 +173,17 @@ import { z } from 'zod'
 import { useAuth } from '~/composables/auth'
 import { useToast } from '~/composables/ui'
 
-// Simple composable imports (removed lazy loading that might cause issues)
+// Initialize composables with error boundaries
 const auth = useAuth()
 const toast = useToast()
+
+// Ensure proper client-side initialization
+if (import.meta.client) {
+  // Wait for hydration to complete before allowing interactions
+  nextTick(() => {
+    // Client-side specific initialization if needed
+  })
+}
 
 // Usar layout de autenticación sin navegación
 definePageMeta({

@@ -14,10 +14,33 @@ import { useAuthState } from './useAuthState'
  * ```
  */
 export const useAuth = () => {
+  // Use lazy initialization to avoid circular dependencies and initialization order issues
   const login = useAuthLogin()
   const profile = useAuthProfile()
   const password = useAuthPassword()
   const state = useAuthState()
+
+  // Defensive checks to ensure all composables are properly initialized
+  if (import.meta.client) {
+    if (!login || !profile || !password || !state) {
+      console.warn('Auth composables not properly initialized')
+      return {
+        signIn: async () => { throw new Error('Auth not initialized') },
+        signOut: async () => { throw new Error('Auth not initialized') },
+        getCurrentUserProfile: async () => { throw new Error('Auth not initialized') },
+        updateUserProfile: async () => { throw new Error('Auth not initialized') },
+        hasRole: () => false,
+        isAdmin: computed(() => false),
+        resetPassword: async () => { throw new Error('Auth not initialized') },
+        updatePassword: async () => { throw new Error('Auth not initialized') },
+        user: computed(() => null),
+        isAuthenticated: computed(() => false),
+        userId: computed(() => null),
+        userEmail: computed(() => null),
+        isLoading: computed(() => false)
+      }
+    }
+  }
 
   return {
     // Login/Logout

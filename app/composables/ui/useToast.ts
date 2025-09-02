@@ -6,9 +6,14 @@ interface Toast {
   duration?: number
 }
 
-const toasts = ref<Toast[]>([])
+// Use a global state pattern that's SSR-safe
+const toastsState = () => {
+  const state = useState<Toast[]>('toast-notifications', () => [])
+  return state
+}
 
 export const useToast = () => {
+  const toasts = toastsState()
   const add = (toast: Omit<Toast, 'id'>) => {
     const id = Math.random().toString(36).substr(2, 9)
     toasts.value.push({

@@ -112,25 +112,32 @@ export default defineNuxtConfig({
       rollupOptions: {
         output: {
           manualChunks: (id) => {
-            // Agrupar admin components y useModalForm juntos para evitar dependencias circulares
-            if (id.includes('components/admin/') || 
-                id.includes('composables/ui/useModalForm') ||
-                id.includes('composables/ui/index')) {
-              return 'admin-bundle'
-            }
-            
-            // Agrupar todos los componentes UI base juntos
-            if (id.includes('components/ui/')) {
-              return 'ui-components'
-            }
-            
-            // Agrupar composables por dominio
+            // Separate composables from components to avoid initialization issues
             if (id.includes('composables/auth/')) {
               return 'auth-composables'
             }
             
+            if (id.includes('composables/ui/')) {
+              return 'ui-composables'
+            }
+            
             if (id.includes('composables/orders/')) {
               return 'orders-composables'
+            }
+            
+            // Group admin components separately
+            if (id.includes('components/admin/')) {
+              return 'admin-components'
+            }
+            
+            // Group UI components
+            if (id.includes('components/ui/')) {
+              return 'ui-components'
+            }
+            
+            // Group pages
+            if (id.includes('pages/auth/')) {
+              return 'auth-pages'
             }
             
             // Vendors

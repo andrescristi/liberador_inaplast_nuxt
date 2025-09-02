@@ -21,13 +21,13 @@ interface AuthUserResponse {
  * Reemplaza useSupabaseUser() para evitar conexión directa
  */
 export const useAuthState = () => {
-  // Estados reactivos
-  const user = ref<AuthUser | null>(null)
-  const isLoading = ref(true)
-  const error = ref<string | null>(null)
+  // Estados reactivos usando useState para SSR compatibility
+  const user = useState<AuthUser | null>('auth.user', () => null)
+  const isLoading = useState<boolean>('auth.isLoading', () => true)
+  const error = useState<string | null>('auth.error', () => null)
   
   // Cache para evitar requests innecesarios
-  const lastFetch = ref<Date | null>(null)
+  const lastFetch = useState<Date | null>('auth.lastFetch', () => null)
   const CACHE_DURATION = 30 * 1000 // 30 seconds
 
   /**
