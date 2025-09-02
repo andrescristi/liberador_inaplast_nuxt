@@ -86,7 +86,9 @@ export default defineNuxtConfig({
   experimental: {
     // Deshabilitar extracción de payload para reducir JavaScript bundle
     // Útil para apps que usan principalmente server-side rendering
-    payloadExtraction: false
+    payloadExtraction: false,
+    // Enable view transitions for better UX
+    viewTransition: true
   },
 
   // ===== CONFIGURACIÓN NITRO PARA VERCEL =====
@@ -111,36 +113,27 @@ export default defineNuxtConfig({
     build: {
       rollupOptions: {
         output: {
+          // Simplified chunking strategy to avoid initialization order issues
           manualChunks: (id) => {
-            // Separate composables from components to avoid initialization issues
-            if (id.includes('composables/auth/')) {
-              return 'auth-composables'
+            // Keep all Vue ecosystem together
+            if (id.includes('node_modules/vue') || 
+                id.includes('node_modules/@vue') ||
+                id.includes('node_modules/nuxt') ||
+                id.includes('node_modules/@nuxt')) {
+              return 'vue-framework'
             }
             
-            if (id.includes('composables/ui/')) {
-              return 'ui-composables'
+            // Group ALL app code together to prevent initialization issues
+            if (id.includes('app/composables/') || 
+                id.includes('app/components/') ||
+                id.includes('app/pages/') ||
+                id.includes('app/middleware/') ||
+                id.includes('app/plugins/') ||
+                id.includes('app/stores/')) {
+              return 'app-code'
             }
             
-            if (id.includes('composables/orders/')) {
-              return 'orders-composables'
-            }
-            
-            // Group admin components separately
-            if (id.includes('components/admin/')) {
-              return 'admin-components'
-            }
-            
-            // Group UI components
-            if (id.includes('components/ui/')) {
-              return 'ui-components'
-            }
-            
-            // Group pages
-            if (id.includes('pages/auth/')) {
-              return 'auth-pages'
-            }
-            
-            // Vendors
+            // Single vendor chunk for everything else
             if (id.includes('node_modules')) {
               return 'vendor'
             }

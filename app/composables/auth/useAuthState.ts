@@ -17,39 +17,53 @@ interface AuthUserResponse {
 
 /**
  * Composable especializado para estado de autenticación
- * Maneja estados reactivos usando endpoints API personalizados
- * Reemplaza useSupabaseUser() para evitar conexión directa
+ * Maneja estados reactivos de manera más robusta para SSR
  */
 export const useAuthState = () => {
-  // Estados reactivos usando useState para SSR compatibility
-  const user = useState<AuthUser | null>('auth.user', () => null)
-  const isLoading = useState<boolean>('auth.isLoading', () => true)
-  const error = useState<string | null>('auth.error', () => null)
+  // Use simpler refs that are more predictable in SSR/client transitions
+  const user = ref<AuthUser | null>(null)
+  const isLoading = ref<boolean>(false) // Start with false to avoid loading states during SSR
+  const error = ref<string | null>(null)
   
   // Cache para evitar requests innecesarios
-  const lastFetch = useState<Date | null>('auth.lastFetch', () => null)
+  const lastFetch = ref<Date | null>(null)
   const CACHE_DURATION = 30 * 1000 // 30 seconds
 
   /**
    * Estado reactivo de autenticación
    */
-  const isAuthenticated = computed(() => !!user.value)
+  const isAuthenticated = computed(() => {
+    // Ensure this computation is safe during SSR
+    if (import.meta.server) return false
+    return !!user.value
+  })
 
   /**
    * ID del usuario actual
    */
-  const userId = computed(() => user.value?.id)
+  const userId = computed(() => {
+    if (import.meta.server) return undefined
+    return user.value?.id
+  })
 
   /**
    * Email del usuario actual
    */
-  const userEmail = computed(() => user.value?.email)
+  const userEmail = computed(() => {
+    if (import.meta.server) return undefined
+    return user.value?.email
+  })
 
   /**
    * Obtiene el usuario actual desde la API
-   * Con soporte mejorado para dispositivos móviles
+   * Con manejo robusto de SSR y errores
    */
   const fetchUser = async (force = false, retryCount = 0): Promise<void> => {
+    // Don't run during SSR to avoid initialization issues
+    if (import.meta.server) {
+      return
+    }
+
     const MAX_RETRIES = 2
     
     // Verificar cache si no es forzado
@@ -64,6 +78,11 @@ export const useAuthState = () => {
       isLoading.value = true
       error.value = null
       
+      // Wait for client to be ready
+      if (typeof window === 'undefined') {
+        return
+      }
+
       const response = await $fetch<AuthUserResponse>('/api/auth/user', {
         headers: {
           'Cache-Control': 'no-cache',
@@ -107,21 +126,26 @@ export const useAuthState = () => {
     error.value = null
   }
 
-  // Auto-fetch en el mount si es necesario
-  onMounted(() => {
-    if (!user.value && !lastFetch.value) {
-      fetchUser()
-    }
-  })
+  // Auto-fetch en el mount si es necesario, pero solo en el cliente
+  if (import.meta.client) {
+    onMounted(() => {
+      // Give some time for the app to stabilize
+      nextTick(() => {
+        if (!user.value && !lastFetch.value) {
+          fetchUser()
+        }
+      })
+    })
+  }
 
   return {
-    // Estados
-    user: readonly(user),
-    isAuthenticated: readonly(isAuthenticated),
-    userId: readonly(userId),
-    userEmail: readonly(userEmail),
-    isLoading: readonly(isLoading),
-    error: readonly(error),
+    // Estados - no usar readonly para evitar problemas de inicialización
+    user,
+    isAuthenticated,
+    userId,
+    userEmail,
+    isLoading,
+    error,
     
     // Acciones
     fetchUser,

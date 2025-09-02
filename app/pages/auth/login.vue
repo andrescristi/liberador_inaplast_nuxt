@@ -82,7 +82,7 @@
             block
             size="lg"
             :loading="loading"
-            :disabled="!isFormValid"
+            :disabled="!isFormValid || !isClientReady"
             class="font-medium"
             :leading-icon="!loading ? 'bx:log-in' : undefined"
           >
@@ -173,16 +173,33 @@ import { z } from 'zod'
 import { useAuth } from '~/composables/auth'
 import { useToast } from '~/composables/ui'
 
-// Initialize composables with error boundaries
-const auth = useAuth()
-const toast = useToast()
+// Initialize composables with better error handling
+let auth: ReturnType<typeof useAuth> | null = null
+let toast: ReturnType<typeof useToast> | null = null
+
+// Client-side initialization flag
+const isClientReady = ref(false)
 
 // Ensure proper client-side initialization
 if (import.meta.client) {
-  // Wait for hydration to complete before allowing interactions
-  nextTick(() => {
-    // Client-side specific initialization if needed
+  onMounted(async () => {
+    try {
+      // Initialize composables after mount to avoid SSR issues
+      auth = useAuth()
+      toast = useToast()
+      
+      // Mark client as ready after successful initialization
+      await nextTick()
+      isClientReady.value = true
+    } catch (error) {
+      console.error('Error initializing auth composables:', error)
+      // Still mark as ready to allow UI to render
+      isClientReady.value = true
+    }
   })
+} else {
+  // Server-side - mark as not ready to prevent form submission
+  isClientReady.value = false
 }
 
 // Usar layout de autenticación sin navegación
@@ -223,11 +240,18 @@ const emailError = ref('')
 const passwordError = ref('')
 const resetEmailError = ref('')
 
-// Form validation computed
+// Form validation computed - more robust
 const isFormValid = computed(() => {
-  const emailValid = formState.email && formState.email.includes('@') && formState.email.includes('.')
-  const passwordValid = formState.password && formState.password.length >= 6
-  return emailValid && passwordValid
+  // Prevent computation during SSR
+  if (import.meta.server || !isClientReady.value) return false
+  
+  try {
+    const emailValid = formState.email && formState.email.includes('@') && formState.email.includes('.')
+    const passwordValid = formState.password && formState.password.length >= 6
+    return emailValid && passwordValid
+  } catch {
+    return false
+  }
 })
 
 // Validation
@@ -268,8 +292,20 @@ const validateResetForm = () => {
   }
 }
 
-// Form handlers
+// Form handlers - more robust error handling
 const handleLogin = async () => {
+  // Prevent execution during SSR to avoid initialization errors
+  if (import.meta.server) {
+    console.warn('Login attempted during SSR - ignored')
+    return
+  }
+  
+  // Wait for client to be ready and composables to be initialized
+  if (!isClientReady.value || !auth || !toast) {
+    console.warn('Client not ready for login or composables not initialized')
+    return
+  }
+  
   console.log('handleLogin called!')
   console.log('Form state:', formState)
   
@@ -308,6 +344,11 @@ const handleLogin = async () => {
 }
 
 const handleResetPassword = async () => {
+  // Prevent execution during SSR or if composables not ready
+  if (import.meta.server || !isClientReady.value || !auth || !toast) {
+    return
+  }
+  
   if (!validateResetForm()) return
   
   resetLoading.value = true

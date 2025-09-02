@@ -13,18 +13,28 @@
  * - Para verificar roles específicos usar 'require-admin-role'
  * - La redirección preserva la ruta original como query parameter
  */
-export default defineNuxtRouteMiddleware((_to) => {
-  // Obtener usuario reactivo de Supabase Auth
-  // Se actualiza automáticamente cuando cambia el estado de autenticación
-  const user = useSupabaseUser()
-
-  // Verificación simple: si no hay usuario autenticado, redirigir al login
-  if (!user.value) {
-    // navigateTo() es la forma recomendada en Nuxt para redirecciones
-    // Automáticamente maneja el historial del browser y SSR
+export default defineNuxtRouteMiddleware(async (_to) => {
+  // Use our custom auth state instead of Supabase direct access
+  // This prevents initialization issues
+  
+  // Skip auth check during SSR to avoid initialization problems
+  if (import.meta.server) {
+    return
+  }
+  
+  // Use a simpler approach - check if we can access /api/auth/user
+  try {
+    const response = await $fetch<{authenticated: boolean}>('/api/auth/user')
+    
+    // If user is not authenticated, redirect to login
+    if (!response.authenticated) {
+      return navigateTo('/auth/login')
+    }
+  } catch (error) {
+    // If we can't verify auth status, assume not authenticated
+    console.warn('Auth middleware: Unable to verify auth status, redirecting to login')
     return navigateTo('/auth/login')
   }
   
-  // Si llega aquí, el usuario está autenticado correctamente
-  // El middleware permite continuar con la navegación
+  // If we reach here, user is authenticated - continue navigation
 })
