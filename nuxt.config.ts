@@ -84,18 +84,14 @@ export default defineNuxtConfig({
   
   // ===== OPTIMIZACIONES DE PERFORMANCE =====
   experimental: {
-    // Deshabilitar extracción de payload para reducir JavaScript bundle
+    // Configuración mínima para evitar problemas de inicialización
     payloadExtraction: false,
-    // Enable view transitions for better UX
-    viewTransition: true,
-    // Disable async components that might cause initialization issues
-    asyncContext: false,
-    // Ensure proper SSR compatibility
-    emitRouteChunkError: 'automatic'
+    viewTransition: false
   },
 
   // ===== CONFIGURACIÓN DE RENDERING =====
-  ssr: true,
+  // Temporalmente deshabilitar SSR para resolver errores de inicialización
+  ssr: false,
 
   // ===== OPTIMIZACIÓN DE IMPORTS =====
   build: {
@@ -109,46 +105,31 @@ export default defineNuxtConfig({
   // ===== CONFIGURACIÓN NITRO PARA VERCEL =====
   nitro: {
     preset: 'vercel',
-    rollupConfig: {
-      external: [],
-      output: {
-        format: 'esm'
-      }
+    prerender: {
+      crawlLinks: false
     }
   },
 
-  // ===== CONFIGURACIÓN VITE OPTIMIZADA =====
+  // ===== CONFIGURACIÓN VITE SIMPLIFICADA =====
   vite: {
-    ssr: {
-      noExternal: ['vue', '@vue/shared', '@supabase/supabase-js']
-    },
     optimizeDeps: {
       include: [
         'vue', 
-        '@vue/shared', 
         '@supabase/supabase-js',
         'pinia'
-      ],
-      exclude: ['@nuxt/kit']
+      ]
     },
     build: {
-      // Disable minification to prevent variable hoisting issues
-      minify: false,
-      // Ensure compatibility with older JS engines
-      target: 'es2020',
-      // Disable tree shaking temporarily to prevent order issues
-      rollupOptions: {
-        treeshake: false,
-        output: {
-          // Disable manual chunking completely to avoid initialization order issues
-          manualChunks: undefined,
-          // Ensure proper variable names and avoid minification conflicts
-          generatedCode: {
-            constBindings: true
-          },
-          // More predictable naming for debugging
-          chunkFileNames: '[name]-[hash].js',
-          entryFileNames: 'entry-[hash].js'
+      // Configuración mínima para evitar errores de inicialización
+      target: 'es2018',
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: false,
+          drop_debugger: false
+        },
+        mangle: {
+          keep_fnames: true
         }
       }
     }

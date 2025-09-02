@@ -364,7 +364,7 @@ const handleLogin = async () => {
       if (!auth || !toast) {
         throw new Error('Re-initialization failed')
       }
-    } catch (_err) {
+    } catch {
       error.value = 'Error de inicialización. Recarga la página.'
       loading.value = false
       return
