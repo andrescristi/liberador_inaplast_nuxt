@@ -173,30 +173,9 @@ import { z } from 'zod'
 import { useAuth } from '~/composables/auth'
 import { useToast } from '~/composables/ui'
 
-// Import composables con lazy initialization para evitar errores de SSR
-const getAuth = () => {
-  try {
-    return useAuth()
-  } catch (error) {
-    console.error('Error loading auth:', error)
-    return {
-      signIn: async () => { throw new Error('Auth not available') },
-      resetPassword: async () => { throw new Error('Auth not available') }
-    }
-  }
-}
-
-const getToast = () => {
-  try {
-    return useToast()
-  } catch (error) {
-    console.error('Error loading toast:', error)
-    return {
-      success: () => {},
-      error: () => {}
-    }
-  }
-}
+// Simple composable imports (removed lazy loading that might cause issues)
+const auth = useAuth()
+const toast = useToast()
 
 // Usar layout de autenticación sin navegación
 definePageMeta({
@@ -296,11 +275,9 @@ const handleLogin = async () => {
   console.log('Starting login process...')
 
   try {
-    const { signIn } = getAuth()
-    await signIn(formState.email.trim(), formState.password)
+    await auth.signIn(formState.email.trim(), formState.password)
     
     // Success toast
-    const toast = getToast()
     toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente')
     
     // Smooth redirect with configurable delay
@@ -328,18 +305,15 @@ const handleResetPassword = async () => {
   resetLoading.value = true
 
   try {
-    const { resetPassword } = getAuth()
-    await resetPassword(resetState.email)
+    await auth.resetPassword(resetState.email)
     
     // Success
-    const toast = getToast()
     toast.success('Enlace enviado', 'Se ha enviado un enlace de restablecimiento a tu email')
     
     showResetPassword.value = false
     resetState.email = ''
     
   } catch (err: unknown) {
-    const toast = getToast()
     toast.error('Error', (err as { message?: string }).message || 'Error al enviar el enlace')
   } finally {
     resetLoading.value = false
