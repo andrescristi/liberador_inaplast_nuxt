@@ -61,3 +61,4 @@ All messages to the user and errors must be in spanish
 
 
 - This is not an open source project. It is a private project for an industrial Company
+- Cuando realices debuguing en vercel privilegia hacer logging en la consola en vez de consultar los logs, ya que revisar los logs de vercel consume muchos tokens

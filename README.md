@@ -4,7 +4,15 @@
 
 > 📋 **Proyecto Corporativo Privado** - Sistema interno desarrollado específicamente para las operaciones de control de calidad de Inaplast.
 
-## 🆕 Últimas Mejoras - Optimización Mobile
+## 🆕 Últimas Mejoras - Autenticación Híbrida con Tokens
+
+### 🔐 Sistema de Autenticación Híbrida - **v2.8.0**
+- **Token-first authentication**: Tokens en localStorage como método primario
+- **Cookie fallback**: Compatibilidad con cookies tradicionales para casos edge
+- **Middleware optimizado**: Verificación rápida de tokens antes de requests al servidor
+- **Solución Vercel**: Resuelve problemas de timing en entornos serverless
+- **Composable useAuthToken**: Gestión completa de tokens con validación de expiración
+- **Backend compatible**: Soporta headers de autorización y cookies simultáneamente
 
 ### ✨ Navegación Móvil Optimizada
 - **Ícono hamburger visible**: Reemplazado por ícono de Nuxt Icon con tamaño w-8 h-8 (32px)
@@ -195,11 +203,13 @@ Sistema interno de **Inaplast** para digitalizar y optimizar los procesos de con
 
 ## 🚀 Funcionalidades Principales
 
-### 1. Sistema de Autenticación (Server-Side) - **v2.6.0**
+### 1. Sistema de Autenticación Híbrida (Token + Cookies) - **v2.8.0**
 - **API Endpoints**: `/api/auth/login`, `/api/auth/user`, `/api/auth/profile`, `/api/auth/logout`, `/api/auth/update-password`
-- **Composables**: `useAuthState`, `useAuthLogin`, `useAuthProfile`, `useAuthPassword` - arquitectura API-first
+- **Composables**: `useAuthState`, `useAuthLogin`, `useAuthProfile`, `useAuthPassword`, `useAuthToken` - arquitectura híbrida optimizada
 - **Roles**: Admin, Supervisor, Inspector con permisos granulares
-- **Seguridad**: Autenticación server-side completa, validación con Zod, manejo robusto de errores
+- **Autenticación Dual**: Token-first con fallback a cookies para máxima compatibilidad
+- **Optimización Vercel**: Soluciona problemas de timing en entornos serverless
+- **Seguridad**: JWT tokens con validación de expiración + autenticación server-side completa
 - **Reset de contraseñas**: Sistema completo con tokens seguros y validación
 
 ### 2. Control de Calidad (4 Pasos)
@@ -264,19 +274,28 @@ const { login, logout } = useAuthLogin()          // ✅ Auto-importado
 <UiBaseButton variant="solid" />                 // ✅ Auto-importado
 ```
 
-#### 2. **API-First Authentication Pattern**
+#### 2. **Hybrid Token-First Authentication Pattern**
 ```typescript
-// Flujo completo de autenticación server-side
-1. useAuthLogin() → POST /api/auth/login → Server Supabase + Zod validation
-2. useAuthState() → GET /api/auth/user → Estado reactivo cached
-3. useAuthProfile() → GET /api/auth/profile → Datos completos + rol
-4. Middleware auth.ts → Protección rutas server-side
-5. RLS Policies → Seguridad nivel base de datos
+// Flujo completo de autenticación híbrida (v2.8.0)
+1. useAuthLogin() → POST /api/auth/login → Server Supabase + Token storage
+2. useAuthToken() → localStorage management → JWT access/refresh tokens
+3. Middleware auth.ts → Token-first verification → Cookie fallback
+4. useAuthState() → GET /api/auth/user → Estado reactivo con headers
+5. useAuthProfile() → GET /api/auth/profile → Datos completos + rol
+6. RLS Policies → Seguridad nivel base de datos
 
-// Patrón de uso:
+// Patrón de uso híbrido:
 const { user, isAuthenticated, login, logout } = useAuthState()
+const { setToken, getToken, hasValidToken, getAuthHeaders } = useAuthToken()
 const { profile, updateProfile } = useAuthProfile()
 const { changePassword } = useAuthPassword()
+
+// Ejemplo de autenticación con tokens:
+await login(email, password)  // Guarda token automáticamente
+if (hasValidToken()) {
+  const headers = getAuthHeaders()  // Authorization + X-Auth-Token
+  await $fetch('/api/protected', { headers })
+}
 ```
 
 #### 3. **Component Architecture Pattern**
