@@ -1,8 +1,9 @@
 /**
  * Composable especializado para operaciones de login/logout
- * Usa endpoints API del servidor en lugar de conexión directa a Supabase
+ * Usa endpoints API del servidor con soporte para tokens (solución Vercel)
  */
 import { useAuthState } from './useAuthState'
+import { useAuthToken } from './useAuthToken'
 
 interface LoginResponse {
   success: boolean
@@ -10,6 +11,12 @@ interface LoginResponse {
   user?: {
     id: string
     email: string
+    [key: string]: unknown
+  }
+  session?: {
+    access_token: string
+    refresh_token: string
+    expires_at: number
     [key: string]: unknown
   }
 }
@@ -23,6 +30,7 @@ interface LogoutResponse {
 
 export const useAuthLogin = () => {
   const { clearUser, refreshUser } = useAuthState()
+  const { setToken, removeToken } = useAuthToken()
 
   /**
    * Inicia sesión de usuario con validación y manejo de errores
@@ -44,6 +52,16 @@ export const useAuthLogin = () => {
 
       if (!response.success) {
         throw new Error(response.message || 'Error durante el inicio de sesión')
+      }
+
+      // Guardar token si está disponible en la respuesta
+      if (response.session?.access_token) {
+        setToken({
+          access_token: response.session.access_token,
+          refresh_token: response.session.refresh_token || '',
+          expires_at: response.session.expires_at || Math.floor(Date.now() / 1000) + 3600,
+          user_id: response.user?.id || ''
+        })
       }
 
       // Refrescar el estado del usuario después del login exitoso
@@ -80,8 +98,9 @@ export const useAuthLogin = () => {
         throw new Error(response.message || 'Error durante el cierre de sesión')
       }
 
-      // Limpiar el estado local del usuario
+      // Limpiar el estado local del usuario y token
       clearUser()
+      removeToken()
       
       // Redirigir a la página de login
       await navigateTo('/auth/login')

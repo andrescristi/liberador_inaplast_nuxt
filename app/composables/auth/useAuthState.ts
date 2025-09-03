@@ -1,6 +1,7 @@
 /**
- * Estado de usuario desde API personalizada
+ * Estado de usuario desde API personalizada con soporte para tokens
  */
+import { useAuthToken } from './useAuthToken'
 interface AuthUser {
   id: string
   email?: string
@@ -20,6 +21,8 @@ interface AuthUserResponse {
  * Maneja estados reactivos de manera más robusta para SSR
  */
 export const useAuthState = () => {
+  const { getAuthHeaders, hasValidToken } = useAuthToken()
+  
   // Use simpler refs that are more predictable in SSR/client transitions
   const user = ref<AuthUser | null>(null)
   const isLoading = ref<boolean>(false) // Start with false to avoid loading states during SSR
@@ -86,7 +89,8 @@ export const useAuthState = () => {
       const response = await $fetch<AuthUserResponse>('/api/auth/user', {
         headers: {
           'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+          'Pragma': 'no-cache',
+          ...getAuthHeaders() // Incluir headers de autorización
         }
       })
       

@@ -1,15 +1,43 @@
-import { serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient } from '#supabase/server'
 
 /**
  * Endpoint para obtener la información del usuario autenticado actual
- * Reemplaza la funcionalidad de useSupabaseUser() en el lado del cliente
+ * Soporta autenticación tanto por cookies como por tokens en headers (para Vercel)
  * 
  * @returns Usuario de Supabase Auth o null si no está autenticado
  */
 export default defineEventHandler(async (event) => {
   try {
-    // Obtener usuario de la sesión actual
-    const user = await serverSupabaseUser(event)
+    // Verificar si hay token en headers primero
+    const authHeader = getHeader(event, 'authorization')
+    const tokenHeader = getHeader(event, 'x-auth-token')
+    
+    let user = null
+    
+    // Intentar autenticación por token primero
+    if (authHeader || tokenHeader) {
+      const token = authHeader?.replace('Bearer ', '') || tokenHeader
+      
+      if (token) {
+        try {
+          // Verificar token con Supabase
+          const supabase = await serverSupabaseClient(event)
+          const { data: { user: tokenUser }, error } = await supabase.auth.getUser(token)
+          
+          if (!error && tokenUser) {
+            user = tokenUser
+          }
+        } catch (tokenError) {
+          console.warn('Token auth failed, trying session auth:', tokenError)
+        }
+      }
+    }
+    
+    // Si no hay usuario por token, intentar método tradicional con cookies
+    if (!user) {
+      const { serverSupabaseUser } = await import('#supabase/server')
+      user = await serverSupabaseUser(event)
+    }
 
     if (!user) {
       return {

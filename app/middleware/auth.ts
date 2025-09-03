@@ -1,8 +1,8 @@
 /**
  * Middleware de autenticación básica para páginas protegidas
  * 
- * Verifica si existe un usuario autenticado activo y redirige
- * al login si no hay sesión válida.
+ * Verifica si existe un usuario autenticado activo usando tokens (para Vercel)
+ * y cookies como fallback. Redirige al login si no hay sesión válida.
  * 
  * USO:
  * - definePageMeta({ middleware: 'auth' })
@@ -14,26 +14,41 @@
  * - La redirección preserva la ruta original como query parameter
  */
 export default defineNuxtRouteMiddleware(async (_to) => {
-  // Use our custom auth state instead of Supabase direct access
-  // This prevents initialization issues
-  
   // Skip auth check during SSR to avoid initialization problems
   if (import.meta.server) {
     return
   }
   
-  // Use a simpler approach - check if we can access /api/auth/user
-  try {
-    const response = await $fetch<{authenticated: boolean}>('/api/auth/user')
-    
-    // If user is not authenticated, redirect to login
-    if (!response.authenticated) {
-      return navigateTo('/auth/login')
-    }
-  } catch {
-    // If we can't verify auth status, assume not authenticated
-    return navigateTo('/auth/login')
+  // Importar composable de tokens
+  const { useAuthToken } = await import('~/composables/auth/useAuthToken')
+  const { hasValidToken, getAuthHeaders } = useAuthToken()
+  
+  // Verificación rápida con token primero (para Vercel)
+  if (hasValidToken()) {
+    // Token válido encontrado, continuar navegación
+    return
   }
   
-  // If we reach here, user is authenticated - continue navigation
+  // Si no hay token, intentar verificar con API (fallback para cookies)
+  try {
+    const response = await $fetch<{authenticated: boolean}>('/api/auth/user', {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        ...getAuthHeaders() // Incluir headers de token si existen
+      }
+    })
+    
+    // Si está autenticado, continuar navegación
+    if (response.authenticated) {
+      return
+    }
+    
+  } catch (error) {
+    console.warn('Auth middleware API check failed:', error)
+  }
+  
+  // No está autenticado, redirigir al login
+  return navigateTo('/auth/login')
 })
