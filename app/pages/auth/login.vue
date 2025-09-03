@@ -386,15 +386,20 @@ const handleLogin = async () => {
   console.log('Starting login process...')
 
   try {
-    await auth.signIn(formState.email.trim(), formState.password)
+    const result = await auth.signIn(formState.email.trim(), formState.password)
     
     // Success toast
     toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente')
     
-    // Smooth redirect with configurable delay
-    const NAVIGATION_DELAY = 500
-    await new Promise(resolve => setTimeout(resolve, NAVIGATION_DELAY))
-    await navigateTo('/')
+    // Con tokens, la navegación debería funcionar inmediatamente
+    // Pequeño delay para permitir que el token se guarde
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    // Navegar al home - ahora debería funcionar con tokens
+    await navigateTo('/', { 
+      replace: true,
+      external: false 
+    })
     
   } catch (err: unknown) {
     console.error('Login error:', err)
