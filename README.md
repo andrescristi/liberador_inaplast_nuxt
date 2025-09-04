@@ -4,7 +4,28 @@
 
 > 📋 **Proyecto Corporativo Privado** - Sistema interno desarrollado específicamente para las operaciones de control de calidad de Inaplast.
 
-## 🆕 Últimas Mejoras - OCR Turno Normalización
+## 🆕 Últimas Mejoras - OrderWizardStep3 UI/UX Enhancement
+
+### 🎨 Mejora de UX en Paso 3: Pruebas de Calidad - **v2.8.3**
+- **Agrupación inteligente**: Las pruebas ahora se organizan por tipo (Visual y Funcional)
+- **Diseño diferenciado**: Fondos azules para pruebas visuales, verdes para funcionales
+- **Iconografía mejorada**: Iconos específicos por grupo con emojis descriptivos
+- **Navegación optimizada**: Mejor experiencia visual para inspectores de calidad
+- **Tests comprehensivos**: 28 nuevos tests unitarios que cubren toda la funcionalidad
+- **Corrección de bugs**: Eliminado error "Cannot read properties of undefined (reading 'qualityNotes')"
+- **Interface consistente**: Unificación de tipos OrderData entre todos los pasos del wizard
+- **Computed properties robustos**: Filtrado seguro con optional chaining para evitar crashes
+
+#### 🔍 Mejoras Visuales Implementadas
+```typescript
+// Agrupación automática de pruebas por tipo
+visualTests = computed(() => tests.value?.filter(test => test.type === 'visual') || [])
+functionalTests = computed(() => tests.value?.filter(test => test.type === 'funcional') || [])
+
+// Diseño diferenciado por tipo de prueba
+Visual: bg-blue-50 + border-blue-200 + iconos 👁️
+Funcional: bg-green-50 + border-green-200 + iconos 🔧
+```
 
 ### 🎯 Mejoras en OCR y Llenado de Formularios - **v2.8.2**
 - **Normalización de turno**: Función `normalizeTurno()` que mapea valores del OCR a opciones del select
@@ -199,7 +220,9 @@ supabase/                              # Database schema y migraciones
 
 tests/                                 # Testing suite completo
 ├── components/                        # Tests componentes Vue
-│   └── orders/OrderWizardStep1.test.ts # Tests refactoring v2.8.1 (17 casos)
+│   └── orders/
+│       ├── OrderWizardStep1.test.ts   # Tests refactoring v2.8.1 (17 casos)
+│       └── OrderWizardStep3.test.ts   # Tests agrupación UX v2.8.3 (28 casos)
 ├── composables/                       # Tests lógica composables
 ├── api/                               # Tests endpoints API
 ├── e2e/                               # Tests end-to-end
