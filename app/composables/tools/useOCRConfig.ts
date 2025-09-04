@@ -11,8 +11,8 @@ interface OCRResponse {
     codigoProducto?: string
     turno?: string
     unidades?: string
-    jefeTurno?: string
-    ordenCompra?: string
+    jefe_de_turno?: string
+    orden_de_compra?: string
     numeroOperario?: string
     maquina?: string
     inspectorCalidad?: string
@@ -62,19 +62,60 @@ export function useOCRConfig() {
   }
 
   /**
+   * Normaliza el valor del turno para que coincida con las opciones del select
+   */
+  const normalizeTurno = (turno: string | undefined): string | undefined => {
+    if (!turno) return undefined
+    
+    const turnoLower = turno.toLowerCase().trim()
+    
+    // Mapear variaciones comunes a los valores esperados
+    if (turnoLower.includes('mañana') || turnoLower.includes('manana') || turnoLower.includes('morning')) {
+      return 'mañana'
+    }
+    if (turnoLower.includes('tarde') || turnoLower.includes('afternoon')) {
+      return 'tarde'
+    }
+    if (turnoLower.includes('noche') || turnoLower.includes('night') || turnoLower.includes('nocturno')) {
+      return 'noche'
+    }
+    
+    // Si no coincide con ningún patrón, devolver el valor original en minúsculas
+    return turnoLower
+  }
+
+  /**
    * Mapea datos del endpoint a formato OCRData
    */
   const mapToOCRData = (response: OCRResponse): OCRData => {
     const production = response.productionData
     
-    return {
-      customerName: production?.cliente || undefined,
-      productName: production?.producto || undefined,
-      productCode: production?.codigoProducto || undefined,
-      lotNumber: production?.lote || undefined,
-      productionDate: production?.fechaFabricacion || undefined,
-      orderNumber: production?.pedido || undefined
+    // Debug: Log para verificar qué datos recibe
+    console.log('OCR Response productionData:', production)
+    
+    const mappedData = {
+      // Campos básicos
+      cliente: production?.cliente || undefined,
+      producto: production?.producto || undefined,
+      codigo_producto: production?.codigoProducto || undefined,
+      lote: production?.lote || undefined,
+      fecha_fabricacion: production?.fechaFabricacion || undefined,
+      pedido: production?.pedido || undefined,
+      
+      // Campos adicionales con normalización especial para turno
+      turno: normalizeTurno(production?.turno),
+      numero_operario: production?.numeroOperario || undefined,
+      maquina: production?.maquina || undefined,
+      inspector_calidad: production?.inspectorCalidad || undefined,
+      jefe_de_turno: production?.jefe_de_turno || undefined,
+      orden_de_compra: production?.orden_de_compra || undefined
     }
+    
+    // Debug: Log del resultado mapeado
+    console.log('Mapped OCR Data:', mappedData)
+    console.log('Turno normalizado:', mappedData.turno)
+    
+    return mappedData
   }
 
   /**

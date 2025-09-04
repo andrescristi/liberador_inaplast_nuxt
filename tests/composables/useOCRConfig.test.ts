@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { useOCRConfig } from '~/composables/useOCRConfig'
-import type { OCRData } from '~/schemas/order'
+import { useOCRConfig } from '~/composables/tools/useOCRConfig'
+import type { OCRData } from '~/schemas/orders/ocr'
 
 // Mock $fetch
 const mockFetch = vi.fn()
@@ -44,8 +44,7 @@ describe('useOCRConfig', () => {
       const { validateImageForOCR } = useOCRConfig()
       
       const invalidFile = new File([''], 'test.txt', {
-        type: 'text/plain',
-        size: 1024
+        type: 'text/plain'
       })
 
       const result = validateImageForOCR(invalidFile)
@@ -94,7 +93,14 @@ describe('useOCRConfig', () => {
           producto: 'Bolsa Test 25kg',
           codigoProducto: 'BOLTEST001',
           lote: 'LOT20241201001',
-          fechaFabricacion: '2024-12-01'
+          fechaFabricacion: '2024-12-01',
+          pedido: 'PED001',
+          turno: 'Mañana',
+          numeroOperario: 'OP001',
+          maquina: 'MAQ001',
+          inspectorCalidad: 'Juan Pérez',
+          jefe_de_turno: 'María García',
+          orden_de_compra: 'OC001'
         },
         metadata: {
           filename: 'test.jpg',
@@ -117,12 +123,18 @@ describe('useOCRConfig', () => {
       const result = await processOCR(testFile)
 
       const expectedResult: OCRData = {
-        customerName: 'Empresa Test S.A.',
-        productName: 'Bolsa Test 25kg',
-        productCode: 'BOLTEST001',
-        lotNumber: 'LOT20241201001',
-        productionDate: '2024-12-01',
-        orderNumber: undefined
+        cliente: 'Empresa Test S.A.',
+        producto: 'Bolsa Test 25kg',
+        codigo_producto: 'BOLTEST001',
+        lote: 'LOT20241201001',
+        fecha_fabricacion: '2024-12-01',
+        pedido: 'PED001',
+        turno: 'mañana', // Normalizado a minúsculas
+        numero_operario: 'OP001',
+        maquina: 'MAQ001',
+        inspector_calidad: 'Juan Pérez',
+        jefe_de_turno: 'María García',
+        orden_de_compra: 'OC001'
       }
 
       expect(result).toEqual(expectedResult)
@@ -134,6 +146,44 @@ describe('useOCRConfig', () => {
           filename: 'test.jpg'
         }
       })
+    })
+
+    it('normaliza correctamente diferentes valores de turno', async () => {
+      const { processOCR } = useOCRConfig()
+      
+      const testCases = [
+        { input: 'Mañana', expected: 'mañana' },
+        { input: 'TARDE', expected: 'tarde' },
+        { input: 'noche', expected: 'noche' },
+        { input: 'Morning', expected: 'mañana' },
+        { input: 'afternoon', expected: 'tarde' },
+        { input: 'Nocturno', expected: 'noche' },
+        { input: 'Night', expected: 'noche' },
+        { input: '  Mañana  ', expected: 'mañana' },
+        { input: 'valor_desconocido', expected: 'valor_desconocido' }
+      ]
+
+      for (const testCase of testCases) {
+        const mockResponse = {
+          success: true,
+          productionData: {
+            turno: testCase.input
+          }
+        }
+        
+        mockFetch.mockResolvedValueOnce(mockResponse)
+        mockFileReader.readAsDataURL.mockImplementation(() => {
+          mockFileReader.result = 'data:image/jpeg;base64,dGVzdA=='
+          if (mockFileReader.onload) {
+            mockFileReader.onload()
+          }
+        })
+
+        const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+        const result = await processOCR(testFile)
+        
+        expect(result.turno).toBe(testCase.expected)
+      }
     })
 
     it('maneja errores de API correctamente', async () => {
@@ -184,7 +234,8 @@ describe('useOCRConfig', () => {
           success: true,
           productionData: {
             cliente: 'Empresa Test S.A.',
-            producto: 'Producto Test'
+            producto: 'Producto Test',
+            turno: 'tarde'
           }
         })
       
@@ -200,8 +251,9 @@ describe('useOCRConfig', () => {
       
       const result = await processOCRWithRetry(testFile, onRetryMock)
 
-      expect(result.customerName).toBe('Empresa Test S.A.')
-      expect(result.productName).toBe('Producto Test')
+      expect(result.cliente).toBe('Empresa Test S.A.')
+      expect(result.producto).toBe('Producto Test')
+      expect(result.turno).toBe('tarde')
       expect(onRetryMock).toHaveBeenCalledTimes(2)
       expect(mockFetch).toHaveBeenCalledTimes(3)
     })
@@ -228,10 +280,10 @@ describe('useOCRConfig', () => {
     })
   })
 
-  describe('mapToOCRData', () => {
-    it('mapea correctamente datos completos del endpoint', () => {
-      // Accedemos a la función interna a través de processOCR
-      // Este test verifica el mapeo indirectamente
+  describe('normalizeTurno functionality', () => {
+    it('mapea correctamente datos completos del endpoint incluyendo normalización', async () => {
+      const { processOCR } = useOCRConfig()
+      
       const mockResponse = {
         success: true,
         productionData: {
@@ -239,7 +291,13 @@ describe('useOCRConfig', () => {
           producto: 'Producto Complete',
           codigoProducto: 'PROD001',
           lote: 'LOT001',
-          fechaFabricacion: '2024-12-01'
+          fechaFabricacion: '2024-12-01',
+          turno: 'TARDE', // En mayúsculas para probar normalización
+          numeroOperario: 'OP001',
+          maquina: 'MAQ001',
+          inspectorCalidad: 'Inspector Test',
+          jefe_de_turno: 'Jefe Test',
+          orden_de_compra: 'OC001'
         }
       }
       
@@ -251,28 +309,31 @@ describe('useOCRConfig', () => {
         }
       })
 
-      const { processOCR } = useOCRConfig()
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      const result = await processOCR(testFile)
       
-      return processOCR(testFile).then(result => {
-        expect(result.customerName).toBe('Empresa Complete S.A.')
-        expect(result.productName).toBe('Producto Complete')
-        expect(result.productCode).toBe('PROD001')
-        expect(result.lotNumber).toBe('LOT001')
-        expect(result.productionDate).toBe('2024-12-01')
-        expect(result.orderNumber).toBeUndefined()
-      })
+      expect(result.cliente).toBe('Empresa Complete S.A.')
+      expect(result.producto).toBe('Producto Complete')
+      expect(result.codigo_producto).toBe('PROD001')
+      expect(result.lote).toBe('LOT001')
+      expect(result.fecha_fabricacion).toBe('2024-12-01')
+      expect(result.turno).toBe('tarde') // Normalizado
+      expect(result.numero_operario).toBe('OP001')
+      expect(result.maquina).toBe('MAQ001')
+      expect(result.inspector_calidad).toBe('Inspector Test')
+      expect(result.jefe_de_turno).toBe('Jefe Test')
+      expect(result.orden_de_compra).toBe('OC001')
     })
 
-    it('maneja correctamente datos parciales del endpoint', () => {
+    it('maneja correctamente datos parciales del endpoint', async () => {
+      const { processOCR } = useOCRConfig()
+      
       const mockResponse = {
         success: true,
         productionData: {
           cliente: 'Solo Cliente',
-          // producto no definido
-          // codigoProducto no definido
-          lote: 'LOT002'
-          // fechaFabricacion no definida
+          lote: 'LOT002',
+          turno: 'mañana'
         }
       }
       
@@ -284,17 +345,20 @@ describe('useOCRConfig', () => {
         }
       })
 
-      const { processOCR } = useOCRConfig()
       const testFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      const result = await processOCR(testFile)
       
-      return processOCR(testFile).then(result => {
-        expect(result.customerName).toBe('Solo Cliente')
-        expect(result.productName).toBeUndefined()
-        expect(result.productCode).toBeUndefined()
-        expect(result.lotNumber).toBe('LOT002')
-        expect(result.productionDate).toBeUndefined()
-        expect(result.orderNumber).toBeUndefined()
-      })
+      expect(result.cliente).toBe('Solo Cliente')
+      expect(result.producto).toBeUndefined()
+      expect(result.codigo_producto).toBeUndefined()
+      expect(result.lote).toBe('LOT002')
+      expect(result.fecha_fabricacion).toBeUndefined()
+      expect(result.turno).toBe('mañana')
+      expect(result.numero_operario).toBeUndefined()
+      expect(result.maquina).toBeUndefined()
+      expect(result.inspector_calidad).toBeUndefined()
+      expect(result.jefe_de_turno).toBeUndefined()
+      expect(result.orden_de_compra).toBeUndefined()
     })
   })
 })

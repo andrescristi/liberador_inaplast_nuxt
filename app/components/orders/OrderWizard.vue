@@ -53,17 +53,21 @@ interface OrderFormData {
   // Step 1
   labelImage: File | null
   labelImagePreview: string
-  boxQuantity: number
+  cantidad_unidades: number
   
-  // Step 2
-  customerCode: string
-  customerName: string
-  productCode: string
-  productName: string
-  productCategory: string
-  expirationDate: string
-  lotNumber: string
-  productionDate: string
+  // Step 2 - Campos requeridos por la API
+  lote?: string
+  cliente: string
+  producto: string
+  pedido: string
+  fecha_fabricacion: string
+  codigo_producto: string
+  turno: string
+  jefe_de_turno?: string
+  orden_de_compra?: string
+  numero_operario: string
+  maquina: string
+  inspector_calidad: string
   
   // Step 3
   packagingTest: boolean
@@ -79,13 +83,18 @@ interface OrderFormData {
 }
 
 interface OCRData {
-  customerName?: string
-  customerCode?: string
-  productName?: string
-  productCode?: string
-  lotNumber?: string
-  expirationDate?: string
-  productionDate?: string
+  cliente?: string
+  producto?: string
+  codigo_producto?: string
+  lote?: string
+  fecha_fabricacion?: string
+  pedido?: string
+  turno?: string
+  numero_operario?: string
+  maquina?: string
+  inspector_calidad?: string
+  jefe_de_turno?: string
+  orden_de_compra?: string
 }
 
 // Composables
@@ -100,17 +109,21 @@ const formData = ref<OrderFormData>({
   // Step 1
   labelImage: null,
   labelImagePreview: '',
-  boxQuantity: 1,
+  cantidad_unidades: 1,
   
-  // Step 2  
-  customerCode: '',
-  customerName: '',
-  productCode: '',
-  productName: '',
-  productCategory: '',
-  expirationDate: '',
-  lotNumber: '',
-  productionDate: '',
+  // Step 2 - Campos requeridos por la API
+  lote: '',
+  cliente: '',
+  producto: '',
+  pedido: '',
+  fecha_fabricacion: '',
+  codigo_producto: '',
+  turno: '',
+  jefe_de_turno: '',
+  orden_de_compra: '',
+  numero_operario: '',
+  maquina: '',
+  inspector_calidad: '',
   
   // Step 3
   packagingTest: false,
@@ -142,32 +155,52 @@ const handleOCRComplete = (ocrData: OCRData) => {
   try {
     let updatedFields = 0
     
-    if (ocrData.customerName) {
-      formData.value.customerName = ocrData.customerName
+    if (ocrData.cliente) {
+      formData.value.cliente = ocrData.cliente
       updatedFields++
     }
-    if (ocrData.productName) {
-      formData.value.productName = ocrData.productName
+    if (ocrData.producto) {
+      formData.value.producto = ocrData.producto
       updatedFields++
     }
-    if (ocrData.lotNumber) {
-      formData.value.lotNumber = ocrData.lotNumber
+    if (ocrData.lote) {
+      formData.value.lote = ocrData.lote
       updatedFields++
     }
-    if (ocrData.expirationDate) {
-      formData.value.expirationDate = ocrData.expirationDate
+    if (ocrData.fecha_fabricacion) {
+      formData.value.fecha_fabricacion = ocrData.fecha_fabricacion
       updatedFields++
     }
-    if (ocrData.customerCode) {
-      formData.value.customerCode = ocrData.customerCode
+    if (ocrData.codigo_producto) {
+      formData.value.codigo_producto = ocrData.codigo_producto
       updatedFields++
     }
-    if (ocrData.productCode) {
-      formData.value.productCode = ocrData.productCode
+    if (ocrData.pedido) {
+      formData.value.pedido = ocrData.pedido
       updatedFields++
     }
-    if (ocrData.productionDate) {
-      formData.value.productionDate = ocrData.productionDate
+    if (ocrData.turno) {
+      formData.value.turno = ocrData.turno
+      updatedFields++
+    }
+    if (ocrData.numero_operario) {
+      formData.value.numero_operario = ocrData.numero_operario
+      updatedFields++
+    }
+    if (ocrData.maquina) {
+      formData.value.maquina = ocrData.maquina
+      updatedFields++
+    }
+    if (ocrData.inspector_calidad) {
+      formData.value.inspector_calidad = ocrData.inspector_calidad
+      updatedFields++
+    }
+    if (ocrData.jefe_de_turno) {
+      formData.value.jefe_de_turno = ocrData.jefe_de_turno
+      updatedFields++
+    }
+    if (ocrData.orden_de_compra) {
+      formData.value.orden_de_compra = ocrData.orden_de_compra
       updatedFields++
     }
     
@@ -188,26 +221,60 @@ const handleSave = async () => {
   isSaving.value = true
   
   try {
-    // TODO: Implementar guardado real con API
-    // const orderData = {
-    //   ...formData.value,
-    //   createdAt: new Date().toISOString(),
-    //   status: formData.value.finalResult
-    // }
-    // const savedOrder = await $fetch('/api/orders', {
-    //   method: 'POST',
-    //   body: orderData
-    // })
-    
-    toast.success('Orden Guardada', 'El liberador de producto se creó exitosamente')
-    await router.push('/orders')
-    
-  } catch (error) {
-    if (error instanceof Error) {
-      toast.error('Error al Guardar', error.message)
-    } else {
-      toast.error('Error Inesperado', 'Ocurrió un error. Por favor, intente nuevamente.')
+    // Preparar datos de la orden según la API
+    const orderData = {
+      // Campos requeridos por la API
+      lote: formData.value.lote,
+      cliente: formData.value.cliente,
+      producto: formData.value.producto,
+      pedido: formData.value.pedido,
+      fecha_fabricacion: formData.value.fecha_fabricacion,
+      codigo_producto: formData.value.codigo_producto,
+      turno: formData.value.turno,
+      cantidad_unidades: formData.value.cantidad_unidades,
+      jefe_de_turno: formData.value.jefe_de_turno,
+      orden_de_compra: formData.value.orden_de_compra,
+      numero_operario: formData.value.numero_operario,
+      maquina: formData.value.maquina,
+      inspector_calidad: formData.value.inspector_calidad,
+      
+      // Mapear resultados de tests a test_results
+      test_results: {
+        1: formData.value.packagingTest,
+        2: formData.value.labelingTest,
+        3: formData.value.sealingTest,
+        4: formData.value.weightTest
+      }
     }
+    
+    // Crear la orden con todos los tests automáticamente
+    const response = await $fetch('/api/orders', {
+      method: 'POST',
+      body: orderData
+    })
+    
+    if (response.success) {
+      toast.success('Orden Guardada', 'Orden creada exitosamente')
+      await router.push('/orders')
+    } else {
+      throw new Error('Error en la respuesta del servidor')
+    }
+    
+  } catch (error: unknown) {
+    // Error al guardar orden
+    
+    let errorMessage = 'Ocurrió un error inesperado'
+    
+    if (error && typeof error === 'object' && 'data' in error && 
+        error.data && typeof error.data === 'object' && 'message' in error.data) {
+      errorMessage = String(error.data.message)
+    } else if (error instanceof Error) {
+      errorMessage = error.message
+    } else if (typeof error === 'string') {
+      errorMessage = error
+    }
+    
+    toast.error('Error al Guardar', errorMessage)
   } finally {
     isSaving.value = false
   }

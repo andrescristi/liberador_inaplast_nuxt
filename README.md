@@ -4,7 +4,24 @@
 
 > 📋 **Proyecto Corporativo Privado** - Sistema interno desarrollado específicamente para las operaciones de control de calidad de Inaplast.
 
-## 🆕 Últimas Mejoras - Refactoring OrderWizardStep1
+## 🆕 Últimas Mejoras - OCR Turno Normalización
+
+### 🎯 Mejoras en OCR y Llenado de Formularios - **v2.8.2**
+- **Normalización de turno**: Función `normalizeTurno()` que mapea valores del OCR a opciones del select
+- **Campos faltantes agregados**: `jefe_de_turno` y `orden_de_compra` ahora se procesan correctamente
+- **Mapeo inteligente**: "Mañana" → "mañana", "TARDE" → "tarde", "Morning" → "mañana", etc.
+- **Compatibilidad multiidioma**: Soporte para términos en español e inglés
+- **Tests comprehensivos**: 28 nuevos tests para normalización y manejo de OCR
+- **Validación robusta**: Manejo de espacios, mayúsculas y valores desconocidos
+- **Logging detallado**: Información completa del proceso de normalización para debugging
+
+#### 🔍 Funcionalidad de Normalización
+```typescript
+// Valores soportados por la normalización
+"Mañana" | "TARDE" | "noche"           → "mañana" | "tarde" | "noche"
+"Morning" | "afternoon" | "Night"     → "mañana" | "tarde" | "noche"  
+"Nocturno" | "  Mañana  "             → "noche" | "mañana"
+```
 
 ### 🔧 Refactoring de Componente OrderWizardStep1 - **v2.8.1**
 - **Corrección de tipos**: Eliminación de variables no utilizadas y propiedades incorrectas

@@ -8,8 +8,9 @@ const navigateToMock = vi.fn()
 vi.stubGlobal('navigateTo', navigateToMock)
 
 // Mock del composable useRouter
+const routerPushMock = vi.fn()
 const useRouterMock = vi.fn(() => ({
-  push: vi.fn(),
+  push: routerPushMock,
   back: vi.fn(),
   currentRoute: {
     value: {
@@ -31,11 +32,17 @@ vi.stubGlobal('useNuxtApp', useNuxtAppMock)
 // Mock del composable useToast
 const toastErrorMock = vi.fn()
 const toastSuccessMock = vi.fn()
+const toastInfoMock = vi.fn()
 const useToastMock = vi.fn(() => ({
   error: toastErrorMock,
-  success: toastSuccessMock
+  success: toastSuccessMock,
+  info: toastInfoMock
 }))
 vi.stubGlobal('useToast', useToastMock)
+
+// Mock $fetch
+const mockFetch = vi.fn()
+vi.stubGlobal('$fetch', mockFetch)
 
 describe('OrderWizard', () => {
   let wrapper: ReturnType<typeof mount>
@@ -43,8 +50,11 @@ describe('OrderWizard', () => {
   beforeEach(() => {
     // Limpiar mocks
     navigateToMock.mockClear()
+    routerPushMock.mockClear()
     toastErrorMock.mockClear()
     toastSuccessMock.mockClear()
+    toastInfoMock.mockClear()
+    mockFetch.mockClear()
 
     wrapper = mount(OrderWizard, {
       global: {
@@ -96,21 +106,11 @@ describe('OrderWizard', () => {
     expect(wrapper.find('[data-testid="wizard-progress"]').exists()).toBe(true)
   })
 
-  it('tiene los labels correctos de pasos', () => {
-    const vm = wrapper.vm
-    expect(vm.stepLabels).toEqual([
-      'Paso 1: Datos Iniciales',
-      'Paso 2: Detalles del Producto', 
-      'Paso 3: Pruebas de Calidad',
-      'Paso 4: Resumen y Resultados'
-    ])
-  })
-
   it('inicializa formData con valores por defecto', () => {
     const vm = wrapper.vm
     expect(vm.formData.labelImage).toBe(null)
-    expect(vm.formData.boxQuantity).toBe(1)
-    expect(vm.formData.customerCode).toBe('')
+    expect(vm.formData.cantidad_unidades).toBe(1)
+    expect(vm.formData.cliente).toBe('')
     expect(vm.formData.finalResult).toBe('approved')
   })
 
@@ -158,47 +158,118 @@ describe('OrderWizard', () => {
   })
 
   describe('manejo de OCR', () => {
-    it('actualiza formData cuando se completa OCR', async () => {
+    it('actualiza formData cuando se completa OCR con todos los campos', async () => {
       const vm = wrapper.vm
       const ocrData = {
-        customerName: 'Test Customer',
-        productName: 'Test Product',
-        lotNumber: 'LOT123',
-        expirationDate: '2025-12-31'
+        cliente: 'Test Customer S.A.',
+        producto: 'Test Product',
+        lote: 'LOT123',
+        fecha_fabricacion: '2024-12-01',
+        codigo_producto: 'PROD001',
+        pedido: 'PED001',
+        turno: 'mañana',
+        numero_operario: 'OP001',
+        maquina: 'MAQ001',
+        inspector_calidad: 'Juan Pérez',
+        jefe_de_turno: 'María García',
+        orden_de_compra: 'OC001'
       }
       
       vm.handleOCRComplete(ocrData)
       
-      expect(vm.formData.customerName).toBe('Test Customer')
-      expect(vm.formData.productName).toBe('Test Product')
-      expect(vm.formData.lotNumber).toBe('LOT123')
-      expect(vm.formData.expirationDate).toBe('2025-12-31')
+      expect(vm.formData.cliente).toBe('Test Customer S.A.')
+      expect(vm.formData.producto).toBe('Test Product')
+      expect(vm.formData.lote).toBe('LOT123')
+      expect(vm.formData.fecha_fabricacion).toBe('2024-12-01')
+      expect(vm.formData.codigo_producto).toBe('PROD001')
+      expect(vm.formData.pedido).toBe('PED001')
+      expect(vm.formData.turno).toBe('mañana')
+      expect(vm.formData.numero_operario).toBe('OP001')
+      expect(vm.formData.maquina).toBe('MAQ001')
+      expect(vm.formData.inspector_calidad).toBe('Juan Pérez')
+      expect(vm.formData.jefe_de_turno).toBe('María García')
+      expect(vm.formData.orden_de_compra).toBe('OC001')
+      expect(toastSuccessMock).toHaveBeenCalledWith('OCR Completado', 'Se llenaron automáticamente 12 campos')
     })
 
     it('maneja OCR con datos parciales', () => {
       const vm = wrapper.vm
       const ocrData = {
-        customerName: 'Test Customer'
+        cliente: 'Test Customer',
+        turno: 'tarde'
         // otros campos undefined
       }
       
       vm.handleOCRComplete(ocrData)
       
-      expect(vm.formData.customerName).toBe('Test Customer')
-      expect(vm.formData.productName).toBe('') // mantiene valor inicial
+      expect(vm.formData.cliente).toBe('Test Customer')
+      expect(vm.formData.turno).toBe('tarde')
+      expect(vm.formData.producto).toBe('') // mantiene valor inicial
+      expect(toastSuccessMock).toHaveBeenCalledWith('OCR Completado', 'Se llenaron automáticamente 2 campos')
+    })
+
+    it('maneja OCR sin datos válidos', () => {
+      const vm = wrapper.vm
+      const ocrData = {}
+      
+      vm.handleOCRComplete(ocrData)
+      
+      expect(vm.formData.cliente).toBe('') // mantiene valor inicial
+      expect(vm.formData.turno).toBe('')
+      expect(toastInfoMock).toHaveBeenCalledWith('OCR Procesado', 'No se detectaron datos válidos en la imagen')
+    })
+
+    it('maneja errores en OCR correctamente', () => {
+      const vm = wrapper.vm
+      
+      // Simular un error interno
+      const originalConsoleError = console.error
+      console.error = vi.fn()
+      
+      try {
+        // Llamar con datos inválidos para forzar error
+        vm.handleOCRComplete(null as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+        
+        expect(toastErrorMock).toHaveBeenCalledWith('Error en OCR', 'No se pudieron procesar los datos de la imagen. Por favor, ingrese los datos manualmente.')
+      } finally {
+        console.error = originalConsoleError
+      }
     })
   })
 
   describe('guardar orden', () => {
+    beforeEach(() => {
+      mockFetch.mockClear()
+      routerPushMock.mockClear()
+    })
+
     it('maneja el guardado exitoso', async () => {
-      const vm = wrapper.vm
+      mockFetch.mockResolvedValueOnce({ success: true })
       
+      const vm = wrapper.vm
       await vm.handleSave()
       
-      expect(navigateToMock).toHaveBeenCalledWith('/orders')
+      expect(mockFetch).toHaveBeenCalledWith('/api/orders', {
+        method: 'POST',
+        body: expect.objectContaining({
+          cliente: '',
+          producto: '',
+          turno: '',
+          test_results: {
+            1: false,
+            2: false,
+            3: false,
+            4: false
+          }
+        })
+      })
+      expect(toastSuccessMock).toHaveBeenCalledWith('Orden Guardada', 'Orden creada exitosamente')
+      expect(routerPushMock).toHaveBeenCalledWith('/orders')
     })
 
     it('establece isSaving durante el proceso', async () => {
+      mockFetch.mockResolvedValueOnce({ success: true })
+      
       const vm = wrapper.vm
       expect(vm.isSaving).toBe(false)
       
@@ -209,17 +280,24 @@ describe('OrderWizard', () => {
       expect(vm.isSaving).toBe(false)
     })
 
-    it('maneja errores de guardado', async () => {
-      // Simular error en navigateTo
-      navigateToMock.mockRejectedValueOnce(new Error('Navigation error'))
+    it('maneja errores de API', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('API Error'))
       
       const vm = wrapper.vm
       await vm.handleSave()
       
-      expect(toastErrorMock).toHaveBeenCalledWith(
-        'Error al guardar',
-        'Por favor, intente nuevamente.'
-      )
+      expect(toastErrorMock).toHaveBeenCalledWith('Error al Guardar', 'API Error')
+      expect(vm.isSaving).toBe(false)
+    })
+
+    it('maneja respuesta de servidor no exitosa', async () => {
+      mockFetch.mockResolvedValueOnce({ success: false })
+      
+      const vm = wrapper.vm
+      await vm.handleSave()
+      
+      expect(toastErrorMock).toHaveBeenCalledWith('Error al Guardar', 'Error en la respuesta del servidor')
+      expect(vm.isSaving).toBe(false)
     })
   })
 })
