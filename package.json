@@ -30,6 +30,7 @@
     "@vueuse/nuxt": "^13.6.0",
     "nuxt": "^4.0.3",
     "pino": "^9.9.0",
+    "sharp": "^0.34.3",
     "tesseract.js": "^6.0.1",
     "vue": "latest",
     "zod": "^3.25.76"

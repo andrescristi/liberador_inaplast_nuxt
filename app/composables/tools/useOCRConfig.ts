@@ -41,7 +41,7 @@ export function useOCRConfig() {
   }
 
   /**
-   * Convierte archivo de imagen a base64
+   * Convierte archivo de imagen a base64 sin compresión (se hace en el servidor)
    */
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {

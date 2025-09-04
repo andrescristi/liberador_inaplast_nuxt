@@ -1,4 +1,5 @@
 import { GoogleGenAI } from '@google/genai'
+import sharp from 'sharp'
 
 interface OCRRequest {
   imageData: string
@@ -15,8 +16,8 @@ interface ProductionData {
   codigoProducto?: string
   turno?: string
   unidades?: string
-  jefeTurno?: string
-  ordenCompra?: string
+  jefe_de_turno?: string
+  orden_de_compra?: string
   numeroOperario?: string
   maquina?: string
   inspectorCalidad?: string
@@ -73,14 +74,88 @@ export default defineEventHandler(async (event): Promise<OCRResponse> => {
       })
     }
 
+    // Función para comprimir imagen usando Sharp
+    const compressImage = async (base64Data: string): Promise<{ data: string, size: number }> => {
+      try {
+        // Convertir base64 a buffer
+        const imageBuffer = Buffer.from(base64Data, 'base64')
+        
+        // Comprimir imagen con Sharp
+        const compressedBuffer = await sharp(imageBuffer)
+          .jpeg({ 
+            quality: 80, 
+            progressive: true,
+            mozjpeg: true 
+          })
+          .resize(1920, 1080, { 
+            fit: 'inside', 
+            withoutEnlargement: true 
+          })
+          .toBuffer()
+
+        // Si la imagen comprimida sigue siendo > 300KB, reducir calidad
+        let finalBuffer = compressedBuffer
+        if (compressedBuffer.length > 300 * 1024) {
+          finalBuffer = await sharp(imageBuffer)
+            .jpeg({ 
+              quality: 60, 
+              progressive: true,
+              mozjpeg: true 
+            })
+            .resize(1280, 720, { 
+              fit: 'inside', 
+              withoutEnlargement: true 
+            })
+            .toBuffer()
+        }
+
+        // Si aún es muy grande, aplicar compresión más agresiva
+        if (finalBuffer.length > 300 * 1024) {
+          finalBuffer = await sharp(imageBuffer)
+            .jpeg({ 
+              quality: 40, 
+              progressive: true,
+              mozjpeg: true 
+            })
+            .resize(800, 600, { 
+              fit: 'inside', 
+              withoutEnlargement: true 
+            })
+            .toBuffer()
+        }
+
+        return {
+          data: finalBuffer.toString('base64'),
+          size: finalBuffer.length
+        }
+      } catch (error) {
+        console.log('Error comprimiendo imagen:', error)
+        // Fallback: devolver imagen original
+        return {
+          data: base64Data,
+          size: Buffer.from(base64Data, 'base64').length
+        }
+      }
+    }
+
+    // Comprimir la imagen recibida
+    const cleanImageData = body.imageData.replace(/^data:image\/[a-z]+;base64,/, '')
+    const originalSize = Buffer.from(cleanImageData, 'base64').length
+    
+    console.log(`Imagen original: ${(originalSize / 1024).toFixed(2)}KB`)
+    
+    const { data: compressedImageData, size: compressedSize } = await compressImage(cleanImageData)
+    
+    console.log(`Imagen comprimida: ${(compressedSize / 1024).toFixed(2)}KB`)
+
     // Inicializar el cliente de Gemini
     const ai = new GoogleGenAI({ apiKey })
 
-    // Crear el objeto Part para la imagen
+    // Crear el objeto Part para la imagen comprimida
     const imagePart = {
       inlineData: {
-        data: body.imageData.replace(/^data:image\/[a-z]+;base64,/, ''), // Remover el prefijo data URL si existe
-        mimeType: body.mimeType,
+        data: compressedImageData,
+        mimeType: 'image/jpeg', // Siempre JPEG después de la compresión
       },
     }
 
@@ -114,8 +189,8 @@ Devuelve el resultado en formato JSON estricto con esta estructura:
     "codigoProducto": "valor encontrado o null",
     "turno": "valor encontrado o null",
     "unidades": "valor encontrado o null",
-    "jefeTurno": "valor encontrado o null",
-    "ordenCompra": "valor encontrado o null",
+    "jefe_de_turno": "valor encontrado o null",
+    "orden_de_compra": "valor encontrado o null",
     "numeroOperario": "valor encontrado o null",
     "maquina": "valor encontrado o null",
     "inspectorCalidad": "valor encontrado o null"
@@ -184,8 +259,8 @@ JSON:
           codigoProducto: parsedData.productionData.codigoProducto || null,
           turno: parsedData.productionData.turno || null,
           unidades: parsedData.productionData.unidades || null,
-          jefeTurno: parsedData.productionData.jefeTurno || null,
-          ordenCompra: parsedData.productionData.ordenCompra || null,
+          jefe_de_turno: parsedData.productionData.jefe_de_turno || null,
+          orden_de_compra: parsedData.productionData.orden_de_compra || null,
           numeroOperario: parsedData.productionData.numeroOperario || null,
           maquina: parsedData.productionData.maquina || null,
           inspectorCalidad: parsedData.productionData.inspectorCalidad || null
