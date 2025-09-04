@@ -4,7 +4,15 @@
 
 > 📋 **Proyecto Corporativo Privado** - Sistema interno desarrollado específicamente para las operaciones de control de calidad de Inaplast.
 
-## 🆕 Últimas Mejoras - Autenticación Híbrida con Tokens
+## 🆕 Últimas Mejoras - Refactoring OrderWizardStep1
+
+### 🔧 Refactoring de Componente OrderWizardStep1 - **v2.8.1**
+- **Corrección de tipos**: Eliminación de variables no utilizadas y propiedades incorrectas
+- **Validación mejorada**: Migración completa a `cantidad_unidades` en lugar de `boxQuantity`
+- **Propiedades OCR corregidas**: Uso correcto de `cliente`, `codigo_producto`, `lote` en lugar de nombres en inglés
+- **Tests comprehensivos**: Nueva suite de tests unitarios con 17 casos de prueba
+- **Logging estructurado**: Información detallada del procesamiento OCR con contexto
+- **Manejo de errores robusto**: Mejor experiencia de usuario con opciones de continuar sin OCR
 
 ### 🔐 Sistema de Autenticación Híbrida - **v2.8.0**
 - **Token-first authentication**: Tokens en localStorage como método primario
@@ -81,7 +89,7 @@ app/                                    # Código fuente principal (srcDir confi
 │   │   └── UserStatsCards.vue         # Cards de métricas
 │   ├── orders/                        # Liberación de productos
 │   │   ├── OrderWizard.vue            # Wizard 4 pasos
-│   │   ├── OrderWizardStep1.vue       # Subida imagen + cantidad
+│   │   ├── OrderWizardStep1.vue       # Subida imagen + cantidad (v2.8.1 refactored)
 │   │   ├── OrderWizardStep2.vue       # Datos producto (OCR)
 │   │   ├── OrderWizardStep3.vue       # Pruebas calidad
 │   │   └── OrderWizardStep4.vue       # Resumen y decisión
@@ -174,6 +182,7 @@ supabase/                              # Database schema y migraciones
 
 tests/                                 # Testing suite completo
 ├── components/                        # Tests componentes Vue
+│   └── orders/OrderWizardStep1.test.ts # Tests refactoring v2.8.1 (17 casos)
 ├── composables/                       # Tests lógica composables
 ├── api/                               # Tests endpoints API
 ├── e2e/                               # Tests end-to-end
