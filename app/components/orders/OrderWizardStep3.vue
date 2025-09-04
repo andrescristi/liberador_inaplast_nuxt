@@ -27,17 +27,36 @@
             <div 
               v-for="test in visualTests" 
               :key="test.id" 
-              class="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200"
+              class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200"
             >
-              <input 
-                :id="`test-${test.id}`"
-                v-model="localData.testResults[test.id]"
-                type="checkbox"
-                class="h-5 w-5 text-blue-600 border-blue-300 rounded focus:ring-blue-500 mt-0.5"
-              >
-              <div class="flex-1">
-                <label :for="`test-${test.id}`" class="text-sm font-medium text-gray-700 block">
-                  👁️ {{ test.name }}
+              <div class="flex items-center space-x-3">
+                <div class="text-blue-600 text-lg">👁️</div>
+                <label :for="`test-${test.id}`" class="text-sm font-medium text-gray-700">
+                  {{ test.name }}
+                </label>
+              </div>
+              
+              <!-- Switch -->
+              <div class="relative inline-block">
+                <input 
+                  :id="`test-${test.id}`"
+                  v-model="localData.testResults[test.id]"
+                  type="checkbox"
+                  class="sr-only"
+                >
+                <label 
+                  :for="`test-${test.id}`" 
+                  class="flex items-center cursor-pointer"
+                >
+                  <div 
+                    class="relative w-11 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out"
+                    :class="localData.testResults[test.id] ? 'bg-blue-600' : 'bg-gray-300'"
+                  >
+                    <div 
+                      class="bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out"
+                      :class="localData.testResults[test.id] ? 'translate-x-5' : 'translate-x-0'"
+                    />
+                  </div>
                 </label>
               </div>
             </div>
@@ -54,17 +73,36 @@
             <div 
               v-for="test in functionalTests" 
               :key="test.id" 
-              class="flex items-start space-x-3 p-3 bg-green-50 rounded-lg border border-green-200"
+              class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200"
             >
-              <input 
-                :id="`test-${test.id}`"
-                v-model="localData.testResults[test.id]"
-                type="checkbox"
-                class="h-5 w-5 text-green-600 border-green-300 rounded focus:ring-green-500 mt-0.5"
-              >
-              <div class="flex-1">
-                <label :for="`test-${test.id}`" class="text-sm font-medium text-gray-700 block">
-                  🔧 {{ test.name }}
+              <div class="flex items-center space-x-3">
+                <div class="text-green-600 text-lg">🔧</div>
+                <label :for="`test-${test.id}`" class="text-sm font-medium text-gray-700">
+                  {{ test.name }}
+                </label>
+              </div>
+              
+              <!-- Switch -->
+              <div class="relative inline-block">
+                <input 
+                  :id="`test-${test.id}`"
+                  v-model="localData.testResults[test.id]"
+                  type="checkbox"
+                  class="sr-only"
+                >
+                <label 
+                  :for="`test-${test.id}`" 
+                  class="flex items-center cursor-pointer"
+                >
+                  <div 
+                    class="relative w-11 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out"
+                    :class="localData.testResults[test.id] ? 'bg-green-600' : 'bg-gray-300'"
+                  >
+                    <div 
+                      class="bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out"
+                      :class="localData.testResults[test.id] ? 'translate-x-5' : 'translate-x-0'"
+                    />
+                  </div>
                 </label>
               </div>
             </div>

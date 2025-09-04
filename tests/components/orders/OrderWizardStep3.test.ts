@@ -241,16 +241,16 @@ describe('OrderWizardStep3', () => {
     })
   })
 
-  describe('interacción con checkboxes', () => {
+  describe('interacción con switches', () => {
     beforeEach(async () => {
       wrapper.vm.tests = mockTests
       wrapper.vm.loading = false
       await wrapper.vm.$nextTick()
     })
 
-    it('actualiza testResults cuando se selecciona un checkbox', async () => {
-      const checkbox = wrapper.find('input[type="checkbox"]')
-      await checkbox.setChecked(true)
+    it('actualiza testResults cuando se activa un switch', async () => {
+      const switchInput = wrapper.find('input[type="checkbox"]')
+      await switchInput.setChecked(true)
       
       expect(wrapper.vm.localData.testResults[1]).toBe(true)
     })
