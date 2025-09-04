@@ -5,7 +5,11 @@
       <p class="text-sm text-indigo-600 mt-1">Registra los resultados de las pruebas realizadas</p>
     </div>
     
-    <div class="p-6 space-y-6">
+    <div v-if="loading" class="p-6 flex justify-center">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+    </div>
+    
+    <div v-else class="p-6 space-y-6">
       <!-- Quality Tests Checklist -->
       <div>
         <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
@@ -13,53 +17,57 @@
           Lista de Verificación de Calidad
         </h3>
         
-        <div class="space-y-4">
-          <div class="flex items-center">
-            <input 
-              id="packaging-test"
-              v-model="localData.packagingTest"
-              type="checkbox"
-              class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+        <!-- Pruebas Visuales -->
+        <div v-if="visualTests.length > 0" class="mb-6">
+          <h4 class="text-base font-semibold text-gray-900 mb-3 flex items-center">
+            <Icon name="bx:show" class="w-5 h-5 mr-2 text-blue-500" />
+            Pruebas Visuales
+          </h4>
+          <div class="space-y-3">
+            <div 
+              v-for="test in visualTests" 
+              :key="test.id" 
+              class="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200"
             >
-            <label for="packaging-test" class="ml-3 text-sm font-medium text-gray-700">
-              ✅ Prueba de Embalaje - Integridad del empaque
-            </label>
+              <input 
+                :id="`test-${test.id}`"
+                v-model="localData.testResults[test.id]"
+                type="checkbox"
+                class="h-5 w-5 text-blue-600 border-blue-300 rounded focus:ring-blue-500 mt-0.5"
+              >
+              <div class="flex-1">
+                <label :for="`test-${test.id}`" class="text-sm font-medium text-gray-700 block">
+                  👁️ {{ test.name }}
+                </label>
+              </div>
+            </div>
           </div>
-          
-          <div class="flex items-center">
-            <input 
-              id="labeling-test"
-              v-model="localData.labelingTest"
-              type="checkbox"
-              class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+        </div>
+
+        <!-- Pruebas Funcionales -->
+        <div v-if="functionalTests.length > 0" class="mb-6">
+          <h4 class="text-base font-semibold text-gray-900 mb-3 flex items-center">
+            <Icon name="bx:cog" class="w-5 h-5 mr-2 text-green-500" />
+            Pruebas Funcionales
+          </h4>
+          <div class="space-y-3">
+            <div 
+              v-for="test in functionalTests" 
+              :key="test.id" 
+              class="flex items-start space-x-3 p-3 bg-green-50 rounded-lg border border-green-200"
             >
-            <label for="labeling-test" class="ml-3 text-sm font-medium text-gray-700">
-              🏷️ Prueba de Etiquetado - Correcta identificación del producto
-            </label>
-          </div>
-          
-          <div class="flex items-center">
-            <input 
-              id="sealing-test"
-              v-model="localData.sealingTest"
-              type="checkbox"
-              class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-            >
-            <label for="sealing-test" class="ml-3 text-sm font-medium text-gray-700">
-              🔒 Prueba de Sellado - Hermeticidad del cierre
-            </label>
-          </div>
-          
-          <div class="flex items-center">
-            <input 
-              id="weight-test"
-              v-model="localData.weightTest"
-              type="checkbox"
-              class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-            >
-            <label for="weight-test" class="ml-3 text-sm font-medium text-gray-700">
-              ⚖️ Prueba de Peso - Conformidad con especificaciones
-            </label>
+              <input 
+                :id="`test-${test.id}`"
+                v-model="localData.testResults[test.id]"
+                type="checkbox"
+                class="h-5 w-5 text-green-600 border-green-300 rounded focus:ring-green-500 mt-0.5"
+              >
+              <div class="flex-1">
+                <label :for="`test-${test.id}`" class="text-sm font-medium text-gray-700 block">
+                  🔧 {{ test.name }}
+                </label>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -84,7 +92,7 @@
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div class="flex justify-between">
             <span class="text-gray-600">Pruebas completadas:</span>
-            <span class="font-medium">{{ completedTests }}/4</span>
+            <span class="font-medium">{{ completedTests }}/{{ totalTests }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-gray-600">Porcentaje de éxito:</span>
@@ -118,29 +126,32 @@
 </template>
 
 <script setup lang="ts">
+import type { Test } from '~/types/tests'
+import { useTestsAPI } from '~/composables/tests/useTestsAPI'
+
 // Define la estructura completa de datos de la orden
 interface OrderData {
-  // Step 1 - Informacion General
-  boxQuantity: number
-  requester: string
-  requestDate: string
-  priority: 'low' | 'medium' | 'high'
+  // Step 1
+  labelImage: File | null
+  labelImagePreview: string
+  cantidad_unidades: number
   
-  // Step 2 - Customer & Product Info
-  customerCode: string
-  customerName: string
-  productCode: string
-  productName: string
-  productCategory: string
-  expirationDate: string
-  lotNumber: string
-  productionDate: string
+  // Step 2 - Campos requeridos por la API
+  lote?: string
+  cliente: string
+  producto: string
+  pedido: string
+  fecha_fabricacion: string
+  codigo_producto: string
+  turno: string
+  jefe_de_turno?: string
+  orden_de_compra?: string
+  numero_operario: string
+  maquina: string
+  inspector_calidad: string
   
   // Step 3 - Quality Tests
-  packagingTest?: boolean
-  labelingTest?: boolean
-  sealingTest?: boolean
-  weightTest?: boolean
+  testResults?: Record<number, boolean>
   qualityNotes?: string
   
   // Step 4 - Final Results
@@ -150,10 +161,7 @@ interface OrderData {
 }
 
 interface StepData {
-  packagingTest: boolean
-  labelingTest: boolean
-  sealingTest: boolean
-  weightTest: boolean
+  testResults: Record<number, boolean>
   qualityNotes: string
 }
 
@@ -169,31 +177,52 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+// Composables
+const { getAllTests } = useTestsAPI()
+
+// State
+const tests = ref<Test[]>([])
+const loading = ref(true)
+
 // Local reactive copy
 const localData = ref<StepData>({
-  packagingTest: props.modelValue.packagingTest || false,
-  labelingTest: props.modelValue.labelingTest || false,
-  sealingTest: props.modelValue.sealingTest || false,
-  weightTest: props.modelValue.weightTest || false,
-  qualityNotes: props.modelValue.qualityNotes || ''
+  testResults: props.modelValue?.testResults || {},
+  qualityNotes: props.modelValue?.qualityNotes || ''
+})
+
+// Load tests on component mount
+onMounted(async () => {
+  try {
+    tests.value = await getAllTests()
+  } catch {
+    // Error loading tests
+  } finally {
+    loading.value = false
+  }
 })
 
 // Watch for changes and emit updates
 watch(localData, (newValue) => {
   emit('update:modelValue', {
-    ...props.modelValue,
+    ...(props.modelValue || {}),
     ...newValue
   })
 }, { deep: true })
 
 // Computed
+const visualTests = computed(() => tests.value?.filter(test => test.type === 'visual') || [])
+
+const functionalTests = computed(() => tests.value?.filter(test => test.type === 'funcional') || [])
+
+const totalTests = computed(() => tests.value?.length || 0)
+
 const completedTests = computed(() => {
-  const tests = [localData.value.packagingTest, localData.value.labelingTest, localData.value.sealingTest, localData.value.weightTest]
-  return tests.filter(Boolean).length
+  return Object.values(localData.value.testResults).filter(Boolean).length
 })
 
 const successRate = computed(() => {
-  return Math.round((completedTests.value / 4) * 100)
+  if (totalTests.value === 0) return 0
+  return Math.round((completedTests.value / totalTests.value) * 100)
 })
 
 const canProceed = computed(() => {
