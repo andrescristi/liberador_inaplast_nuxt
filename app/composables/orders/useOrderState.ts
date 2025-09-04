@@ -3,7 +3,7 @@
  * Centraliza el estado reactivo de órdenes en la aplicación
  */
 
-import type { Order, OrderStatus } from '~/types'
+import type { Order, OrderStatus } from '~/types/orders'
 
 export const useOrderState = () => {
   // Estado global de órdenes
@@ -80,9 +80,10 @@ export const useOrderState = () => {
     if (searchQuery.value.trim()) {
       const query = searchQuery.value.toLowerCase().trim()
       filtered = filtered.filter(order => 
-        order.order_number?.toLowerCase().includes(query) ||
-        order.customer_name?.toLowerCase().includes(query) ||
-        order.part_number?.toLowerCase().includes(query)
+        order.pedido?.toLowerCase().includes(query) ||
+        order.cliente?.toLowerCase().includes(query) ||
+        order.codigo_producto?.toLowerCase().includes(query) ||
+        order.producto?.toLowerCase().includes(query)
       )
     }
     
@@ -95,7 +96,7 @@ export const useOrderState = () => {
     if (customerFilter.value.trim()) {
       const customer = customerFilter.value.toLowerCase().trim()
       filtered = filtered.filter(order => 
-        order.customer_name?.toLowerCase().includes(customer)
+        order.cliente?.toLowerCase().includes(customer)
       )
     }
     
@@ -109,15 +110,17 @@ export const useOrderState = () => {
     const stats = {
       total: orders.value.length,
       pending: 0,
-      in_progress: 0,
+      processing: 0,
       completed: 0,
-      rejected: 0
+      cancelled: 0
     }
     
     orders.value.forEach(order => {
-      const statusKey = order.status as keyof typeof stats
-      if (statusKey in stats) {
-        stats[statusKey]++
+      if (order.status) {
+        const statusKey = order.status as keyof typeof stats
+        if (statusKey in stats) {
+          stats[statusKey]++
+        }
       }
     })
     

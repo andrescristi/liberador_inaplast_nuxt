@@ -21,7 +21,7 @@ interface AuthUserResponse {
  * Maneja estados reactivos de manera más robusta para SSR
  */
 export const useAuthState = () => {
-  const { getAuthHeaders, hasValidToken } = useAuthToken()
+  const { getAuthHeaders, hasValidToken: _hasValidToken } = useAuthToken()
   
   // Use simpler refs that are more predictable in SSR/client transitions
   const user = ref<AuthUser | null>(null)

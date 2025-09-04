@@ -7,7 +7,7 @@ import { ocrValidatedSchema } from './ocr'
 export const orderStep1Schema = z.object({
   labelImage: z.instanceof(File).nullable(),
   labelImagePreview: z.string(),
-  boxQuantity: z.number()
+  cantidad_unidades: z.number()
     .min(1, 'La cantidad debe ser mayor a 0')
     .max(1000, 'La cantidad no puede ser mayor a 1000')
     .int('La cantidad debe ser un número entero'),
@@ -27,8 +27,8 @@ export const newOrderSchema = z.object({
   labelImage: z.instanceof(File).nullable(),
   labelImagePreview: z.string(),
   
-  // Cantidad de cajas
-  boxQuantity: z.number()
+  // Cantidad de unidades
+  cantidad_unidades: z.number()
     .min(1, 'La cantidad debe ser mayor a 0')
     .max(1000, 'La cantidad no puede ser mayor a 1000')
     .int('La cantidad debe ser un número entero'),

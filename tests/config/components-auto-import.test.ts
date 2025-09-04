@@ -38,8 +38,7 @@ describe('Configuración de Auto-importación de Componentes', () => {
       '~/components/core',
       '~/components/feedback',
       '~/components/orders',
-      '~/components/admin',
-      '~/components/muestreo'
+      '~/components/admin'
     ]
     
     expectedPaths.forEach(path => {
@@ -53,7 +52,7 @@ describe('Configuración de Auto-importación de Componentes', () => {
     // Contar ocurrencias de global: true
     const globalTrueMatches = configContent.match(/global: true/g)
     expect(globalTrueMatches).toBeTruthy()
-    expect(globalTrueMatches!.length).toBeGreaterThanOrEqual(7) // 7 directorios configurados
+    expect(globalTrueMatches!.length).toBeGreaterThanOrEqual(6) // 6 directorios configurados
   })
 
   it('mantiene configuración de auto-imports para composables', () => {

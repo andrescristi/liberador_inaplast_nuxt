@@ -20,38 +20,37 @@
         </h3>
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              Número de Lote *
+              Número de Lote
             </label>
             <input 
-              v-model="localData.lotNumber"
+              v-model="localData.lote"
               type="text" 
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Ej: LOT20241201"
-              required
             >
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              Código del Cliente *
+              Nombre del Cliente *
             </label>
             <input 
-              v-model="localData.customerCode"
+              v-model="localData.cliente"
               type="text" 
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Ej: CLI001"
+              placeholder="Ej: Empresa ABC S.A."
               required
             >
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              Nombre del Cliente *
+              Número de Pedido *
             </label>
             <input 
-              v-model="localData.customerName"
+              v-model="localData.pedido"
               type="text" 
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Ej: Empresa ABC S.A."
+              placeholder="Ej: PED-2024-001"
               required
             >
           </div>
@@ -76,7 +75,7 @@
               Código del Producto *
             </label>
             <input 
-              v-model="localData.productCode"
+              v-model="localData.codigo_producto"
               type="text" 
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Ej: PROD001"
@@ -88,7 +87,7 @@
               Nombre del Producto *
             </label>
             <input 
-              v-model="localData.productName"
+              v-model="localData.producto"
               type="text" 
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Ej: Bolsa de plástico 25kg"
@@ -97,25 +96,96 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              Cantidad unidades por embalaje*
+              Turno *
+            </label>
+            <select 
+              v-model="localData.turno"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            >
+              <option value="">Seleccionar turno</option>
+              <option value="mañana">Mañana</option>
+              <option value="tarde">Tarde</option>
+              <option value="noche">Noche</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Fecha de Fabricación *
             </label>
             <input 
-              v-model="localData.units"
-              type="number" 
+              v-model="localData.fecha_fabricacion"
+              type="date" 
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="0"
+              required
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Fields Section -->
+      <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+          <Icon name="bx:cog" class="w-5 h-5 mr-2 text-indigo-500" />
+          Información Adicional
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Número de Operario *
+            </label>
+            <input 
+              v-model="localData.numero_operario"
+              type="text" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Ej: OP001"
               required
             >
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              Fecha de Producción *
+              Máquina *
             </label>
             <input 
-              v-model="localData.productionDate"
-              type="date" 
+              v-model="localData.maquina"
+              type="text" 
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Ej: MAQ001"
               required
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Inspector de Calidad *
+            </label>
+            <input 
+              v-model="localData.inspector_calidad"
+              type="text" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Ej: Juan Pérez"
+              required
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Jefe de Turno
+            </label>
+            <input 
+              v-model="localData.jefe_de_turno"
+              type="text" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Ej: María García"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Orden de Compra
+            </label>
+            <input 
+              v-model="localData.orden_de_compra"
+              type="text" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Ej: OC-2024-001"
             >
           </div>
         </div>
@@ -146,43 +216,51 @@
 <script setup lang="ts">
 // Define la estructura completa de datos de la orden
 interface OrderData {
-  // Step 1 - Informacion General
-  boxQuantity: number
-  requester: string
-  requestDate: string
-  priority: 'low' | 'medium' | 'high'
+  // Step 1
+  labelImage: File | null
+  labelImagePreview: string
+  cantidad_unidades: number
   
-  // Step 2 - Customer & Product Info
-  customerCode: string
-  customerName: string
-  productCode: string
-  productName: string
-  lotNumber: string
-  productionDate: string
-  units: number
+  // Step 2 - Campos requeridos por la API
+  lote?: string
+  cliente: string
+  producto: string
+  pedido: string
+  fecha_fabricacion: string
+  codigo_producto: string
+  turno: string
+  jefe_de_turno?: string
+  orden_de_compra?: string
+  numero_operario: string
+  maquina: string
+  inspector_calidad: string
   
-  // Step 3 - Quality Tests
-  packagingTest?: boolean
-  labelingTest?: boolean
-  sealingTest?: boolean
-  weightTest?: boolean
-  qualityNotes?: string
+  // Step 3
+  packagingTest: boolean
+  labelingTest: boolean
+  sealingTest: boolean
+  weightTest: boolean
+  qualityNotes: string
   
-  // Step 4 - Final Results
-  finalResult?: 'approved' | 'rejected' | 'conditional'
-  rejectionReason?: string
-  recommendations?: string
+  // Step 4
+  finalResult: 'approved' | 'rejected' | 'conditional'
+  rejectionReason: string
+  recommendations: string
 }
 
 interface StepData {
-  customerCode: string
-  customerName: string
-  productCode: string
-  productName: string
-  lotNumber: string
-  productionDate: string
-  units: number
-  
+  lote?: string
+  cliente: string
+  producto: string
+  pedido: string
+  fecha_fabricacion: string
+  codigo_producto: string
+  turno: string
+  jefe_de_turno?: string
+  orden_de_compra?: string
+  numero_operario: string
+  maquina: string
+  inspector_calidad: string
 }
 
 interface Props {
@@ -202,18 +280,23 @@ const hasOCRData = ref(false)
 
 // Local reactive copy
 const localData = ref<StepData>({
-  customerCode: props.modelValue.customerCode || '',
-  customerName: props.modelValue.customerName || '',
-  productCode: props.modelValue.productCode || '',
-  productName: props.modelValue.productName || '',
-  lotNumber: props.modelValue.lotNumber || '',
-  productionDate: props.modelValue.productionDate || '',
-  units: props.modelValue.units || 0
+  lote: props.modelValue.lote || '',
+  cliente: props.modelValue.cliente || '',
+  producto: props.modelValue.producto || '',
+  pedido: props.modelValue.pedido || '',
+  fecha_fabricacion: props.modelValue.fecha_fabricacion || '',
+  codigo_producto: props.modelValue.codigo_producto || '',
+  turno: props.modelValue.turno || '',
+  jefe_de_turno: props.modelValue.jefe_de_turno || '',
+  orden_de_compra: props.modelValue.orden_de_compra || '',
+  numero_operario: props.modelValue.numero_operario || '',
+  maquina: props.modelValue.maquina || '',
+  inspector_calidad: props.modelValue.inspector_calidad || ''
 })
 
 // Check if we have OCR data when component mounts
 onMounted(() => {
-  const hasData = props.modelValue.customerName || props.modelValue.productName || props.modelValue.lotNumber
+  const hasData = props.modelValue.cliente || props.modelValue.producto || props.modelValue.lote
   if (hasData) {
     hasOCRData.value = true
     const toast = useToast()
@@ -233,19 +316,24 @@ watch(localData, (newValue) => {
 watch(() => props.modelValue, (newValue, oldValue) => {
   // Update local data with new values from OCR
   localData.value = {
-    customerCode: newValue.customerCode || '',
-    customerName: newValue.customerName || '',
-    productCode: newValue.productCode || '',
-    productName: newValue.productName || '',
-    lotNumber: newValue.lotNumber || '',
-    productionDate: newValue.productionDate || '',
-    units: newValue.units || 0
+    lote: newValue.lote || '',
+    cliente: newValue.cliente || '',
+    producto: newValue.producto || '',
+    pedido: newValue.pedido || '',
+    fecha_fabricacion: newValue.fecha_fabricacion || '',
+    codigo_producto: newValue.codigo_producto || '',
+    turno: newValue.turno || '',
+    jefe_de_turno: newValue.jefe_de_turno || '',
+    orden_de_compra: newValue.orden_de_compra || '',
+    numero_operario: newValue.numero_operario || '',
+    maquina: newValue.maquina || '',
+    inspector_calidad: newValue.inspector_calidad || ''
   }
   
   // Show toast notification if new OCR data arrives
-  const hasNewData = (newValue.customerName && !oldValue?.customerName) || 
-                     (newValue.productName && !oldValue?.productName) ||
-                     (newValue.lotNumber && !oldValue?.lotNumber)
+  const hasNewData = (newValue.cliente && !oldValue?.cliente) || 
+                     (newValue.producto && !oldValue?.producto) ||
+                     (newValue.lote && !oldValue?.lote)
   
   if (hasNewData && !hasOCRData.value) {
     hasOCRData.value = true
@@ -256,12 +344,15 @@ watch(() => props.modelValue, (newValue, oldValue) => {
 
 // Computed
 const canProceed = computed(() => {
-  return localData.value.customerCode && 
-         localData.value.customerName && 
-         localData.value.productCode && 
-         localData.value.productName &&
-         localData.value.lotNumber &&
-         localData.value.productionDate
+  return localData.value.cliente && 
+         localData.value.producto && 
+         localData.value.pedido && 
+         localData.value.codigo_producto &&
+         localData.value.fecha_fabricacion &&
+         localData.value.turno &&
+         localData.value.numero_operario &&
+         localData.value.maquina &&
+         localData.value.inspector_calidad
 })
 
 // Methods

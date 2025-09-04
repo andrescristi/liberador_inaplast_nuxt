@@ -107,7 +107,6 @@ describe('Auto-import Configuration Fixes', () => {
       expect(composablesIndex).toContain(`export * from './ui'`)
       expect(composablesIndex).toContain(`export * from './admin'`)
       expect(composablesIndex).toContain(`export * from './orders'`)
-      expect(composablesIndex).toContain(`export * from './muestreo'`)
       expect(composablesIndex).toContain(`export * from './dashboard'`)
     })
 
@@ -234,7 +233,6 @@ describe('Auto-import Resolution Verification', () => {
         '~/components/feedback',
         '~/components/orders',
         '~/components/admin',
-        '~/components/muestreo'
       ]
       
       componentPaths.forEach(componentPath => {

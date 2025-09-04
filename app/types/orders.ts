@@ -41,22 +41,41 @@ export interface Product {
 }
 
 /**
- * Orden principal
+ * Orden principal - actualizada para coincidir con la API
  */
 export interface Order {
   id: string
-  customer_id: string
-  status: OrderStatus
-  total_amount: number
-  order_date: string
+  lote?: string
+  cliente: string
+  producto: string
+  pedido: string
+  fecha_fabricacion: string
+  codigo_producto: string
+  turno: string
+  cantidad_unidades: number
+  jefe_de_turno?: string
+  orden_de_compra?: string
+  numero_operario: string
+  maquina: string
+  inspector_calidad: string
+  status?: OrderStatus
+  created_at?: string
+  updated_at?: string
+  tests?: OrderTest[]
+}
+
+/**
+ * Test de una orden
+ */
+export interface OrderTest {
+  id: string
+  aprobado: boolean
   created_at: string
-  updated_at: string
-  customer?: Customer // Optional populated field
-  order_items?: OrderItem[] // Optional populated field
-  // Campos adicionales para búsqueda y display
-  order_number?: string
-  customer_name?: string
-  part_number?: string
+  tests?: {
+    id: number
+    name: string
+    type: string
+  }
 }
 
 /**
@@ -77,28 +96,44 @@ export interface OrderItem {
 // ============================================================================
 
 /**
- * Formulario para crear una nueva orden
+ * Formulario para crear una nueva orden - actualizado
  */
 export interface CreateOrderForm {
-  customer_id: string
-  items: {
-    product_id: string
-    quantity: number
-    unit_price: number
-  }[]
+  lote?: string
+  cliente: string
+  producto: string
+  pedido: string
+  fecha_fabricacion: string
+  codigo_producto: string
+  turno: string
+  cantidad_unidades: number
+  jefe_de_turno?: string
+  orden_de_compra?: string
+  numero_operario: string
+  maquina: string
+  inspector_calidad: string
+  test_results?: { [testId: number]: boolean }
 }
 
 /**
- * Formulario para actualizar una orden existente
+ * Formulario para actualizar una orden existente - actualizado
  */
 export interface UpdateOrderForm {
+  lote?: string
+  cliente?: string
+  producto?: string
+  pedido?: string
+  fecha_fabricacion?: string
+  codigo_producto?: string
+  turno?: string
+  cantidad_unidades?: number
+  jefe_de_turno?: string
+  orden_de_compra?: string
+  numero_operario?: string
+  maquina?: string
+  inspector_calidad?: string
   status?: OrderStatus
-  customer_id?: string
-  items?: {
-    product_id: string
-    quantity: number
-    unit_price: number
-  }[]
+  test_results?: { [testId: number]: boolean }
 }
 
 /**
@@ -126,14 +161,15 @@ export interface CreateProductForm {
 // ============================================================================
 
 /**
- * Filtros para búsqueda de órdenes
+ * Filtros para búsqueda de órdenes - actualizado
  */
 export interface OrderFilters {
   status?: OrderStatus
-  customer_id?: string
-  customer?: string
-  date_from?: string
-  date_to?: string
+  cliente?: string
+  producto?: string
+  turno?: string
+  fecha_from?: string
+  fecha_to?: string
   search?: string
 }
 
@@ -155,6 +191,22 @@ export interface ProductFilters {
 // ============================================================================
 // TIPOS AUXILIARES
 // ============================================================================
+
+/**
+ * Respuesta paginada para APIs
+ */
+export interface PaginatedResponse<T> {
+  success: boolean
+  data: T[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+  }
+}
 
 /**
  * Item para timeline de estado de orden

@@ -386,7 +386,7 @@ const handleLogin = async () => {
   console.log('Starting login process...')
 
   try {
-    const result = await auth.signIn(formState.email.trim(), formState.password)
+    const _result = await auth.signIn(formState.email.trim(), formState.password)
     
     // Success toast
     toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente')

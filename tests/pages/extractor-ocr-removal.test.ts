@@ -125,12 +125,12 @@ describe('Verificación de eliminación de extractor-ocr.vue', () => {
       expect(existsSync(join(projectRoot, 'app/composables/useOCRConfig.ts'))).toBe(true)
     })
 
-    it('debería verificar que las dependencias OCR siguen en package.json', () => {
+    it('debería verificar que las dependencias OCR correctas están en package.json', () => {
       const packageJsonPath = join(projectRoot, 'package.json')
       expect(existsSync(packageJsonPath)).toBe(true)
       
-      // En una implementación completa, verificaríamos que tesseract.js
-      // y @google/genai siguen en las dependencias
+      // En una implementación completa, verificaríamos que @google/genai
+      // está en las dependencias (tesseract.js fue eliminado)
       expect(true).toBe(true) // Test placeholder
     })
   })
