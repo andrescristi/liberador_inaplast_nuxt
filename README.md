@@ -6,6 +6,25 @@
 
 ## 🆕 Últimas Mejoras - OrderWizardStep3 UI/UX Enhancement
 
+### 🎛️ Controles Switch Modernos - **v2.8.4**
+- **Switches animados**: Reemplazo de checkboxes tradicionales por controles switch modernos
+- **Animaciones fluidas**: Transiciones suaves con CSS transforms y TailwindCSS
+- **Etiquetado inteligente**: Los nombres de cada test aparecen en labels clickeables
+- **Código de colores**: Switches azules para pruebas visuales, verdes para funcionales
+- **Accesibilidad mejorada**: Doble label por input (nombre del test + control switch)
+- **Tests actualizados**: 36 tests unitarios que incluyen validación específica de switches
+- **Estados visuales claros**: Estados activo/inactivo diferenciados con colores y posición
+
+#### 🔄 Implementación de Switches
+```vue
+<!-- Switch con animación completa -->
+<div class="relative w-11 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out"
+     :class="localData.testResults[test.id] ? 'bg-blue-600' : 'bg-gray-300'">
+  <div class="bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out"
+       :class="localData.testResults[test.id] ? 'translate-x-5' : 'translate-x-0'" />
+</div>
+```
+
 ### 🎨 Mejora de UX en Paso 3: Pruebas de Calidad - **v2.8.3**
 - **Agrupación inteligente**: Las pruebas ahora se organizan por tipo (Visual y Funcional)
 - **Diseño diferenciado**: Fondos azules para pruebas visuales, verdes para funcionales
