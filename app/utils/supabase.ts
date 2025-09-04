@@ -13,10 +13,17 @@ import type {
   CustomerFilters,
   ProductFilters,
   PaginatedResponse,
-  DashboardMetrics,
   OrderStatus
-} from '~/types'
+} from '~/types/orders'
 import type { Database } from '../../types/database.types'
+
+interface DashboardMetrics {
+  pending_orders: number
+  completed_orders: number
+  cancelled_orders: number
+  current_month_revenue: number
+  current_week_revenue: number
+}
 
 // Database query utilities
 export class SupabaseAPI {
@@ -76,11 +83,16 @@ export class SupabaseAPI {
     // const totalCount = orders[0]?.total_count || 0
 
     return {
+      success: true,
       data: [],
-      total: 0,
-      page: 1,
-      per_page: 20,
-      total_pages: 0
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false
+      }
     }
   }
 
@@ -112,20 +124,27 @@ export class SupabaseAPI {
     
     throw new Error('Customers table not implemented')
 
-    // Calculate total
-    const totalAmount = orderData.items.reduce(
-      (sum, item) => sum + (item.quantity * item.unit_price), 
-      0
-    )
+    // Calculate total - remove items since new structure doesn't have them
+    // const totalAmount = orderData.cantidad_unidades * 100 // placeholder calculation - not used
 
     // Start transaction
     const { data: order, error: orderError } = await this.client
       .from('orders')
       .insert({
-        customer_id: orderData.customer_id,
-        status: 'pending',
-        total_amount: totalAmount
-      })
+        cliente: orderData.cliente,
+        producto: orderData.producto,
+        pedido: orderData.pedido,
+        fecha_fabricacion: orderData.fecha_fabricacion,
+        codigo_producto: orderData.codigo_producto,
+        turno: orderData.turno,
+        cantidad_unidades: orderData.cantidad_unidades,
+        numero_operario: orderData.numero_operario,
+        maquina: orderData.maquina,
+        inspector_calidad: orderData.inspector_calidad,
+        lote: orderData.lote,
+        jefe_de_turno: orderData.jefe_de_turno,
+        orden_de_compra: orderData.orden_de_compra
+      } as Database['public']['Tables']['orders']['Insert'])
       .select()
       .single()
 
@@ -163,13 +182,22 @@ export class SupabaseAPI {
 
     return {
       id: validOrder.id!,
-      customer_id: validOrder.customer_id!,
-      status: (validOrder.status || 'pending') as OrderStatus,
-      total_amount: totalAmount,
-      order_date: validOrder.order_date || new Date().toISOString(),
+      cliente: orderData.cliente,
+      producto: orderData.producto,
+      pedido: orderData.pedido,
+      fecha_fabricacion: orderData.fecha_fabricacion,
+      codigo_producto: orderData.codigo_producto,
+      turno: orderData.turno,
+      cantidad_unidades: orderData.cantidad_unidades,
+      numero_operario: orderData.numero_operario,
+      maquina: orderData.maquina,
+      inspector_calidad: orderData.inspector_calidad,
+      lote: orderData.lote,
+      jefe_de_turno: orderData.jefe_de_turno,
+      orden_de_compra: orderData.orden_de_compra,
+      status: 'pending' as OrderStatus,
       created_at: validOrder.created_at || new Date().toISOString(),
       updated_at: validOrder.updated_at || new Date().toISOString()
-      // customer,  // TODO: uncomment when customers table is implemented
     }
   }
 
@@ -220,11 +248,16 @@ export class SupabaseAPI {
     // const totalCount = customers[0]?.total_count || 0
 
     return {
+      success: true,
       data: [],
-      total: 0,
-      page: 1,
-      per_page: 20,
-      total_pages: 0
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false
+      }
     }
   }
 
@@ -302,11 +335,16 @@ export class SupabaseAPI {
     // const totalCount = products[0]?.total_count || 0
 
     return {
+      success: true,
       data: [],
-      total: 0,
-      page: 1,
-      per_page: 20,
-      total_pages: 0
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false
+      }
     }
   }
 

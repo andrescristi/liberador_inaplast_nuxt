@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Order, OrderFilters, OrderStatus, CreateOrderForm } from '~/types'
+import type { Order, OrderFilters, OrderStatus, CreateOrderForm } from '~/types/orders'
 import { supabaseAPI } from '~/utils/supabase'
 
 interface OrdersState {
@@ -33,13 +33,13 @@ export const useOrdersStore = defineStore('orders', {
 
   getters: {
     ordersWithCustomers(): Order[] {
-      return this.orders.filter(order => order.customer)
+      return this.orders.filter(order => order.cliente)
     },
     
     recentOrders(): Order[] {
       return this.orders
         .slice()
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .sort((a, b) => new Date(b.created_at || new Date()).getTime() - new Date(a.created_at || new Date()).getTime())
         .slice(0, 10)
     },
 
@@ -58,10 +58,10 @@ export const useOrdersStore = defineStore('orders', {
         
         this.orders = response.data
         this.pagination = {
-          page: response.page,
-          per_page: response.per_page,
-          total: response.total,
-          total_pages: response.total_pages
+          page: response.pagination.page,
+          per_page: response.pagination.limit,
+          total: response.pagination.total,
+          total_pages: response.pagination.totalPages
         }
         this.filters = filters
       } catch (error) {
@@ -90,9 +90,17 @@ export const useOrdersStore = defineStore('orders', {
       this.error = null
       
       try {
-        const newOrder = await supabaseAPI.createOrder(orderData)
-        this.orders.unshift(newOrder)
-        return newOrder
+        const response = await $fetch<{success: boolean, data: Order}>('/api/orders', {
+          method: 'POST',
+          body: orderData
+        })
+        
+        if (response.success && response.data) {
+          this.orders.unshift(response.data)
+          return response.data
+        } else {
+          throw new Error('Error en la respuesta del servidor')
+        }
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Failed to create order'
         throw error

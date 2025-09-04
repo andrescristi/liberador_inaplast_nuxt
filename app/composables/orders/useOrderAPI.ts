@@ -3,7 +3,7 @@
  * Centraliza todas las llamadas HTTP relacionadas con órdenes
  */
 
-import type { Order, CreateOrderForm, UpdateOrderForm, OrderFilters, PaginatedResponse } from '~/types'
+import type { Order, CreateOrderForm, UpdateOrderForm, OrderFilters, PaginatedResponse } from '~/types/orders'
 
 export const useOrderAPI = () => {
   const toast = useToast()
@@ -22,10 +22,12 @@ export const useOrderAPI = () => {
         page: page.toString(),
         limit: limit.toString(),
         ...(filters.status && { status: filters.status }),
-        ...(filters.customer && { customer: filters.customer }),
+        ...(filters.cliente && { cliente: filters.cliente }),
+        ...(filters.producto && { producto: filters.producto }),
+        ...(filters.turno && { turno: filters.turno }),
         ...(filters.search && { search: filters.search }),
-        ...(filters.date_from && { date_from: filters.date_from }),
-        ...(filters.date_to && { date_to: filters.date_to })
+        ...(filters.fecha_from && { fecha_from: filters.fecha_from }),
+        ...(filters.fecha_to && { fecha_to: filters.fecha_to })
       })
       
       const response = await $fetch<PaginatedResponse<Order>>(`/api/orders?${params}`)
@@ -61,14 +63,24 @@ export const useOrderAPI = () => {
         body: orderData
       })
       
-      // Actualizar estado local
-      addOrder(response)
-      toast.success('Éxito', 'Orden creada correctamente')
-      
-      return response
+      if (response.success) {
+        // Actualizar estado local con la orden creada
+        if (response.data) {
+          addOrder(response.data)
+        }
+        toast.success('Éxito', response.data?.message || 'Orden creada correctamente')
+        return response.data
+      } else {
+        throw new Error('Error en la respuesta del servidor')
+      }
       
     } catch (error) {
-      toast.error('Error', 'No se pudo crear la orden')
+      let errorMessage = 'No se pudo crear la orden'
+      if (error && typeof error === 'object' && 'data' in error && 
+          error.data && typeof error.data === 'object' && 'message' in error.data) {
+        errorMessage = String(error.data.message)
+      }
+      toast.error('Error', errorMessage)
       throw error
     }
   }
@@ -100,7 +112,8 @@ export const useOrderAPI = () => {
    */
   const deleteOrder = async (orderId: string): Promise<void> => {
     try {
-      await $fetch(`/api/orders/${orderId}`, {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await ($fetch as any)(`/api/orders/${orderId}`, {
         method: 'DELETE'
       })
       
