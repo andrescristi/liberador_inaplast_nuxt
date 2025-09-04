@@ -4,7 +4,29 @@
 
 > 📋 **Proyecto Corporativo Privado** - Sistema interno desarrollado específicamente para las operaciones de control de calidad de Inaplast.
 
-## 🆕 Últimas Mejoras - OrderWizardStep3 UI/UX Enhancement
+## 🆕 Últimas Mejoras - Compresión de Imágenes OCR Server-Side
+
+### 🖼️ Optimización de Compresión OCR - **v2.8.5**
+- **Compresión server-side con Sharp**: Migración de compresión client-side (Canvas) a server-side profesional
+- **Algoritmo de compresión adaptativo**: Compresión en 3 niveles hasta alcanzar <300KB garantizado
+- **Optimización Sharp**: JPEG con mozjpeg, progressive loading y fit inteligente
+- **Eliminación client-side**: Removida compresión en navegador para mejor rendimiento móvil
+- **Tests comprehensivos**: Nueva suite de tests para funcionalidad de compresión server-side
+- **Configuración automática**: Calidad y dimensiones ajustadas según tamaño final objetivo
+
+#### 🔧 Algoritmo de Compresión Implementado
+```typescript
+// Compresión inteligente en 3 niveles
+Nivel 1: 1920x1080, calidad 80% + mozjpeg
+Nivel 2: 1280x720, calidad 60% (si >300KB)
+Nivel 3: 800x600, calidad 40% (si aún >300KB)
+
+// Optimizaciones Sharp avanzadas
+progressive: true        // Carga progresiva
+mozjpeg: true           // Compresión superior
+fit: 'inside'           // Mantiene proporciones
+withoutEnlargement: true // No agranda imágenes pequeñas
+```
 
 ### 🎛️ Controles Switch Modernos - **v2.8.4**
 - **Switches animados**: Reemplazo de checkboxes tradicionales por controles switch modernos
@@ -117,6 +139,7 @@ Zod: "^3.25.76"                            // Schema validation runtime
 // AI & OCR Processing
 Google GenAI: "@google/genai 1.15.0"       // Integración Gemini AI
 Tesseract: "tesseract.js 6.0.1"            // OCR local en navegador
+Sharp: "^0.34.3"                            // Compresión de imágenes server-side
 
 // Developer Experience
 VueUse: "@vueuse/nuxt 13.6.0"              // Utilidades Vue composables
@@ -172,7 +195,7 @@ app/                                    # Código fuente principal (srcDir confi
 │   ├── tools/                         # Utilidades reutilizables
 │   │   ├── useDebounce.ts             # Debounce para búsquedas
 │   │   ├── useImageCompression.ts     # Compresión de imágenes
-│   │   └── useOCRConfig.ts            # Configuración OCR
+│   │   └── useOCRConfig.ts            # Configuración OCR (v2.8.5 sin compresión client-side)
 │   └── ui/                            # Utilidades UI
 │       ├── useModalForm.ts            # Formularios en modales
 │       └── useToast.ts                # Notificaciones toast
@@ -224,7 +247,7 @@ server/                                 # Backend API (Nitro)
 │   │   ├── [id].delete.ts             # DELETE /api/admin/users/[id]
 │   │   ├── [id]/reset-password.post.ts # Reset password admin
 │   │   └── stats.get.ts               # GET estadísticas usuarios
-│   ├── ocr/extract.post.ts            # POST procesamiento OCR+AI
+│   ├── ocr/extract.post.ts            # POST procesamiento OCR+AI (v2.8.5 con compresión Sharp)
 │   ├── dashboard/metrics.get.ts       # GET métricas dashboard
 │   └── profiles/current.get.ts        # GET perfil actual
 └── utils/auth.ts                      # Utilidades autenticación
@@ -243,7 +266,9 @@ tests/                                 # Testing suite completo
 │       ├── OrderWizardStep1.test.ts   # Tests refactoring v2.8.1 (17 casos)
 │       └── OrderWizardStep3.test.ts   # Tests agrupación UX v2.8.3 (28 casos)
 ├── composables/                       # Tests lógica composables
+│   └── useOCRConfig.test.ts           # Tests OCR v2.8.5 (18 casos actualizados)
 ├── api/                               # Tests endpoints API
+│   └── ocr/image-compression.test.ts  # Tests compresión Sharp v2.8.5 (6 casos nuevos)
 ├── e2e/                               # Tests end-to-end
 ├── security/                          # Tests de seguridad
 └── setup.ts                           # Configuración tests

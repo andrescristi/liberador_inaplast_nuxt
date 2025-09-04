@@ -32,33 +32,40 @@
 - **pnpm**: Preferred package manager
 
 ## AGENTS
-Use the available agents whenever you can.
+- Use the available agents whenever you can.
 
 ## DOCUMENTATION
-Whenever you need to use documentation, use context7 mcp to extract the most up to date docs.
+- Whenever you need to use documentation, use context7 mcp to extract the most up to date docs.
 
 ## MCP
-Use all available MCP servers and tools.
+- Use all available MCP servers and tools.
 
 
 ## PLAYWRIGHT
-Whenever you need to take an screenshot, save it in the screenshot folder, in the project's root path  
+- Whenever you need to take an screenshot, save it in the screenshot folder, in the project's root path  
 
 ## COMMANDS
-Always use pnpm instead of npm. Example: Bash(pnpm run lint)
+- Always use pnpm instead of npm. Example: Bash(pnpm run lint)
 
 ## CHANGES
-Whenever you make changes to the codebase, use lint and tsc to check if there are any problems with the code. Always use Bash(npx tsc --noEmit) instead of typecheck. After doing this, you must run Bash(pnpm build)
+- Whenever you make changes to the codebase, use lint and tsc to check if there are any problems with the code. Always use Bash(npx tsc --noEmit) instead of typecheck. After doing this, you must run Bash(pnpm build)
 
 ## DEBUGGING
-Whenever you create an special file for debugging purposes and solve the issue, remember to delete the debugging file.
+- Whenever you create an special file for debugging purposes and solve the issue, remember to delete the debugging file.
 To debug features, use the playwright mcp.
+- Whenever you make debugging in vercel, prefer using console loging rather than reading vercel logs, due to that reviewing vercel logs uses too much tokens.
+
 
 ## LANGUAGE
 All messages to the user and errors must be in spanish
 - All labels and messages shall be in spanish
 
 
-
+## LICENSE
 - This is not an open source project. It is a private project for an industrial Company
-- Cuando realices debuguing en vercel privilegia hacer logging en la consola en vez de consultar los logs, ya que revisar los logs de vercel consume muchos tokens
+
+## README.md
+- README.md should be an introduction to the project, made for a new developer. Don't use it to explain last changes, use it for explaining the project's to the new developer. For doing this, use agents.
+
+## CREDENTIALS
+- Whenever you need credentials to log in to the sistem, check the .env file
