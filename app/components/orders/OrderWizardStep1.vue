@@ -19,7 +19,7 @@
           📦 Cantidad de unidades embalajes a analizar (cajas, bolsas, etc) *
         </label>
         <input 
-          v-model.number="boxQuantity"
+          v-model.number="localData.cantidad_unidades"
           type="number" 
           min="1" 
           max="1000"
@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { orderStep1Schema as stepDataSchema, type OrderStep1Data as StepData, type NewOrderData as OrderData } from '~/schemas/orders/new_order'
+import { orderStep1Schema as stepDataSchema, type NewOrderData as OrderData } from '~/schemas/orders/new_order'
 import type { OCRData } from '~/schemas/orders/ocr'
 import { useField, useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -80,37 +80,38 @@ const toast = useToast()
 const logger = useLogger('OrderWizardStep1')
 
 // Configuración de validación con vee-validate y Zod
-const validationSchema = toTypedSchema(stepDataSchema.pick({ boxQuantity: true }))
+const validationSchema = toTypedSchema(stepDataSchema.pick({ cantidad_unidades: true }))
 
-const { handleSubmit, errors, values } = useForm({
+const { handleSubmit, errors } = useForm({
   validationSchema,
   initialValues: {
-    boxQuantity: props.modelValue.boxQuantity || 1
+    cantidad_unidades: props.modelValue.cantidad_unidades || 1
   }
 })
 
 // Campos individuales para mejor control
-const { value: boxQuantity, errorMessage: boxQuantityError } = useField('boxQuantity')
+const { errorMessage: boxQuantityError } = useField('cantidad_unidades')
 
 // Local reactive copy para datos no validados por el esquema
-const localData = ref<Omit<StepData, 'boxQuantity'>>({
+const localData = ref({
   labelImage: props.modelValue.labelImage,
-  labelImagePreview: props.modelValue.labelImagePreview
+  labelImagePreview: props.modelValue.labelImagePreview,
+  cantidad_unidades: props.modelValue.cantidad_unidades || 1
 })
 
 // Watch para sincronizar cambios
-watch([localData, values], ([localValue, formValues]) => {
+watch(localData, (localValue) => {
   emit('update:modelValue', {
     ...props.modelValue,
     ...localValue,
-    boxQuantity: formValues.boxQuantity || 1
+    cantidad_unidades: localValue.cantidad_unidades || 1
   })
 }, { deep: true })
 
 // Computed
 const canProceed = computed(() => {
   return localData.value.labelImage && 
-         (values.boxQuantity || 0) > 0 && 
+         (localData.value.cantidad_unidades || 0) > 0 && 
          Object.keys(errors.value).length === 0
 })
 
@@ -201,9 +202,9 @@ const processImageOCR = async () => {
     emit('ocr-complete', extractedData)
     
     logger.info('Datos OCR extraídos', {
-      customerName: extractedData.customerName,
-      productCode: extractedData.productCode,
-      lotNumber: extractedData.lotNumber
+      cliente: extractedData.cliente,
+      codigo_producto: extractedData.codigo_producto,
+      lote: extractedData.lote
     })
     
   } catch (error) {
