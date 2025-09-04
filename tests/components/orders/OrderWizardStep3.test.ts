@@ -264,6 +264,129 @@ describe('OrderWizardStep3', () => {
     })
   })
 
+  describe('switches UI específicos', () => {
+    beforeEach(async () => {
+      wrapper.vm.tests = mockTests
+      wrapper.vm.loading = false
+      await wrapper.vm.$nextTick()
+    })
+
+    it('renderiza switches con estructura correcta', async () => {
+      await wrapper.vm.$nextTick()
+      
+      // Verificar que los inputs están ocultos (sr-only)
+      const hiddenInputs = wrapper.findAll('input.sr-only')
+      expect(hiddenInputs.length).toBeGreaterThan(0)
+      
+      // Verificar que existen los contenedores de switches
+      const switchContainers = wrapper.findAll('.relative.w-11.h-6')
+      expect(switchContainers.length).toBeGreaterThan(0)
+    })
+
+    it('aplica clases condicionales correctas para switches visuales', async () => {
+      // Activar un test visual
+      wrapper.vm.localData.testResults = { 1: true }
+      await wrapper.vm.$nextTick()
+      
+      // Buscar switches en contenedores de pruebas visuales
+      const visualContainers = wrapper.findAll('.bg-blue-50')
+      expect(visualContainers.length).toBeGreaterThan(0)
+      
+      // Verificar que hay elementos con clases de switches activos azules
+      const activeElements = wrapper.findAll('.bg-blue-600')
+      expect(activeElements.length).toBeGreaterThan(0)
+    })
+
+    it('aplica clases condicionales correctas para switches funcionales', async () => {
+      // Activar un test funcional
+      wrapper.vm.localData.testResults = { 3: true }
+      await wrapper.vm.$nextTick()
+      
+      // Buscar switches en contenedores de pruebas funcionales
+      const functionalContainers = wrapper.findAll('.bg-green-50')
+      expect(functionalContainers.length).toBeGreaterThan(0)
+      
+      // Verificar que hay elementos con clases de switches activos verdes
+      const activeElements = wrapper.findAll('.bg-green-600')
+      expect(activeElements.length).toBeGreaterThan(0)
+    })
+
+    it('muestra switches en estado inactivo por defecto', async () => {
+      await wrapper.vm.$nextTick()
+      
+      // Verificar que hay switches con fondo gris (estado inactivo)
+      const inactiveSwitches = wrapper.findAll('.bg-gray-300')
+      expect(inactiveSwitches.length).toBeGreaterThan(0)
+      
+      // Verificar que los botones están en posición izquierda (translate-x-0)
+      const leftPositionButtons = wrapper.findAll('.translate-x-0')
+      expect(leftPositionButtons.length).toBeGreaterThan(0)
+    })
+
+    it('muestra switches en estado activo cuando están marcados', async () => {
+      // Activar algunos tests
+      wrapper.vm.localData.testResults = { 1: true, 3: true }
+      await wrapper.vm.$nextTick()
+      
+      // Verificar que los botones están en posición derecha (translate-x-5)
+      const rightPositionButtons = wrapper.findAll('.translate-x-5')
+      expect(rightPositionButtons.length).toBe(2) // Dos tests activados
+    })
+
+    it('mantiene la accesibilidad con labels clickeables', async () => {
+      await wrapper.vm.$nextTick()
+      
+      // Verificar que todos los inputs tienen IDs únicos y labels correspondientes
+      const inputs = wrapper.findAll('input[type="checkbox"]')
+      const allLabels = wrapper.findAll('label[for^="test-"]') // Todos los labels de switches
+      
+      // Debe haber exactamente 2 labels por cada input (nombre del test + switch)
+      expect(allLabels.length).toBe(inputs.length * 2)
+      
+      // Verificar que cada input tiene al menos un label correspondiente
+      inputs.forEach((input) => {
+        const inputId = input.attributes('id')
+        const matchingLabels = allLabels.filter(label => 
+          label.attributes('for') === inputId
+        )
+        expect(matchingLabels.length).toBe(2) // Un label para el nombre, otro para el switch
+      })
+    })
+
+    it('muestra nombres de tests en los labels', async () => {
+      await wrapper.vm.$nextTick()
+      
+      const labels = wrapper.findAll('label')
+      const testNames = mockTests.map(test => test.name)
+      
+      // Verificar que al menos algunos nombres de tests aparecen en los labels
+      const labelsWithTestNames = labels.filter(label => 
+        testNames.some(name => label.text().includes(name))
+      )
+      
+      expect(labelsWithTestNames.length).toBeGreaterThan(0)
+    })
+
+    it('separa iconos de los nombres de tests', async () => {
+      await wrapper.vm.$nextTick()
+      
+      // Verificar que los emojis están en elementos separados
+      const emojiContainers = wrapper.findAll('div.text-blue-600, div.text-green-600')
+      expect(emojiContainers.length).toBeGreaterThan(0)
+      
+      // Verificar que contienen emojis
+      const hasVisualEmoji = emojiContainers.some(container => 
+        container.text().includes('👁️')
+      )
+      const hasFunctionalEmoji = emojiContainers.some(container => 
+        container.text().includes('🔧')
+      )
+      
+      expect(hasVisualEmoji).toBe(true)
+      expect(hasFunctionalEmoji).toBe(true)
+    })
+  })
+
   describe('emisión de eventos', () => {
     beforeEach(async () => {
       wrapper.vm.tests = mockTests
