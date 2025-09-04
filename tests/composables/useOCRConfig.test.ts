@@ -81,10 +81,10 @@ describe('useOCRConfig', () => {
   })
 
   describe('processOCR', () => {
-    it('procesa OCR exitosamente con datos válidos', async () => {
+    it('procesa OCR exitosamente con datos válidos y compresión server-side', async () => {
       const { processOCR } = useOCRConfig()
       
-      // Mock successful API response
+      // Mock successful API response con compresión server-side
       const mockResponse = {
         success: true,
         text: 'Texto extraído',
@@ -111,7 +111,7 @@ describe('useOCRConfig', () => {
       
       mockFetch.mockResolvedValueOnce(mockResponse)
       
-      // Mock FileReader
+      // Mock FileReader sin compresión client-side
       mockFileReader.readAsDataURL.mockImplementation(() => {
         mockFileReader.result = 'data:image/jpeg;base64,dGVzdGRhdGE='
         if (mockFileReader.onload) {
