@@ -10,41 +10,27 @@
 // ============================================================================
 
 /**
- * Estado de una orden
+ * Estado de una orden - coincide con enum de Supabase
  */
-export type OrderStatus = 'pending' | 'processing' | 'completed' | 'cancelled'
+export type OrderStatus = 'Aprobado' | 'Rechazado'
 
 /**
- * Cliente del sistema
+ * Test disponible en el sistema - mapea a tabla 'tests'
  */
-export interface Customer {
-  id: string
-  name: string
-  email: string
-  phone: string
-  address: string
+export interface Test {
+  id: number
   created_at: string
-  updated_at: string
+  name: string
+  type: 'visual' | 'funcional'
 }
 
 /**
- * Producto del sistema
- */
-export interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  stock_quantity: number
-  created_at: string
-  updated_at: string
-}
-
-/**
- * Orden principal - actualizada para coincidir con la API
+ * Orden principal - mapea exactamente a tabla 'orders' de Supabase
  */
 export interface Order {
   id: string
+  created_at: string
+  updated_at: string
   lote?: string
   cliente: string
   producto: string
@@ -58,45 +44,37 @@ export interface Order {
   numero_operario: string
   maquina: string
   inspector_calidad: string
-  status?: OrderStatus
-  created_at?: string
-  updated_at?: string
+  status: OrderStatus
   tests?: OrderTest[]
 }
 
 /**
- * Test de una orden
+ * Test de una orden - mapea a tabla 'orders_tests'
  */
 export interface OrderTest {
-  id: string
-  aprobado: boolean
+  id: number
   created_at: string
-  tests?: {
-    id: number
-    name: string
-    type: string
-  }
+  pregunta: number
+  order: string
+  aprobado: boolean
+  tests?: Test
 }
 
-/**
- * Item de una orden
- */
-export interface OrderItem {
-  id: string
-  order_id: string
-  product_id: string
-  quantity: number
-  unit_price: number
-  subtotal: number
-  product?: Product // Optional populated field
-}
 
 // ============================================================================
 // FORMULARIOS
 // ============================================================================
 
 /**
- * Formulario para crear una nueva orden - actualizado
+ * Datos de test para una orden - formato API (sin observaciones)
+ */
+export interface OrderTestData {
+  test_id: number
+  aprobado: boolean
+}
+
+/**
+ * Formulario para crear una nueva orden - mapea a estructura de Supabase
  */
 export interface CreateOrderForm {
   lote?: string
@@ -112,11 +90,12 @@ export interface CreateOrderForm {
   numero_operario: string
   maquina: string
   inspector_calidad: string
+  orders_tests?: OrderTestData[]
   test_results?: { [testId: number]: boolean }
 }
 
 /**
- * Formulario para actualizar una orden existente - actualizado
+ * Formulario para actualizar una orden existente - mapea a estructura de Supabase
  */
 export interface UpdateOrderForm {
   lote?: string
@@ -136,32 +115,13 @@ export interface UpdateOrderForm {
   test_results?: { [testId: number]: boolean }
 }
 
-/**
- * Formulario para crear un nuevo cliente
- */
-export interface CreateCustomerForm {
-  name: string
-  email: string
-  phone: string
-  address: string
-}
-
-/**
- * Formulario para crear un nuevo producto
- */
-export interface CreateProductForm {
-  name: string
-  description: string
-  price: number
-  stock_quantity: number
-}
 
 // ============================================================================
 // FILTROS
 // ============================================================================
 
 /**
- * Filtros para búsqueda de órdenes - actualizado
+ * Filtros para búsqueda de órdenes - actualizado con status de Supabase
  */
 export interface OrderFilters {
   status?: OrderStatus
@@ -173,20 +133,6 @@ export interface OrderFilters {
   search?: string
 }
 
-/**
- * Filtros para búsqueda de clientes
- */
-export interface CustomerFilters {
-  search?: string
-}
-
-/**
- * Filtros para búsqueda de productos
- */
-export interface ProductFilters {
-  search?: string
-  low_stock?: boolean
-}
 
 // ============================================================================
 // TIPOS AUXILIARES

@@ -322,7 +322,7 @@
 
 <script setup lang="ts">
 import BaseCard from '~/components/ui/BaseCard.vue'
-import BaseButton from '~/components/ui/BaseButton.vue'
+// Components are auto-imported by Nuxt
 import BaseAlert from '~/components/ui/BaseAlert.vue'
 
 interface ProductionData {

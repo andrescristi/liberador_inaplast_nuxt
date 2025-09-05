@@ -351,16 +351,14 @@
  * - Animaciones y transiciones
  */
 import type { Profile } from '~/types'
-import { useAuthState } from '~/composables/auth/useAuthState'
 
 // 
 // ===== CONFIGURACIÓN DE COMPONENTE =====
 //
 
-// Composables de autenticación personalizados usando API endpoints
-const { user, isAuthenticated } = useAuthState() // Usuario reactivo desde API
-const { signOut, getCurrentUserProfile } = useAuth() // Funciones de autenticación usando API
-const toast = useToast() // Sistema de notificaciones toast
+// Usar nuxt-auth-utils para autenticación
+const { loggedIn, user, clear } = useUserSession()
+const toast = useToast()
 
 // 
 // ===== ESTADO REACTIVO LOCAL =====
@@ -368,29 +366,9 @@ const toast = useToast() // Sistema de notificaciones toast
 
 const signingOut = ref(false) // Flag para mostrar loading durante logout
 const mobileMenuOpen = ref(false) // Control del menú móvil deslizable
-const userProfile = ref<Profile | null>(null) // Perfil completo con rol del usuario
 
-//
-// ===== GESTIÓN REACTIVA DE PERFIL DE USUARIO =====
-//
-
-// Auto-fetch del perfil cuando el usuario cambia (login/logout)
-// Se ejecuta reactivamente cada vez que user.value cambia
-watchEffect(async () => {
-  if (isAuthenticated.value) {
-    try {
-      // Obtener perfil completo desde el endpoint /api/auth/profile
-      userProfile.value = await getCurrentUserProfile()
-    } catch (error) {
-      console.error('Error loading user profile:', error)
-      // Error silencioso - el perfil no es crítico para la navegación básica
-      // El usuario puede navegar aunque no se cargue el perfil completo
-    }
-  } else {
-    // Limpiar perfil cuando usuario hace logout
-    userProfile.value = null
-  }
-})
+// Con nuxt-auth-utils, el usuario ya incluye toda la información del perfil
+// No necesitamos un estado separado para userProfile
 
 //
 // ===== NAVEGACIÓN DINÁMICA BASADA EN ROLES =====
@@ -433,7 +411,7 @@ const baseNavItems = computed(() => ({
     }> = []
 
     // Agregar Administración solo para usuarios Admin
-    if (userProfile.value?.user_role === 'Admin') {
+    if (user.value?.user_role === 'Admin') {
       items.push({
         label: 'Usuarios',
         icon: 'bx:bxs-user-account',
@@ -498,7 +476,7 @@ const bottomNavItems = computed(() => {
   // Solo agregamos el elemento más importante basado en rol
   
   // Si es Admin, priorizar Administración
-  if (userProfile.value?.user_role === 'Admin' && baseNavItems.value.configuracion.length > 0) {
+  if (user.value?.user_role === 'Admin' && baseNavItems.value.configuracion.length > 0) {
     items.push({
       ...baseNavItems.value.configuracion[0], // Usuarios/Admin
       label: 'Usuarios', // Más descriptivo para mobile
@@ -566,18 +544,19 @@ const handleSignOut = async () => {
     signingOut.value = true
     
     // Delay mínimo para que el usuario vea el cambio de estado
-    // Mejora la percepción de responsividad en lugar de cambio instantáneo
     await new Promise(resolve => setTimeout(resolve, 300))
     
-    // Ejecutar logout real (redirige automáticamente a /auth/login)
-    await signOut()
+    // Usar nuxt-auth-utils para limpiar sesión
+    await clear()
     
     // Mostrar confirmación de éxito
     toast.success('Sesión cerrada correctamente')
     
-  } catch {
-    // Manejo de errores de logout (poco común)
-    // Error silencioso para no abrumar al usuario
+    // Redirigir a login
+    await navigateTo('/auth/login')
+    
+  } catch (error) {
+    console.error('Logout error:', error)
     toast.error('Error al cerrar sesión', 'Por favor intenta de nuevo.')
   } finally {
     // Asegurar que el loading se desactive sin importar el resultado

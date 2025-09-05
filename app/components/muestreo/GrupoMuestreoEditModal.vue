@@ -120,10 +120,7 @@ v-for="plan in planesDisponibles"
 <script setup lang="ts">
 import type { GrupoMuestreo, UpdateGrupoMuestreoForm, PlanDeMuestreo } from '~/types'
 
-// Import components explicitly
-import BaseButton from '~/components/ui/BaseButton.vue'
-import BaseInput from '~/components/ui/BaseInput.vue'
-import BaseModal from '~/components/ui/BaseModal.vue'
+// Components are auto-imported by Nuxt
 
 const props = defineProps<{
   grupo: GrupoMuestreo

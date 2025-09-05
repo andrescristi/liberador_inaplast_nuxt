@@ -6,120 +6,108 @@
     </div>
     
     <div class="p-6 space-y-8">
-      <!-- Order Summary -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Customer & Product Info -->
-        <div>
-          <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
-            <Icon name="bx:info-circle" class="w-5 h-5 mr-2 text-indigo-500" />
-            Información General
-          </h3>
-          <div class="bg-gray-50 rounded-lg p-4 space-y-3 text-sm">
-            <div class="grid grid-cols-2 gap-2">
-              <span class="text-gray-600">Cliente:</span>
-              <span class="font-medium">{{ modelValue.customerName || 'No especificado' }}</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <span class="text-gray-600">Producto:</span>
-              <span class="font-medium">{{ modelValue.productName || 'No especificado' }}</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <span class="text-gray-600">Lote:</span>
-              <span class="font-medium">{{ modelValue.lotNumber || 'No especificado' }}</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <span class="text-gray-600">Cantidad:</span>
-              <span class="font-medium">{{ modelValue.boxQuantity || 0 }} unidades</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Test Results -->
-        <div>
-          <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
-            <Icon name="bx:check-circle" class="w-5 h-5 mr-2 text-indigo-500" />
-            Resultados de Pruebas
-          </h3>
-          <div class="bg-gray-50 rounded-lg p-4 space-y-3 text-sm">
-            <div class="flex justify-between">
-              <span class="text-gray-600">Embalaje:</span>
-              <span :class="modelValue.packagingTest ? 'text-green-600' : 'text-red-600'">
-                {{ modelValue.packagingTest ? '✅ Aprobado' : '❌ Rechazado' }}
-              </span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">Etiquetado:</span>
-              <span :class="modelValue.labelingTest ? 'text-green-600' : 'text-red-600'">
-                {{ modelValue.labelingTest ? '✅ Aprobado' : '❌ Rechazado' }}
-              </span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">Sellado:</span>
-              <span :class="modelValue.sealingTest ? 'text-green-600' : 'text-red-600'">
-                {{ modelValue.sealingTest ? '✅ Aprobado' : '❌ Rechazado' }}
-              </span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">Peso:</span>
-              <span :class="modelValue.weightTest ? 'text-green-600' : 'text-red-600'">
-                {{ modelValue.weightTest ? '✅ Aprobado' : '❌ Rechazado' }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Final Decision -->
+      <!-- Información General -->
       <div>
         <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
-          <Icon name="bx:shield-check" class="w-5 h-5 mr-2 text-indigo-500" />
-          Decisión Final
+          <Icon name="bx:info-circle" class="w-5 h-5 mr-2 text-indigo-500" />
+          Información General
         </h3>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Estado del Liberador *
-            </label>
-            <select 
-              v-model="localData.finalResult"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            >
-              <option value="approved">✅ Aprobado - El producto cumple con todos los criterios</option>
-              <option value="conditional">⚠️ Condicional - Aprobado con observaciones</option>
-              <option value="rejected">❌ Rechazado - El producto no cumple los criterios</option>
-            </select>
-          </div>
-
-          <!-- Conditional fields based on decision -->
-          <div v-if="localData.finalResult === 'rejected'" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Razón del Rechazo *
-              </label>
-              <textarea 
-                v-model="localData.rejectionReason"
-                rows="3"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Describe las razones específicas del rechazo..."
-                required
-              />
+        <div class="bg-gray-50 rounded-lg p-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm">
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Cliente:</span>
+              <span class="font-medium text-right">{{ modelValue.cliente || 'No especificado' }}</span>
             </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              {{ localData.finalResult === 'approved' ? 'Comentarios Adicionales' : 'Recomendaciones' }}
-            </label>
-            <textarea 
-              v-model="localData.recommendations"
-              rows="3"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              :placeholder="localData.finalResult === 'approved' ? 'Comentarios opcionales...' : 'Recomendaciones para el cliente...'"
-            />
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Producto:</span>
+              <span class="font-medium text-right">{{ modelValue.producto || 'No especificado' }}</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Código:</span>
+              <span class="font-medium text-right">{{ modelValue.codigo_producto || 'No especificado' }}</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Lote:</span>
+              <span class="font-medium text-right">{{ modelValue.lote || 'No especificado' }}</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Pedido:</span>
+              <span class="font-medium text-right">{{ modelValue.pedido || 'No especificado' }}</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Cantidad:</span>
+              <span class="font-medium text-right">{{ modelValue.cantidad_unidades || 0 }} unidades</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Turno:</span>
+              <span class="font-medium text-right">{{ modelValue.turno || 'No especificado' }}</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Fecha Fabricación:</span>
+              <span class="font-medium text-right">{{ modelValue.fecha_fabricacion || 'No especificado' }}</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Inspector:</span>
+              <span class="font-medium text-right">{{ modelValue.inspector_calidad || 'No especificado' }}</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Operario:</span>
+              <span class="font-medium text-right">{{ modelValue.numero_operario || 'No especificado' }}</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Máquina:</span>
+              <span class="font-medium text-right">{{ modelValue.maquina || 'No especificado' }}</span>
+            </div>
+            <div v-if="modelValue.jefe_de_turno" class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Jefe de Turno:</span>
+              <span class="font-medium text-right">{{ modelValue.jefe_de_turno }}</span>
+            </div>
+            <div v-if="modelValue.orden_de_compra" class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Orden de Compra:</span>
+              <span class="font-medium text-right">{{ modelValue.orden_de_compra }}</span>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Resultados de Pruebas -->
+      <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+          <Icon name="bx:check-circle" class="w-5 h-5 mr-2 text-indigo-500" />
+          Resultados de Pruebas
+        </h3>
+        <div class="bg-gray-50 rounded-lg p-6">
+          <div v-if="testsWithResults.length > 0" class="space-y-3">
+            <div 
+              v-for="test in testsWithResults" 
+              :key="test.test_id" 
+              class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 py-3 border-b border-gray-200 last:border-b-0"
+            >
+              <span class="text-gray-700 font-medium text-sm sm:text-base">{{ test.name }}</span>
+              <span 
+                class="px-3 py-2 rounded-full text-sm font-semibold text-center flex-shrink-0"
+                :class="test.aprobado 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-red-100 text-red-800'"
+              >
+                {{ test.aprobado ? '✅ Aprobado' : '❌ Rechazado' }}
+              </span>
+            </div>
+          </div>
+          <div v-else class="text-gray-500 italic text-center py-4">
+            No hay resultados de pruebas disponibles
+          </div>
+          
+          <!-- Estado General -->
+          <div class="mt-6 p-4 rounded-lg border-2" :class="overallStatusClass">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <span class="text-base sm:text-lg font-semibold">Estado General de la Orden:</span>
+              <span class="text-lg sm:text-xl font-bold text-center sm:text-right">{{ overallStatusText }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       <!-- Quality Notes Summary -->
       <div v-if="modelValue.qualityNotes" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -155,41 +143,43 @@
 </template>
 
 <script setup lang="ts">
+import type { Test } from '~/types/tests'
+import type { OrderTestData } from '~/types/orders'
+import { useTestsAPI } from '~/composables/tests/useTestsAPI'
+import { useOrderAPI } from '~/composables/orders/useOrderAPI'
+
 // Define la estructura completa de datos de la orden
 interface OrderData {
-  // Step 1 - Informacion General
-  boxQuantity: number
-  requester: string
-  requestDate: string
-  priority: 'low' | 'medium' | 'high'
+  // Step 1
+  labelImage: File | null
+  labelImagePreview: string
+  cantidad_unidades: number
   
-  // Step 2 - Customer & Product Info
-  customerCode: string
-  customerName: string
-  productCode: string
-  productName: string
-  productCategory: string
-  expirationDate: string
-  lotNumber: string
-  productionDate: string
+  // Step 2 - Campos requeridos por la API
+  lote?: string
+  cliente: string
+  producto: string
+  pedido: string
+  fecha_fabricacion: string
+  codigo_producto: string
+  turno: string
+  jefe_de_turno?: string
+  orden_de_compra?: string
+  numero_operario: string
+  maquina: string
+  inspector_calidad: string
   
-  // Step 3 - Quality Tests
-  packagingTest?: boolean
-  labelingTest?: boolean
-  sealingTest?: boolean
-  weightTest?: boolean
+  // Step 3 - Quality Tests (formato API)
+  orders_tests?: OrderTestData[]
   qualityNotes?: string
+  
+  // Mantener compatibilidad con formato anterior
+  testResults?: Record<number, boolean>
   
   // Step 4 - Final Results
   finalResult?: 'approved' | 'rejected' | 'conditional'
   rejectionReason?: string
   recommendations?: string
-}
-
-interface StepData {
-  finalResult: 'approved' | 'rejected' | 'conditional'
-  rejectionReason: string
-  recommendations: string
 }
 
 interface Props {
@@ -199,39 +189,145 @@ interface Props {
 
 interface Emits {
   (e: 'update:modelValue', value: OrderData): void
-  (e: 'previous' | 'save'): void
+  (e: 'previous'): void
+  (e: 'save', order?: unknown): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Local reactive copy
-const localData = ref<StepData>({
-  finalResult: props.modelValue.finalResult || 'approved',
-  rejectionReason: props.modelValue.rejectionReason || '',
-  recommendations: props.modelValue.recommendations || ''
+// Composables
+const { getAllTests } = useTestsAPI()
+const { createOrder } = useOrderAPI()
+
+// State
+const tests = ref<Test[]>([])
+
+// Load tests on component mount
+onMounted(async () => {
+  try {
+    tests.value = await getAllTests()
+  } catch {
+    // Error loading tests
+  }
 })
 
-// Watch for changes and emit updates
-watch(localData, (newValue) => {
-  emit('update:modelValue', {
-    ...props.modelValue,
-    ...newValue
-  })
-}, { deep: true })
 
 // Computed
-const canSave = computed(() => {
-  if (localData.value.finalResult === 'rejected') {
-    return localData.value.rejectionReason.trim().length > 0
+const testsWithResults = computed(() => {
+  if (!tests.value.length) return []
+  
+  // Combinar tests con sus resultados usando orders_tests o testResults
+  return tests.value.map(test => {
+    let aprobado = false
+    
+    // Buscar resultado en orders_tests primero
+    if (props.modelValue.orders_tests) {
+      const orderTest = props.modelValue.orders_tests.find(ot => ot.test_id === test.id)
+      if (orderTest) {
+        aprobado = orderTest.aprobado
+      }
+    }
+    // Fallback a testResults
+    else if (props.modelValue.testResults && props.modelValue.testResults[test.id] !== undefined) {
+      aprobado = props.modelValue.testResults[test.id] || false
+    }
+    
+    return {
+      test_id: test.id,
+      name: test.name,
+      aprobado
+    }
+  })
+})
+
+const overallStatusClass = computed(() => {
+  const hasFailedTest = testsWithResults.value.some(test => !test.aprobado)
+  if (hasFailedTest) {
+    return 'bg-red-50 border-red-300 text-red-800'
   }
+  return 'bg-green-50 border-green-300 text-green-800'
+})
+
+const overallStatusText = computed(() => {
+  const hasFailedTest = testsWithResults.value.some(test => !test.aprobado)
+  return hasFailedTest ? '❌ Rechazado' : '✅ Aprobado'
+})
+
+const canSave = computed(() => {
   return true
 })
 
 // Methods
-const handleSave = () => {
-  if (canSave.value && !props.isSaving) {
-    emit('save')
+const handleSave = async () => {
+  if (!canSave.value || props.isSaving) return
+  
+  try {
+    // Preparar datos para la API
+    const orderData = prepareOrderData()
+    
+    // Crear la orden usando la API
+    const createdOrder = await createOrder(orderData)
+    
+    // Emitir evento de guardado exitoso con la orden creada
+    emit('save', createdOrder)
+    
+  } catch (error) {
+    // El error ya se maneja en el composable useOrderAPI con toast
+    // Solo rethrow si es necesario para debuging en desarrollo
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error al guardar la orden:', error)
+    }
+  }
+}
+
+// Función auxiliar para preparar los datos de la orden
+const prepareOrderData = () => {
+  const modelValue = props.modelValue
+  
+  // Asegurar que TODOS los tests estén incluidos
+  let orders_tests: OrderTestData[] = []
+  
+  if (tests.value.length > 0) {
+    // Crear un array con TODOS los tests disponibles
+    orders_tests = tests.value.map(test => {
+      let aprobado = false
+      
+      // Buscar el resultado en orders_tests
+      if (modelValue.orders_tests) {
+        const orderTest = modelValue.orders_tests.find(ot => ot.test_id === test.id)
+        if (orderTest) {
+          aprobado = orderTest.aprobado
+        }
+      } 
+      // Buscar en testResults como fallback
+      else if (modelValue.testResults && modelValue.testResults[test.id] !== undefined) {
+        aprobado = modelValue.testResults[test.id] || false
+      }
+      
+      return {
+        test_id: test.id,
+        aprobado
+      }
+    })
+  }
+  
+  // Estructura de datos que espera la API
+  return {
+    lote: modelValue.lote,
+    cliente: modelValue.cliente,
+    producto: modelValue.producto,
+    pedido: modelValue.pedido,
+    fecha_fabricacion: modelValue.fecha_fabricacion,
+    codigo_producto: modelValue.codigo_producto,
+    turno: modelValue.turno,
+    cantidad_unidades: modelValue.cantidad_unidades,
+    jefe_de_turno: modelValue.jefe_de_turno,
+    orden_de_compra: modelValue.orden_de_compra,
+    numero_operario: modelValue.numero_operario,
+    maquina: modelValue.maquina,
+    inspector_calidad: modelValue.inspector_calidad,
+    orders_tests
   }
 }
 </script>

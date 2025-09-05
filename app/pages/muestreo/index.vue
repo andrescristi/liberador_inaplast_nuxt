@@ -144,8 +144,7 @@ class="w-full">
 <script setup lang="ts">
 import type { EstadisticasMuestreo } from '~/types'
 
-// Import components explicitly
-import BaseButton from '~/components/ui/BaseButton.vue'
+// Components are auto-imported by Nuxt
 import BaseCard from '~/components/ui/BaseCard.vue'
 
 definePageMeta({

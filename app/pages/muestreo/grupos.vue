@@ -319,13 +319,11 @@ v-for="tipo in tiposUnicos"
 <script setup lang="ts">
 import type { GrupoMuestreo, GrupoMuestreoWithDetails, EstadisticasMuestreo } from '~/types'
 
-// Import components explicitly
-import BaseButton from '~/components/ui/BaseButton.vue'
-import BaseInput from '~/components/ui/BaseInput.vue'
+// Components are auto-imported by Nuxt
 import BaseCard from '~/components/ui/BaseCard.vue'
 import BaseBadge from '~/components/ui/BaseBadge.vue'
 import BaseTable from '~/components/ui/BaseTable.vue'
-import BaseModal from '~/components/ui/BaseModal.vue'
+// Components are auto-imported by Nuxt
 import GrupoMuestreoCreateModal from '~/components/muestreo/GrupoMuestreoCreateModal.vue'
 import GrupoMuestreoEditModal from '~/components/muestreo/GrupoMuestreoEditModal.vue'
 import GrupoMuestreoViewModal from '~/components/muestreo/GrupoMuestreoViewModal.vue'

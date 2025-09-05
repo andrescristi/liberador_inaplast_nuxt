@@ -133,8 +133,7 @@
 <script setup lang="ts">
 import type { Profile, ProfileRole } from '~/types'
 
-// Import components explicitly to fix SSR resolution issues
-import BaseButton from '~/components/ui/BaseButton.vue'
+// Components are auto-imported by Nuxt
 import UserCreateModal from '~/components/admin/UserCreateModal.vue'
 import UserEditModal from '~/components/admin/UserEditModal.vue'
 import UserStatsCards from '~/components/admin/UserStatsCards.vue'

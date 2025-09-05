@@ -29,20 +29,15 @@ export type {
   ProfileFilters
 } from './auth'
 
-// Tipos de órdenes, clientes y productos
+// Tipos de órdenes y tests
 export type {
   OrderStatus,
-  Customer,
-  Product,
+  Test,
   Order,
-  OrderItem,
+  OrderTest,
   CreateOrderForm,
   UpdateOrderForm,
-  CreateCustomerForm,
-  CreateProductForm,
   OrderFilters,
-  CustomerFilters,
-  ProductFilters,
   StatusTimelineItem
 } from './orders'
 

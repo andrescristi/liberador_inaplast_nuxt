@@ -82,30 +82,16 @@
             block
             size="lg"
             :loading="loading"
-            :disabled="!isFormValid || !isClientReady || !!initializationError"
+            :disabled="!isFormValid"
             class="font-medium"
             :leading-icon="!loading ? 'bx:log-in' : undefined"
           >
-            {{ 
-              initializationError ? 'Sistema no disponible' :
-              loading ? 'Iniciando sesión...' : 
-              !isClientReady ? 'Cargando...' :
-              'Iniciar Sesión' 
-            }}
+            {{ loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
           </UiBaseButton>
-          
-          <!-- Initialization Error -->
-          <UiBaseAlert
-            v-if="initializationError"
-            variant="error"
-            title="Error de inicialización"
-            :description="initializationError + '. Recarga la página para continuar.'"
-            :closable="false"
-          />
           
           <!-- Authentication Error -->
           <UiBaseAlert
-            v-else-if="error"
+            v-if="error"
             variant="error"
             title="Error de autenticación"
             :description="error"
@@ -184,67 +170,10 @@
 
 <script setup lang="ts">
 import { z } from 'zod'
-import { useAuth } from '~/composables/auth'
-import { useToast } from '~/composables/ui'
-import { useAuthState } from '~/composables/auth/useAuthState'
 
-// Defensive composable initialization
-let auth: ReturnType<typeof useAuth> | null = null
-let toast: ReturnType<typeof useToast> | null = null
-let authState: ReturnType<typeof useAuthState> | null = null
-
-// Client readiness tracking
-const isClientReady = ref(false)
-const initializationError = ref('')
-
-// Improved initialization with retry mechanism
-const initializeComposables = async (retries = 3) => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      // Wait for proper DOM and Vue readiness
-      await nextTick()
-      
-      // Verify Nuxt app is ready
-      const nuxtApp = useNuxtApp()
-      if (!nuxtApp.$supabase) {
-        throw new Error('Supabase not initialized')
-      }
-      
-      // Initialize composables
-      auth = useAuth()
-      toast = useToast()
-      authState = useAuthState()
-      
-      // Verify they're working
-      if (!auth || !toast || !authState) {
-        throw new Error('Composables failed to initialize')
-      }
-      
-      isClientReady.value = true
-      initializationError.value = ''
-      console.log('[Login] Composables initialized successfully')
-      return
-      
-    } catch (error) {
-      console.warn(`[Login] Initialization attempt ${i + 1} failed:`, error)
-      
-      if (i === retries - 1) {
-        initializationError.value = `Initialization failed after ${retries} attempts`
-        isClientReady.value = false
-      } else {
-        // Wait before retry
-        await new Promise(resolve => setTimeout(resolve, 100 * (i + 1)))
-      }
-    }
-  }
-}
-
-// Client-side initialization
-if (import.meta.client) {
-  onMounted(() => {
-    initializeComposables()
-  })
-}
+// Usar nuxt-auth-utils
+const { loggedIn, user, session, fetch: fetchSession, clear } = useUserSession()
+const toast = useToast()
 
 // Usar layout de autenticación sin navegación
 definePageMeta({
@@ -286,11 +215,6 @@ const resetEmailError = ref('')
 
 // Enhanced form validation
 const isFormValid = computed(() => {
-  // Prevent computation during SSR or if not ready
-  if (import.meta.server || !isClientReady.value || initializationError.value) {
-    return false
-  }
-  
   try {
     const emailValid = formState.email && 
                       formState.email.includes('@') && 
@@ -343,39 +267,8 @@ const validateResetForm = () => {
   }
 }
 
-// Enhanced form handlers with better error recovery
+// Nuevo handler con nuxt-auth-utils
 const handleLogin = async () => {
-  // Prevent execution during SSR
-  if (import.meta.server) {
-    console.warn('[Login] Attempted during SSR - ignored')
-    return
-  }
-  
-  // Check if initialization failed
-  if (initializationError.value) {
-    error.value = 'Sistema no inicializado correctamente. Recarga la página.'
-    return
-  }
-  
-  // Wait for client readiness or try to re-initialize
-  if (!isClientReady.value || !auth || !toast || !authState) {
-    console.warn('[Login] Composables not ready, attempting re-initialization')
-    loading.value = true
-    
-    try {
-      await initializeComposables(1) // Single retry
-      if (!auth || !toast || !authState) {
-        throw new Error('Re-initialization failed')
-      }
-    } catch {
-      error.value = 'Error de inicialización. Recarga la página.'
-      loading.value = false
-      return
-    }
-    
-    loading.value = false
-  }
-  
   console.log('handleLogin called!')
   console.log('Form state:', formState)
   
@@ -389,50 +282,33 @@ const handleLogin = async () => {
   console.log('Starting login process...')
 
   try {
-    const _result = await auth.signIn(formState.email.trim(), formState.password)
+    // Usar el endpoint personalizado de credenciales
+    const response = await $fetch('/api/auth/credentials', {
+      method: 'POST',
+      body: {
+        email: formState.email.trim(),
+        password: formState.password
+      }
+    })
+    
+    console.log('[Login] Response:', response)
+    
+    // Refrescar sesión para obtener datos actualizados
+    await fetchSession()
     
     // Success toast
     toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente')
     
-    // IMPORTANTE: Actualizar el estado de autenticación después del login exitoso
-    console.log('[Login] Actualizando estado de autenticación después del login...')
-    try {
-      await authState.fetchUser(true) // Forzar refresh del estado
-      console.log('[Login] Estado de autenticación actualizado correctamente')
-    } catch (authError) {
-      console.warn('[Login] Error actualizando estado de autenticación:', authError)
-      // No fallar el login por esto, pero sí loggearlo
-    }
-    
-    // Navegación robusta post-login con múltiples métodos de fallback
     console.log('[Login] Iniciando navegación al dashboard...')
     
-    // Pequeño delay para permitir que el estado se actualice completamente
-    await new Promise(resolve => setTimeout(resolve, 300))
-    
-    try {
-      // Método 1: Usar navigateTo de Nuxt (preferido)
-      await navigateTo('/', { 
-        replace: true,
-        external: false 
-      })
-      console.log('[Login] Navegación exitosa con navigateTo')
-    } catch (navError) {
-      console.warn('[Login] navigateTo falló, usando fallback:', navError)
-      
-      // Método 2: Fallback usando window.location (para SSR: false)
-      if (typeof window !== 'undefined') {
-        window.location.replace('/')
-        console.log('[Login] Navegación exitosa con window.location.replace')
-      } else {
-        console.error('[Login] No se pudo navegar - entorno no soportado')
-      }
-    }
+    // Navegación simple - nuxt-auth-utils maneja el estado automáticamente
+    await navigateTo('/', { replace: true })
+    console.log('[Login] Navegación exitosa')
     
   } catch (err: unknown) {
     console.error('Login error:', err)
-    // Handle login error silently or use proper error reporting
-    error.value = (err as { message?: string }).message || 'Error al iniciar sesión. Verifica tus credenciales.'
+    const errorObj = err as { data?: { statusMessage?: string }, statusMessage?: string }
+    error.value = errorObj?.data?.statusMessage || errorObj?.statusMessage || 'Error al iniciar sesión. Verifica tus credenciales.'
     
     // Auto-clear error after 5 seconds
     setTimeout(() => {
@@ -444,24 +320,13 @@ const handleLogin = async () => {
 }
 
 const handleResetPassword = async () => {
-  // Prevent execution during SSR
-  if (import.meta.server) return
-  
-  // Check initialization state  
-  if (initializationError.value || !isClientReady.value || !auth || !toast) {
-    toast?.error?.('Error', 'Sistema no inicializado correctamente')
-    return
-  }
-  
   if (!validateResetForm()) return
   
   resetLoading.value = true
 
   try {
-    await auth.resetPassword(resetState.email)
-    
-    // Success
-    toast.success('Enlace enviado', 'Se ha enviado un enlace de restablecimiento a tu email')
+    // TODO: Implementar reset password con nuxt-auth-utils cuando sea necesario
+    toast.info('Función en desarrollo', 'El restablecimiento de contraseña se implementará próximamente')
     
     showResetPassword.value = false
     resetState.email = ''

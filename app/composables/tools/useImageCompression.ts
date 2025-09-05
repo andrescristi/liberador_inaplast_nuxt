@@ -1,4 +1,4 @@
-import { ref, onUnmounted } from 'vue'
+import { ref } from 'vue'
 
 interface CompressionOptions {
   targetSizeKB?: number
@@ -335,8 +335,8 @@ export const useImageCompression = () => {
     }
   }
 
-  // Auto-cleanup cuando el componente se desmonta
-  onUnmounted(cleanup)
+  // IMPORTANTE: Para auto-cleanup, llamar cleanup() manualmente desde onUnmounted en componentes
+  // Los lifecycle hooks no pueden estar en composables para evitar problemas
 
   return {
     isCompressing: readonly(isCompressing),

@@ -195,12 +195,10 @@ size="lg"
 <script setup lang="ts">
 import type { PlanDeMuestreo, GrupoMuestreo } from '~/types'
 
-// Import components explicitly
-import BaseButton from '~/components/ui/BaseButton.vue'
-import BaseInput from '~/components/ui/BaseInput.vue'
+// Components are auto-imported by Nuxt
 import BaseCard from '~/components/ui/BaseCard.vue'
 import BaseBadge from '~/components/ui/BaseBadge.vue'
-import BaseModal from '~/components/ui/BaseModal.vue'
+// Components are auto-imported by Nuxt
 
 const props = defineProps<{
   plan: PlanDeMuestreo

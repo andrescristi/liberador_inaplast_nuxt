@@ -151,10 +151,7 @@ clip-rule="evenodd"/>
 <script setup lang="ts">
 import { createUserSchema, type CreateUserForm } from '~/schemas/admin/user'
 
-// Import components explicitly  
-import BaseModal from '~/components/ui/BaseModal.vue'
-import BaseInput from '~/components/ui/BaseInput.vue'
-import BaseButton from '~/components/ui/BaseButton.vue'
+// Components are auto-imported by Nuxt
 
 const emit = defineEmits<{
   close: []

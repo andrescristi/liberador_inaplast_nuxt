@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import BaseButton from '~/components/ui/BaseButton.vue'
+// Components are auto-imported by Nuxt
 
 interface Props {
   currentPage: number

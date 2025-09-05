@@ -287,13 +287,11 @@ v-for="aql in aqlsUnicos"
 <script setup lang="ts">
 import type { PlanDeMuestreo, PlanMuestreoWithDetails, EstadisticasMuestreo } from '~/types'
 
-// Import components explicitly
-import BaseButton from '~/components/ui/BaseButton.vue'
-import BaseInput from '~/components/ui/BaseInput.vue'
+// Components are auto-imported by Nuxt
 import BaseCard from '~/components/ui/BaseCard.vue'
 import BaseBadge from '~/components/ui/BaseBadge.vue'
 import BaseTable from '~/components/ui/BaseTable.vue'
-import BaseModal from '~/components/ui/BaseModal.vue'
+// Components are auto-imported by Nuxt
 import PlanMuestreoCreateModal from '~/components/muestreo/PlanMuestreoCreateModal.vue'
 import PlanMuestreoEditModal from '~/components/muestreo/PlanMuestreoEditModal.vue'
 import PlanMuestreoViewModal from '~/components/muestreo/PlanMuestreoViewModal.vue'

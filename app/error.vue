@@ -109,9 +109,7 @@ class="w-4 h-4 mr-2" />
 
 <script setup lang="ts">
 import type { NuxtError } from '#app'
-import BaseButton from '~/components/ui/BaseButton.vue'
-import MagicalParticles from '~/components/ui/MagicalParticles.vue'
-import ConfettiCelebration from '~/components/feedback/ConfettiCelebration.vue'
+// Components are auto-imported by Nuxt
 
 interface Props {
   error: NuxtError

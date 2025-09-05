@@ -48,8 +48,7 @@
 
 <script setup lang="ts">
 import type { Profile } from '~/types'
-import BaseModal from '~/components/ui/BaseModal.vue'
-import BaseButton from '~/components/ui/BaseButton.vue'
+// Components are auto-imported by Nuxt
 
 interface Props {
   showDeleteModal: boolean

@@ -76,33 +76,99 @@ export type Database = {
       }
       orders: {
         Row: {
-          created_at: string | null
-          customer_id: string
+          cantidad_unidades: number
+          cliente: string
+          codigo_producto: string
+          created_at: string
+          fecha_fabricacion: string
           id: string
-          order_date: string | null
-          status: string
-          total_amount: number
-          updated_at: string | null
+          inspector_calidad: string
+          jefe_de_turno: string | null
+          lote: string | null
+          maquina: string
+          numero_operario: string
+          orden_de_compra: string | null
+          pedido: string
+          producto: string
+          turno: string
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
-          customer_id: string
+          cantidad_unidades: number
+          cliente: string
+          codigo_producto: string
+          created_at?: string
+          fecha_fabricacion: string
           id?: string
-          order_date?: string | null
-          status?: string
-          total_amount: number
-          updated_at?: string | null
+          inspector_calidad: string
+          jefe_de_turno?: string | null
+          lote?: string | null
+          maquina: string
+          numero_operario: string
+          orden_de_compra?: string | null
+          pedido: string
+          producto: string
+          turno: string
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
-          customer_id?: string
+          cantidad_unidades?: number
+          cliente?: string
+          codigo_producto?: string
+          created_at?: string
+          fecha_fabricacion?: string
           id?: string
-          order_date?: string | null
-          status?: string
-          total_amount?: number
-          updated_at?: string | null
+          inspector_calidad?: string
+          jefe_de_turno?: string | null
+          lote?: string | null
+          maquina?: string
+          numero_operario?: string
+          orden_de_compra?: string | null
+          pedido?: string
+          producto?: string
+          turno?: string
+          updated_at?: string
         }
         Relationships: []
+      }
+      orders_tests: {
+        Row: {
+          aprobado: boolean
+          created_at: string
+          id: number
+          order: string
+          pregunta: number
+        }
+        Insert: {
+          aprobado: boolean
+          created_at?: string
+          id?: number
+          order: string
+          pregunta: number
+        }
+        Update: {
+          aprobado?: boolean
+          created_at?: string
+          id?: number
+          order?: string
+          pregunta?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_preguntas_order_fkey"
+            columns: ["order"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_preguntas_pregunta_fkey"
+            columns: ["pregunta"]
+            isOneToOne: false
+            referencedRelation: "tests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       planes_de_muestreo: {
         Row: {
@@ -152,6 +218,27 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           user_role?: Database["public"]["Enums"]["profile_role"]
+        }
+        Relationships: []
+      }
+      tests: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          type: Database["public"]["Enums"]["test_type"]
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          type: Database["public"]["Enums"]["test_type"]
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          type?: Database["public"]["Enums"]["test_type"]
         }
         Relationships: []
       }
@@ -228,7 +315,9 @@ export type Database = {
       }
     }
     Enums: {
+      order_status: "Aprobado" | "Rechazado"
       profile_role: "Admin" | "Inspector" | "Supervisor"
+      test_type: "visual" | "funcional"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -356,7 +445,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      order_status: ["Aprobado", "Rechazado"],
       profile_role: ["Admin", "Inspector", "Supervisor"],
+      test_type: ["visual", "funcional"],
     },
   },
 } as const

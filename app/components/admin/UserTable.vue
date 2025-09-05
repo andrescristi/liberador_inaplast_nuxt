@@ -137,7 +137,7 @@ import type { Profile, ProfileRole } from '~/types'
 import BaseCard from '~/components/ui/BaseCard.vue'
 import BaseTable from '~/components/ui/BaseTable.vue'
 import BaseBadge from '~/components/ui/BaseBadge.vue'
-import BaseButton from '~/components/ui/BaseButton.vue'
+// Components are auto-imported by Nuxt
 
 interface Props {
   users: Profile[]

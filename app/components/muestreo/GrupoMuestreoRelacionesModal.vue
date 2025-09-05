@@ -212,11 +212,10 @@ size="xl"
 <script setup lang="ts">
 import type { GrupoMuestreo, PlanDeMuestreo, GrupoPlanes } from '~/types'
 
-// Import components explicitly
-import BaseButton from '~/components/ui/BaseButton.vue'
+// Components are auto-imported by Nuxt
 import BaseCard from '~/components/ui/BaseCard.vue'
 import BaseBadge from '~/components/ui/BaseBadge.vue'
-import BaseModal from '~/components/ui/BaseModal.vue'
+// Components are auto-imported by Nuxt
 
 interface RelacionConPlan extends GrupoPlanes {
   plan_info: PlanDeMuestreo

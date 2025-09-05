@@ -3,15 +3,9 @@
 // Description: Utility functions for database operations
 
 import type { 
-  Customer, 
-  Product, 
   Order, 
-  CreateOrderForm, 
-  CreateCustomerForm, 
-  CreateProductForm,
+  CreateOrderForm,
   OrderFilters,
-  CustomerFilters,
-  ProductFilters,
   PaginatedResponse,
   OrderStatus
 } from '~/types/orders'
@@ -28,10 +22,6 @@ interface DashboardMetrics {
 // Database query utilities
 export class SupabaseAPI {
   private get client() {
-    return useSupabaseClient<Database>()
-  }
-
-  private getClient() {
     return useSupabaseClient<Database>()
   }
 
@@ -111,22 +101,6 @@ export class SupabaseAPI {
   }
 
   async createOrder(orderData: CreateOrderForm): Promise<Order> {
-    // TODO: Implement customers table in database
-    // const { data: customer } = await this.client
-    //   .from('customers')
-    //   .select('*')
-    //   .eq('id', orderData.customer_id)
-    //   .single()
-
-    // if (!customer) {
-    //   throw new Error('Customer not found')
-    // }
-    
-    throw new Error('Customers table not implemented')
-
-    // Calculate total - remove items since new structure doesn't have them
-    // const totalAmount = orderData.cantidad_unidades * 100 // placeholder calculation - not used
-
     // Start transaction
     const { data: order, error: orderError } = await this.client
       .from('orders')
@@ -195,22 +169,17 @@ export class SupabaseAPI {
       lote: orderData.lote,
       jefe_de_turno: orderData.jefe_de_turno,
       orden_de_compra: orderData.orden_de_compra,
-      status: 'pending' as OrderStatus,
+      status: 'Rechazado' as OrderStatus,
       created_at: validOrder.created_at || new Date().toISOString(),
       updated_at: validOrder.updated_at || new Date().toISOString()
     }
   }
 
-  async updateOrderStatus(orderId: string, status: OrderStatus): Promise<void> {
-    const { error } = await this.client
-      .from('orders')
-      .update({ status })
-      .eq('id', orderId)
-
-    if (error) {
-      // Handle order status update error
-      throw new Error('Failed to update order status')
-    }
+  async updateOrderStatus(_orderId: string, _status: OrderStatus): Promise<void> {
+    // Note: orders table doesn't have a status field
+    // Status is managed through orders_tests table for each test
+    // This method needs to be implemented based on business logic
+    throw new Error('Order status update not implemented - status managed through orders_tests table')
   }
 
   async deleteOrder(orderId: string): Promise<void> {
@@ -225,177 +194,6 @@ export class SupabaseAPI {
     }
   }
 
-  // Customers
-  async getCustomers(
-    _page = 1, 
-    _perPage = 20, 
-    _filters: CustomerFilters = {}
-  ): Promise<PaginatedResponse<Customer & { orders_count: number, total_spent: number }>> {
-    // TODO: Implement search_customers RPC function and customers table
-    // const { data, error } = await this.client
-    //   .rpc('search_customers', {
-    //     search_term: filters.search || null,
-    //     page_num: page,
-    //     page_size: perPage
-    //   })
-
-    // if (error) {
-    //   // Handle customers fetch error
-    //   throw new Error('Failed to fetch customers')
-    // }
-
-    // const customers = data || []
-    // const totalCount = customers[0]?.total_count || 0
-
-    return {
-      success: true,
-      data: [],
-      pagination: {
-        page: 1,
-        limit: 20,
-        total: 0,
-        totalPages: 0,
-        hasNextPage: false,
-        hasPreviousPage: false
-      }
-    }
-  }
-
-  async createCustomer(_customerData: CreateCustomerForm): Promise<Customer> {
-    // TODO: Implement customers table in database
-    // const { data, error } = await this.client
-    //   .from('customers')
-    //   .insert(customerData)
-    //   .select()
-    //   .single()
-
-    // if (error) {
-    //   // Handle customer creation error
-    //   throw new Error('Failed to create customer')
-    // }
-
-    // return data
-    throw new Error('Customers table not implemented')
-  }
-
-  async updateCustomer(_id: string, _customerData: Partial<CreateCustomerForm>): Promise<Customer> {
-    // TODO: Implement customers table in database
-    // const { data, error } = await this.client
-    //   .from('customers')
-    //   .update(customerData)
-    //   .eq('id', id)
-    //   .select()
-    //   .single()
-
-    // if (error) {
-    //   // Handle customer update error
-    //   throw new Error('Failed to update customer')
-    // }
-
-    // return data
-    throw new Error('Customers table not implemented')
-  }
-
-  async deleteCustomer(_id: string): Promise<void> {
-    // TODO: Implement customers table in database
-    // const { error } = await this.client
-    //   .from('customers')
-    //   .delete()
-    //   .eq('id', id)
-
-    // if (error) {
-    //   // Handle customer deletion error
-    //   throw new Error('Failed to delete customer')
-    // }
-    throw new Error('Customers table not implemented')
-  }
-
-  // Products
-  async getProducts(
-    _page = 1, 
-    _perPage = 20, 
-    _filters: ProductFilters = {}
-  ): Promise<PaginatedResponse<Product & { times_ordered: number, total_revenue: number }>> {
-    // TODO: Implement search_products RPC function and products table
-    // const { data, error } = await this.client
-    //   .rpc('search_products', {
-    //     search_term: filters.search || null,
-    //     low_stock_only: filters.low_stock || false,
-    //     low_stock_threshold: 10,
-    //     page_num: page,
-    //     page_size: perPage
-    //   })
-
-    // if (error) {
-    //   // Handle products fetch error
-    //   throw new Error('Failed to fetch products')
-    // }
-
-    // const products = data || []
-    // const totalCount = products[0]?.total_count || 0
-
-    return {
-      success: true,
-      data: [],
-      pagination: {
-        page: 1,
-        limit: 20,
-        total: 0,
-        totalPages: 0,
-        hasNextPage: false,
-        hasPreviousPage: false
-      }
-    }
-  }
-
-  async createProduct(_productData: CreateProductForm): Promise<Product> {
-    // TODO: Implement products table in database
-    // const { data, error } = await this.client
-    //   .from('products')
-    //   .insert(productData)
-    //   .select()
-    //   .single()
-
-    // if (error) {
-    //   // Handle product creation error
-    //   throw new Error('Failed to create product')
-    // }
-
-    // return data
-    throw new Error('Products table not implemented')
-  }
-
-  async updateProduct(_id: string, _productData: Partial<CreateProductForm>): Promise<Product> {
-    // TODO: Implement products table in database
-    // const { data, error } = await this.client
-    //   .from('products')
-    //   .update(productData)
-    //   .eq('id', id)
-    //   .select()
-    //   .single()
-
-    // if (error) {
-    //   // Handle product update error
-    //   throw new Error('Failed to update product')
-    // }
-
-    // return data
-    throw new Error('Products table not implemented')
-  }
-
-  async deleteProduct(_id: string): Promise<void> {
-    // TODO: Implement products table in database
-    // const { error } = await this.client
-    //   .from('products')
-    //   .delete()
-    //   .eq('id', id)
-
-    // if (error) {
-    //   // Handle product deletion error
-    //   throw new Error('Failed to delete product')
-    // }
-    throw new Error('Products table not implemented')
-  }
 
   // Utility methods
   async getRecentOrders(_limit = 10): Promise<Order[]> {
@@ -422,40 +220,6 @@ export class SupabaseAPI {
     return []
   }
 
-  async searchCustomersForOrder(_searchTerm: string): Promise<Customer[]> {
-    // TODO: Implement customers table in database
-    // const { data, error } = await this.client
-    //   .from('customers')
-    //   .select('*')
-    //   .or(`name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
-    //   .limit(10)
-
-    // if (error) {
-    //   // Handle customer search error
-    //   throw new Error('Failed to search customers')
-    // }
-
-    // return data || []
-    return []
-  }
-
-  async searchProductsForOrder(_searchTerm: string): Promise<Product[]> {
-    // TODO: Implement products table in database
-    // const { data, error } = await this.client
-    //   .from('products')
-    //   .select('*')
-    //   .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
-    //   .gt('stock_quantity', 0)
-    //   .limit(10)
-
-    // if (error) {
-    //   // Handle product search error
-    //   throw new Error('Failed to search products')
-    // }
-
-    // return data || []
-    return []
-  }
 }
 
 // Export singleton instance

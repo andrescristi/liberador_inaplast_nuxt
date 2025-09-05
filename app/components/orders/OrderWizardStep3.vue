@@ -167,6 +167,12 @@
 import type { Test } from '~/types/tests'
 import { useTestsAPI } from '~/composables/tests/useTestsAPI'
 
+// Define la estructura de datos de test para el API
+interface OrderTestData {
+  test_id: number
+  aprobado: boolean
+}
+
 // Define la estructura completa de datos de la orden
 interface OrderData {
   // Step 1
@@ -188,9 +194,12 @@ interface OrderData {
   maquina: string
   inspector_calidad: string
   
-  // Step 3 - Quality Tests
-  testResults?: Record<number, boolean>
+  // Step 3 - Quality Tests (formato API)
+  orders_tests?: OrderTestData[]
   qualityNotes?: string
+  
+  // Mantener compatibilidad con formato anterior
+  testResults?: Record<number, boolean>
   
   // Step 4 - Final Results
   finalResult?: 'approved' | 'rejected' | 'conditional'
@@ -241,9 +250,18 @@ onMounted(async () => {
 
 // Watch for changes and emit updates
 watch(localData, (newValue) => {
+  // Convertir testResults a formato API orders_tests
+  const orders_tests: OrderTestData[] = Object.entries(newValue.testResults).map(([testId, aprobado]) => ({
+    test_id: parseInt(testId),
+    aprobado
+  }))
+  
   emit('update:modelValue', {
     ...(props.modelValue || {}),
-    ...newValue
+    orders_tests,
+    qualityNotes: newValue.qualityNotes,
+    // Mantener compatibilidad con formato anterior
+    testResults: newValue.testResults
   })
 }, { deep: true })
 

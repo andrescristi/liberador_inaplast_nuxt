@@ -137,10 +137,7 @@ clip-rule="evenodd"/>
 import type { Profile } from '~/types'
 import { updateUserSchema, type UpdateUserForm } from '~/schemas/admin/user'
 
-// Import components explicitly to fix SSR resolution issues
-import BaseButton from '~/components/ui/BaseButton.vue'
-import BaseInput from '~/components/ui/BaseInput.vue'
-import BaseModal from '~/components/ui/BaseModal.vue'
+// Components are auto-imported by Nuxt
 
 const props = defineProps<{
   user: Profile

@@ -37,15 +37,14 @@ export default defineNuxtConfig({
   },
   
   // ===== MÓDULOS ESENCIALES =====
-  modules: [
-    '@nuxtjs/tailwindcss',  // Framework CSS utility-first
-    '@pinia/nuxt',          // State management reactivo y TypeScript-friendly
-    '@nuxtjs/supabase',     // Integración completa Supabase (Auth + DB + Real-time)
-    '@vueuse/nuxt',         // Composables utilitarios para Vue 3
-    '@vee-validate/nuxt',   // Validación de formularios (login, registros)
-    '@nuxt/eslint',         // Linting integrado con reglas de Nuxt
-    '@nuxt/icon'            // Sistema de iconos optimizado (reemplaza Heroicons)
-  ],
+  modules: [// Framework CSS utility-first
+  '@nuxtjs/tailwindcss', // State management reactivo y TypeScript-friendly
+  '@pinia/nuxt', // Integración completa Supabase (Auth + DB + Real-time)
+  '@nuxtjs/supabase', // Composables utilitarios para Vue 3
+  '@vueuse/nuxt', // Validación de formularios (login, registros)
+  '@vee-validate/nuxt', // Linting integrado con reglas de Nuxt
+  '@nuxt/eslint', // Sistema de iconos optimizado (reemplaza Heroicons)
+  '@nuxt/icon', 'nuxt-auth-utils'],
   
   // ===== CONFIGURACIÓN SUPABASE =====
   supabase: {

@@ -45,7 +45,7 @@
 <script setup lang="ts">
 import type { ProfileRole } from '~/types'
 import BaseCard from '~/components/ui/BaseCard.vue'
-import BaseInput from '~/components/ui/BaseInput.vue'
+// Components are auto-imported by Nuxt
 
 interface Props {
   searchTerm: string

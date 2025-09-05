@@ -63,16 +63,10 @@ export const useOrderAPI = () => {
         body: orderData
       })
       
-      if (response.success) {
-        // Actualizar estado local con la orden creada
-        if (response.data) {
-          addOrder(response.data)
-        }
-        toast.success('Éxito', response.data?.message || 'Orden creada correctamente')
-        return response.data
-      } else {
-        throw new Error('Error en la respuesta del servidor')
-      }
+      // Actualizar estado local con la orden creada
+      addOrder(response)
+      toast.success('Éxito', 'Orden creada correctamente')
+      return response
       
     } catch (error) {
       let errorMessage = 'No se pudo crear la orden'
