@@ -12,20 +12,25 @@ const credentialsSchema = z.object({
  * Integra Supabase con nuxt-auth-utils para mantener compatibilidad
  */
 export default defineEventHandler(async (event) => {
+  console.log('[DEBUG] credentials.post.ts - Inicio del handler')
   try {
     const body = await readBody(event)
+    console.log('[DEBUG] credentials.post.ts - Body recibido:', { email: body.email, password: '[HIDDEN]' })
     
     // Validar entrada
     const { email, password } = credentialsSchema.parse(body)
+    console.log('[DEBUG] credentials.post.ts - Validación exitosa')
 
     // Inicializar Supabase
     const supabase = serverSupabaseClient(event)
+    console.log('[DEBUG] credentials.post.ts - Supabase client inicializado')
 
     // Autenticar con Supabase
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password
     })
+    console.log('[DEBUG] credentials.post.ts - Respuesta Supabase:', { success: !error, error: error?.message })
 
     if (error) {
       throw createError({
@@ -44,6 +49,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Obtener perfil completo desde la base de datos
+    console.log('[DEBUG] credentials.post.ts - Obteniendo perfil para user_id:', data.user.id)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select(`
@@ -58,7 +64,10 @@ export default defineEventHandler(async (event) => {
       .eq('user_id', data.user.id)
       .single()
 
+    console.log('[DEBUG] credentials.post.ts - Respuesta perfil:', { success: !profileError, error: profileError?.message })
+
     if (profileError || !profile) {
+      console.log('[DEBUG] credentials.post.ts - Error: Perfil no encontrado')
       throw createError({
         statusCode: 404,
         statusMessage: 'Perfil de usuario no encontrado'
@@ -66,6 +75,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Configurar sesión usando nuxt-auth-utils
+    console.log('[DEBUG] credentials.post.ts - Configurando sesión de usuario')
     await setUserSession(event, {
       user: {
         id: data.user.id,
@@ -83,6 +93,7 @@ export default defineEventHandler(async (event) => {
         supabaseRefreshToken: data.session?.refresh_token
       }
     })
+    console.log('[DEBUG] credentials.post.ts - Sesión configurada exitosamente')
 
     return {
       success: true,
@@ -96,8 +107,11 @@ export default defineEventHandler(async (event) => {
       }
     }
   } catch (error: unknown) {
+    console.log('[DEBUG] credentials.post.ts - Error capturado:', error)
+    
     // Manejar errores de validación de Zod
     if (error instanceof z.ZodError) {
+      console.log('[DEBUG] credentials.post.ts - Error de validación Zod:', error.errors)
       throw createError({
         statusCode: 400,
         statusMessage: error.errors[0]?.message || 'Datos inválidos'
@@ -106,11 +120,13 @@ export default defineEventHandler(async (event) => {
 
     // Re-lanzar errores de createError
     if (error && typeof error === 'object' && 'statusCode' in error) {
+      console.log('[DEBUG] credentials.post.ts - Re-lanzando error de createError')
       throw error
     }
 
     // Error genérico
     const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
+    console.log('[DEBUG] credentials.post.ts - Error genérico:', errorMessage)
     throw createError({
       statusCode: 500,
       statusMessage: `Error interno: ${errorMessage}`
