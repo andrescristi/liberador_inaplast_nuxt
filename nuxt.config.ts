@@ -56,7 +56,7 @@ export default defineNuxtConfig({
     // Configuración de redirecciones para flujos de auth
     redirectOptions: {
       login: '/auth/login',                     // Redirect si no autenticado
-      callback: '/auth/confirm',               // Después de login exitoso
+      callback: '/',                           // Después de login exitoso ir al dashboard
       exclude: ['/auth/login', '/auth/reset-password', '/auth/confirm', '/ocr-test'] // Páginas públicas
     },
     

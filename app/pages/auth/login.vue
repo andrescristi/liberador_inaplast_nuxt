@@ -404,15 +404,30 @@ const handleLogin = async () => {
       // No fallar el login por esto, pero sí loggearlo
     }
     
-    // Con tokens, la navegación debería funcionar inmediatamente
-    // Pequeño delay para permitir que el token se guarde
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // Navegación robusta post-login con múltiples métodos de fallback
+    console.log('[Login] Iniciando navegación al dashboard...')
     
-    // Navegar al home - ahora debería funcionar con tokens
-    await navigateTo('/', { 
-      replace: true,
-      external: false 
-    })
+    // Pequeño delay para permitir que el estado se actualice completamente
+    await new Promise(resolve => setTimeout(resolve, 300))
+    
+    try {
+      // Método 1: Usar navigateTo de Nuxt (preferido)
+      await navigateTo('/', { 
+        replace: true,
+        external: false 
+      })
+      console.log('[Login] Navegación exitosa con navigateTo')
+    } catch (navError) {
+      console.warn('[Login] navigateTo falló, usando fallback:', navError)
+      
+      // Método 2: Fallback usando window.location (para SSR: false)
+      if (typeof window !== 'undefined') {
+        window.location.replace('/')
+        console.log('[Login] Navegación exitosa con window.location.replace')
+      } else {
+        console.error('[Login] No se pudo navegar - entorno no soportado')
+      }
+    }
     
   } catch (err: unknown) {
     console.error('Login error:', err)
