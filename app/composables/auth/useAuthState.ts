@@ -18,18 +18,17 @@ interface AuthUserResponse {
 
 /**
  * Composable especializado para estado de autenticación
- * Maneja estados reactivos de manera más robusta para SSR
+ * Usa estado global compartido entre todas las páginas/componentes
  */
 export const useAuthState = () => {
   const { getAuthHeaders, hasValidToken: _hasValidToken } = useAuthToken()
   
-  // Use simpler refs that are more predictable in SSR/client transitions
-  const user = ref<AuthUser | null>(null)
-  const isLoading = ref<boolean>(false) // Start with false to avoid loading states during SSR
-  const error = ref<string | null>(null)
+  // Use global state shared across all pages/components
+  const user = useState<AuthUser | null>('auth.user', () => null)
+  const isLoading = useState<boolean>('auth.isLoading', () => false)
+  const error = useState<string | null>('auth.error', () => null)
+  const lastFetch = useState<Date | null>('auth.lastFetch', () => null)
   
-  // Cache para evitar requests innecesarios
-  const lastFetch = ref<Date | null>(null)
   const CACHE_DURATION = 30 * 1000 // 30 seconds
 
   /**
@@ -130,17 +129,9 @@ export const useAuthState = () => {
     error.value = null
   }
 
-  // Auto-fetch en el mount si es necesario, pero solo en el cliente
-  if (import.meta.client) {
-    onMounted(() => {
-      // Give some time for the app to stabilize
-      nextTick(() => {
-        if (!user.value && !lastFetch.value) {
-          fetchUser()
-        }
-      })
-    })
-  }
+  // Auto-fetch initialization - se debe llamar manualmente desde componentes
+  // Los lifecycle hooks no pueden estar en composables para evitar problemas
+  // Usar fetchUser() directamente desde onMounted en componentes que lo necesiten
 
   return {
     // Estados - no usar readonly para evitar problemas de inicialización

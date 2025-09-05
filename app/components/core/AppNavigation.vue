@@ -381,7 +381,8 @@ watchEffect(async () => {
     try {
       // Obtener perfil completo desde el endpoint /api/auth/profile
       userProfile.value = await getCurrentUserProfile()
-    } catch {
+    } catch (error) {
+      console.error('Error loading user profile:', error)
       // Error silencioso - el perfil no es crítico para la navegación básica
       // El usuario puede navegar aunque no se cargue el perfil completo
     }

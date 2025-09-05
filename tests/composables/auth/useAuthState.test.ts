@@ -130,7 +130,12 @@ describe('useAuthState Composable', () => {
       const { fetchUser, user, isAuthenticated, userId, userEmail, isLoading, error } = useAuthState()
       await fetchUser()
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/auth/user')
+      expect(mockFetch).toHaveBeenCalledWith('/api/auth/user', {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
       expect(user.value).toEqual(mockUser)
       expect(isAuthenticated.value).toBe(true)
       expect(userId.value).toBe('test-user-id')
@@ -211,7 +216,12 @@ describe('useAuthState Composable', () => {
       const { refreshUser } = useAuthState()
       await refreshUser()
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/auth/user')
+      expect(mockFetch).toHaveBeenCalledWith('/api/auth/user', {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
     })
   })
 

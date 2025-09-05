@@ -25,10 +25,11 @@ El **Sistema Liberador Inaplast** es una aplicación web que digitaliza y optimi
 ### Propósito Principal
 
 - **Digitalizador de procesos**: Reemplaza formularios en papel por interfaces digitales
-- **Control de calidad estructurado**: Implementa un flujo de 4 pasos estandarizado
-- **Gestión de personal**: Sistema de roles con permisos granulares
-- **Trazabilidad completa**: Registro detallado de todas las operaciones
-- **Automatización inteligente**: Extracción de datos usando OCR y AI
+- **Control de calidad estructurado**: Implementa un flujo de 4 pasos estandarizado con aprobación/rechazo
+- **Gestión de personal**: Sistema de roles con permisos granulares (Admin, Supervisor, Inspector)
+- **Trazabilidad completa**: Registro detallado de todas las operaciones con timestamps
+- **Automatización inteligente**: Extracción de datos usando OCR (Google GenAI + Tesseract.js)
+- **Sistema de muestreo**: Planes de muestreo estadístico basados en estándares industriales
 
 ### Usuarios del Sistema
 
@@ -57,11 +58,12 @@ El **Sistema Liberador Inaplast** es una aplicación web que digitaliza y optimi
 
 ### Principios Arquitectónicos
 
-1. **API-First**: Toda la lógica de negocio reside en endpoints del servidor
-2. **Type-Safe**: TypeScript estricto en todo el stack
-3. **Composable Architecture**: Lógica reutilizable mediante composables de Vue
-4. **Auto-Import System**: Importación automática de componentes y composables
-5. **Schema-First Validation**: Validación con Zod tanto en cliente como servidor
+1. **API-First**: Toda la lógica de negocio reside en endpoints del servidor Nitro
+2. **Type-Safe**: TypeScript estricto con tipos generados automáticamente desde Supabase
+3. **Composable Architecture**: Lógica reutilizable mediante composables de Vue 3
+4. **Auto-Import System**: Importación automática de componentes, composables y utilidades
+5. **Schema-First Validation**: Validación con Zod sincronizada con esquema de base de datos
+6. **Database-First Types**: Tipos TypeScript generados directamente desde el esquema PostgreSQL
 
 ## 💻 Stack Tecnológico
 
@@ -157,8 +159,12 @@ app/                                    # Código fuente principal
 │   └── shared/validation.ts           # Validaciones comunes
 ├── types/                              # Definiciones TypeScript
 │   ├── auth.ts                        # Tipos autenticación
-│   ├── orders.ts                      # Tipos liberaciones
-│   └── database.types.ts              # Tipos Supabase generados
+│   ├── orders.ts                      # Tipos liberaciones (mapeo exacto a Supabase)
+│   └── database.types.ts              # Tipos generados automáticamente desde Supabase
+│
+│   # NOTA IMPORTANTE: Los tipos en orders.ts mapean exactamente
+│   # las tablas reales de Supabase (orders, tests, orders_tests)
+│   # No incluye entidades que no existen (Customer, Product, etc.)
 └── utils/                              # Utilidades generales
     ├── formatters.ts                  # Helpers de formateo
     └── supabase.ts                    # Configuración Supabase
@@ -174,29 +180,66 @@ server/                                 # Backend API (Nitro)
 │   │   ├── user.get.ts                # GET /api/auth/user
 │   │   └── logout.post.ts             # POST /api/auth/logout
 │   ├── admin/users/                   # Gestión usuarios (admin)
-│   │   ├── list.get.ts                # GET lista usuarios
+│   │   ├── list.get.ts                # GET lista usuarios paginada
 │   │   ├── index.post.ts              # POST crear usuario
 │   │   ├── [id].put.ts                # PUT actualizar usuario
 │   │   └── [id].delete.ts             # DELETE eliminar usuario
 │   ├── orders/                        # Liberaciones de productos
-│   │   └── create.post.ts             # POST crear liberación
+│   │   ├── create.post.ts             # POST crear liberación
+│   │   ├── list.get.ts                # GET lista órdenes paginada
+│   │   └── [id]/                      # Gestión individual
+│   │       └── tests.post.ts          # POST agregar tests a orden
 │   ├── ocr/                           # Procesamiento OCR
-│   │   └── extract.post.ts            # POST extraer datos imagen
+│   │   └── extract.post.ts            # POST extraer datos imagen (GenAI + Sharp)
 │   └── dashboard/                     # Métricas y estadísticas
 │       └── metrics.get.ts             # GET métricas sistema
-└── utils/auth.ts                      # Utilidades autenticación
+└── utils/auth.ts                      # Utilidades autenticación server-side
 ```
 
 ### Base de Datos (`supabase/`)
 
 ```
-supabase/                              # Esquema base de datos
+supabase/                              # Esquema base de datos PostgreSQL
 ├── config.toml                        # Configuración Supabase
 ├── migrations/                        # SQL migrations versionadas
 │   ├── 20250801000001_initial_schema.sql
 │   ├── 20250802000001_add_user_profiles.sql
-│   └── 20250811000001_add_user_activity_logs.sql
+│   ├── 20250811000001_add_user_activity_logs.sql
+│   ├── 20250820000001_add_orders_tests.sql
+│   └── 20250825000001_add_sampling_plans.sql
 └── seed.sql                           # Datos iniciales desarrollo
+```
+
+### Esquema Principal de Tablas
+
+```sql
+-- Tabla principal de órdenes (sin campo status)
+orders: id, created_at, updated_at, cliente, producto, pedido, 
+        fecha_fabricacion, codigo_producto, turno, cantidad_unidades,
+        jefe_de_turno, lote, orden_de_compra, numero_operario, 
+        maquina, inspector_calidad
+
+-- Tests disponibles (visual/funcional)
+tests: id, created_at, name, type
+
+-- Relación orden-test con resultado (aprobado/rechazado)
+orders_tests: id, created_at, order, pregunta, aprobado
+
+-- Perfiles de usuario con roles
+profiles: id, created_at, updated_at, user_id, first_name, 
+         last_name, user_role
+
+-- Sistema de muestreo estadístico
+grupos_muestreo: nivel_inspeccion, tamano_lote_desde, 
+                tamano_lote_hasta, codigo_plan_muestreo
+
+planes_de_muestreo: codigo, aql, tamano_muestra, 
+                   numero_maximo_fallas
+
+-- Enums tipados en PostgreSQL
+order_status: "Aprobado" | "Rechazado"
+profile_role: "Admin" | "Inspector" | "Supervisor"
+test_type: "visual" | "funcional"
 ```
 
 ### Testing (`tests/`)
@@ -376,15 +419,21 @@ npx tsc --noEmit
 ### 2. Proceso de Liberación de Productos
 
 **Flujo de 4 pasos:**
-1. **Paso 1**: Subida de imagen de etiqueta + cantidad de cajas
+1. **Paso 1**: Subida de imagen de etiqueta + cantidad de unidades
 2. **Paso 2**: Detalles del producto (datos extraídos por OCR)
-3. **Paso 3**: Pruebas de calidad (dimensiones, resistencia, apariencia)
-4. **Paso 4**: Resumen y decisión final (Aceptado/Rechazado)
+3. **Paso 3**: Pruebas de calidad (tests visuales y funcionales)
+4. **Paso 4**: Resumen y decisión final basada en resultados de tests
 
-**Tecnología OCR:**
-- Extracción automática de datos usando Google Gemini AI
-- Compresión inteligente de imágenes server-side con Sharp
-- Fallback local con Tesseract.js
+**Tecnología OCR Avanzada:**
+- **Google Gemini AI**: Extracción principal con análisis inteligente
+- **Sharp**: Compresión server-side automática para optimizar rendimiento
+- **Tesseract.js**: Fallback local para redundancia
+- **Validación automática**: Verificación de formato y consistencia de datos
+
+**Sistema de Evaluación:**
+- Tests categorizados por tipo (`visual` | `funcional`)
+- Resultados binarios por cada test (`aprobado: boolean`)
+- Trazabilidad completa de decisiones de calidad
 
 ### 3. Panel de Administración
 
@@ -402,9 +451,63 @@ npx tsc --noEmit
 ### 4. Sistema de Muestreo Estadístico
 
 **Características:**
-- Planes de muestreo basados en estándares MIL-STD
-- Configuración de niveles AQL (Acceptable Quality Level)
-- Grupos de muestreo por rangos de tamaño de lote
+- **Planes de muestreo**: Basados en estándares industriales MIL-STD
+- **Niveles AQL**: Configuración de Acceptable Quality Level
+- **Grupos de muestreo**: Rangos automáticos por tamaño de lote
+- **Tablas relacionales**: `grupos_muestreo` → `planes_de_muestreo` → `grupos_planes`
+- **Cálculo automático**: Tamaño de muestra y número máximo de fallas
+- **Integración**: Conectado con el flujo de liberación de productos
+
+## 🔧 Mejoras Técnicas Importantes
+
+### Arreglo Crítico: Estado de Autenticación Global (v2.8.5+)
+
+**Problema solucionado:** Los usuarios administradores no veían las opciones de administración en el navbar después de un login exitoso, lo que impedía el acceso al panel administrativo.
+
+**Causa raíz identificada:** El composable `useAuthState` utilizaba estado local (`ref`) en lugar de estado global, causando que cada página mantuviera su propia instancia del estado de autenticación, resultando en inconsistencias entre componentes.
+
+**Solución técnica implementada:**
+
+1. **Refactorización del estado de autenticación:**
+   ```typescript
+   // ❌ Antes: Estado local por instancia
+   const user = ref<AuthUser | null>(null)
+   const isAuthenticated = ref(false)
+   
+   // ✅ Ahora: Estado global compartido
+   const user = useState<AuthUser | null>('auth.user', () => null)
+   const isAuthenticated = computed(() => !!user.value)
+   ```
+
+2. **Actualización inmediata del estado post-login:**
+   ```typescript
+   // app/pages/auth/login.vue
+   const { login } = useAuthLogin()
+   const { fetchUser } = useAuthState()
+   
+   const handleLogin = async () => {
+     await login(email, password)
+     await fetchUser(true) // ✅ Forzar actualización inmediata
+     await router.push('/')
+   }
+   ```
+
+3. **Limpieza de código de debug:**
+   - Removidos console.logs del componente de navegación
+   - Actualización de tests para reflejar nuevos headers API
+
+**Impacto positivo:**
+- **Para administradores:** Acceso inmediato al menú "Configuración" → "Usuarios" post-login
+- **Para desarrolladores:** Estado de autenticación consistente en toda la aplicación
+- **Para el sistema:** Mejora en la experiencia de usuario y confiabilidad del estado reactivo
+
+**Archivos modificados:**
+- `app/composables/auth/useAuthState.ts` - Migración a `useState`
+- `app/pages/auth/login.vue` - Actualización inmediata del estado
+- `app/components/core/AppNavigation.vue` - Limpieza de logs
+- `tests/composables/auth/useAuthState.test.ts` - Actualización de tests
+
+Esta mejora garantiza que el sistema de roles y permisos funcione correctamente desde el primer momento después del login, mejorando significativamente la experiencia de usuario para los administradores del sistema.
 
 ## 🧪 Testing
 
@@ -514,10 +617,26 @@ const { user, login } = useAuthState()
 export const createUserSchema = z.object({
   email: z.string().email('Email inválido'),
   first_name: z.string().min(2, 'Mínimo 2 caracteres'),
+  last_name: z.string().min(2, 'Mínimo 2 caracteres'),
   user_role: z.enum(['Admin', 'Supervisor', 'Inspector'])
 })
 
 export type CreateUserForm = z.infer<typeof createUserSchema>
+
+// schemas/orders/new_order.ts
+export const createOrderSchema = z.object({
+  cliente: z.string().min(1, 'Cliente requerido'),
+  producto: z.string().min(1, 'Producto requerido'),
+  cantidad_unidades: z.number().min(1, 'Cantidad debe ser mayor a 0'),
+  turno: z.enum(['Mañana', 'Tarde', 'Noche']),
+  // Campos mapeados exactamente a estructura Supabase
+  codigo_producto: z.string().min(1),
+  fecha_fabricacion: z.string(),
+  inspector_calidad: z.string(),
+  maquina: z.string(),
+  numero_operario: z.string(),
+  pedido: z.string()
+})
 
 // Uso en API
 const validatedData = createUserSchema.parse(requestBody)
@@ -584,24 +703,30 @@ export const useFeatureLogic = () => {
 
 ### Row Level Security (RLS)
 
-La base de datos implementa políticas de seguridad a nivel de fila:
+La base de datos implementa políticas de seguridad a nivel de fila con enums tipados:
 
 ```sql
--- Los usuarios solo ven sus propios datos o si son admin
+-- Usuarios solo ven sus propios datos o si son admin
 CREATE POLICY "profiles_select" ON profiles FOR SELECT USING (
   auth.uid() = user_id OR 
-  (SELECT user_role FROM profiles WHERE user_id = auth.uid()) = 'Admin'
+  user_has_role('Admin'::profile_role)
 );
 
--- Los inspectores solo ven sus liberaciones
+-- Control de acceso por rol usando enums
 CREATE POLICY "orders_select" ON orders FOR SELECT USING (
-  CASE (SELECT user_role FROM profiles WHERE user_id = auth.uid())
-    WHEN 'Admin' THEN true
-    WHEN 'Supervisor' THEN true  
-    WHEN 'Inspector' THEN inspector_id = auth.uid()
+  CASE 
+    WHEN user_has_role('Admin'::profile_role) THEN true
+    WHEN user_has_role('Supervisor'::profile_role) THEN true  
+    WHEN user_has_role('Inspector'::profile_role) THEN 
+      inspector_calidad = (SELECT CONCAT(first_name, ' ', last_name) 
+                          FROM profiles WHERE user_id = auth.uid())
     ELSE false
   END
 );
+
+-- Funciones de utilidad para verificación de roles
+-- is_admin(), is_supervisor_or_admin(), is_inspector_or_above()
+-- user_has_role(required_role), can_change_user_role()
 ```
 
 ### Autenticación API-First

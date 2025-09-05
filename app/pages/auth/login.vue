@@ -186,10 +186,12 @@
 import { z } from 'zod'
 import { useAuth } from '~/composables/auth'
 import { useToast } from '~/composables/ui'
+import { useAuthState } from '~/composables/auth/useAuthState'
 
 // Defensive composable initialization
 let auth: ReturnType<typeof useAuth> | null = null
 let toast: ReturnType<typeof useToast> | null = null
+let authState: ReturnType<typeof useAuthState> | null = null
 
 // Client readiness tracking
 const isClientReady = ref(false)
@@ -211,9 +213,10 @@ const initializeComposables = async (retries = 3) => {
       // Initialize composables
       auth = useAuth()
       toast = useToast()
+      authState = useAuthState()
       
       // Verify they're working
-      if (!auth || !toast) {
+      if (!auth || !toast || !authState) {
         throw new Error('Composables failed to initialize')
       }
       
@@ -355,13 +358,13 @@ const handleLogin = async () => {
   }
   
   // Wait for client readiness or try to re-initialize
-  if (!isClientReady.value || !auth || !toast) {
+  if (!isClientReady.value || !auth || !toast || !authState) {
     console.warn('[Login] Composables not ready, attempting re-initialization')
     loading.value = true
     
     try {
       await initializeComposables(1) // Single retry
-      if (!auth || !toast) {
+      if (!auth || !toast || !authState) {
         throw new Error('Re-initialization failed')
       }
     } catch {
@@ -390,6 +393,16 @@ const handleLogin = async () => {
     
     // Success toast
     toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente')
+    
+    // IMPORTANTE: Actualizar el estado de autenticación después del login exitoso
+    console.log('[Login] Actualizando estado de autenticación después del login...')
+    try {
+      await authState.fetchUser(true) // Forzar refresh del estado
+      console.log('[Login] Estado de autenticación actualizado correctamente')
+    } catch (authError) {
+      console.warn('[Login] Error actualizando estado de autenticación:', authError)
+      // No fallar el login por esto, pero sí loggearlo
+    }
     
     // Con tokens, la navegación debería funcionar inmediatamente
     // Pequeño delay para permitir que el token se guarde
