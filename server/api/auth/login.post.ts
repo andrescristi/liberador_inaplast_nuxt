@@ -1,94 +1,72 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { z } from 'zod'
+import { authenticateUser } from '../../utils/hybrid-auth'
 
 /**
- * Endpoint para manejar el inicio de sesión del usuario
- * Procesa la autenticación con Supabase desde el servidor
- * Con soporte mejorado para sesiones móviles
+ * Endpoint de login con sistema híbrido JWT + Session
  * 
- * @returns Confirmación de login exitoso con datos del usuario
+ * POST /api/auth/login
+ * 
+ * Autentica al usuario y devuelve:
+ * - JWT para el cliente (almacenamiento local)
+ * - Session ID como cookie (automático)
  */
+
+const loginSchema = z.object({
+  email: z.string().email('Email inválido'),
+  password: z.string().min(1, 'Contraseña requerida')
+})
+
 export default defineEventHandler(async (event) => {
+  // Solo permitir POST
+  assertMethod(event, 'POST')
+  
   try {
+    // Validar datos de entrada
     const body = await readBody(event)
-    const { email, password } = body
-
-    if (!email || !password) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Email y contraseña son requeridos'
-      })
-    }
-
-    const supabase = await serverSupabaseClient(event)
-
-    // Realizar login con Supabase Auth
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password
+    const { email, password } = loginSchema.parse(body)
+    
+    // Log de auditoría
+    console.log('🔐 Login attempt:', { email, timestamp: new Date().toISOString() })
+    
+    // Autenticar usuario
+    const authData = await authenticateUser(event, email, password)
+    
+    // Configurar headers para compatibilidad
+    setHeader(event, 'Cache-Control', 'private, no-cache, no-store, must-revalidate')
+    setHeader(event, 'Expires', '0')
+    setHeader(event, 'Pragma', 'no-cache')
+    setHeader(event, 'Vary', 'User-Agent')
+    
+    // Log de éxito
+    console.log('✅ Login successful:', { 
+      userId: authData.user.id, 
+      email: authData.user.email,
+      role: authData.user.role,
+      timestamp: new Date().toISOString() 
     })
-
-    if (error) {
-      // Mapear errores comunes de Supabase a mensajes en español
-      let errorMessage = error.message
-      if (error.message.includes('Invalid login credentials')) {
-        errorMessage = 'Credenciales incorrectas. Verifica tu email y contraseña.'
-      } else if (error.message.includes('Email not confirmed')) {
-        errorMessage = 'Por favor confirma tu email antes de iniciar sesión.'
-      } else if (error.message.includes('Too many requests')) {
-        errorMessage = 'Demasiados intentos. Intenta de nuevo en unos minutos.'
-      }
-
-      throw createError({
-        statusCode: 400,
-        statusMessage: errorMessage
-      })
-    }
-
-    // Configurar headers para mejorar compatibilidad móvil
-    if (data.session) {
-      // Configurar headers de cache para sesiones
-      setHeader(event, 'Cache-Control', 'private, no-cache, no-store, must-revalidate')
-      setHeader(event, 'Expires', '0')
-      setHeader(event, 'Pragma', 'no-cache')
-      
-      // Headers específicos para mobile
-      setHeader(event, 'Vary', 'User-Agent')
-    }
-
-    // Opcional: Log del evento para auditoría
-    if (import.meta.server && data.user) {
-      try {
-        const logger = event.context.logger
-        if (logger && typeof logger.info === 'function') {
-          logger.info({
-            userId: data.user.id,
-            userEmail: data.user.email,
-            timestamp: new Date().toISOString(),
-            context: 'auth/login.post'
-          }, 'User logged in successfully')
-        }
-      } catch {
-        // Error silencioso en logging - no debe afectar el login
-      }
-    }
-
+    
+    // Responder con JWT (cookie se configura automáticamente)
     return {
       success: true,
-      message: 'Inicio de sesión exitoso',
-      user: data.user,
-      session: data.session
+      jwt: authData.jwt,
+      user: authData.user,
+      message: 'Autenticación exitosa'
     }
-  } catch (error: unknown) {
-    // Si es un error de createError, re-lanzarlo
-    if (error && typeof error === 'object' && 'statusCode' in error) {
-      throw error
+    
+  } catch (error) {
+    // Log de error
+    console.error('❌ Login failed:', error)
+    
+    // Si es un error de validación de Zod
+    if (error instanceof z.ZodError) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Datos inválidos',
+        data: error.errors
+      })
     }
-
-    // Para otros errores, crear error genérico
-    const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-    throw createError({
-      statusCode: 500,
-      statusMessage: `Error interno durante login: ${errorMessage}`
-    })
+    
+    // Re-throw otros errores (como los de authenticateUser)
+    throw error
   }
 })

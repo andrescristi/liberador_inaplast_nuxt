@@ -1,54 +1,47 @@
 /**
- * Middleware de autenticación básica para páginas protegidas
+ * Middleware de autenticación híbrida para páginas protegidas
  * 
- * Verifica si existe un usuario autenticado activo usando tokens (para Vercel)
- * y cookies como fallback. Redirige al login si no hay sesión válida.
+ * Verifica tanto JWT (localStorage) como session ID (cookie) 
+ * siguiendo el sistema híbrido implementado
  * 
  * USO:
  * - definePageMeta({ middleware: 'auth' })
- * - Automático en layouts o páginas que requieren autenticación básica
+ * - Para páginas que requieren autenticación básica
  * 
  * IMPORTANTE:
  * - Solo verifica autenticación, NO autorización (roles)
- * - Para verificar roles específicos usar 'require-admin-role'
- * - La redirección preserva la ruta original como query parameter
+ * - Para verificar roles específicos usar middleware específico
+ * - Redirige a dashboard (/) después de login exitoso
  */
 export default defineNuxtRouteMiddleware(async (_to) => {
-  // Skip auth check during SSR to avoid initialization problems
+  // Skip durante SSR para evitar problemas de inicialización
   if (import.meta.server) {
     return
   }
   
-  // Importar composable de tokens
-  const { useAuthToken } = await import('~/composables/auth/useAuthToken')
-  const { hasValidToken, getAuthHeaders } = useAuthToken()
+  const { useHybridAuth } = await import('~/composables/auth/useHybridAuth')
+  const { checkAuth, hasValidJWT } = useHybridAuth()
   
-  // Verificación rápida con token primero (para Vercel)
-  if (hasValidToken()) {
-    // Token válido encontrado, continuar navegación
-    return
+  // Verificación rápida con JWT local primero
+  if (!hasValidJWT()) {
+    // No hay JWT válido, redirigir al login
+    return navigateTo('/auth/login')
   }
   
-  // Si no hay token, intentar verificar con API (fallback para cookies)
+  // Verificar con el servidor (valida JWT + session)
   try {
-    const response = await $fetch<{authenticated: boolean}>('/api/auth/user', {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        ...getAuthHeaders() // Incluir headers de token si existen
-      }
-    })
+    const isAuthenticated = await checkAuth()
     
-    // Si está autenticado, continuar navegación
-    if (response.authenticated) {
-      return
+    if (!isAuthenticated) {
+      // La verificación del servidor falló, redirigir al login
+      return navigateTo('/auth/login')
     }
     
+    // Usuario autenticado correctamente, continuar
+    
   } catch (error) {
-    console.warn('Auth middleware API check failed:', error)
+    console.warn('Error en verificación de autenticación híbrida:', error)
+    // En caso de error, redirigir al login por seguridad
+    return navigateTo('/auth/login')
   }
-  
-  // No está autenticado, redirigir al login
-  return navigateTo('/auth/login')
 })

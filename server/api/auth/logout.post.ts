@@ -1,18 +1,28 @@
+import { logoutUser } from '../../utils/hybrid-auth'
+
 /**
- * Endpoint personalizado para cerrar sesión
- * Compatible con nuxt-auth-utils - simplificado
+ * Endpoint de logout con sistema híbrido JWT + Session
+ * 
+ * POST /api/auth/logout
+ * 
+ * Limpia tanto la sesión del servidor como instruye al cliente
+ * para eliminar el JWT de localStorage
  */
 export default defineEventHandler(async (event) => {
+  // Solo permitir POST
+  assertMethod(event, 'POST')
+  
   try {
-    // Limpiar sesión usando nuxt-auth-utils
-    await clearUserSession(event)
-
+    // Limpiar sesión híbrida
+    const result = await logoutUser(event)
+    
     return {
       success: true,
       message: 'Sesión cerrada correctamente',
       logged_out: true,
       timestamp: new Date().toISOString()
     }
+    
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
     
