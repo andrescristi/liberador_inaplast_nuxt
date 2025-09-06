@@ -183,7 +183,6 @@ export default defineNuxtConfig({
     },
     {
       path: '~/components/ui',
-      prefix: 'Ui',
       global: true
     },
     {
