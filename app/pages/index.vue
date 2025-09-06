@@ -33,7 +33,7 @@
         - Gradientes de fondo para diferenciación visual
       -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-        <UiBaseCard class="bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
+        <BaseCard class="bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
@@ -47,9 +47,9 @@
               <dd class="text-xl sm:text-2xl font-bold text-yellow-900">{{ metrics.pending }}</dd>
             </div>
           </div>
-        </UiBaseCard>
+        </BaseCard>
 
-        <UiBaseCard class="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+        <BaseCard class="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -63,9 +63,9 @@
               <dd class="text-xl sm:text-2xl font-bold text-green-900">{{ metrics.completed }}</dd>
             </div>
           </div>
-        </UiBaseCard>
+        </BaseCard>
 
-        <UiBaseCard class="bg-gradient-to-br from-red-50 to-blue-50 border-red-200">
+        <BaseCard class="bg-gradient-to-br from-red-50 to-blue-50 border-red-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-lg flex items-center justify-center">
@@ -79,7 +79,7 @@
               <dd class="text-xl sm:text-2xl font-bold text-red-900">{{ metrics.rejected }}</dd>
             </div>
           </div>
-        </UiBaseCard>
+        </BaseCard>
       </div>
 
       <!-- 
@@ -95,7 +95,7 @@
         - Iconografía descriptiva
       -->
       <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-        <UiBaseCard 
+        <BaseCard 
           class="group hover:shadow-md transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-indigo-200 active:scale-95"
           hover
           @click="navigateTo('/orders/new')"
@@ -107,9 +107,9 @@
             <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">Nueva Liberación</h3>
             <p class="text-sm text-gray-600 leading-tight">Libera nuevos pedidos</p>
           </div>
-        </UiBaseCard>
+        </BaseCard>
 
-        <UiBaseCard 
+        <BaseCard 
           class="group hover:shadow-md transition-all duration-200 cursor-pointer border-2 border-transparent hover:border-indigo-200 active:scale-95"
           hover
           @click="navigateTo('/orders')"
@@ -121,24 +121,24 @@
             <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">Historial de Liberaciones</h3>
             <p class="text-sm text-gray-600 leading-tight">Ver liberaciones anteriores</p>
           </div>
-        </UiBaseCard>
+        </BaseCard>
 
         
       </div>
 
       <!-- Recent Orders -->
-      <UiBaseCard padding="none">
+      <BaseCard padding="none">
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">Liberaciones Recientes</h3>
-            <UiBaseButton 
+            <BaseButton 
               :to="'/orders'" 
               variant="ghost" 
               color="gray"
               trailing-icon="bx:bxs-right-arrow-alt"
             >
               Ir a historial
-            </UiBaseButton>
+            </BaseButton>
           </div>
         </template>
 
@@ -159,18 +159,18 @@
           </div>
           <h4 class="text-lg font-semibold text-gray-900 mb-2">Aún no hay liberaciones</h4>
           <p class="text-gray-600 mb-6">Parte creando tu primera liberación</p>
-          <UiBaseButton 
+          <BaseButton 
             :to="'/orders/new'" 
             leading-icon="bx:bxs-plus-circle"
             size="lg"
           >
             Crear Liberación
-          </UiBaseButton>
+          </BaseButton>
         </div>
 
         <!-- Orders Table -->
         <div v-else>
-          <UiBaseTable 
+          <BaseTable 
             :rows="recentOrders" 
             :columns="tableColumns"
             selectable
@@ -189,13 +189,13 @@
             </template>
 
             <template #status-data="{ row }">
-              <UiBaseBadge 
+              <BaseBadge 
                 :color="getStatusColor(row.status as string)"
                 variant="soft"
                 class="capitalize"
               >
                 {{ row.status }}
-              </UiBaseBadge>
+              </BaseBadge>
             </template>
 
             <template #amount-data="{ row }">
@@ -209,9 +209,9 @@
                 {{ formatDate(row.order_date as string) }}
               </div>
             </template>
-          </UiBaseTable>
+          </BaseTable>
         </div>
-      </UiBaseCard>
+      </BaseCard>
     </div>
     
   </div>

@@ -29,7 +29,7 @@
         -->
         <div class="hidden md:flex items-center space-x-1">
           <!-- Enlace de Inicio -->
-          <UiBaseButton
+          <BaseButton
             v-if="baseNavItems?.home"
             :to="baseNavItems.home.to"
             variant="ghost"
@@ -38,12 +38,12 @@
             :leading-icon="baseNavItems.home.icon"
           >
             {{ baseNavItems.home.label }}
-          </UiBaseButton>
+          </BaseButton>
 
           <!-- Dropdown de Liberaciones -->
-          <UiBaseDropdown :items="liberacionesMenuItems">
+          <BaseDropdown :items="liberacionesMenuItems">
             <template #button>
-              <UiBaseButton
+              <BaseButton
                 variant="ghost"
                 color="gray"
                 class="font-medium"
@@ -51,14 +51,14 @@
                 :trailing-icon="'bx:bxs-chevron-down'"
               >
                 Liberaciones
-              </UiBaseButton>
+              </BaseButton>
             </template>
-          </UiBaseDropdown>
+          </BaseDropdown>
 
           <!-- Dropdown de Configuración (solo si tiene elementos) -->
-          <UiBaseDropdown v-if="showConfiguracionMenu" :items="configuracionMenuItems">
+          <BaseDropdown v-if="showConfiguracionMenu" :items="configuracionMenuItems">
             <template #button>
-              <UiBaseButton
+              <BaseButton
                 variant="ghost"
                 color="gray"
                 class="font-medium"
@@ -66,9 +66,9 @@
                 :trailing-icon="'bx:bxs-chevron-down'"
               >
                 Configuración
-              </UiBaseButton>
+              </BaseButton>
             </template>
-          </UiBaseDropdown>
+          </BaseDropdown>
         </div>
 
         <!-- 
@@ -77,7 +77,7 @@
           min-h para target de toque consistente (44px mínimo)
         -->
         <div class="hidden md:flex items-center">
-          <UiBaseDropdown :items="userMenuItems">
+          <BaseDropdown :items="userMenuItems">
             <template #button>
               <div class="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors min-h-[44px]">
                 <!-- Avatar circular con gradiente -->
@@ -101,7 +101,7 @@
                 </p>
               </div>
             </template>
-          </UiBaseDropdown>
+          </BaseDropdown>
         </div>
 
         <!-- 
@@ -109,7 +109,7 @@
           Usa CSS classes dinámicas para transformar hamburger a X
         -->
         <div class="md:hidden flex items-center">
-          <UiBaseButton
+          <BaseButton
             variant="ghost"
             color="gray"
             size="lg"
@@ -124,7 +124,7 @@
             <Icon :name="mobileMenuOpen ? 'bx:x' : 'bx:menu'" class="w-8 h-8" />
             <!-- Screen reader text para botón de menú -->
             <span class="sr-only">{{ mobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación' }}</span>
-          </UiBaseButton>
+          </BaseButton>
         </div>
       </div>
 
@@ -160,7 +160,7 @@
               class="mobile-nav-item" 
               style="--item-index: 0"
             >
-              <UiBaseButton
+              <BaseButton
                 :to="baseNavItems.home.to"
                 variant="ghost"
                 color="gray"
@@ -169,7 +169,7 @@
                 @click="closeMobileMenu"
               >
                 {{ baseNavItems.home.label }}
-              </UiBaseButton>
+              </BaseButton>
             </div>
 
             <!-- Sección de Liberaciones -->
@@ -185,7 +185,7 @@
               class="mobile-nav-item" 
               :style="{ '--item-index': index + 2 }"
             >
-              <UiBaseButton
+              <BaseButton
                 :to="item.to"
                 variant="ghost"
                 color="gray"
@@ -194,7 +194,7 @@
                 @click="closeMobileMenu"
               >
                 {{ item.label }}
-              </UiBaseButton>
+              </BaseButton>
             </div>
 
             <!-- Sección de Configuración (solo si tiene elementos) -->
@@ -211,7 +211,7 @@
                 class="mobile-nav-item" 
                 :style="{ '--item-index': index + 5 }"
               >
-                <UiBaseButton
+                <BaseButton
                   :to="item.to"
                   variant="ghost"
                   color="gray"
@@ -220,7 +220,7 @@
                   @click="closeMobileMenu"
                 >
                   {{ item.label }}
-                </UiBaseButton>
+                </BaseButton>
               </div>
             </template>
             
@@ -252,7 +252,7 @@
               <!-- Acciones de Usuario -->
               <div class="space-y-1">
                 <!-- Enlace a perfil -->
-                <UiBaseButton
+                <BaseButton
                   to="/auth/profile"
                   variant="ghost"
                   color="gray"
@@ -261,10 +261,10 @@
                   @click="closeMobileMenu"
                 >
                   Perfil
-                </UiBaseButton>
+                </BaseButton>
                 
                 <!-- Botón de logout con estado de carga y estilos rojos -->
-                <UiBaseButton
+                <BaseButton
                   variant="ghost"
                   color="gray"
                   class="w-full justify-start text-sm py-2 px-3 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -273,7 +273,7 @@
                   @click="handleSignOut"
                 >
                   {{ signingOut ? 'Signing out...' : 'Sign Out' }}
-                </UiBaseButton>
+                </BaseButton>
               </div>
             </div>
           </div>
@@ -299,7 +299,7 @@
         class="bottom-nav-item"
         :style="{ '--item-delay': index * 0.1 + 's' }"
       >
-        <UiBaseButton
+        <BaseButton
           :to="item.to"
           :variant="item.variant"
           :color="item.color"
@@ -313,7 +313,7 @@
         >
           <!-- Label debajo del icono para patrón mobile familiar -->
           <span class="mt-1">{{ item.label }}</span>
-        </UiBaseButton>
+        </BaseButton>
       </div>
     </div>
   </nav>
@@ -425,7 +425,7 @@ const baseNavItems = computed(() => ({
 
 /**
  * Items del menú desplegable de Liberaciones
- * Formato adaptado para el componente UiBaseDropdown
+ * Formato adaptado para el componente BaseDropdown
  */
 const liberacionesMenuItems = computed(() => [baseNavItems.value.liberaciones])
 
@@ -495,7 +495,7 @@ const bottomNavItems = computed(() => {
 /**
  * Items del menú desplegable de usuario
  * Estructura contextual que incluye info de perfil, enlaces y acciones
- * @returns Array estructurado para el componente UiBaseDropdown
+ * @returns Array estructurado para el componente BaseDropdown
  */
 const userMenuItems = computed(() => {
   const menuItems: Array<Array<{

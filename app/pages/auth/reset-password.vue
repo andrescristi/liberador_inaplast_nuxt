@@ -16,7 +16,7 @@
             <label for="password" class="block text-sm font-medium text-gray-700">
               Nueva Contraseña
             </label>
-            <UiBaseInput
+            <BaseInput
               id="password"
               v-model="form.password"
               type="password"
@@ -30,7 +30,7 @@
             <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
               Confirmar Contraseña
             </label>
-            <UiBaseInput
+            <BaseInput
               id="confirmPassword"
               v-model="form.confirmPassword"
               type="password"
@@ -42,14 +42,14 @@
         </div>
 
         <div>
-          <UiBaseButton
+          <BaseButton
             type="submit"
             class="w-full"
             :disabled="loading"
           >
             <span v-if="loading">Actualizando...</span>
             <span v-else>Actualizar Contraseña</span>
-          </UiBaseButton>
+          </BaseButton>
         </div>
 
         <div v-if="error" class="bg-red-50 border border-red-200 rounded-md p-4">

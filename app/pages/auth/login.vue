@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
-      <UiBaseCard class="backdrop-blur-sm shadow-xl">
+      <BaseCard class="backdrop-blur-sm shadow-xl">
         <!-- Header -->
         <div class="text-center mb-8">
           <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
@@ -21,7 +21,7 @@
             <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
-            <UiBaseInput
+            <BaseInput
               id="email"
               v-model="formState.email"
               type="email"
@@ -39,7 +39,7 @@
             <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
               Contraseña
             </label>
-            <UiBaseInput
+            <BaseInput
               id="password"
               v-model="formState.password"
               :type="showPassword ? 'text' : 'password'"
@@ -59,13 +59,13 @@
                   <Icon :name="showPassword ? 'bx:hide' : 'bx:show'" class="h-5 w-5" />
                 </button>
               </template>
-            </UiBaseInput>
+            </BaseInput>
             <p v-if="passwordError" class="mt-1 text-sm text-red-600">{{ passwordError }}</p>
           </div>
           
           <!-- Forgot Password -->
           <div class="flex justify-end">
-            <UiBaseButton
+            <BaseButton
               variant="link"
               color="primary"
               size="sm"
@@ -73,11 +73,11 @@
               @click="showResetPassword = true"
             >
               ¿Olvidaste tu contraseña?
-            </UiBaseButton>
+            </BaseButton>
           </div>
           
           <!-- Submit Button -->
-          <UiBaseButton
+          <BaseButton
             type="submit"
             block
             size="lg"
@@ -87,10 +87,10 @@
             :leading-icon="!loading ? 'bx:log-in' : undefined"
           >
             {{ loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
-          </UiBaseButton>
+          </BaseButton>
           
           <!-- Authentication Error -->
-          <UiBaseAlert
+          <BaseAlert
             v-if="error"
             variant="error"
             title="Error de autenticación"
@@ -99,10 +99,10 @@
             @close="error = ''"
           />
         </form>
-      </UiBaseCard>
+      </BaseCard>
       
       <!-- Reset Password Modal -->
-      <UiBaseModal :show="showResetPassword" @close="cancelReset">
+      <BaseModal :show="showResetPassword" @close="cancelReset">
         <template #header>
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -118,7 +118,7 @@
                 </p>
               </div>
             </div>
-            <UiBaseButton
+            <BaseButton
               variant="ghost"
               color="gray"
               leading-icon="bx:x"
@@ -132,7 +132,7 @@
             <label for="reset-email" class="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
-            <UiBaseInput
+            <BaseInput
               id="reset-email"
               v-model="resetState.email"
               type="email"
@@ -146,24 +146,24 @@
           </div>
           
           <div class="flex gap-3 pt-4">
-            <UiBaseButton
+            <BaseButton
               variant="outline"
               block
               :disabled="resetLoading"
               @click="cancelReset"
             >
               Cancelar
-            </UiBaseButton>
-            <UiBaseButton
+            </BaseButton>
+            <BaseButton
               type="submit"
               block
               :loading="resetLoading"
             >
               Enviar Enlace
-            </UiBaseButton>
+            </BaseButton>
           </div>
         </form>
-      </UiBaseModal>
+      </BaseModal>
     </div>
   </div>
 </template>
