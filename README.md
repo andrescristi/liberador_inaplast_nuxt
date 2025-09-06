@@ -249,11 +249,17 @@ tests/                                 # Suite completa de testing
 ├── components/                        # Tests componentes Vue
 │   └── orders/OrderWizardStep1.test.ts
 ├── composables/                       # Tests lógica composables
-│   └── auth/useAuthLogin.test.ts
+│   ├── auth/useAuthLogin.test.ts          # Tests sistema legado
+│   └── auth/useHybridAuth.test.ts         # Tests sistema híbrido
+├── middleware/                        # Tests middleware de rutas
+│   └── hybrid-auth.test.ts                # Tests autenticación híbrida
 ├── api/                               # Tests endpoints API
-│   └── auth/login.test.ts
+│   ├── auth/login.test.ts                 # Tests endpoint login
+│   ├── auth/logout.test.ts                # Tests endpoint logout
+│   └── auth/refresh.test.ts               # Tests endpoint refresh
 ├── e2e/                               # Tests end-to-end
-│   └── auth-flow.spec.ts
+│   ├── auth-flow.spec.ts                  # Flujo completo autenticación
+│   └── hybrid-auth-flow.spec.ts           # Flujo híbrido completo
 └── setup.ts                           # Configuración testing
 ```
 
@@ -403,18 +409,20 @@ npx tsc --noEmit
 
 ## ⚙️ Funcionalidades Principales
 
-### 1. Sistema de Autenticación
+### 1. Sistema de Autenticación Híbrida
 
-**Características:**
-- Autenticación híbrida (tokens + cookies)
-- Tres roles: Admin, Supervisor, Inspector
-- JWT tokens con validación de expiración
-- Optimizado para dispositivos móviles
+**Características principales:**
+- Sistema híbrido JWT + Session ID para máxima seguridad
+- Tres roles: Admin, Supervisor, Inspector con permisos granulares
+- JWT en localStorage + Session cookies httpOnly
+- Verificación dual cliente/servidor con validación de expiración
+- Optimizado para dispositivos móviles y aplicaciones web
 
 **Componentes clave:**
-- `useAuthState()` - Estado reactivo del usuario
-- `useAuthLogin()` - Operaciones login/logout
-- `useAuthToken()` - Gestión de tokens JWT
+- `useHybridAuth()` - Composable principal de autenticación híbrida
+- `useAuthStore()` - Store de Pinia para estado global centralizado
+- `server/utils/hybrid-auth.ts` - Utilidades server-side para verificación
+- Middlewares: `auth.ts` (básico) y `admin.ts` (permisos)
 
 ### 2. Proceso de Liberación de Productos
 
@@ -448,7 +456,164 @@ npx tsc --noEmit
 - Composables de negocio (`useAdminUserCRUD`, `useAdminUserManager`)
 - APIs seguras con validación de permisos
 
-### 4. Sistema de Muestreo Estadístico
+### 4. Sistema de Autenticación Híbrida (JWT + Session)
+
+**Características del Sistema:**
+- **Doble autenticación**: Combinación de JWT (stateless) + Session ID (stateful)
+- **JWT en localStorage**: Tokens de acceso almacenados localmente para operaciones del cliente
+- **Session ID en cookies**: Identificador de sesión seguro (httpOnly, secure) para validación server-side
+- **Verificación dual**: Ambos tokens deben ser válidos para acceso completo
+- **Expiración sincronizada**: JWT y sesiones expiran después de 7 días de inactividad
+- **Limpieza automática**: Sesiones expiradas se eliminan automáticamente del servidor
+
+**Arquitectura del Sistema:**
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Server-side    │    │   Almacén       │
+│   (Cliente)     │    │   (Verificación) │    │   (Sesiones)    │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+         │                       │                       │
+    JWT (localStorage)       Session ID (cookie)    Map<sessionId,
+    ┌────▼────┐            ┌─────▼─────┐            SessionData>
+    │ Token   │            │ Secure    │           ┌─────▼─────┐
+    │ Access  │◄───────────┤ Cookie    │           │ Memory    │
+    │ Bearer  │            │ httpOnly  │           │ Store     │
+    └─────────┘            └───────────┘           └───────────┘
+```
+
+**Componentes Principales:**
+
+1. **Composable Principal (`useHybridAuth`)**:
+   - Estado global reactivo de autenticación
+   - Gestión automática de JWT y verificación de expiración
+   - Métodos: `login()`, `logout()`, `checkAuth()`, `refresh()`
+   - Headers de autorización automáticos para requests
+
+2. **Store de Pinia (`useAuthStore`)**:
+   - Estado centralizado de la aplicación
+   - Getters para roles (`isAdmin`, `isSupervisor`, `isInspector`)
+   - Inicialización automática y verificación de estado
+   - Integración con el composable híbrido
+
+3. **Utilidades Server-side (`server/utils/hybrid-auth.ts`)**:
+   - Funciones de autenticación: `authenticateUser()`, `verifyHybridAuth()`
+   - Gestión de sesiones: `createSession()`, `verifySession()`, `destroySession()`
+   - Middleware de autorización: `requireHybridAdminAuth()`
+   - Limpieza automática de sesiones expiradas
+
+4. **Middlewares de Rutas**:
+   - `auth.ts`: Verificación básica de autenticación
+   - `admin.ts`: Verificación de permisos de administrador
+   - Uso correcto: `middleware: ['auth']` o `middleware: ['auth', 'admin']`
+
+**Flujo de Autenticación:**
+
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant S as Servidor
+    participant DB as Supabase
+    participant M as Memory Store
+    
+    C->>S: POST /api/auth/login {email, password}
+    S->>DB: Verificar credenciales
+    DB-->>S: Usuario autenticado
+    S->>S: Crear JWT + Session ID
+    S->>M: Almacenar sesión
+    S->>C: Set-Cookie: session_id (httpOnly)
+    S-->>C: {jwt, user} (response body)
+    C->>C: Almacenar JWT en localStorage
+    
+    Note over C,M: Operaciones subsecuentes
+    C->>S: Request con Authorization: Bearer JWT
+    S->>S: Verificar JWT
+    S->>S: Verificar Cookie session_id
+    S->>M: Validar sesión activa
+    M-->>S: Sesión válida
+    S-->>C: Respuesta autorizada
+```
+
+**Uso del Sistema:**
+
+```typescript
+// En componentes Vue
+const { 
+  user, 
+  isAuthenticated, 
+  isAdmin, 
+  login, 
+  logout, 
+  checkAuth 
+} = useHybridAuth()
+
+// Login
+await login('admin@inaplast.com', 'password')
+
+// Verificar autenticación
+if (isAuthenticated.value) {
+  // Usuario autenticado
+}
+
+// Verificar permisos
+if (isAdmin.value) {
+  // Acceso de administrador
+}
+
+// Headers automáticos en requests
+const { getAuthHeaders } = useHybridAuth()
+const headers = getAuthHeaders() // { 'Authorization': 'Bearer ...', 'X-Auth-Token': '...' }
+```
+
+```vue
+<!-- En páginas protegidas -->
+<script setup>
+// Middleware básico de autenticación
+definePageMeta({
+  middleware: 'auth' // Array de un elemento = ['auth']
+})
+
+// Middleware para páginas admin
+definePageMeta({
+  middleware: ['auth', 'admin'] // Ambos middlewares
+})
+</script>
+```
+
+**Endpoints de Autenticación:**
+
+- `POST /api/auth/login` - Autenticación inicial
+- `GET /api/auth/user` - Verificar estado de autenticación
+- `POST /api/auth/logout` - Cerrar sesión (limpiar servidor + cliente)
+- `POST /api/auth/refresh` - Renovar JWT y extender sesión
+
+**Configuración de Seguridad:**
+
+```env
+# Variables requeridas en .env
+NUXT_JWT_SECRET=tu_secret_key_de_64_caracteres_minimo
+SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_ANON_KEY=tu_anon_key
+SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
+```
+
+**Ventajas del Sistema Híbrido:**
+
+✅ **Seguridad multicapa**: JWT + Session ID requieren comprometer ambos tokens
+✅ **Revocación inmediata**: Sesiones server-side pueden invalidarse instantáneamente
+✅ **Performance**: JWT permite verificación local sin requests adicionales
+✅ **Escalabilidad**: Memory store puede migrar a Redis sin cambios de código
+✅ **Compatibilidad**: Funciona en SSR, SPA y dispositivos móviles
+✅ **Auditabilidad**: Registro completo de sesiones activas y actividad
+
+**Consideraciones de Producción:**
+
+⚠️ **Memory Store**: En producción migrar a Redis para alta disponibilidad
+⚠️ **Secrets Management**: Usar variables de entorno seguras para JWT_SECRET
+⚠️ **HTTPS Only**: Cookies seguras requieren HTTPS en producción
+⚠️ **Session Cleanup**: Monitorear uso de memoria del almacén de sesiones
+
+### 5. Sistema de Muestreo Estadístico
 
 **Características:**
 - **Planes de muestreo**: Basados en estándares industriales MIL-STD
@@ -460,7 +625,132 @@ npx tsc --noEmit
 
 ## 🔧 Mejoras Técnicas Importantes
 
-### Arreglo Crítico: Estado de Autenticación Global (v2.8.5+)
+### Arreglo Crítico: Middleware de Autenticación (v3.0.0+)
+
+**Problema solucionado:** Las páginas protegidas como `/orders/new` causaban que los usuarios autenticados perdieran la sesión inmediatamente después del login, especialmente en la funcionalidad de creación de órdenes.
+
+**Causa raíz identificada:** Uso incorrecto de middleware en las definiciones de página. Se usó `middleware: 'auth'` (string) en lugar del formato correcto `middleware: ['auth']` (array), lo que causaba errores de hidratación y pérdida de estado de autenticación.
+
+**Solución técnica implementada:**
+
+1. **Corrección del formato de middleware:**
+   ```vue
+   <!-- ❌ INCORRECTO - Causa pérdida de sesión -->
+   <script setup>
+   definePageMeta({
+     middleware: 'auth' // String - EVITAR
+   })
+   </script>
+   
+   <!-- ✅ CORRECTO - Funciona correctamente -->
+   <script setup>
+   definePageMeta({
+     middleware: ['auth'] // Array - USAR SIEMPRE
+   })
+   </script>
+   ```
+
+2. **Implementación del sistema híbrido mejorado:**
+   ```typescript
+   // app/middleware/auth.ts - Verificación dual
+   export default defineNuxtRouteMiddleware(async (_to) => {
+     const { checkAuth, hasValidJWT } = useHybridAuth()
+     
+     // Verificación rápida con JWT local
+     if (!hasValidJWT()) {
+       return navigateTo('/auth/login')
+     }
+     
+     // Verificación con servidor (JWT + Session)
+     const isAuthenticated = await checkAuth()
+     if (!isAuthenticated) {
+       return navigateTo('/auth/login')
+     }
+   })
+   ```
+
+3. **Middleware de autorización por roles:**
+   ```typescript
+   // app/middleware/admin.ts - Permisos granulares
+   export default defineNuxtRouteMiddleware(async (_to) => {
+     const { checkAuth, isAdmin } = useHybridAuth()
+     
+     const isAuthenticated = await checkAuth()
+     if (!isAuthenticated) {
+       return navigateTo('/auth/login')
+     }
+     
+     if (!isAdmin.value) {
+       throw createError({
+         statusCode: 403,
+         statusMessage: 'Se requieren permisos de administrador'
+       })
+     }
+   })
+   ```
+
+**Patrones de uso correctos por tipo de página:**
+
+```vue
+<!-- Páginas públicas (sin middleware) -->
+<script setup>
+// login.vue, landing page, etc.
+// NO definir middleware
+</script>
+
+<!-- Páginas que requieren autenticación básica -->
+<script setup>
+// orders/new.vue, dashboard, profile, etc.
+definePageMeta({
+  middleware: ['auth'] // Solo autenticación
+})
+</script>
+
+<!-- Páginas de administración -->
+<script setup>
+// admin/users.vue, admin/settings.vue, etc.
+definePageMeta({
+  middleware: ['auth', 'admin'] // Autenticación + Autorización
+})
+</script>
+
+<!-- Páginas con roles específicos (futuro) -->
+<script setup>
+// supervisor/reports.vue, etc.
+definePageMeta({
+  middleware: ['auth', 'supervisor'] // Ejemplo de extensión
+})
+</script>
+```
+
+**Impacto positivo de la solución:**
+- ✅ **Para usuarios**: Sesión estable durante todo el flujo de creación de órdenes
+- ✅ **Para desarrolladores**: Sintaxis clara y consistente en toda la aplicación
+- ✅ **Para el sistema**: Mejor rendimiento y menos re-autenticaciones innecesarias
+- ✅ **Para mantenimiento**: Middlewares reutilizables y fáciles de testear
+
+**Archivos modificados en esta mejora:**
+- `app/pages/orders/new.vue` - Corrección del middleware
+- `app/middleware/auth.ts` - Middleware híbrido mejorado
+- `app/middleware/admin.ts` - Nuevo middleware de autorización
+- `app/composables/auth/useHybridAuth.ts` - Sistema híbrido completo
+- `server/utils/hybrid-auth.ts` - Utilidades server-side de autenticación
+- `app/stores/auth.ts` - Store centralizado de Pinia
+
+**Pruebas implementadas:**
+```bash
+# Tests de middleware
+tests/middleware/hybrid-auth.test.ts
+tests/composables/auth/useHybridAuth.test.ts
+
+# Ejecutar tests específicos
+pnpm test middleware
+pnpm test composables/auth
+```
+
+Esta solución garantiza que el sistema de autenticación funcione de manera consistente en toda la aplicación, eliminando los problemas de pérdida de sesión que afectaban la experiencia del usuario.
+
+### Arreglo Crítico Previo: Estado de Autenticación Global (v2.8.5+)
 
 **Problema solucionado:** Los usuarios administradores no veían las opciones de administración en el navbar después de un login exitoso, lo que impedía el acceso al panel administrativo.
 
@@ -509,6 +799,80 @@ npx tsc --noEmit
 
 Esta mejora garantiza que el sistema de roles y permisos funcione correctamente desde el primer momento después del login, mejorando significativamente la experiencia de usuario para los administradores del sistema.
 
+### Guía de Troubleshooting del Sistema de Autenticación
+
+**Problemas Comunes y Soluciones:**
+
+1. **Usuario pierde sesión al navegar entre páginas**
+   ```bash
+   # Verificar formato de middleware en la página afectada
+   # ❌ Incorrecto: middleware: 'auth'
+   # ✅ Correcto: middleware: ['auth']
+   ```
+
+2. **Error "Token de autenticación requerido"**
+   ```typescript
+   // Verificar en DevTools
+   localStorage.getItem('inaplast_hybrid_jwt') // Debe existir
+   document.cookie // Debe contener 'inaplast_session_id'
+   ```
+
+3. **Headers de autorización no se envían**
+   ```typescript
+   const { getAuthHeaders } = useHybridAuth()
+   const headers = getAuthHeaders()
+   console.log(headers) // Debe mostrar Authorization y X-Auth-Token
+   ```
+
+4. **Error 403 en páginas de admin**
+   ```typescript
+   const { isAdmin, checkAuth } = useHybridAuth()
+   await checkAuth()
+   console.log('Es admin:', isAdmin.value) // Verificar rol
+   ```
+
+5. **Sesión expira inesperadamente**
+   ```bash
+   # Verificar variables de entorno
+   echo $NUXT_JWT_SECRET # Debe estar configurado
+   # Verificar logs del servidor para sesiones expiradas
+   ```
+
+**Comandos útiles para debugging:**
+
+```bash
+# Verificar estado de autenticación en consola del navegador
+const { user, isAuthenticated, checkAuth } = useHybridAuth()
+await checkAuth()
+console.log('Usuario:', user.value)
+console.log('Autenticado:', isAuthenticated.value)
+
+# Limpiar estado de autenticación (logout forzoso)
+localStorage.removeItem('inaplast_hybrid_jwt')
+document.cookie = 'inaplast_session_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+location.reload()
+
+# Verificar expiración de JWT
+const jwt = localStorage.getItem('inaplast_hybrid_jwt')
+if (jwt) {
+  const parsed = JSON.parse(jwt)
+  const expiresAt = new Date(parsed.expires_at * 1000)
+  console.log('JWT expira:', expiresAt)
+  console.log('Tiempo restante:', expiresAt - new Date())
+}
+```
+
+**Mejores Prácticas:**
+
+- ✅ Siempre usar `middleware: ['auth']` (array) en lugar de `middleware: 'auth'` (string)
+- ✅ Combinar middlewares para permisos granulares: `['auth', 'admin']`
+- ✅ Verificar autenticación antes de operaciones críticas
+- ✅ Manejar errores de autenticación con redirects apropiados
+- ✅ Limpiar estado de autenticación en logout completo
+- ❌ Evitar verificaciones de autenticación durante SSR
+- ❌ No almacenar datos sensibles en JWT (solo identificadores)
+- ❌ No confiar solo en verificación client-side para operaciones críticas
+
 ## 🧪 Testing
 
 ### Estructura de Testing
@@ -529,36 +893,115 @@ pnpm test --watch            # Modo watch
 pnpm test:coverage           # Reporte de cobertura
 pnpm test:ui                 # Runner visual
 
+# Tests específicos del sistema híbrido
+pnpm test composables/auth/useHybridAuth  # Tests composable híbrido
+pnpm test middleware                      # Tests middleware de rutas
+pnpm test api/auth                        # Tests endpoints autenticación
+
 # E2E testing con Playwright
 pnpm test:e2e                # Cross-browser E2E
 pnpm test:e2e:ui             # Runner visual E2E
 pnpm test:e2e --headed       # Con interfaz visual
+pnpm test:e2e hybrid-auth-flow # Test flujo híbrido completo
 ```
 
 ### Ejemplo de Test
 
 ```typescript
-// tests/composables/auth/useAuthLogin.test.ts
+// tests/composables/auth/useHybridAuth.test.ts
 import { describe, it, expect, vi } from 'vitest'
-import { useAuthLogin } from '~/composables/auth/useAuthLogin'
+import { useHybridAuth } from '~/composables/auth/useHybridAuth'
 
-describe('useAuthLogin', () => {
-  it('should login user successfully', async () => {
-    const { login, isLoading, error } = useAuthLogin()
+describe('useHybridAuth', () => {
+  it('should perform hybrid login successfully', async () => {
+    const { login, isAuthenticated, user } = useHybridAuth()
     
-    // Mock de API
+    // Mock de API con respuesta híbrida
     global.$fetch = vi.fn().mockResolvedValue({
-      user: { id: '123', email: 'test@inaplast.com' },
-      token: 'jwt-token'
+      success: true,
+      jwt: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...',
+      user: { 
+        id: '123', 
+        email: 'admin@inaplast.com', 
+        role: 'Admin',
+        first_name: 'Admin',
+        last_name: 'Sistema'
+      }
     })
     
-    await login('test@inaplast.com', 'password')
-    
-    expect(error.value).toBe(null)
-    expect(global.$fetch).toHaveBeenCalledWith('/api/auth/login', {
-      method: 'POST',
-      body: { email: 'test@inaplast.com', password: 'password' }
+    // Mock localStorage
+    Object.defineProperty(window, 'localStorage', {
+      value: {
+        setItem: vi.fn(),
+        getItem: vi.fn().mockReturnValue(null),
+        removeItem: vi.fn()
+      }
     })
+    
+    await login('admin@inaplast.com', 'password')
+    
+    expect(isAuthenticated.value).toBe(true)
+    expect(user.value?.role).toBe('Admin')
+    expect(localStorage.setItem).toHaveBeenCalled()
+  })
+  
+  it('should verify JWT expiration correctly', () => {
+    const { hasValidJWT } = useHybridAuth()
+    
+    // Mock JWT expirado
+    const expiredToken = {
+      access_token: 'expired-jwt',
+      expires_at: Math.floor(Date.now() / 1000) - 3600, // Hace 1 hora
+      user_id: '123'
+    }
+    
+    localStorage.getItem = vi.fn().mockReturnValue(
+      JSON.stringify(expiredToken)
+    )
+    
+    expect(hasValidJWT()).toBe(false)
+  })
+})
+
+// tests/middleware/hybrid-auth.test.ts
+import { describe, it, expect, vi } from 'vitest'
+import authMiddleware from '~/middleware/auth'
+
+describe('auth middleware', () => {
+  it('should redirect to login when no valid JWT', async () => {
+    const mockTo = { path: '/orders/new' }
+    const mockNavigateTo = vi.fn()
+    
+    // Mock global functions
+    global.navigateTo = mockNavigateTo
+    global.import = vi.fn().mockResolvedValue({
+      useHybridAuth: () => ({
+        hasValidJWT: () => false,
+        checkAuth: vi.fn()
+      })
+    })
+    
+    await authMiddleware(mockTo)
+    
+    expect(mockNavigateTo).toHaveBeenCalledWith('/auth/login')
+  })
+  
+  it('should allow access with valid authentication', async () => {
+    const mockTo = { path: '/orders/new' }
+    const mockNavigateTo = vi.fn()
+    
+    global.navigateTo = mockNavigateTo
+    global.import = vi.fn().mockResolvedValue({
+      useHybridAuth: () => ({
+        hasValidJWT: () => true,
+        checkAuth: vi.fn().mockResolvedValue(true)
+      })
+    })
+    
+    const result = await authMiddleware(mockTo)
+    
+    expect(result).toBeUndefined() // No redirección
+    expect(mockNavigateTo).not.toHaveBeenCalled()
   })
 })
 ```
