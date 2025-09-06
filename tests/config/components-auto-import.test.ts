@@ -14,17 +14,17 @@ describe('Configuración de Auto-importación de Componentes', () => {
     expect(configContent).toBeTruthy()
   })
 
-  it('incluye configuración de componentes con prefijos', () => {
+  it('incluye configuración de componentes sin prefijo para UI', () => {
     configContent = readFileSync(configPath, 'utf-8')
     
     // Verificar que la configuración de componentes existe
     expect(configContent).toContain('components:')
     
-    // Verificar prefijo Ui para componentes UI
-    expect(configContent).toContain(`prefix: 'Ui'`)
+    // Verificar que NO tiene prefijo Ui para componentes UI (se removió)
+    expect(configContent).not.toContain(`prefix: 'Ui'`)
     expect(configContent).toContain(`path: '~/components/ui'`)
     
-    // Verificar prefijo Core para componentes core
+    // Verificar prefijo Core para componentes core (se mantiene)
     expect(configContent).toContain(`prefix: 'Core'`)
     expect(configContent).toContain(`path: '~/components/core'`)
   })
@@ -75,8 +75,8 @@ describe('Configuración de Auto-importación de Componentes', () => {
     it('cada entrada de componente tiene la estructura correcta', () => {
       configContent = readFileSync(configPath, 'utf-8')
       
-      // Verificar estructura básica para componentes UI
-      const uiComponentConfig = configContent.match(/{\s*path:\s*'~\/components\/ui',\s*prefix:\s*'Ui',\s*global:\s*true\s*}/s)
+      // Verificar estructura básica para componentes UI (sin prefijo)
+      const uiComponentConfig = configContent.match(/{\s*path:\s*'~\/components\/ui',\s*global:\s*true\s*}/s)
       expect(uiComponentConfig).toBeTruthy()
       
       // Verificar estructura básica para componentes Core  
