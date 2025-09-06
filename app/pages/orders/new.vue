@@ -5,7 +5,7 @@
 <script setup lang="ts">
 // Meta and middleware
 definePageMeta({
-  middleware: 'auth'
+  middleware: ['auth']
 })
 
 // Head management
