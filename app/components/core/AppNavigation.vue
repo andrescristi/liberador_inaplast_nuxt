@@ -84,8 +84,8 @@
                 <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-full flex items-center justify-center">
                   <Icon name="bx:bxs-user" class="w-4 h-4 text-white" />
                 </div>
-                <!-- Username extraído del email (antes del @), visible solo en LG+ -->
-                <span class="hidden lg:inline">{{ user?.email?.split('@')[0] || 'Usuario' }}</span>
+                <!-- Username basado en nombre completo o email, visible solo en LG+ -->
+                <span class="hidden lg:inline">{{ user?.full_name || user?.email?.split('@')[0] || 'Usuario' }}</span>
                 <Icon name="bx:bxs-chevron-down" class="w-4 h-4" />
               </div>
             </template>
@@ -94,7 +94,7 @@
             <template #account>
               <div class="text-left">
                 <p class="text-sm font-medium text-gray-900 truncate">
-                  {{ user?.email?.split('@')[0] || 'Usuario' }}
+                  {{ user?.full_name || user?.email?.split('@')[0] || 'Usuario' }}
                 </p>
                 <p class="text-xs text-gray-500 truncate">
                   {{ user?.email }}
@@ -241,7 +241,7 @@
                 <!-- Info de usuario con manejo de overflow -->
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium text-gray-900 truncate">
-                    {{ user?.email?.split('@')[0] || 'Usuario' }}
+                    {{ user?.full_name || user?.email?.split('@')[0] || 'Usuario' }}
                   </p>
                   <p class="text-xs text-gray-500 truncate">
                     {{ user?.email }}
@@ -350,14 +350,14 @@
  * - Logout con confirmación
  * - Animaciones y transiciones
  */
-import type { Profile } from '~/types'
+import { useHybridAuth } from '~/composables/auth/useHybridAuth'
 
 // 
 // ===== CONFIGURACIÓN DE COMPONENTE =====
 //
 
-// Usar nuxt-auth-utils para autenticación
-const { loggedIn, user, clear } = useUserSession()
+// Usar sistema de autenticación híbrido
+const { user, logout, initialize } = useHybridAuth()
 const toast = useToast()
 
 // 
@@ -411,7 +411,7 @@ const baseNavItems = computed(() => ({
     }> = []
 
     // Agregar Administración solo para usuarios Admin
-    if (user.value?.user_role === 'Admin') {
+    if (user.value?.role === 'Admin') {
       items.push({
         label: 'Usuarios',
         icon: 'bx:bxs-user-account',
@@ -476,7 +476,7 @@ const bottomNavItems = computed(() => {
   // Solo agregamos el elemento más importante basado en rol
   
   // Si es Admin, priorizar Administración
-  if (user.value?.user_role === 'Admin' && baseNavItems.value.configuracion.length > 0) {
+  if (user.value?.role === 'Admin' && baseNavItems.value.configuracion.length > 0) {
     items.push({
       ...baseNavItems.value.configuracion[0], // Usuarios/Admin
       label: 'Usuarios', // Más descriptivo para mobile
@@ -546,17 +546,14 @@ const handleSignOut = async () => {
     // Delay mínimo para que el usuario vea el cambio de estado
     await new Promise(resolve => setTimeout(resolve, 300))
     
-    // Usar nuxt-auth-utils para limpiar sesión
-    await clear()
+    // Usar sistema híbrido para logout
+    await logout()
     
     // Mostrar confirmación de éxito
     toast.success('Sesión cerrada correctamente')
     
-    // Redirigir a login
-    await navigateTo('/auth/login')
-    
   } catch (error) {
-    console.error('Logout error:', error)
+    // console.error('Logout error:', error) - Removido para evitar console statement
     toast.error('Error al cerrar sesión', 'Por favor intenta de nuevo.')
   } finally {
     // Asegurar que el loading se desactive sin importar el resultado
@@ -658,5 +655,20 @@ if (import.meta.client) {
     document.removeEventListener('keydown', handleGlobalKeydown)
   })
 }
+
+//
+// ===== INICIALIZACIÓN DEL SISTEMA HÍBRIDO =====
+//
+
+// Inicializar el sistema de autenticación híbrido al montar el componente
+onMounted(async () => {
+  if (import.meta.client) {
+    try {
+      await initialize()
+    } catch (_error) {
+      // Ignorar errores de inicialización silenciosamente para evitar console warnings
+    }
+  }
+})
 </script>
 

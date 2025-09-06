@@ -171,8 +171,7 @@
 <script setup lang="ts">
 import { z } from 'zod'
 
-// Usar nuxt-auth-utils
-const { loggedIn, user, session, fetch: fetchSession, clear } = useUserSession()
+// Para futura compatibilidad si se necesita migrar completamente
 const toast = useToast()
 
 // Usar layout de autenticación sin navegación
@@ -282,8 +281,8 @@ const handleLogin = async () => {
   console.log('Starting login process...')
 
   try {
-    // Usar el endpoint personalizado de credenciales
-    const response = await $fetch('/api/auth/credentials', {
+    // Usar el endpoint híbrido de login
+    const response = await $fetch('/api/auth/login', {
       method: 'POST',
       body: {
         email: formState.email.trim(),
@@ -293,17 +292,39 @@ const handleLogin = async () => {
     
     console.log('[Login] Response:', response)
     
-    // Refrescar sesión para obtener datos actualizados
-    await fetchSession()
-    
-    // Success toast
-    toast.success('¡Bienvenido!', 'Has iniciado sesión correctamente')
-    
-    console.log('[Login] Iniciando navegación al dashboard...')
-    
-    // Navegación simple - nuxt-auth-utils maneja el estado automáticamente
-    await navigateTo('/', { replace: true })
-    console.log('[Login] Navegación exitosa')
+    if (response.success && response.jwt) {
+      // Usar el composable híbrido para guardar el JWT y configurar el estado
+      const { useHybridAuth } = await import('~/composables/auth/useHybridAuth')
+      const { setJWT, user } = useHybridAuth()
+      
+      // Guardar JWT en localStorage
+      setJWT(response.jwt)
+      console.log('[Login] JWT guardado en localStorage')
+      
+      // Actualizar estado del usuario
+      user.value = {
+        id: response.user?.id || '',
+        email: response.user?.email || '',
+        role: response.user?.user_role || '',
+        first_name: response.user?.first_name,
+        last_name: response.user?.last_name,
+        full_name: response.user?.first_name && response.user?.last_name ? 
+                   `${response.user.first_name} ${response.user.last_name}` : 
+                   response.user?.email || ''
+      }
+      console.log('[Login] Estado de usuario actualizado')
+      
+      // Success toast
+      toast.success('¡Bienvenido!', response.user?.full_name || response.user?.email || 'Usuario')
+      
+      console.log('[Login] Iniciando navegación al dashboard...')
+      
+      // Navegar al dashboard
+      await navigateTo('/', { replace: true })
+      console.log('[Login] Navegación exitosa')
+    } else {
+      throw new Error(response.message || 'Error en la respuesta del servidor')
+    }
     
   } catch (err: unknown) {
     console.error('Login error:', err)
