@@ -625,6 +625,90 @@ SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
 
 ## 🔧 Mejoras Técnicas Importantes
 
+### Arreglo Crítico: Configuración de Auto-importación de Componentes UI (v3.1.0+)
+
+**Problema solucionado:** Los botones y componentes UI no se visualizaban correctamente en las páginas de login y administración de usuarios, apareciendo como texto plano en lugar de componentes estilizados.
+
+**Causa raíz identificada:** Inconsistencia en la configuración de auto-importación de componentes UI. El sistema tenía configurado un prefijo "Ui" para los componentes de la carpeta `~/components/ui`, pero algunos archivos los usaban con prefijo (`UiBaseButton`) y otros sin prefijo (`BaseButton`), creando conflictos de resolución.
+
+**Solución técnica implementada:**
+
+1. **Eliminación del prefijo "Ui" en la configuración de Nuxt:**
+   ```typescript
+   // nuxt.config.ts
+   // ❌ Antes: Causaba inconsistencias
+   {
+     path: '~/components/ui',
+     prefix: 'Ui',
+     global: true
+   }
+   
+   // ✅ Ahora: Nomenclatura consistente sin prefijo
+   {
+     path: '~/components/ui',
+     global: true
+   }
+   ```
+
+2. **Actualización consistente en todos los archivos afectados:**
+   ```vue
+   <!-- ❌ Antes: Uso inconsistente -->
+   <UiBaseButton>Botón</UiBaseButton>
+   
+   <!-- ✅ Ahora: Nomenclatura unificada -->
+   <BaseButton>Botón</BaseButton>
+   ```
+
+3. **Archivos actualizados para usar nomenclatura sin prefijo:**
+   - `app/pages/auth/login.vue` - Componentes de autenticación
+   - `app/pages/auth/reset-password.vue` - Recuperación de contraseña  
+   - `app/components/core/AppNavigation.vue` - Navegación principal
+   - `app/pages/index.vue` - Dashboard principal
+
+**Componentes UI afectados y corregidos:**
+- `BaseButton` - Botones con variantes y estados
+- `BaseInput` - Campos de entrada con validación
+- `BaseCard` - Tarjetas contenedoras
+- `BaseModal` - Modales y diálogos
+- `BaseAlert` - Alertas y notificaciones
+- `BaseDropdown` - Menús desplegables
+- `BaseTable` - Tablas de datos
+- `BaseBadge` - Etiquetas y badges
+
+**Tests implementados para prevenir regresiones:**
+```typescript
+// tests/components/ui/component-resolution.test.ts
+describe('UI Component Resolution', () => {
+  it('should resolve BaseButton component without prefix', () => {
+    const wrapper = createWrapper('<BaseButton>Test</BaseButton>')
+    expect(wrapper.findComponent({ name: 'BaseButton' }).exists()).toBe(true)
+  })
+})
+
+// tests/config/components-auto-import.test.ts
+describe('Components Auto-import Configuration', () => {
+  it('should NOT include Ui prefix for UI components', () => {
+    expect(configContent).not.toContain(`prefix: 'Ui'`)
+    expect(configContent).toContain(`path: '~/components/ui'`)
+  })
+})
+```
+
+**Impacto positivo de la solución:**
+- ✅ **Para usuarios**: Botones y componentes UI se renderizan correctamente
+- ✅ **Para desarrolladores**: Nomenclatura consistente y predictible en toda la aplicación
+- ✅ **Para el sistema**: Resolución de componentes más eficiente sin conflictos de nombres
+- ✅ **Para mantenimiento**: Configuración simplificada que evita futuros errores de inconsistencia
+
+**Evidencia de la corrección:**
+- Página de login: Botones "Iniciar Sesión" y "¿Olvidaste tu contraseña?" funcionan correctamente
+- Tabla de usuarios admin: Botones "Editar", "Resetear" y "Eliminar" se visualizan como componentes estilizados
+- Navegación: Todos los elementos de navegación mantienen su funcionalidad y estilos
+
+Esta mejora garantiza que todos los componentes UI del sistema tengan una nomenclatura consistente y se resuelvan correctamente, eliminando los problemas de visualización que afectaban la experiencia de usuario.
+
+## 🔧 Mejoras Técnicas Importantes
+
 ### Arreglo Crítico: Middleware de Autenticación (v3.0.0+)
 
 **Problema solucionado:** Las páginas protegidas como `/orders/new` causaban que los usuarios autenticados perdieran la sesión inmediatamente después del login, especialmente en la funcionalidad de creación de órdenes.
