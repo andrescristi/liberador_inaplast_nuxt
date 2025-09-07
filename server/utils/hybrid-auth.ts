@@ -228,7 +228,36 @@ export async function verifyHybridAuth(event: H3Event) {
   }
   
   // Verificar sesión
-  const session = verifySession(sessionId)
+  let session = verifySession(sessionId)
+  
+  // RECUPERACIÓN AUTOMÁTICA DE SESIÓN PARA DESARROLLO
+  // Si JWT es válido pero sesión no existe (servidor reiniciado), recrear sesión
+  if (!session && process.env.NODE_ENV === 'development') {
+    console.log('🔄 Sesión perdida detectada en desarrollo. Recreando sesión...')
+    
+    // Crear nueva sesión usando datos del JWT
+    const now = Date.now()
+    sessionStore.set(sessionId, {
+      userId: jwtPayload.user_id,
+      email: jwtPayload.email,
+      userRole: jwtPayload.user_role,
+      createdAt: now,
+      lastActivity: now,
+      expiresAt: now + HYBRID_AUTH_CONFIG.SESSION_DURATION
+    })
+    
+    // Renovar cookie para extender duración
+    setCookie(event, HYBRID_AUTH_CONFIG.COOKIE_NAME, sessionId, {
+      maxAge: HYBRID_AUTH_CONFIG.SESSION_DURATION / 1000,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    })
+    
+    session = sessionStore.get(sessionId)
+    console.log('✅ Sesión recreada exitosamente para:', jwtPayload.email)
+  }
+  
   if (!session) {
     throw createError({
       statusCode: 401,

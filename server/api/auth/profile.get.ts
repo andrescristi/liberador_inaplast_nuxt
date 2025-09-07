@@ -1,24 +1,28 @@
-import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { verifyHybridAuth } from '../../utils/hybrid-auth'
+import { serverSupabaseServiceRole } from '#supabase/server'
 
 /**
  * Endpoint para obtener el perfil completo del usuario autenticado
- * Combina información de Supabase Auth con datos del perfil de la tabla profiles
+ * Usa el sistema de autenticación híbrida (JWT + Session)
  * Reemplaza la funcionalidad de getCurrentUserProfile() para uso desde cliente
  * 
  * @returns Perfil completo del usuario con datos de auth y perfil
  */
 export default defineEventHandler(async (event) => {
   try {
-    const supabase = serverSupabaseServiceRole(event)
-    const user = await serverSupabaseUser(event)
-
-    if (!user) {
+    // Verificar autenticación híbrida (JWT + Session)
+    const auth = await verifyHybridAuth(event)
+    
+    if (!auth) {
       throw createError({
         statusCode: 401,
         statusMessage: 'Autenticación requerida'
       })
     }
 
+    // Usar service role para obtener datos del perfil
+    const supabase = serverSupabaseServiceRole(event)
+    
     // Obtener datos del perfil desde la tabla profiles
     const { data: profile, error } = await supabase
       .from('profiles')
@@ -31,23 +35,24 @@ export default defineEventHandler(async (event) => {
         created_at,
         updated_at
       `)
-      .eq('user_id', user.id)
+      .eq('user_id', auth.userId)
       .single()
 
     if (error) {
+      console.error('Error obteniendo perfil desde BD:', error)
       throw createError({
         statusCode: 404,
         statusMessage: `Error al obtener perfil: ${error.message}`
       })
     }
 
-    // Combinar datos de auth y perfil
+    // Combinar datos de auth híbrida y perfil
     return {
-      // Datos de autenticación
-      id: user.id,
-      email: user.email || '',
-      email_confirmed_at: user.email_confirmed_at,
-      last_sign_in_at: user.last_sign_in_at,
+      // Datos de autenticación híbrida
+      id: auth.userId,
+      email: auth.email,
+      email_confirmed_at: null, // No disponible en sistema híbrido
+      last_sign_in_at: null, // No disponible en sistema híbrido
       
       // Datos del perfil
       profile_id: profile.id,
@@ -58,8 +63,8 @@ export default defineEventHandler(async (event) => {
       user_role: profile.user_role,
       
       // Timestamps
-      auth_created_at: user.created_at,
-      auth_updated_at: user.updated_at,
+      auth_created_at: null, // No disponible en sistema híbrido
+      auth_updated_at: null, // No disponible en sistema híbrido
       profile_created_at: profile.created_at,
       profile_updated_at: profile.updated_at,
       
