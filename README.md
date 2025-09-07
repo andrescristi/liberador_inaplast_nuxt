@@ -409,22 +409,7 @@ npx tsc --noEmit
 
 ## ⚙️ Funcionalidades Principales
 
-### 1. Sistema de Autenticación Híbrida
-
-**Características principales:**
-- Sistema híbrido JWT + Session ID para máxima seguridad
-- Tres roles: Admin, Supervisor, Inspector con permisos granulares
-- JWT en localStorage + Session cookies httpOnly
-- Verificación dual cliente/servidor con validación de expiración
-- Optimizado para dispositivos móviles y aplicaciones web
-
-**Componentes clave:**
-- `useHybridAuth()` - Composable principal de autenticación híbrida
-- `useAuthStore()` - Store de Pinia para estado global centralizado
-- `server/utils/hybrid-auth.ts` - Utilidades server-side para verificación
-- Middlewares: `auth.ts` (básico) y `admin.ts` (permisos)
-
-### 2. Proceso de Liberación de Productos
+### 1. Proceso de Liberación de Productos
 
 **Flujo de 4 pasos:**
 1. **Paso 1**: Subida de imagen de etiqueta + cantidad de unidades
@@ -443,7 +428,7 @@ npx tsc --noEmit
 - Resultados binarios por cada test (`aprobado: boolean`)
 - Trazabilidad completa de decisiones de calidad
 
-### 3. Panel de Administración
+### 2. Panel de Administración
 
 **Funcionalidades:**
 - CRUD completo de usuarios
@@ -456,142 +441,192 @@ npx tsc --noEmit
 - Composables de negocio (`useAdminUserCRUD`, `useAdminUserManager`)
 - APIs seguras con validación de permisos
 
-### 4. Sistema de Autenticación Híbrida (JWT + Session)
+### 3. Sistema de Autenticación Híbrida (JWT + Session)
 
-**Características del Sistema:**
-- **Doble autenticación**: Combinación de JWT (stateless) + Session ID (stateful)
-- **JWT en localStorage**: Tokens de acceso almacenados localmente para operaciones del cliente
-- **Session ID en cookies**: Identificador de sesión seguro (httpOnly, secure) para validación server-side
-- **Verificación dual**: Ambos tokens deben ser válidos para acceso completo
-- **Expiración sincronizada**: JWT y sesiones expiran después de 7 días de inactividad
-- **Limpieza automática**: Sesiones expiradas se eliminan automáticamente del servidor
+> **🔒 Solución Híbrida Avanzada** - Sistema de autenticación de doble factor que resolvió los problemas de pérdida de sesión en el perfil de usuario y garantiza seguridad empresarial.
 
-**Arquitectura del Sistema:**
+**Problema Resuelto:**
+El sistema anterior causaba errores críticos como "No se pudo cargar el perfil del usuario" y pérdida de sesión tras reiniciar el servidor de desarrollo. El sistema híbrido implementado proporciona:
+
+- **Recuperación automática de sesiones** después de reiniciar desarrollo
+- **Autenticación consistente** entre cliente y servidor
+- **Perfiles de usuario estables** sin errores de carga
+- **Seguridad empresarial** con doble verificación
+
+**Arquitectura del Sistema Híbrido:**
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Server-side    │    │   Almacén       │
+│   Frontend      │    │   Server-side    │    │   Memory Store  │
 │   (Cliente)     │    │   (Verificación) │    │   (Sesiones)    │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
          │                       │                       │
-    JWT (localStorage)       Session ID (cookie)    Map<sessionId,
-    ┌────▼────┐            ┌─────▼─────┐            SessionData>
-    │ Token   │            │ Secure    │           ┌─────▼─────┐
-    │ Access  │◄───────────┤ Cookie    │           │ Memory    │
-    │ Bearer  │            │ httpOnly  │           │ Store     │
+    JWT (localStorage)       Session ID (cookie)     SessionData
+    ┌────▼────┐            ┌─────▼─────┐           ┌─────▼─────┐
+    │ Token   │            │ Secure    │           │ {userId,  │
+    │ Access  │◄───────────┤ Cookie    │           │ role,     │
+    │ Bearer  │            │ httpOnly  │           │ expiresAt}│
     └─────────┘            └───────────┘           └───────────┘
 ```
 
 **Componentes Principales:**
 
-1. **Composable Principal (`useHybridAuth`)**:
-   - Estado global reactivo de autenticación
-   - Gestión automática de JWT y verificación de expiración
-   - Métodos: `login()`, `logout()`, `checkAuth()`, `refresh()`
-   - Headers de autorización automáticos para requests
+#### 1. **Utilidades Server-side (`server/utils/hybrid-auth.ts`)**
+Núcleo del sistema híbrido con lógica centralizada:
 
-2. **Store de Pinia (`useAuthStore`)**:
-   - Estado centralizado de la aplicación
-   - Getters para roles (`isAdmin`, `isSupervisor`, `isInspector`)
-   - Inicialización automática y verificación de estado
-   - Integración con el composable híbrido
+```typescript
+// Funciones principales de autenticación
+authenticateUser(event, credentials) // Login con JWT + Session
+verifyHybridAuth(event) // Verificación dual (JWT + Session)
+requireHybridAuth(event) // Middleware de protección
+requireHybridAdminAuth(event) // Middleware con permisos de admin
 
-3. **Utilidades Server-side (`server/utils/hybrid-auth.ts`)**:
-   - Funciones de autenticación: `authenticateUser()`, `verifyHybridAuth()`
-   - Gestión de sesiones: `createSession()`, `verifySession()`, `destroySession()`
-   - Middleware de autorización: `requireHybridAdminAuth()`
-   - Limpieza automática de sesiones expiradas
+// Gestión de sesiones en memoria (desarrollo)
+createSession(userId, role, expirationTime) // Crear sesión
+verifySession(sessionId) // Validar sesión activa  
+destroySession(sessionId) // Eliminar sesión específica
+cleanupExpiredSessions() // Limpieza automática
+```
 
-4. **Middlewares de Rutas**:
-   - `auth.ts`: Verificación básica de autenticación
-   - `admin.ts`: Verificación de permisos de administrador
-   - Uso correcto: `middleware: ['auth']` o `middleware: ['auth', 'admin']`
+#### 2. **Composable Híbrido (`composables/auth/useHybridAuth.ts`)**
+Interface principal del lado cliente:
 
-**Flujo de Autenticación:**
+```typescript
+const {
+  user,                    // Usuario autenticado reactivo
+  isAuthenticated,         // Estado de autenticación
+  isAdmin,                // Verificación de rol admin
+  login,                  // Login híbrido
+  logout,                 // Logout completo (cliente + servidor)
+  checkAuth,              // Verificación de autenticación
+  getAuthHeaders          // Headers automáticos para requests
+} = useHybridAuth()
+```
+
+#### 3. **Composable de Perfil (`composables/auth/useAuthProfile.ts`)**
+Gestión específica de perfiles integrada con sistema híbrido:
+
+```typescript
+const {
+  profile,                // Perfil del usuario actual
+  profileLoading,         // Estado de carga
+  profileError,           // Errores de carga
+  fetchUserProfile,       // Obtener perfil con auth híbrida
+  hasRole,               // Verificar rol específico
+  refreshProfile         // Actualizar perfil
+} = useAuthProfile()
+```
+
+#### 4. **Endpoint de Perfil (`server/api/auth/profile.get.ts`)**
+Endpoint que utiliza autenticación híbrida:
+
+```typescript
+// GET /api/auth/profile - Protegido con auth híbrida
+export default defineEventHandler(async (event) => {
+  // Verificación automática JWT + Session
+  const authUser = await verifyHybridAuth(event)
+  
+  // Obtener perfil desde Supabase con user verificado
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', authUser.id)
+    .single()
+  
+  return { success: true, profile }
+})
+```
+
+**Características Técnicas:**
+
+- **Duración de sesión**: 7 días configurables
+- **Almacenamiento**: Memory store para desarrollo (migrable a Redis)
+- **Cookies**: HttpOnly, Secure, SameSite para máxima seguridad
+- **JWT**: Tokens de acceso con expiración sincronizada
+- **Limpieza automática**: Sesiones expiradas se eliminan cada hora
+- **Roles soportados**: Admin, Supervisor, Inspector
+
+**Flujo de Autenticación Híbrida:**
 
 ```mermaid
 sequenceDiagram
-    participant C as Cliente
-    participant S as Servidor
+    participant U as Usuario
+    participant C as Cliente (Vue)
+    participant S as Servidor (Nitro)
     participant DB as Supabase
     participant M as Memory Store
     
-    C->>S: POST /api/auth/login {email, password}
+    U->>C: Iniciar sesión
+    C->>S: POST /api/auth/login
     S->>DB: Verificar credenciales
-    DB-->>S: Usuario autenticado
-    S->>S: Crear JWT + Session ID
-    S->>M: Almacenar sesión
-    S->>C: Set-Cookie: session_id (httpOnly)
-    S-->>C: {jwt, user} (response body)
-    C->>C: Almacenar JWT en localStorage
+    DB-->>S: Usuario válido + perfil
+    S->>S: Crear JWT token
+    S->>M: Almacenar session ID
+    S->>C: Set-Cookie (httpOnly) + JWT (body)
+    C->>C: Guardar JWT en localStorage
     
-    Note over C,M: Operaciones subsecuentes
-    C->>S: Request con Authorization: Bearer JWT
-    S->>S: Verificar JWT
-    S->>S: Verificar Cookie session_id
+    Note over C,M: Acceso a páginas protegidas
+    C->>S: GET /api/auth/profile + Headers
+    S->>S: Verificar JWT del header
+    S->>S: Verificar Session ID de cookie
     S->>M: Validar sesión activa
-    M-->>S: Sesión válida
-    S-->>C: Respuesta autorizada
+    M-->>S: ✅ Sesión válida
+    S->>DB: Obtener perfil actualizado
+    DB-->>S: Datos de perfil
+    S-->>C: ✅ Perfil de usuario
 ```
 
-**Uso del Sistema:**
+**Uso Práctico:**
 
-```typescript
-// En componentes Vue
-const { 
-  user, 
-  isAuthenticated, 
-  isAdmin, 
-  login, 
-  logout, 
-  checkAuth 
-} = useHybridAuth()
+```vue
+<!-- Página de perfil (pages/profile.vue) -->
+<script setup>
+// Middleware de autenticación híbrida
+definePageMeta({
+  middleware: ['auth']
+})
 
-// Login
-await login('admin@inaplast.com', 'password')
+const { profile, profileLoading } = useAuthProfile()
 
-// Verificar autenticación
-if (isAuthenticated.value) {
-  // Usuario autenticado
-}
+// El perfil se carga automáticamente con verificación híbrida
+</script>
 
-// Verificar permisos
-if (isAdmin.value) {
-  // Acceso de administrador
-}
-
-// Headers automáticos en requests
-const { getAuthHeaders } = useHybridAuth()
-const headers = getAuthHeaders() // { 'Authorization': 'Bearer ...', 'X-Auth-Token': '...' }
+<template>
+  <div>
+    <div v-if="profileLoading">Cargando perfil...</div>
+    <div v-else-if="profile">
+      <h1>Bienvenido, {{ profile.first_name }} {{ profile.last_name }}</h1>
+      <p>Rol: {{ profile.user_role }}</p>
+    </div>
+  </div>
+</template>
 ```
 
 ```vue
-<!-- En páginas protegidas -->
+<!-- Página admin (pages/admin/users.vue) -->
 <script setup>
-// Middleware básico de autenticación
+// Middleware híbrido con verificación de permisos
 definePageMeta({
-  middleware: 'auth' // Array de un elemento = ['auth']
+  middleware: ['auth', 'admin']
 })
 
-// Middleware para páginas admin
-definePageMeta({
-  middleware: ['auth', 'admin'] // Ambos middlewares
-})
+const { isAdmin } = useHybridAuth()
+// isAdmin.value es true automáticamente por el middleware
 </script>
 ```
 
 **Endpoints de Autenticación:**
 
-- `POST /api/auth/login` - Autenticación inicial
-- `GET /api/auth/user` - Verificar estado de autenticación
-- `POST /api/auth/logout` - Cerrar sesión (limpiar servidor + cliente)
+- `POST /api/auth/login` - Login híbrido (JWT + Session)
+- `GET /api/auth/profile` - Obtener perfil con verificación híbrida
+- `POST /api/auth/logout` - Logout completo (limpiar servidor + cliente)
 - `POST /api/auth/refresh` - Renovar JWT y extender sesión
 
-**Configuración de Seguridad:**
+**Configuración Requerida:**
 
 ```env
-# Variables requeridas en .env
-NUXT_JWT_SECRET=tu_secret_key_de_64_caracteres_minimo
+# Variables esenciales en .env
+NUXT_JWT_SECRET=clave_secreta_64_caracteres_minimo_para_firma_jwt
 SUPABASE_URL=https://tu-proyecto.supabase.co
 SUPABASE_ANON_KEY=tu_anon_key
 SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
@@ -599,21 +634,23 @@ SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
 
 **Ventajas del Sistema Híbrido:**
 
-✅ **Seguridad multicapa**: JWT + Session ID requieren comprometer ambos tokens
-✅ **Revocación inmediata**: Sesiones server-side pueden invalidarse instantáneamente
-✅ **Performance**: JWT permite verificación local sin requests adicionales
-✅ **Escalabilidad**: Memory store puede migrar a Redis sin cambios de código
-✅ **Compatibilidad**: Funciona en SSR, SPA y dispositivos móviles
-✅ **Auditabilidad**: Registro completo de sesiones activas y actividad
+✅ **Resolución de errores críticos**: Elimina "No se pudo cargar el perfil del usuario"
+✅ **Recuperación automática**: Sesiones persisten tras reiniciar servidor desarrollo
+✅ **Seguridad multicapa**: JWT + Session ID requieren compromiso doble
+✅ **Performance optimizada**: Verificación local JWT + validación servidor
+✅ **Compatibilidad total**: Funciona en SSR, SPA, móviles y tablets
+✅ **Auditabilidad completa**: Registro de todas las sesiones activas
+✅ **Escalabilidad**: Memory store migrable a Redis sin cambios de código
 
 **Consideraciones de Producción:**
 
-⚠️ **Memory Store**: En producción migrar a Redis para alta disponibilidad
-⚠️ **Secrets Management**: Usar variables de entorno seguras para JWT_SECRET
-⚠️ **HTTPS Only**: Cookies seguras requieren HTTPS en producción
-⚠️ **Session Cleanup**: Monitorear uso de memoria del almacén de sesiones
+⚠️ **Memory Store → Redis**: Migrar a Redis para alta disponibilidad en producción
+⚠️ **Variables de entorno**: Usar secrets management para JWT_SECRET
+⚠️ **HTTPS obligatorio**: Cookies seguras requieren certificados SSL
+⚠️ **Monitoreo de sesiones**: Supervisar uso de memoria del almacén
+⚠️ **Backup de sesiones**: Considerar persistencia para sesiones críticas
 
-### 5. Sistema de Muestreo Estadístico
+### 4. Sistema de Muestreo Estadístico
 
 **Características:**
 - **Planes de muestreo**: Basados en estándares industriales MIL-STD
@@ -1256,12 +1293,13 @@ CREATE POLICY "orders_select" ON orders FOR SELECT USING (
 -- user_has_role(required_role), can_change_user_role()
 ```
 
-### Autenticación API-First
+### Sistema de Autenticación Empresarial
 
-- Tokens JWT con expiración
-- Headers de autorización en requests
-- Middleware de protección en rutas
-- Validación server-side en endpoints
+- **Sistema híbrido JWT + Session**: Doble verificación para máxima seguridad
+- **Headers de autorización automáticos**: Bearer token + Session ID
+- **Middleware granular por roles**: `auth`, `admin`, `supervisor` (extensible)
+- **Validación server-side robusta**: Verificación dual en cada endpoint
+- **Recuperación automática de sesiones**: Persistencia tras reiniciar servidor desarrollo
 
 ## 📚 Recursos Adicionales
 
