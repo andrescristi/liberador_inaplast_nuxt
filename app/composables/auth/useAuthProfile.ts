@@ -1,10 +1,10 @@
 /**
  * Composable especializado para gestión de perfiles de usuario
  * Maneja operaciones relacionadas con datos de perfil y roles
- * Usa endpoints API personalizados en lugar de Supabase directo
+ * Usa el sistema de autenticación híbrida directamente
  */
 import type { Profile } from '../../types'
-import { useAuthState } from './useAuthState'
+import { useHybridAuth } from './useHybridAuth'
 
 /**
  * Respuesta completa del perfil desde API
@@ -35,7 +35,8 @@ interface ProfileResponse {
 }
 
 export const useAuthProfile = () => {
-  const { isAuthenticated } = useAuthState()
+  // Usar sistema híbrido directamente
+  const { hasValidJWT, getAuthHeaders } = useHybridAuth()
 
   // Estados reactivos para cache
   const profile = ref<Profile | null>(null)
@@ -49,7 +50,11 @@ export const useAuthProfile = () => {
    * Usa el endpoint /api/auth/profile en lugar de Supabase directo
    */
   const getCurrentUserProfile = async (force = false): Promise<Profile | null> => {
-    if (!isAuthenticated.value) {
+    const hasJWT = hasValidJWT()
+    console.log('🔍 [useAuthProfile] Iniciando getCurrentUserProfile...', { hasValidJWT: hasJWT, force })
+    
+    if (!hasJWT) {
+      console.log('❌ [useAuthProfile] No hay JWT válido')
       return null
     }
 
@@ -57,6 +62,7 @@ export const useAuthProfile = () => {
     if (!force && profile.value && lastProfileFetch.value) {
       const timeSinceLastFetch = Date.now() - lastProfileFetch.value.getTime()
       if (timeSinceLastFetch < PROFILE_CACHE_DURATION) {
+        console.log('✅ [useAuthProfile] Usando cache del perfil')
         return profile.value
       }
     }
@@ -65,7 +71,11 @@ export const useAuthProfile = () => {
       isProfileLoading.value = true
       profileError.value = null
       
-      const response = await $fetch<ProfileResponse>('/api/auth/profile')
+      console.log('🌐 [useAuthProfile] Haciendo fetch a /api/auth/profile...')
+      const response = await $fetch<ProfileResponse>('/api/auth/profile', {
+        headers: getAuthHeaders()
+      })
+      console.log('✅ [useAuthProfile] Respuesta recibida:', response)
       
       // Convertir respuesta API a formato Profile
       const profileData: Profile = {
@@ -82,6 +92,7 @@ export const useAuthProfile = () => {
       
       profile.value = profileData
       lastProfileFetch.value = new Date()
+      console.log('✅ [useAuthProfile] Perfil guardado exitosamente:', profileData)
       
       return profileData
     } catch (error) {
@@ -90,9 +101,7 @@ export const useAuthProfile = () => {
       profile.value = null
       
       // Log del error
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching user profile:', errorMessage)
-      }
+      console.error('❌ [useAuthProfile] Error fetching user profile:', errorMessage, error)
       
       return null
     } finally {
@@ -105,7 +114,7 @@ export const useAuthProfile = () => {
    * TODO: Implementar endpoint /api/auth/profile PUT cuando sea necesario
    */
   const updateUserProfile = async (_updates: Partial<Profile>) => {
-    if (!isAuthenticated.value) {
+    if (!hasValidJWT()) {
       throw new Error('No hay usuario autenticado')
     }
 

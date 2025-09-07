@@ -23,24 +23,30 @@ export default defineNuxtRouteMiddleware(async (_to) => {
   const { checkAuth, hasValidJWT } = useHybridAuth()
   
   // Verificación rápida con JWT local primero
+  console.log('🔍 [Middleware Auth] Verificando JWT local...')
   if (!hasValidJWT()) {
+    console.log('❌ [Middleware Auth] No hay JWT válido, redirigiendo al login')
     // No hay JWT válido, redirigir al login
     return navigateTo('/auth/login')
   }
+  
+  console.log('✅ [Middleware Auth] JWT válido encontrado, verificando con servidor...')
   
   // Verificar con el servidor (valida JWT + session)
   try {
     const isAuthenticated = await checkAuth()
     
     if (!isAuthenticated) {
+      console.log('❌ [Middleware Auth] Servidor dice que no está autenticado, redirigiendo al login')
       // La verificación del servidor falló, redirigir al login
       return navigateTo('/auth/login')
     }
     
+    console.log('✅ [Middleware Auth] Usuario autenticado correctamente, continuando...')
     // Usuario autenticado correctamente, continuar
     
   } catch (error) {
-    console.warn('Error en verificación de autenticación híbrida:', error)
+    console.warn('❌ [Middleware Auth] Error en verificación de autenticación híbrida:', error)
     // En caso de error, redirigir al login por seguridad
     return navigateTo('/auth/login')
   }
