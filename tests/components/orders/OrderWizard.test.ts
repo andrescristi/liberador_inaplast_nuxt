@@ -241,63 +241,80 @@ describe('OrderWizard', () => {
     beforeEach(() => {
       mockFetch.mockClear()
       routerPushMock.mockClear()
+      toastSuccessMock.mockClear()
+      toastErrorMock.mockClear()
     })
 
-    it('maneja el guardado exitoso', async () => {
-      mockFetch.mockResolvedValueOnce({ success: true })
+    it('maneja el guardado exitoso cuando recibe orden creada', async () => {
+      const createdOrder = {
+        id: 'order-123',
+        cliente: 'Test Customer',
+        producto: 'Test Product'
+      }
       
       const vm = wrapper.vm
-      await vm.handleSave()
+      await vm.handleSave(createdOrder)
       
-      expect(mockFetch).toHaveBeenCalledWith('/api/orders', {
-        method: 'POST',
-        body: expect.objectContaining({
-          cliente: '',
-          producto: '',
-          turno: '',
-          test_results: {
-            1: false,
-            2: false,
-            3: false,
-            4: false
-          }
-        })
-      })
+      // No debe hacer llamada a $fetch porque la orden ya fue creada
+      expect(mockFetch).not.toHaveBeenCalled()
       expect(toastSuccessMock).toHaveBeenCalledWith('Orden Guardada', 'Orden creada exitosamente')
       expect(routerPushMock).toHaveBeenCalledWith('/orders')
     })
 
     it('establece isSaving durante el proceso', async () => {
-      mockFetch.mockResolvedValueOnce({ success: true })
+      const createdOrder = { id: 'order-123' }
       
       const vm = wrapper.vm
       expect(vm.isSaving).toBe(false)
       
-      const savePromise = vm.handleSave()
+      const savePromise = vm.handleSave(createdOrder)
       expect(vm.isSaving).toBe(true)
       
       await savePromise
       expect(vm.isSaving).toBe(false)
     })
 
-    it('maneja errores de API', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('API Error'))
+    it('maneja error cuando no se recibe orden creada', async () => {
+      const vm = wrapper.vm
+      await vm.handleSave() // Sin parámetro
+      
+      expect(toastErrorMock).toHaveBeenCalledWith('Error al Guardar', 'No se recibió la orden creada')
+      expect(vm.isSaving).toBe(false)
+      expect(routerPushMock).not.toHaveBeenCalled()
+    })
+
+    it('maneja error cuando se recibe null/undefined', async () => {
+      const vm = wrapper.vm
+      await vm.handleSave(null)
+      
+      expect(toastErrorMock).toHaveBeenCalledWith('Error al Guardar', 'No se recibió la orden creada')
+      expect(vm.isSaving).toBe(false)
+      expect(routerPushMock).not.toHaveBeenCalled()
+    })
+
+    it('maneja errores de navegación', async () => {
+      const createdOrder = { id: 'order-123' }
+      routerPushMock.mockRejectedValueOnce(new Error('Navigation Error'))
       
       const vm = wrapper.vm
-      await vm.handleSave()
+      await vm.handleSave(createdOrder)
       
-      expect(toastErrorMock).toHaveBeenCalledWith('Error al Guardar', 'API Error')
+      expect(toastErrorMock).toHaveBeenCalledWith('Error al Guardar', 'Navigation Error')
       expect(vm.isSaving).toBe(false)
     })
 
-    it('maneja respuesta de servidor no exitosa', async () => {
-      mockFetch.mockResolvedValueOnce({ success: false })
-      
+    it('no ejecuta múltiples guardados simultáneos', async () => {
+      const createdOrder = { id: 'order-123' }
       const vm = wrapper.vm
-      await vm.handleSave()
       
-      expect(toastErrorMock).toHaveBeenCalledWith('Error al Guardar', 'Error en la respuesta del servidor')
-      expect(vm.isSaving).toBe(false)
+      // Simular isSaving ya activo
+      vm.isSaving = true
+      
+      await vm.handleSave(createdOrder)
+      
+      // No debe procesar el guardado si ya está en progreso
+      expect(toastSuccessMock).not.toHaveBeenCalled()
+      expect(routerPushMock).not.toHaveBeenCalled()
     })
   })
 })

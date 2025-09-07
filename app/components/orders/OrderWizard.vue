@@ -215,54 +215,22 @@ const handleOCRComplete = (ocrData: OCRData) => {
   }
 }
 
-const handleSave = async () => {
+const handleSave = async (createdOrder?: any) => {
   if (isSaving.value) return
   
   isSaving.value = true
   
   try {
-    // Preparar datos de la orden según la API
-    const orderData = {
-      // Campos requeridos por la API
-      lote: formData.value.lote,
-      cliente: formData.value.cliente,
-      producto: formData.value.producto,
-      pedido: formData.value.pedido,
-      fecha_fabricacion: formData.value.fecha_fabricacion,
-      codigo_producto: formData.value.codigo_producto,
-      turno: formData.value.turno,
-      cantidad_unidades: formData.value.cantidad_unidades,
-      jefe_de_turno: formData.value.jefe_de_turno,
-      orden_de_compra: formData.value.orden_de_compra,
-      numero_operario: formData.value.numero_operario,
-      maquina: formData.value.maquina,
-      inspector_calidad: formData.value.inspector_calidad,
-      
-      // Mapear resultados de tests a test_results
-      test_results: {
-        1: formData.value.packagingTest,
-        2: formData.value.labelingTest,
-        3: formData.value.sealingTest,
-        4: formData.value.weightTest
-      }
-    }
-    
-    // Crear la orden con todos los tests automáticamente
-    const response = await $fetch('/api/orders', {
-      method: 'POST',
-      body: orderData
-    })
-    
-    if (response.success) {
+    // La orden ya fue creada en OrderWizardStep4
+    // Solo manejar la navegación y notificación de éxito
+    if (createdOrder) {
       toast.success('Orden Guardada', 'Orden creada exitosamente')
       await router.push('/orders')
     } else {
-      throw new Error('Error en la respuesta del servidor')
+      throw new Error('No se recibió la orden creada')
     }
     
   } catch (error: unknown) {
-    // Error al guardar orden
-    
     let errorMessage = 'Ocurrió un error inesperado'
     
     if (error && typeof error === 'object' && 'data' in error && 
