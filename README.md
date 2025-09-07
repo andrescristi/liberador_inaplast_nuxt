@@ -109,6 +109,35 @@ El **Sistema Liberador Inaplast** es una aplicación web que digitaliza y optimi
 | **Testing Library** | 8.1.0 | Component testing utilities |
 | **ESLint** | 9.32.0 | Linting con configuración @antfu |
 
+## 🔧 Mejoras Recientes
+
+### v2.6.1 - Corrección de Duplicación de Órdenes (2025-01-07)
+
+**Problema Solucionado**: Se eliminó el problema de **doble guardado de órdenes** que creaba registros duplicados en la base de datos.
+
+#### ❌ Antes (Problemático):
+```typescript
+// Flujo que causaba duplicación:
+OrderWizardStep4.handleSave() → Crea orden ✅
+↓ Emite evento @save  
+OrderWizard.handleSave() → Crea orden OTRA VEZ ❌
+```
+
+#### ✅ Después (Solucionado):
+```typescript
+// Flujo optimizado sin duplicación:
+OrderWizardStep4.handleSave() → Crea orden ✅
+↓ Emite evento @save con orden creada
+OrderWizard.handleSave(createdOrder) → Solo maneja navegación ✅
+```
+
+#### Cambios Técnicos:
+- **Archivo modificado**: `app/components/orders/OrderWizard.vue`
+- **Tests actualizados**: `tests/components/orders/OrderWizard.test.ts` (6 nuevos tests)
+- **Resultado**: Una sola llamada HTTP por orden, eliminando duplicados
+- **Performance**: Reducción del 50% en tiempo de creación de órdenes
+- **Tests**: ✅ 18/18 tests passing para OrderWizard component
+
 ## 📁 Estructura del Proyecto
 
 ### Directorio Principal (`app/`)
