@@ -13,11 +13,14 @@
  * - Para verificar roles específicos usar middleware específico
  * - Redirige a dashboard (/) después de login exitoso
  */
-export default defineNuxtRouteMiddleware(async (_to) => {
+export default defineNuxtRouteMiddleware(async (to) => {
   // Skip durante SSR para evitar problemas de inicialización
   if (import.meta.server) {
+    console.log('🔒 [Middleware Auth] Skipping on server side')
     return
   }
+  
+  console.log('🔒 [Middleware Auth] Running on client side for route:', to.path)
   
   const { useHybridAuth } = await import('~/composables/auth/useHybridAuth')
   const { checkAuth, hasValidJWT } = useHybridAuth()
