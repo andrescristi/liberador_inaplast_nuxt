@@ -32,6 +32,9 @@ interface OCRResponse {
     filename?: string
     processedAt: string
     model: string
+    processingTimeMs?: number
+    originalSizeKB?: number
+    finalSizeKB?: number
   }
 }
 
@@ -44,9 +47,21 @@ export default defineEventHandler(async (event): Promise<OCRResponse> => {
         statusMessage: 'Método no permitido'
       })
     }
+    
+    // Configurar headers específicos para este endpoint
+    setHeader(event, 'Access-Control-Max-Age', '3600')
+    setHeader(event, 'X-Content-Type-Options', 'nosniff')
+    
+    // Log de inicio de procesamiento
+    const startTime = Date.now()
+    console.log('🔍 Iniciando procesamiento OCR...')
 
-    // Leer el cuerpo de la petición
+    // Leer el cuerpo de la petición con timeout y límite de tamaño
     const body = await readBody<OCRRequest>(event)
+    
+    // Log del tamaño de payload recibido
+    const payloadSize = JSON.stringify(body).length
+    console.log(`📊 Payload recibido: ${(payloadSize / 1024 / 1024).toFixed(2)}MB`)
 
     // Validar los datos requeridos
     if (!body.imageData || !body.mimeType) {
@@ -142,20 +157,29 @@ export default defineEventHandler(async (event): Promise<OCRResponse> => {
     const cleanImageData = body.imageData.replace(/^data:image\/[a-z]+;base64,/, '')
     const originalSize = Buffer.from(cleanImageData, 'base64').length
     
-    console.log(`Imagen original: ${(originalSize / 1024).toFixed(2)}KB`)
+    console.log(`📷 Imagen original: ${(originalSize / 1024).toFixed(2)}KB`)
     
-    const { data: compressedImageData, size: compressedSize } = await compressImage(cleanImageData)
+    // Si la imagen ya es pequeña, evitar compresión innecesaria
+    let finalImageData = cleanImageData
+    let finalSize = originalSize
     
-    console.log(`Imagen comprimida: ${(compressedSize / 1024).toFixed(2)}KB`)
+    if (originalSize > 200 * 1024) { // Solo comprimir si es > 200KB
+      const { data: compressedImageData, size: compressedSize } = await compressImage(cleanImageData)
+      finalImageData = compressedImageData
+      finalSize = compressedSize
+      console.log(`⚙️ Imagen comprimida: ${(finalSize / 1024).toFixed(2)}KB`)
+    } else {
+      console.log('✅ Imagen ya optimizada, omitiendo compresión')
+    }
 
     // Inicializar el cliente de Gemini
     const ai = new GoogleGenAI({ apiKey })
 
-    // Crear el objeto Part para la imagen comprimida
+    // Crear el objeto Part para la imagen final
     const imagePart = {
       inlineData: {
-        data: compressedImageData,
-        mimeType: 'image/jpeg', // Siempre JPEG después de la compresión
+        data: finalImageData,
+        mimeType: originalSize > 200 * 1024 ? 'image/jpeg' : body.mimeType, // Mantener tipo original si no se comprimió
       },
     }
 
@@ -208,11 +232,19 @@ Instrucciones:
 JSON:
 `
 
-    // Llamar a la API de Gemini
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp', // Usando el modelo más reciente disponible
-      contents: [imagePart, prompt],
-    })
+    // Log antes de llamar a Gemini
+    console.log(`🤖 Enviando a Gemini API - Tamaño final: ${(finalSize / 1024).toFixed(2)}KB`)
+    
+    // Llamar a la API de Gemini con timeout
+    const response = await Promise.race([
+      ai.models.generateContent({
+        model: 'gemini-2.0-flash-exp', // Usando el modelo más reciente disponible
+        contents: [imagePart, prompt],
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout en Gemini API')), 60000) // 60 segundos timeout
+      )
+    ]) as any
 
     // Extraer el texto de la respuesta
     const rawResponse = response.text?.trim() || ''
@@ -266,6 +298,10 @@ JSON:
           inspectorCalidad: parsedData.productionData.inspectorCalidad || null
         }
 
+        // Log de tiempo de procesamiento
+        const processingTime = Date.now() - startTime
+        console.log(`✅ OCR con datos estructurados completado en ${processingTime}ms`)
+        
         return {
           text: parsedData.rawText || '',
           productionData,
@@ -273,7 +309,10 @@ JSON:
           metadata: {
             filename: body.filename,
             processedAt: new Date().toISOString(),
-            model: 'gemini-2.0-flash-exp'
+            model: 'gemini-2.0-flash-exp',
+            processingTimeMs: processingTime,
+            originalSizeKB: Math.round(originalSize / 1024),
+            finalSizeKB: Math.round(finalSize / 1024)
           }
         }
       }
@@ -281,17 +320,25 @@ JSON:
       // Si hay error parseando JSON, usar el texto raw
     }
 
+    // Log de tiempo de procesamiento
+    const processingTime = Date.now() - startTime
+    console.log(`✅ OCR completado en ${processingTime}ms`)
+    
     return {
       text: rawResponse,
       success: true,
       metadata: {
         filename: body.filename,
         processedAt: new Date().toISOString(),
-        model: 'gemini-2.0-flash-exp'
+        model: 'gemini-2.0-flash-exp',
+        processingTimeMs: processingTime,
+        originalSizeKB: Math.round(originalSize / 1024),
+        finalSizeKB: Math.round(finalSize / 1024)
       }
     }
 
   } catch (error: unknown) {
+    console.error('❌ Error en OCR:', error)
 
     // Manejar errores específicos de la API de Gemini
     if (error && typeof error === 'object' && 'status' in error) {

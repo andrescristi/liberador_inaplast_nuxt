@@ -18,8 +18,21 @@
         @change="handleFileSelect"
       >
       
+      <!-- Loading State -->
+      <div v-if="isProcessing || isCompressing" class="space-y-3">
+        <div class="mx-auto w-16 h-16 bg-indigo-100 rounded-lg flex items-center justify-center animate-pulse">
+          <Icon name="bx:loader-alt" class="w-8 h-8 text-indigo-600 animate-spin" />
+        </div>
+        <div>
+          <span class="text-indigo-600 font-medium">
+            {{ isProcessing ? 'Procesando imagen...' : 'Optimizando imagen...' }}
+          </span>
+          <p class="text-gray-500 text-sm mt-1">Por favor espere</p>
+        </div>
+      </div>
+      
       <!-- Empty State -->
-      <div v-if="!file" class="space-y-3">
+      <div v-else-if="!file" class="space-y-3">
         <div class="mx-auto w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
           <Icon name="bx:camera" class="w-8 h-8 text-gray-400" />
         </div>
@@ -29,7 +42,7 @@
           </span>
           <p class="text-gray-500 text-sm mt-1">o arrastra y suelta aquí</p>
         </div>
-        <p class="text-xs text-gray-400">PNG, JPG hasta 5MB</p>
+        <p class="text-xs text-gray-400">PNG, JPG hasta 50MB (se optimizará automáticamente)</p>
       </div>
       
       <!-- Image Uploaded -->
@@ -74,8 +87,13 @@ interface Emits {
 defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+// Composables
+const { compressImage, needsCompression, formatFileSize, isCompressing } = useImageCompression()
+const toast = useToast()
+
 // Refs
 const fileInput = ref<HTMLInputElement>()
+const isProcessing = ref(false)
 
 // Methods
 const triggerFileInput = () => {
@@ -98,28 +116,66 @@ const handleFileDrop = (event: DragEvent) => {
   }
 }
 
-const processFile = (file: File) => {
-  // Validate file
+const processFile = async (file: File) => {
+  // Validate file type
   if (!file.type.startsWith('image/')) {
-    const toast = useToast()
     toast.error('Error', 'Por favor selecciona un archivo de imagen válido')
     return
   }
   
-  if (file.size > 5 * 1024 * 1024) { // 5MB
-    const toast = useToast()
-    toast.error('Error', 'El archivo es demasiado grande. Máximo 5MB.')
+  if (file.size > 50 * 1024 * 1024) { // 50MB limit
+    toast.error('Error', 'El archivo es demasiado grande. Máximo 50MB.')
     return
   }
 
-  // Create preview
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    const result = e.target?.result as string
-    emit('update:file', file)
-    emit('update:preview', result)
+  isProcessing.value = true
+  
+  try {
+    let processedFile = file
+    
+    // Comprimir imagen si es necesaria (mayor a 200KB para OCR óptimo)
+    if (needsCompression(file, 200)) {
+      console.log(`📸 Imagen original: ${formatFileSize(file.size)} - Comprimiendo para OCR...`)
+      
+      const compressionResult = await compressImage(file, {
+        targetSizeKB: 200, // Target 200KB para balance OCR/velocidad
+        maxWidth: 1920,
+        maxHeight: 1080,
+        quality: 0.85,
+        mimeType: 'image/jpeg'
+      })
+      
+      processedFile = compressionResult.compressedFile
+      
+      console.log(`✅ Imagen comprimida: ${formatFileSize(processedFile.size)} (${compressionResult.compressionRatio}% reducción)`)
+      
+      // Mostrar notificación de compresión exitosa
+      if (compressionResult.compressionRatio > 50) {
+        toast.success(
+          'Imagen optimizada',
+          `Tamaño reducido ${compressionResult.compressionRatio}% para mejor rendimiento`
+        )
+      }
+    }
+
+    // Create preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const result = e.target?.result as string
+      emit('update:file', processedFile)
+      emit('update:preview', result)
+    }
+    reader.readAsDataURL(processedFile)
+    
+  } catch (error) {
+    console.error('Error procesando imagen:', error)
+    toast.error(
+      'Error de procesamiento',
+      error instanceof Error ? error.message : 'Error desconocido al procesar la imagen'
+    )
+  } finally {
+    isProcessing.value = false
   }
-  reader.readAsDataURL(file)
 }
 
 const removeImage = () => {

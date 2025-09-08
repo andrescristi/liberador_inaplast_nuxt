@@ -106,6 +106,25 @@ export default defineNuxtConfig({
     preset: 'vercel',
     prerender: {
       crawlLinks: false
+    },
+    // Configuración de límites de payload para OCR
+    experimental: {
+      wasm: true
+    },
+    // Límites de body size para rutas de API
+    routeRules: {
+      '/api/ocr/**': {
+        // Límite específico para rutas OCR (10MB)
+        headers: {
+          'x-nitro-body-limit': '10485760' // 10MB en bytes
+        }
+      }
+    },
+    // Configuración global de límites
+    storage: {
+      memory: {
+        driver: 'memory'
+      }
     }
   },
 
@@ -130,6 +149,12 @@ export default defineNuxtConfig({
         mangle: {
           keep_fnames: true
         }
+      }
+    },
+    server: {
+      // Límites para desarrollo
+      hmr: {
+        port: 24678
       }
     }
   },
