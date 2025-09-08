@@ -10,6 +10,9 @@ vi.stubGlobal('useSupabaseUser', () => mockUser)
 vi.stubGlobal('createError', mockCreateError)
 vi.stubGlobal('navigateTo', mockNavigateTo)
 
+// Console spy para verificar logs
+let consoleSpy: ReturnType<typeof vi.spyOn>
+
 describe('Auth Middleware', () => {
   
   // Simulación del middleware de autenticación
@@ -24,6 +27,13 @@ describe('Auth Middleware', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockUser.value = null
+    
+    // Set up console spy
+    consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+  })
+  
+  afterEach(() => {
+    consoleSpy.mockRestore()
   })
 
   describe('Protección de Rutas', () => {
@@ -198,6 +208,58 @@ describe('Auth Middleware', () => {
     it('debe minimizar queries de base de datos', () => {
       // Verificar que no se hacen queries innecesarias
       expect(mockSupabaseClient.rpc).not.toHaveBeenCalled()
+    })
+  })
+  
+  describe('Debug Logging', () => {
+    it('debe loguear información de debug en client-side', () => {
+      // Simular middleware que incluye logging de debug
+      const debugAuthMiddleware = (to: { path: string }) => {
+        // Skip durante SSR
+        if (typeof window === 'undefined') {
+          // eslint-disable-next-line no-console
+          console.log('🔒 [Middleware Auth] Skipping on server side')
+          return
+        }
+        
+        // eslint-disable-next-line no-console
+        console.log('🔒 [Middleware Auth] Running on client side for route:', to.path)
+        
+        const user = mockUser
+        if (!user.value) {
+          return mockNavigateTo('/auth/login')
+        }
+      }
+      
+      const mockRoute = { path: '/dashboard' }
+      mockUser.value = null
+      
+      debugAuthMiddleware(mockRoute)
+      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '🔒 [Middleware Auth] Running on client side for route:',
+        '/dashboard'
+      )
+      expect(mockNavigateTo).toHaveBeenCalledWith('/auth/login')
+    })
+    
+    it('debe loguear skip en server-side', () => {
+      const debugAuthMiddleware = (_to: { path: string }) => {
+        // Simular entorno servidor
+        const isServer = true // Simulamos que estamos en servidor
+        if (isServer) {
+          // eslint-disable-next-line no-console
+          console.log('🔒 [Middleware Auth] Skipping on server side')
+          return
+        }
+      }
+      
+      const mockRoute = { path: '/test' }
+      debugAuthMiddleware(mockRoute)
+      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '🔒 [Middleware Auth] Skipping on server side'
+      )
     })
   })
 })

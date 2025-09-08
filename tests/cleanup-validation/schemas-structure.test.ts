@@ -112,6 +112,23 @@ describe('Estructura de Schemas después de Limpieza', () => {
       
       // No debe referenciar muestreo eliminado
       expect(content).not.toMatch(/muestreo/i)
+      
+      // Verificar que usa el nuevo nombre de campo cantidad_muestra
+      expect(content).toMatch(/cantidad_muestra/)
+      
+      // No debe contener el nombre anterior cantidadMuestra
+      expect(content).not.toMatch(/cantidadMuestra/)
+    })
+    
+    it('debe verificar campos del schema OrderStep3LocalData', async () => {
+      const newOrderSchemaPath = resolve(APP_DIR, 'schemas/orders/new_order.ts')
+      const content = await readFile(newOrderSchemaPath, 'utf-8')
+      
+      // Verificar que OrderStep3LocalData tiene la estructura correcta
+      if (content.includes('OrderStep3LocalData')) {
+        expect(content).toMatch(/cantidad_muestra.*number/)
+        expect(content).not.toMatch(/cantidadMuestra/)
+      }
     })
   })
   

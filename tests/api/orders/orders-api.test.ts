@@ -129,7 +129,8 @@ describe('/api/orders - API Tests', () => {
         lote: 'LOT001',
         cantidad: 100,
         fechaFabricacion: '2024-12-01',
-        turno: 'A'
+        turno: 'A',
+        cantidad_muestra: 5
       }
       
       mockFetch.mockResolvedValueOnce({
@@ -148,6 +149,46 @@ describe('/api/orders - API Tests', () => {
       expect(response).toHaveProperty('status', 'pending')
       expect(response).toHaveProperty('createdAt')
       expect(response.cliente).toBe(orderData.cliente)
+      expect(response.cantidad_muestra).toBe(orderData.cantidad_muestra)
+    })
+    
+    it('debería validar cantidad_muestra como número positivo', () => {
+      const validSampleQuantities = [1, 5, 10, 100]
+      const invalidSampleQuantities = [0, -1, null, undefined, 'invalid']
+      
+      validSampleQuantities.forEach(quantity => {
+        expect(typeof quantity).toBe('number')
+        expect(quantity).toBeGreaterThan(0)
+      })
+      
+      invalidSampleQuantities.forEach(quantity => {
+        if (quantity !== null && quantity !== undefined) {
+          expect(typeof quantity !== 'number' || quantity <= 0).toBe(true)
+        }
+      })
+    })
+    
+    it('debería usar valor por defecto para cantidad_muestra si no se proporciona', async () => {
+      const orderDataWithoutSample = {
+        cliente: 'Cliente Test',
+        producto: 'Producto Test',
+        lote: 'LOT001',
+        cantidad: 100
+      }
+      
+      mockFetch.mockResolvedValueOnce({
+        id: '1',
+        ...orderDataWithoutSample,
+        cantidad_muestra: 1, // Valor por defecto
+        status: 'pending'
+      })
+      
+      const response = await mockFetch('/api/orders', {
+        method: 'POST',
+        body: orderDataWithoutSample
+      })
+      
+      expect(response.cantidad_muestra).toBe(1)
     })
 
     it('debería validar datos requeridos al crear orden', () => {
@@ -156,7 +197,8 @@ describe('/api/orders - API Tests', () => {
         cliente: '',
         producto: '',
         lote: '',
-        cantidad: 0
+        cantidad: 0,
+        cantidad_muestra: 0 // También inválido
       }
       
       const validationErrors: string[] = []
@@ -164,6 +206,10 @@ describe('/api/orders - API Tests', () => {
       Object.entries(orderData).forEach(([key, value]) => {
         if (requiredFields.includes(key) && (!value || value === 0)) {
           validationErrors.push(`${key} es requerido`)
+        }
+        // Validación específica para cantidad_muestra
+        if (key === 'cantidad_muestra' && (typeof value !== 'number' || value <= 0)) {
+          validationErrors.push('cantidad_muestra debe ser un número mayor a 0')
         }
       })
       

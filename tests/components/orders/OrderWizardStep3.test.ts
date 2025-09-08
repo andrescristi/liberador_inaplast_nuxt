@@ -78,6 +78,7 @@ describe('OrderWizardStep3', () => {
         // Step 3 - campos opcionales
         testResults: {},
         qualityNotes: '',
+        cantidad_muestra: 0,
         
         // Step 4 - campos opcionales
         finalResult: 'approved' as const,
@@ -131,6 +132,7 @@ describe('OrderWizardStep3', () => {
   it('inicializa con valores por defecto correctos', () => {
     expect(wrapper.vm.localData.testResults).toEqual({})
     expect(wrapper.vm.localData.qualityNotes).toBe('')
+    expect(wrapper.vm.localData.cantidad_muestra).toBe(0)
   })
 
   it('inicializa con valores del modelValue si están disponibles', async () => {
@@ -138,7 +140,8 @@ describe('OrderWizardStep3', () => {
       modelValue: {
         ...defaultProps.modelValue,
         testResults: { 1: true, 2: false },
-        qualityNotes: 'Nota de prueba'
+        qualityNotes: 'Nota de prueba',
+        cantidad_muestra: 5
       }
     }
 
@@ -154,6 +157,7 @@ describe('OrderWizardStep3', () => {
 
     expect(wrapperWithData.vm.localData.testResults).toEqual({ 1: true, 2: false })
     expect(wrapperWithData.vm.localData.qualityNotes).toBe('Nota de prueba')
+    expect(wrapperWithData.vm.localData.cantidad_muestra).toBe(5)
 
     wrapperWithData.unmount()
   })
@@ -261,6 +265,13 @@ describe('OrderWizardStep3', () => {
       await textarea.setValue(noteText)
       
       expect(wrapper.vm.localData.qualityNotes).toBe(noteText)
+    })
+
+    it('actualiza cantidad_muestra cuando se modifica el input', async () => {
+      const quantityInput = wrapper.find('input[type="number"]')
+      await quantityInput.setValue('10')
+      
+      expect(wrapper.vm.localData.cantidad_muestra).toBe(10)
     })
   })
 
@@ -404,8 +415,15 @@ describe('OrderWizardStep3', () => {
       const lastEmitted = emittedEvents![emittedEvents!.length - 1][0]
       expect(lastEmitted).toEqual({
         ...defaultProps.modelValue,
-        testResults: { 1: true },
-        qualityNotes: ''
+        orders_tests: [
+          {
+            test_id: 1,
+            aprobado: true
+          }
+        ],
+        qualityNotes: '',
+        cantidad_muestra: 0,
+        testResults: { 1: true }
       })
     })
 

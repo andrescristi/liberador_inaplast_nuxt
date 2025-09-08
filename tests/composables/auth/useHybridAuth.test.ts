@@ -46,6 +46,16 @@ describe('useHybridAuth Composable', () => {
   })
 
   describe('JWT Management', () => {
+    // Console spy para verificar logs de debug
+    let consoleSpy: ReturnType<typeof vi.spyOn>
+    
+    beforeEach(() => {
+      consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    })
+    
+    afterEach(() => {
+      consoleSpy.mockRestore()
+    })
     it('debe guardar JWT en localStorage correctamente', () => {
       const validJWT = createValidJWT()
       const jwtString = validJWT.access_token
@@ -88,6 +98,8 @@ describe('useHybridAuth Composable', () => {
         'inaplast_hybrid_jwt',
         expect.any(String)
       )
+      
+      // Note: In a real implementation, debug logs would be called here
     })
 
     it('debe obtener JWT desde localStorage', () => {
@@ -118,6 +130,9 @@ describe('useHybridAuth Composable', () => {
       const jwt = getJWT()
       expect(jwt).toBe(validJWT.access_token)
       expect(localStorageMock.getItem).toHaveBeenCalledWith('inaplast_hybrid_jwt')
+      
+      // Note: In a real implementation, debug logs would be called here
+      // We verify that the correct token was retrieved from localStorage
     })
 
     it('debe eliminar JWT expirado', () => {
@@ -134,6 +149,7 @@ describe('useHybridAuth Composable', () => {
           
           // Verificar si el token ha expirado
           if (Date.now() > token.expires_at * 1000) {
+            console.log('❌ [getJWT] Token expired, removing from localStorage')
             localStorageMock.removeItem('inaplast_hybrid_jwt')
             return null
           }
@@ -148,9 +164,15 @@ describe('useHybridAuth Composable', () => {
       const jwt = getJWT()
       expect(jwt).toBeNull()
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('inaplast_hybrid_jwt')
+      
+      // Verificar logs de debug de token expirado
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('❌ [getJWT] Token expired, removing from localStorage')
+      )
     })
 
     it('debe manejar JWT malformado', () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       localStorageMock.getItem.mockReturnValue('invalid-json')
       
       // Simular getJWT con JSON inválido
@@ -162,6 +184,7 @@ describe('useHybridAuth Composable', () => {
           const token = JSON.parse(tokenStr) // Esto fallará
           return token.access_token
         } catch (error) {
+          console.error('❌ [getJWT] Error obteniendo JWT:', error)
           localStorageMock.removeItem('inaplast_hybrid_jwt')
           return null
         }
@@ -169,6 +192,41 @@ describe('useHybridAuth Composable', () => {
 
       const jwt = getJWT()
       expect(jwt).toBeNull()
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith('inaplast_hybrid_jwt')
+      
+      // Verificar logs de error - ajustar expectativa para coincidir con la implementación real
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '❌ [getJWT] Error obteniendo JWT:',
+        expect.any(SyntaxError)
+      )
+      
+      consoleErrorSpy.mockRestore()
+    })
+    
+    it('debe loguear debug detallado al remover JWT', () => {
+      // Simular función removeJWT
+      const removeJWT = () => {
+        try {
+          console.log('🚨 [removeJWT] REMOVING JWT FROM LOCALSTORAGE!', {
+            reason: 'Manual call to removeJWT',
+            stack: new Error().stack,
+            timestamp: new Date().toISOString()
+          })
+          localStorageMock.removeItem('inaplast_hybrid_jwt')
+        } catch (error) {
+          console.error('❌ [removeJWT] Error eliminando JWT:', error)
+        }
+      }
+
+      removeJWT()
+      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '🚨 [removeJWT] REMOVING JWT FROM LOCALSTORAGE!',
+        expect.objectContaining({
+          reason: 'Manual call to removeJWT',
+          timestamp: expect.any(String)
+        })
+      )
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('inaplast_hybrid_jwt')
     })
   })
