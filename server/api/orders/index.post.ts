@@ -26,7 +26,7 @@ interface CreateOrderRequest {
   
   // Tests asociados a la orden - cada test debe estar incluido
   orders_tests?: OrderTestData[]
-  cantidadMuestra?: number
+  cantidad_muestra?: number
   // Mantener compatibilidad con formato anterior
   test_results?: { [testId: number]: boolean }
 }
@@ -66,12 +66,12 @@ export default defineEventHandler(async (event) => {
       })
     }
     
-    // Validar cantidadMuestra
-    if (body.cantidadMuestra !== undefined) {
-      if (typeof body.cantidadMuestra !== 'number' || body.cantidadMuestra <= 0) {
+    // Validar cantidad_muestra
+    if (body.cantidad_muestra !== undefined) {
+      if (typeof body.cantidad_muestra !== 'number' || body.cantidad_muestra <= 0) {
         throw createError({
           statusCode: 400,
-          statusMessage: 'cantidadMuestra debe ser un número mayor a 0'
+          statusMessage: 'cantidad_muestra debe ser un número mayor a 0'
         })
       }
     }
@@ -174,7 +174,7 @@ export default defineEventHandler(async (event) => {
       codigo_producto: body.codigo_producto,
       turno: body.turno,
       cantidad_unidades_por_embalaje: body.cantidad_unidades_por_embalaje,
-      cantidad_muestra: body.cantidadMuestra || 1,
+      cantidad_muestra: body.cantidad_muestra || 1,
       jefe_de_turno: body.jefe_de_turno || null,
       orden_de_compra: body.orden_de_compra || null,
       numero_operario: body.numero_operario,

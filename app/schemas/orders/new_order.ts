@@ -40,7 +40,7 @@ export const orderStep2Schema = z.object({
  * Tests de calidad y observaciones
  */
 export const orderStep3Schema = z.object({
-  cantidadMuestra: z.number()
+  cantidad_muestra: z.number()
     .min(1, 'La cantidad de muestra debe ser mayor a 0')
     .int('La cantidad debe ser un número entero')
     .optional(),
@@ -85,7 +85,7 @@ export const newOrderSchema = z.object({
   orden_de_compra: z.string().optional(),
   
   // Step 3 - Tests de calidad
-  cantidadMuestra: z.number()
+  cantidad_muestra: z.number()
     .min(1, 'La cantidad de muestra debe ser mayor a 0')
     .int('La cantidad debe ser un número entero')
     .optional(),
@@ -149,5 +149,5 @@ export type OrderAPIData = z.infer<typeof orderAPISchema>
 export type OrderStep3LocalData = {
   testResults: Record<number, boolean>
   qualityNotes: string
-  cantidadMuestra: number
+  cantidad_muestra: number
 }

@@ -300,7 +300,7 @@ const prepareOrderData = () => {
     maquina: modelValue.maquina,
     inspector_calidad: modelValue.inspector_calidad,
     orders_tests,
-    cantidad_muestra: modelValue.cantidadMuestra,
+    cantidad_muestra: modelValue.cantidad_muestra,
   }
 }
 </script>

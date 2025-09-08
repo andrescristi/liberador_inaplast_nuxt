@@ -17,7 +17,7 @@
         </label>
         <div class="relative">
           <input 
-            v-model.number="localData.cantidadMuestra"
+            v-model.number="localData.cantidad_muestra"
             type="number"
             min="1"
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 pl-10"
@@ -217,7 +217,7 @@ const loading = ref(true)
 const localData = ref<OrderStep3LocalData>({
   testResults: props.modelValue?.testResults || {},
   qualityNotes: props.modelValue?.qualityNotes || '',
-  cantidadMuestra: props.modelValue?.cantidadMuestra || 0
+  cantidad_muestra: props.modelValue?.cantidad_muestra || 0
 })
 
 // Load tests on component mount
@@ -243,7 +243,7 @@ watch(localData, (newValue) => {
     ...(props.modelValue || {}),
     orders_tests,
     qualityNotes: newValue.qualityNotes,
-    cantidadMuestra: newValue.cantidadMuestra,
+    cantidad_muestra: newValue.cantidad_muestra,
     // Mantener compatibilidad con formato anterior
     testResults: newValue.testResults
   })
