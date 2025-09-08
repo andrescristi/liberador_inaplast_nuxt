@@ -49,7 +49,7 @@ export default defineEventHandler(async (event): Promise<OCRResponse> => {
     }
     
     // Configurar headers específicos para este endpoint
-    setHeader(event, 'Access-Control-Max-Age', '3600')
+    setHeader(event, 'Access-Control-Max-Age', 3600)
     setHeader(event, 'X-Content-Type-Options', 'nosniff')
     
     // Log de inicio de procesamiento

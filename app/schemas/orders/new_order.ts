@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { ocrValidatedSchema } from './ocr'
 
 /**
  * Esquema de validación para datos del Paso 1 del wizard de nueva orden
@@ -7,31 +6,100 @@ import { ocrValidatedSchema } from './ocr'
 export const orderStep1Schema = z.object({
   labelImage: z.instanceof(File).nullable(),
   labelImagePreview: z.string(),
-  cantidad_unidades: z.number()
+  cantidad_unidades_por_embalaje: z.number()
     .min(1, 'La cantidad debe ser mayor a 0')
     .max(1000, 'La cantidad no puede ser mayor a 1000')
     .int('La cantidad debe ser un número entero'),
 })
 
 /**
+ * Esquema de validación para datos del Paso 2 del wizard de nueva orden
+ * Campos requeridos para continuar al siguiente paso
+ */
+export const orderStep2Schema = z.object({
+  // Campos requeridos
+  cliente: z.string().min(1, 'El nombre del cliente es requerido'),
+  producto: z.string().min(1, 'El nombre del producto es requerido'),
+  codigo_producto: z.string().min(1, 'El código del producto es requerido'),
+  pedido: z.string().min(1, 'El número de pedido es requerido'),
+  fecha_fabricacion: z.string().min(1, 'La fecha de fabricación es requerida'),
+  turno: z.enum(['mañana', 'tarde', 'noche'], {
+    errorMap: () => ({ message: 'Selecciona un turno válido' })
+  }),
+  numero_operario: z.string().min(1, 'El número de operario es requerido'),
+  maquina: z.string().min(1, 'La máquina es requerida'),
+  inspector_calidad: z.string().min(1, 'El inspector de calidad es requerido'),
+  // Campos opcionales
+  lote: z.string().optional(),
+  jefe_de_turno: z.string().optional(),
+  orden_de_compra: z.string().optional(),
+})
+
+/**
+ * Esquema de validación para datos del Paso 3 del wizard de nueva orden
+ * Tests de calidad y observaciones
+ */
+export const orderStep3Schema = z.object({
+  cantidadMuestra: z.number()
+    .min(1, 'La cantidad de muestra debe ser mayor a 0')
+    .int('La cantidad debe ser un número entero')
+    .optional(),
+  orders_tests: z.array(z.object({
+    test_id: z.number(),
+    aprobado: z.boolean()
+  })).optional(),
+  qualityNotes: z.string().optional(),
+  // Mantener compatibilidad
+  testResults: z.record(z.string(), z.boolean()).optional(),
+})
+
+/**
  * Esquema de validación completo para crear una nueva orden
- * Combina datos OCR validados + imágenes + cantidad
+ * Combina todos los pasos del wizard
  */
 export const newOrderSchema = z.object({
-  // Datos extraídos y validados por OCR
-  ...ocrValidatedSchema.shape,
-  
-  // Archivos de imagen con preview
-  packageImage: z.instanceof(File).nullable(),
-  packageImagePreview: z.string(),
+  // Step 1
   labelImage: z.instanceof(File).nullable(),
   labelImagePreview: z.string(),
-  
-  // Cantidad de unidades
-  cantidad_unidades: z.number()
+  packageImage: z.instanceof(File).nullable().optional(),
+  packageImagePreview: z.string().optional(),
+  cantidad_unidades_por_embalaje: z.number()
     .min(1, 'La cantidad debe ser mayor a 0')
     .max(1000, 'La cantidad no puede ser mayor a 1000')
     .int('La cantidad debe ser un número entero'),
+  
+  // Step 2 - Datos del producto y cliente
+  cliente: z.string().min(1, 'El nombre del cliente es requerido'),
+  producto: z.string().min(1, 'El nombre del producto es requerido'),
+  codigo_producto: z.string().min(1, 'El código del producto es requerido'),
+  pedido: z.string().min(1, 'El número de pedido es requerido'),
+  fecha_fabricacion: z.string().min(1, 'La fecha de fabricación es requerida'),
+  turno: z.enum(['mañana', 'tarde', 'noche'], {
+    errorMap: () => ({ message: 'Selecciona un turno válido' })
+  }),
+  numero_operario: z.string().min(1, 'El número de operario es requerido'),
+  maquina: z.string().min(1, 'La máquina es requerida'),
+  inspector_calidad: z.string().min(1, 'El inspector de calidad es requerido'),
+  lote: z.string().optional(),
+  jefe_de_turno: z.string().optional(),
+  orden_de_compra: z.string().optional(),
+  
+  // Step 3 - Tests de calidad
+  cantidadMuestra: z.number()
+    .min(1, 'La cantidad de muestra debe ser mayor a 0')
+    .int('La cantidad debe ser un número entero')
+    .optional(),
+  orders_tests: z.array(z.object({
+    test_id: z.number(),
+    aprobado: z.boolean()
+  })).optional(),
+  qualityNotes: z.string().optional(),
+  testResults: z.record(z.number(), z.boolean()).optional(),
+  
+  // Step 4 - Resultados finales (opcionales para el wizard)
+  finalResult: z.enum(['approved', 'rejected', 'conditional']).optional(),
+  rejectionReason: z.string().optional(),
+  recommendations: z.string().optional(),
 })
 
 /**
@@ -43,7 +111,43 @@ export const newOrderDataSchema = newOrderSchema.omit({
   labelImage: true,
 })
 
+/**
+ * Esquema para validar datos antes de enviar a la API
+ * Solo campos requeridos por el backend
+ */
+export const orderAPISchema = z.object({
+  lote: z.string().optional(),
+  cliente: z.string().min(1, 'El nombre del cliente es requerido'),
+  producto: z.string().min(1, 'El nombre del producto es requerido'),
+  pedido: z.string().min(1, 'El número de pedido es requerido'),
+  fecha_fabricacion: z.string().min(1, 'La fecha de fabricación es requerida'),
+  codigo_producto: z.string().min(1, 'El código del producto es requerido'),
+  turno: z.enum(['mañana', 'tarde', 'noche']),
+  cantidad_unidades_por_embalaje: z.number()
+    .min(1, 'La cantidad debe ser mayor a 0')
+    .int('La cantidad debe ser un número entero'),
+  jefe_de_turno: z.string().optional(),
+  orden_de_compra: z.string().optional(),
+  numero_operario: z.string().min(1, 'El número de operario es requerido'),
+  maquina: z.string().min(1, 'La máquina es requerida'),
+  inspector_calidad: z.string().min(1, 'El inspector de calidad es requerido'),
+  orders_tests: z.array(z.object({
+    test_id: z.number(),
+    aprobado: z.boolean()
+  })).min(1, 'Debe incluir al menos un test')
+})
+
 // Tipos derivados de los esquemas
 export type OrderStep1Data = z.infer<typeof orderStep1Schema>
+export type OrderStep2Data = z.infer<typeof orderStep2Schema>
+export type OrderStep3Data = z.infer<typeof orderStep3Schema>
 export type NewOrderData = z.infer<typeof newOrderSchema>
 export type NewOrderFormData = z.infer<typeof newOrderDataSchema>
+export type OrderAPIData = z.infer<typeof orderAPISchema>
+
+// Tipo específico para el estado local de Step3 (más específico que el esquema)
+export type OrderStep3LocalData = {
+  testResults: Record<number, boolean>
+  qualityNotes: string
+  cantidadMuestra: number
+}

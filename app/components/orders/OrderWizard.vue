@@ -215,7 +215,7 @@ const handleOCRComplete = (ocrData: OCRData) => {
   }
 }
 
-const handleSave = async (createdOrder?: any) => {
+const handleSave = async (createdOrder?: Order) => {
   if (isSaving.value) return
   
   isSaving.value = true

@@ -552,7 +552,7 @@ const handleSignOut = async () => {
     // Mostrar confirmación de éxito
     toast.success('Sesión cerrada correctamente')
     
-  } catch (error) {
+  } catch {
     // console.error('Logout error:', error) - Removido para evitar console statement
     toast.error('Error al cerrar sesión', 'Por favor intenta de nuevo.')
   } finally {
@@ -665,7 +665,7 @@ onMounted(async () => {
   if (import.meta.client) {
     try {
       await initialize()
-    } catch (_error) {
+    } catch {
       // Ignorar errores de inicialización silenciosamente para evitar console warnings
     }
   }

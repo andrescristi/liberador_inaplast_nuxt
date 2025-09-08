@@ -19,7 +19,7 @@
           📦 Cantidad de unidades embalajes a analizar (cajas, bolsas, etc) *
         </label>
         <input 
-          v-model.number="localData.cantidad_unidades"
+          v-model.number="localData.cantidad_unidades_por_embalaje"
           type="number" 
           min="1" 
           max="1000"
@@ -80,23 +80,23 @@ const toast = useToast()
 const logger = useLogger('OrderWizardStep1')
 
 // Configuración de validación con vee-validate y Zod
-const validationSchema = toTypedSchema(stepDataSchema.pick({ cantidad_unidades: true }))
+const validationSchema = toTypedSchema(stepDataSchema.pick({ cantidad_unidades_por_embalaje: true }))
 
 const { handleSubmit, errors } = useForm({
   validationSchema,
   initialValues: {
-    cantidad_unidades: props.modelValue.cantidad_unidades || 1
+    cantidad_unidades_por_embalaje: props.modelValue.cantidad_unidades_por_embalaje || 1
   }
 })
 
 // Campos individuales para mejor control
-const { errorMessage: boxQuantityError } = useField('cantidad_unidades')
+const { errorMessage: boxQuantityError } = useField('cantidad_unidades_por_embalaje')
 
 // Local reactive copy para datos no validados por el esquema
 const localData = ref({
   labelImage: props.modelValue.labelImage,
   labelImagePreview: props.modelValue.labelImagePreview,
-  cantidad_unidades: props.modelValue.cantidad_unidades || 1
+  cantidad_unidades_por_embalaje: props.modelValue.cantidad_unidades_por_embalaje || 1
 })
 
 // Watch para sincronizar cambios
@@ -104,14 +104,14 @@ watch(localData, (localValue) => {
   emit('update:modelValue', {
     ...props.modelValue,
     ...localValue,
-    cantidad_unidades: localValue.cantidad_unidades || 1
+    cantidad_unidades_por_embalaje: localValue.cantidad_unidades_por_embalaje || 1
   })
 }, { deep: true })
 
 // Computed
 const canProceed = computed(() => {
   return localData.value.labelImage && 
-         (localData.value.cantidad_unidades || 0) > 0 && 
+         (localData.value.cantidad_unidades_por_embalaje || 0) > 0 && 
          Object.keys(errors.value).length === 0
 })
 

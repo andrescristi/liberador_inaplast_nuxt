@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     console.log('[DEBUG] credentials.post.ts - Validación exitosa')
 
     // Inicializar Supabase
-    const supabase = serverSupabaseClient(event)
+    const supabase = await serverSupabaseClient(event)
     console.log('[DEBUG] credentials.post.ts - Supabase client inicializado')
 
     // Autenticar con Supabase
@@ -86,12 +86,6 @@ export default defineEventHandler(async (event) => {
       },
       loggedInAt: new Date().toISOString(),
       profileLoaded: true
-    }, {
-      // Datos seguros solo en servidor
-      secure: {
-        supabaseAccessToken: data.session?.access_token,
-        supabaseRefreshToken: data.session?.refresh_token
-      }
     })
     console.log('[DEBUG] credentials.post.ts - Sesión configurada exitosamente')
 

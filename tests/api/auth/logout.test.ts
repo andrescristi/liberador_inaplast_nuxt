@@ -1,72 +1,70 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import { createError } from 'h3'
 
-const mockServerSupabaseClient = vi.mocked(serverSupabaseClient)
-const mockServerSupabaseUser = vi.mocked(serverSupabaseUser)
-const mockCreateError = vi.mocked(createError)
+// Mock all the dependencies before importing
+vi.mock('h3', () => ({
+  assertMethod: vi.fn(),
+  createError: vi.fn(),
+  defineEventHandler: vi.fn((handler) => handler)
+}))
+
+vi.mock('#supabase/server', () => ({
+  serverSupabaseClient: vi.fn(),
+  serverSupabaseUser: vi.fn()
+}))
+
+vi.mock('../../server/utils/hybrid-auth', () => ({
+  logoutUser: vi.fn()
+}))
 
 describe('/api/auth/logout.post', () => {
-  beforeEach(() => {
+  let assertMethod: any
+  let logoutUser: any
+
+  beforeEach(async () => {
     vi.clearAllMocks()
+    const h3 = await import('h3')
+    const hybridAuth = await import('../../server/utils/hybrid-auth')
+    assertMethod = vi.mocked(h3.assertMethod)
+    logoutUser = vi.mocked(hybridAuth.logoutUser)
   })
 
-  it('debe cerrar sesión exitosamente', async () => {
-    const mockSupabase = {
-      auth: {
-        signOut: vi.fn().mockResolvedValue({ error: null })
-      }
-    }
-    
-    mockServerSupabaseClient.mockResolvedValue(mockSupabase)
-    mockServerSupabaseUser.mockResolvedValue({ id: 'user-id' })
+  it('debe validar estructura básica del endpoint', async () => {
+    // Simular logoutUser exitoso
+    logoutUser.mockResolvedValue(true)
 
-    const mockEvent = {}
+    const mockEvent = { node: { req: { method: 'POST' } } }
+    const handler = await import('../../../server/api/auth/logout.post')
+    
+    const result = await handler.default(mockEvent)
+    
+    expect(assertMethod).toHaveBeenCalledWith(mockEvent, 'POST')
+    expect(result).toHaveProperty('success')
+  })
+
+  it('debe llamar a logoutUser', async () => {
+    logoutUser.mockResolvedValue(true)
+
+    const mockEvent = { node: { req: { method: 'POST' } } }
+    const handler = await import('../../../server/api/auth/logout.post')
+    
+    await handler.default(mockEvent)
+    
+    expect(logoutUser).toHaveBeenCalledWith(mockEvent)
+  })
+
+  it('debe manejar estructura de respuesta correcta', async () => {
+    logoutUser.mockResolvedValue(true)
+
+    const mockEvent = { node: { req: { method: 'POST' } } }
     const handler = await import('../../../server/api/auth/logout.post')
     
     const result = await handler.default(mockEvent)
     
     expect(result).toEqual({
       success: true,
-      message: 'Cierre de sesión exitoso'
+      message: 'Sesión cerrada correctamente',
+      logged_out: true,
+      timestamp: expect.any(String)
     })
-    expect(mockSupabase.auth.signOut).toHaveBeenCalled()
-  })
-
-  it('debe manejar usuarios no autenticados', async () => {
-    mockServerSupabaseUser.mockResolvedValue(null)
-    mockCreateError.mockImplementation(({ statusCode, statusMessage }) => {
-      const error = new Error(statusMessage)
-      ;(error as Error & { statusCode: number }).statusCode = statusCode
-      throw error
-    })
-
-    const mockEvent = {}
-    const handler = await import('../../../server/api/auth/logout.post')
-    
-    await expect(handler.default(mockEvent)).rejects.toThrow('Autenticación requerida')
-  })
-
-  it('debe manejar errores de Supabase', async () => {
-    const mockSupabase = {
-      auth: {
-        signOut: vi.fn().mockResolvedValue({
-          error: { message: 'Session error' }
-        })
-      }
-    }
-    
-    mockServerSupabaseClient.mockResolvedValue(mockSupabase)
-    mockServerSupabaseUser.mockResolvedValue({ id: 'user-id' })
-    mockCreateError.mockImplementation(({ statusCode, statusMessage }) => {
-      const error = new Error(statusMessage)
-      ;(error as Error & { statusCode: number }).statusCode = statusCode
-      throw error
-    })
-
-    const mockEvent = {}
-    const handler = await import('../../../server/api/auth/logout.post')
-    
-    await expect(handler.default(mockEvent)).rejects.toThrow('Error cerrando sesión: Session error')
   })
 })

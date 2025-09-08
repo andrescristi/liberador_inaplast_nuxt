@@ -61,3 +61,5 @@ agent-context/
 .mcp.json
 .vercel
 .env*.local
+
+.mcp.json

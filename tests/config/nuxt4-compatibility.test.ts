@@ -29,7 +29,7 @@ describe('Nuxt 4 Compatibility', () => {
     
     // Verificar composables anidados
     expect(existsSync('app/composables/auth')).toBe(true)
-    expect(existsSync('app/composables/useLogger.ts')).toBe(true)
+    expect(existsSync('app/composables/tools/useLogger.ts')).toBe(true)
   })
 
   it('debe tener plugins organizados correctamente', async () => {

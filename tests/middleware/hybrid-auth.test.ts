@@ -137,7 +137,7 @@ describe('Hybrid Authentication Middleware', () => {
 
       try {
         await mockHybridAuth.checkAuth()
-      } catch (error) {
+      } catch {
         mockNavigateTo('/auth/login')
       }
 
@@ -219,7 +219,7 @@ describe('Hybrid Authentication Middleware', () => {
 
       try {
         await mockHybridAuth.checkAuth()
-      } catch (error) {
+      } catch {
         mockHybridAuth.removeJWT()
         mockNavigateTo('/auth/login')
       }

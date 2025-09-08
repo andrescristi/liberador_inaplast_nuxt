@@ -344,4 +344,187 @@ describe('OrderWizardStep1', () => {
       )
     })
   })
+
+  describe('Image Compression Integration', () => {
+    it('debería manejar imágenes comprimidas durante OCR', async () => {
+      // Crear una imagen simulada grande
+      const largeImageData = 'a'.repeat(500 * 1024) // 500KB de datos simulados
+      const mockLargeFile = new File([largeImageData], 'large-image.png', { type: 'image/png' })
+      
+      wrapper.vm.localData.labelImage = mockLargeFile
+      wrapper.vm.localData.cantidad_unidades = 5
+
+      validateImageForOCRMock.mockReturnValue({ valid: true })
+      processOCRWithRetryMock.mockResolvedValue({
+        cliente: 'Cliente Test',
+        producto: 'Producto Test'
+      })
+      
+      await wrapper.vm.handleNext()
+      
+      expect(processOCRWithRetryMock).toHaveBeenCalledWith(
+        mockLargeFile,
+        expect.any(Function)
+      )
+      expect(loggerMock.info).toHaveBeenCalledWith(
+        'Iniciando procesamiento OCR',
+        expect.objectContaining({
+          fileName: 'large-image.png',
+          fileSize: expect.any(Number)
+        })
+      )
+    })
+
+    it('debería procesar correctamente imágenes pequeñas sin compresión', async () => {
+      const smallImageData = 'a'.repeat(100 * 1024) // 100KB
+      const mockSmallFile = new File([smallImageData], 'small-image.jpg', { type: 'image/jpeg' })
+      
+      wrapper.vm.localData.labelImage = mockSmallFile
+      wrapper.vm.localData.cantidad_unidades = 3
+
+      validateImageForOCRMock.mockReturnValue({ valid: true })
+      processOCRWithRetryMock.mockResolvedValue({
+        lote: 'LOT456',
+        turno: 'mañana'
+      })
+      
+      await wrapper.vm.handleNext()
+      
+      expect(processOCRWithRetryMock).toHaveBeenCalledWith(
+        mockSmallFile,
+        expect.any(Function)
+      )
+      expect(wrapper.emitted('ocr-complete')).toBeTruthy()
+    })
+
+    it('debería manejar diferentes formatos de imagen para compresión', () => {
+      const imageFormats = [
+        { name: 'test.png', type: 'image/png' },
+        { name: 'test.jpg', type: 'image/jpeg' },
+        { name: 'test.webp', type: 'image/webp' },
+        { name: 'test.bmp', type: 'image/bmp' }
+      ]
+
+      imageFormats.forEach(format => {
+        const mockFile = new File(['test'], format.name, { type: format.type })
+        wrapper.vm.localData.labelImage = mockFile
+        
+        // Verificar que el archivo se asigna correctamente
+        expect(wrapper.vm.localData.labelImage?.name).toBe(format.name)
+        expect(wrapper.vm.localData.labelImage?.type).toBe(format.type)
+      })
+    })
+
+    it('debería registrar información sobre el tamaño de imagen', async () => {
+      const imageData = 'x'.repeat(300 * 1024) // 300KB
+      const mockFile = new File([imageData], 'medium-image.png', { type: 'image/png' })
+      
+      wrapper.vm.localData.labelImage = mockFile
+      wrapper.vm.localData.cantidad_unidades = 2
+
+      validateImageForOCRMock.mockReturnValue({ valid: true })
+      processOCRWithRetryMock.mockResolvedValue({})
+      
+      await wrapper.vm.handleNext()
+      
+      expect(loggerMock.info).toHaveBeenCalledWith(
+        'Iniciando procesamiento OCR',
+        expect.objectContaining({
+          fileName: 'medium-image.png',
+          fileSize: expect.any(Number)
+        })
+      )
+    })
+
+    it('debería manejar errores relacionados con el tamaño de imagen', async () => {
+      const veryLargeImageData = 'x'.repeat(10 * 1024 * 1024) // 10MB
+      const mockVeryLargeFile = new File([veryLargeImageData], 'huge-image.png', { type: 'image/png' })
+      
+      wrapper.vm.localData.labelImage = mockVeryLargeFile
+      wrapper.vm.localData.cantidad_unidades = 1
+
+      // Simular error de validación por tamaño
+      validateImageForOCRMock.mockReturnValue({ 
+        valid: false, 
+        error: 'Imagen demasiado grande' 
+      })
+      
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false)
+      
+      await wrapper.vm.handleNext()
+      
+      expect(validateImageForOCRMock).toHaveBeenCalledWith(mockVeryLargeFile)
+      expect(wrapper.emitted('next')).toBeUndefined()
+      
+      confirmSpy.mockRestore()
+    })
+  })
+
+  describe('OCR Progress Callback', () => {
+    it('debería actualizar el progreso durante el procesamiento OCR', async () => {
+      const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
+      wrapper.vm.localData.labelImage = mockFile
+      wrapper.vm.localData.cantidad_unidades = 1
+
+      validateImageForOCRMock.mockReturnValue({ valid: true })
+      
+      let capturedProgressCallback: Function | null = null
+      processOCRWithRetryMock.mockImplementation((file, progressCallback) => {
+        capturedProgressCallback = progressCallback
+        return Promise.resolve({
+          cliente: 'Cliente Test'
+        })
+      })
+      
+      await wrapper.vm.handleNext()
+      
+      // Verificar que se pasó el callback de progreso
+      expect(processOCRWithRetryMock).toHaveBeenCalledWith(
+        mockFile,
+        expect.any(Function)
+      )
+      
+      // Simular actualizaciones de progreso
+      if (capturedProgressCallback) {
+        capturedProgressCallback('Comprimiendo imagen...')
+        capturedProgressCallback('Enviando a OCR...')
+        capturedProgressCallback('Procesando respuesta...')
+      }
+      
+      expect(wrapper.emitted('ocr-complete')).toBeTruthy()
+    })
+
+    it('debería manejar múltiples actualizaciones de progreso', async () => {
+      const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
+      wrapper.vm.localData.labelImage = mockFile
+      wrapper.vm.localData.cantidad_unidades = 1
+
+      validateImageForOCRMock.mockReturnValue({ valid: true })
+      
+      const progressMessages: string[] = []
+      
+      processOCRWithRetryMock.mockImplementation((file, progressCallback) => {
+        // Simular progreso de compresión
+        progressCallback('Validando imagen...')
+        progressMessages.push('Validando imagen...')
+        
+        progressCallback('Comprimiendo imagen grande...')
+        progressMessages.push('Comprimiendo imagen grande...')
+        
+        progressCallback('Enviando a OCR...')
+        progressMessages.push('Enviando a OCR...')
+        
+        return Promise.resolve({
+          lote: 'LOT789'
+        })
+      })
+      
+      await wrapper.vm.handleNext()
+      
+      expect(progressMessages).toHaveLength(3)
+      expect(progressMessages).toContain('Validando imagen...')
+      expect(progressMessages).toContain('Comprimiendo imagen grande...')
+      expect(progressMessages).toContain('Enviando a OCR...')
+    })
+  })
 })

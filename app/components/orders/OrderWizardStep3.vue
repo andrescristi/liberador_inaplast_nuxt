@@ -10,6 +10,26 @@
     </div>
     
     <div v-else class="p-6 space-y-6">
+      <!-- Sample Units Input -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          📊 Cantidad de Unidades a Muestrear
+        </label>
+        <div class="relative">
+          <input 
+            v-model.number="localData.cantidadMuestra"
+            type="number"
+            min="1"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 pl-10"
+            placeholder="Ingresa la cantidad de unidades para el muestreo..."
+          >
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Icon name="bx:package" class="h-5 w-5 text-gray-400" />
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">Especifica cuántas unidades del lote serán sometidas a las pruebas de calidad</p>
+      </div>
+
       <!-- Quality Tests Checklist -->
       <div>
         <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
@@ -40,7 +60,7 @@
               <div class="relative inline-block">
                 <input 
                   :id="`test-${test.id}`"
-                  v-model="localData.testResults[test.id]"
+                  v-model="localData.testResults![test.id]"
                   type="checkbox"
                   class="sr-only"
                 >
@@ -50,11 +70,11 @@
                 >
                   <div 
                     class="relative w-11 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out"
-                    :class="localData.testResults[test.id] ? 'bg-blue-600' : 'bg-gray-300'"
+                    :class="localData.testResults![test.id] ? 'bg-blue-600' : 'bg-gray-300'"
                   >
                     <div 
                       class="bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out"
-                      :class="localData.testResults[test.id] ? 'translate-x-5' : 'translate-x-0'"
+                      :class="localData.testResults![test.id] ? 'translate-x-5' : 'translate-x-0'"
                     />
                   </div>
                 </label>
@@ -86,7 +106,7 @@
               <div class="relative inline-block">
                 <input 
                   :id="`test-${test.id}`"
-                  v-model="localData.testResults[test.id]"
+                  v-model="localData.testResults![test.id]"
                   type="checkbox"
                   class="sr-only"
                 >
@@ -96,11 +116,11 @@
                 >
                   <div 
                     class="relative w-11 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out"
-                    :class="localData.testResults[test.id] ? 'bg-green-600' : 'bg-gray-300'"
+                    :class="localData.testResults![test.id] ? 'bg-green-600' : 'bg-gray-300'"
                   >
                     <div 
                       class="bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out"
-                      :class="localData.testResults[test.id] ? 'translate-x-5' : 'translate-x-0'"
+                      :class="localData.testResults![test.id] ? 'translate-x-5' : 'translate-x-0'"
                     />
                   </div>
                 </label>
@@ -165,59 +185,21 @@
 
 <script setup lang="ts">
 import type { Test } from '~/types/tests'
+import type { NewOrderData, OrderStep3LocalData } from '~/schemas/orders/new_order'
 import { useTestsAPI } from '~/composables/tests/useTestsAPI'
 
-// Define la estructura de datos de test para el API
+// Interface para datos de test del API
 interface OrderTestData {
   test_id: number
   aprobado: boolean
 }
 
-// Define la estructura completa de datos de la orden
-interface OrderData {
-  // Step 1
-  labelImage: File | null
-  labelImagePreview: string
-  cantidad_unidades: number
-  
-  // Step 2 - Campos requeridos por la API
-  lote?: string
-  cliente: string
-  producto: string
-  pedido: string
-  fecha_fabricacion: string
-  codigo_producto: string
-  turno: string
-  jefe_de_turno?: string
-  orden_de_compra?: string
-  numero_operario: string
-  maquina: string
-  inspector_calidad: string
-  
-  // Step 3 - Quality Tests (formato API)
-  orders_tests?: OrderTestData[]
-  qualityNotes?: string
-  
-  // Mantener compatibilidad con formato anterior
-  testResults?: Record<number, boolean>
-  
-  // Step 4 - Final Results
-  finalResult?: 'approved' | 'rejected' | 'conditional'
-  rejectionReason?: string
-  recommendations?: string
-}
-
-interface StepData {
-  testResults: Record<number, boolean>
-  qualityNotes: string
-}
-
 interface Props {
-  modelValue: OrderData
+  modelValue: NewOrderData
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: OrderData): void
+  (e: 'update:modelValue', value: NewOrderData): void
   (e: 'next' | 'previous'): void
 }
 
@@ -231,10 +213,11 @@ const { getAllTests } = useTestsAPI()
 const tests = ref<Test[]>([])
 const loading = ref(true)
 
-// Local reactive copy
-const localData = ref<StepData>({
+// Local reactive copy usando el tipo centralizado
+const localData = ref<OrderStep3LocalData>({
   testResults: props.modelValue?.testResults || {},
-  qualityNotes: props.modelValue?.qualityNotes || ''
+  qualityNotes: props.modelValue?.qualityNotes || '',
+  cantidadMuestra: props.modelValue?.cantidadMuestra || 0
 })
 
 // Load tests on component mount
@@ -251,7 +234,7 @@ onMounted(async () => {
 // Watch for changes and emit updates
 watch(localData, (newValue) => {
   // Convertir testResults a formato API orders_tests
-  const orders_tests: OrderTestData[] = Object.entries(newValue.testResults).map(([testId, aprobado]) => ({
+  const orders_tests: OrderTestData[] = Object.entries(newValue.testResults || {}).map(([testId, aprobado]) => ({
     test_id: parseInt(testId),
     aprobado
   }))
@@ -260,6 +243,7 @@ watch(localData, (newValue) => {
     ...(props.modelValue || {}),
     orders_tests,
     qualityNotes: newValue.qualityNotes,
+    cantidadMuestra: newValue.cantidadMuestra,
     // Mantener compatibilidad con formato anterior
     testResults: newValue.testResults
   })
@@ -273,7 +257,7 @@ const functionalTests = computed(() => tests.value?.filter(test => test.type ===
 const totalTests = computed(() => tests.value?.length || 0)
 
 const completedTests = computed(() => {
-  return Object.values(localData.value.testResults).filter(Boolean).length
+  return Object.values(localData.value.testResults || {}).filter(Boolean).length
 })
 
 const successRate = computed(() => {

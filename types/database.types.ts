@@ -76,7 +76,7 @@ export type Database = {
       }
       orders: {
         Row: {
-          cantidad_unidades: number
+          cantidad_unidades_por_embalaje: number
           cliente: string
           codigo_producto: string
           created_at: string
@@ -92,9 +92,11 @@ export type Database = {
           producto: string
           turno: string
           updated_at: string
+          status: string
+          cantidad_muestra: number | null
         }
         Insert: {
-          cantidad_unidades: number
+          cantidad_unidades_por_embalaje: number
           cliente: string
           codigo_producto: string
           created_at?: string
@@ -110,9 +112,11 @@ export type Database = {
           producto: string
           turno: string
           updated_at?: string
+          status?: string
+          cantidad_muestra?: number | null
         }
         Update: {
-          cantidad_unidades?: number
+          cantidad_unidades_por_embalaje?: number
           cliente?: string
           codigo_producto?: string
           created_at?: string
@@ -128,6 +132,8 @@ export type Database = {
           producto?: string
           turno?: string
           updated_at?: string
+          status?: string
+          cantidad_muestra?: number | null
         }
         Relationships: []
       }

@@ -36,7 +36,7 @@
             </div>
             <div class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Cantidad:</span>
-              <span class="font-medium text-right">{{ modelValue.cantidad_unidades || 0 }} unidades</span>
+              <span class="font-medium text-right">{{ modelValue.cantidad_unidades_por_embalaje || 0 }} unidades</span>
             </div>
             <div class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Turno:</span>
@@ -144,51 +144,23 @@
 
 <script setup lang="ts">
 import type { Test } from '~/types/tests'
-import type { OrderTestData } from '~/types/orders'
+import type { NewOrderData } from '~/schemas/orders/new_order'
 import { useTestsAPI } from '~/composables/tests/useTestsAPI'
 import { useOrderAPI } from '~/composables/orders/useOrderAPI'
 
-// Define la estructura completa de datos de la orden
-interface OrderData {
-  // Step 1
-  labelImage: File | null
-  labelImagePreview: string
-  cantidad_unidades: number
-  
-  // Step 2 - Campos requeridos por la API
-  lote?: string
-  cliente: string
-  producto: string
-  pedido: string
-  fecha_fabricacion: string
-  codigo_producto: string
-  turno: string
-  jefe_de_turno?: string
-  orden_de_compra?: string
-  numero_operario: string
-  maquina: string
-  inspector_calidad: string
-  
-  // Step 3 - Quality Tests (formato API)
-  orders_tests?: OrderTestData[]
-  qualityNotes?: string
-  
-  // Mantener compatibilidad con formato anterior
-  testResults?: Record<number, boolean>
-  
-  // Step 4 - Final Results
-  finalResult?: 'approved' | 'rejected' | 'conditional'
-  rejectionReason?: string
-  recommendations?: string
+// Interface para datos de test del API
+interface OrderTestData {
+  test_id: number
+  aprobado: boolean
 }
 
 interface Props {
-  modelValue: OrderData
+  modelValue: NewOrderData
   isSaving: boolean
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: OrderData): void
+  (e: 'update:modelValue', value: NewOrderData): void
   (e: 'previous'): void
   (e: 'save', order?: unknown): void
 }
@@ -321,13 +293,14 @@ const prepareOrderData = () => {
     fecha_fabricacion: modelValue.fecha_fabricacion,
     codigo_producto: modelValue.codigo_producto,
     turno: modelValue.turno,
-    cantidad_unidades: modelValue.cantidad_unidades,
+    cantidad_unidades_por_embalaje: modelValue.cantidad_unidades_por_embalaje,
     jefe_de_turno: modelValue.jefe_de_turno,
     orden_de_compra: modelValue.orden_de_compra,
     numero_operario: modelValue.numero_operario,
     maquina: modelValue.maquina,
     inspector_calidad: modelValue.inspector_calidad,
-    orders_tests
+    orders_tests,
+    cantidad_muestra: modelValue.cantidadMuestra,
   }
 }
 </script>

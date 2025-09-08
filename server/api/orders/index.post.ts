@@ -17,7 +17,7 @@ interface CreateOrderRequest {
   fecha_fabricacion: string
   codigo_producto: string
   turno: string
-  cantidad_unidades: number
+  cantidad_unidades_por_embalaje: number
   jefe_de_turno?: string
   orden_de_compra?: string
   numero_operario: string
@@ -26,6 +26,7 @@ interface CreateOrderRequest {
   
   // Tests asociados a la orden - cada test debe estar incluido
   orders_tests?: OrderTestData[]
+  cantidadMuestra?: number
   // Mantener compatibilidad con formato anterior
   test_results?: { [testId: number]: boolean }
 }
@@ -39,7 +40,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<CreateOrderRequest>(event)
     
     // Validar campos requeridos
-    const requiredFields = ['cliente', 'producto', 'pedido', 'fecha_fabricacion', 'codigo_producto', 'turno', 'cantidad_unidades', 'numero_operario', 'maquina', 'inspector_calidad']
+    const requiredFields = ['cliente', 'producto', 'pedido', 'fecha_fabricacion', 'codigo_producto', 'turno', 'cantidad_unidades_por_embalaje', 'numero_operario', 'maquina', 'inspector_calidad']
     const missingFields = requiredFields.filter(field => !body[field as keyof CreateOrderRequest])
     
     if (missingFields.length > 0) {
@@ -50,10 +51,10 @@ export default defineEventHandler(async (event) => {
     }
     
     // Validaciones adicionales de tipos y valores
-    if (typeof body.cantidad_unidades !== 'number' || body.cantidad_unidades <= 0) {
+    if (typeof body.cantidad_unidades_por_embalaje !== 'number' || body.cantidad_unidades_por_embalaje <= 0) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'cantidad_unidades debe ser un número mayor a 0'
+        statusMessage: 'cantidad_unidades_por_embalaje debe ser un número mayor a 0'
       })
     }
     
@@ -63,6 +64,16 @@ export default defineEventHandler(async (event) => {
         statusCode: 400,
         statusMessage: 'fecha_fabricacion debe ser una fecha válida'
       })
+    }
+    
+    // Validar cantidadMuestra
+    if (body.cantidadMuestra !== undefined) {
+      if (typeof body.cantidadMuestra !== 'number' || body.cantidadMuestra <= 0) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'cantidadMuestra debe ser un número mayor a 0'
+        })
+      }
     }
     
     // Validar estructura de orders_tests si se proporciona y no está vacío
@@ -162,7 +173,8 @@ export default defineEventHandler(async (event) => {
       fecha_fabricacion: body.fecha_fabricacion,
       codigo_producto: body.codigo_producto,
       turno: body.turno,
-      cantidad_unidades: body.cantidad_unidades,
+      cantidad_unidades_por_embalaje: body.cantidad_unidades_por_embalaje,
+      cantidad_muestra: body.cantidadMuestra || 1,
       jefe_de_turno: body.jefe_de_turno || null,
       orden_de_compra: body.orden_de_compra || null,
       numero_operario: body.numero_operario,
@@ -170,6 +182,8 @@ export default defineEventHandler(async (event) => {
       inspector_calidad: body.inspector_calidad,
       status: orderStatus
     }
+    console.log('orderData')
+    console.log(orderData)
     
     // Crear la orden
     const { data: order, error: orderError } = await supabase

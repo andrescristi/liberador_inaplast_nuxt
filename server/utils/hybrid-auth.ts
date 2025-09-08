@@ -179,7 +179,7 @@ export async function authenticateUser(event: H3Event, email: string, password: 
   setCookie(event, HYBRID_AUTH_CONFIG.COOKIE_NAME, sessionId, {
     maxAge: HYBRID_AUTH_CONFIG.SESSION_DURATION / 1000, // En segundos
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: (process.env.NODE_ENV as string) === 'production',
     sameSite: 'lax'
   })
   
@@ -232,7 +232,7 @@ export async function verifyHybridAuth(event: H3Event) {
   
   // RECUPERACIÓN AUTOMÁTICA DE SESIÓN PARA DESARROLLO
   // Si JWT es válido pero sesión no existe (servidor reiniciado), recrear sesión
-  if (!session && process.env.NODE_ENV === 'development') {
+  if (!session && (process.env.NODE_ENV as string) === 'development') {
     console.log('🔄 Sesión perdida detectada en desarrollo. Recreando sesión...')
     
     // Crear nueva sesión usando datos del JWT
@@ -250,11 +250,11 @@ export async function verifyHybridAuth(event: H3Event) {
     setCookie(event, HYBRID_AUTH_CONFIG.COOKIE_NAME, sessionId, {
       maxAge: HYBRID_AUTH_CONFIG.SESSION_DURATION / 1000,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: (process.env.NODE_ENV as string) === 'production',
       sameSite: 'lax'
     })
     
-    session = sessionStore.get(sessionId)
+    session = sessionStore.get(sessionId) || null
     console.log('✅ Sesión recreada exitosamente para:', jwtPayload.email)
   }
   
@@ -350,7 +350,7 @@ export async function refreshHybridAuth(event: H3Event) {
   setCookie(event, HYBRID_AUTH_CONFIG.COOKIE_NAME, sessionId, {
     maxAge: HYBRID_AUTH_CONFIG.SESSION_DURATION / 1000,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: (process.env.NODE_ENV as string) === 'production',
     sameSite: 'lax'
   })
   

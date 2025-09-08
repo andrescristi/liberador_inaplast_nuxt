@@ -428,8 +428,27 @@ const statusOptions: StatusOption[] = [
   { value: 'cancelled', label: 'Rechazado' },
 ]
 
-// Store initialization - usando useState para SSR correcto
-const ordersStore = useOrdersStore()
+// Composable para manejo seguro de Pinia
+const { isPiniaReady, waitForPinia } = useSafePinia()
+
+// Store initialization - diferido hasta que Pinia esté listo
+let ordersStore: ReturnType<typeof useOrdersStore> | null = null
+
+// Inicialización segura del store
+const initializeStore = async () => {
+  const ready = await waitForPinia()
+  if (ready) {
+    ordersStore = useOrdersStore()
+    await loadOrdersAfterMount()
+  } else {
+    console.error('[Orders] No se pudo inicializar Pinia')
+  }
+}
+
+// Hook de inicialización
+onMounted(() => {
+  initializeStore()
+})
 
 // Estados locales usando useState para SSR-safe
 const orders = useState('orders-page-data', () => [])
@@ -453,6 +472,11 @@ const hasActiveFilters = computed(() => {
 
 // Methods
 const loadOrders = async (page = 1) => {
+  if (!ordersStore) {
+    console.warn('Orders store not initialized yet')
+    return
+  }
+  
   try {
     loading.value = true
     currentPage.value = page
@@ -469,6 +493,11 @@ const loadOrders = async (page = 1) => {
   } finally {
     loading.value = false
   }
+}
+
+// Función específica para cargar después del mount
+const loadOrdersAfterMount = async () => {
+  await loadOrders(1)
 }
 
 const applyFilters = () => {
@@ -502,7 +531,7 @@ const showOrderActions = (order: Order) => {
 }
 
 const updateOrderStatus = async (status: OrderStatus) => {
-  if (!selectedOrder.value || !ordersStore.updateOrderStatus) return
+  if (!selectedOrder.value || !ordersStore?.updateOrderStatus) return
   
   try {
     await ordersStore.updateOrderStatus(selectedOrder.value.id, status)
@@ -516,7 +545,7 @@ const updateOrderStatus = async (status: OrderStatus) => {
 }
 
 const deleteOrder = async () => {
-  if (!selectedOrder.value || !ordersStore.deleteOrder) return
+  if (!selectedOrder.value || !ordersStore?.deleteOrder) return
   
   if (confirm('¿Estás seguro de que quieres eliminar esta orden? Esta acción no se puede deshacer.')) {
     try {
@@ -562,8 +591,8 @@ const getStatusLabel = (status: string) => {
   return statusLabels[status as keyof typeof statusLabels] || status
 }
 
-// Load initial data - usando await para SSR correcto
-await loadOrders()
+// Load initial data - diferido al mount para evitar error de Pinia
+// loadOrders() se llama en onMounted()
 
 // SEO
 useSeoMeta({
