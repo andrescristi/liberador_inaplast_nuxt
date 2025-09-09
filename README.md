@@ -40,6 +40,7 @@ El **Sistema Liberador Inaplast** digitaliza el proceso manual de control de cal
 - **Google GenAI 1.15.0** - OCR principal con Gemini AI
 - **Tesseract.js 6.0.1** - OCR fallback local
 - **Sharp 0.34.3** - Procesamiento de imágenes
+- **Nomenclatura consistente**: Campos OCR estandarizados en camelCase
 
 ### 🧪 Testing
 - **Vitest 3.2.4** - Unit tests
@@ -172,9 +173,9 @@ pnpm test:e2e         # E2E tests con Playwright
 
 ### 🔄 Wizard de Liberación (4 pasos)
 1. **Captura de imagen** - Upload de foto de etiqueta
-2. **Extracción OCR** - Google Gemini AI + Tesseract.js automático
+2. **Extracción OCR** - Google Gemini AI + Tesseract.js con nomenclatura estandarizada
 3. **Pruebas de calidad** - Tests visuales y funcionales
-4. **Decisión final** - Aprobado/Rechazado con trazabilidad
+4. **Decisión final** - Aprobado/Rechazado con trazabilidad completa
 
 ### 🛡️ Sistema de Autenticación Híbrida
 - **Doble verificación**: JWT (cliente) + Session (servidor)
@@ -219,7 +220,7 @@ const { profile, hasRole } = useAuthProfile()
 export const createOrderSchema = z.object({
   cliente: z.string().min(1),
   producto: z.string().min(1),
-  cantidad_unidades: z.number().min(1)
+  cantidadMuestra: z.number().min(1) // Nomenclatura camelCase consistente
 })
 
 // Auto-types desde schema
@@ -321,6 +322,7 @@ NUXT_JWT_SECRET=prod_jwt_secret_64_chars
 - **Commits**: Conventional (feat, fix, docs, refactor)
 - **Branches**: feature/descripcion, hotfix/issue
 - **Middleware**: Usar array `['auth']` no string `'auth'`
+- **Nomenclatura**: CamelCase para todos los campos (ej: `cantidadMuestra`)
 - **Linting**: Solo ejecutar en archivos .ts/.vue modificados
 
 ### ⚡ Tips Rápidos
