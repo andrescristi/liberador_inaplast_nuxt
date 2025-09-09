@@ -99,8 +99,8 @@ describe('useOCRConfig', () => {
           numeroOperario: 'OP001',
           maquina: 'MAQ001',
           inspectorCalidad: 'Juan Pérez',
-          jefe_de_turno: 'María García',
-          orden_de_compra: 'OC001'
+          jefeDeTurno: 'María García',
+          ordenDeCompra: 'OC001'
         },
         metadata: {
           filename: 'test.jpg',
@@ -125,16 +125,16 @@ describe('useOCRConfig', () => {
       const expectedResult: OCRData = {
         cliente: 'Empresa Test S.A.',
         producto: 'Bolsa Test 25kg',
-        codigo_producto: 'BOLTEST001',
+        codigoProducto: 'BOLTEST001',
         lote: 'LOT20241201001',
-        fecha_fabricacion: '2024-12-01',
+        fechaFabricacion: '2024-12-01',
         pedido: 'PED001',
         turno: 'mañana', // Normalizado a minúsculas
-        numero_operario: 'OP001',
+        numeroOperario: 'OP001',
         maquina: 'MAQ001',
-        inspector_calidad: 'Juan Pérez',
-        jefe_de_turno: 'María García',
-        orden_de_compra: 'OC001'
+        inspectorCalidad: 'Juan Pérez',
+        jefeDeTurno: 'María García',
+        ordenDeCompra: 'OC001'
       }
 
       expect(result).toEqual(expectedResult)
@@ -296,8 +296,8 @@ describe('useOCRConfig', () => {
           numeroOperario: 'OP001',
           maquina: 'MAQ001',
           inspectorCalidad: 'Inspector Test',
-          jefe_de_turno: 'Jefe Test',
-          orden_de_compra: 'OC001'
+          jefeDeTurno: 'Jefe Test',
+          ordenDeCompra: 'OC001'
         }
       }
       
@@ -314,15 +314,15 @@ describe('useOCRConfig', () => {
       
       expect(result.cliente).toBe('Empresa Complete S.A.')
       expect(result.producto).toBe('Producto Complete')
-      expect(result.codigo_producto).toBe('PROD001')
+      expect(result.codigoProducto).toBe('PROD001')
       expect(result.lote).toBe('LOT001')
-      expect(result.fecha_fabricacion).toBe('2024-12-01')
+      expect(result.fechaFabricacion).toBe('2024-12-01')
       expect(result.turno).toBe('tarde') // Normalizado
-      expect(result.numero_operario).toBe('OP001')
+      expect(result.numeroOperario).toBe('OP001')
       expect(result.maquina).toBe('MAQ001')
-      expect(result.inspector_calidad).toBe('Inspector Test')
-      expect(result.jefe_de_turno).toBe('Jefe Test')
-      expect(result.orden_de_compra).toBe('OC001')
+      expect(result.inspectorCalidad).toBe('Inspector Test')
+      expect(result.jefeDeTurno).toBe('Jefe Test')
+      expect(result.ordenDeCompra).toBe('OC001')
     })
 
     it('maneja correctamente datos parciales del endpoint', async () => {
@@ -350,15 +350,15 @@ describe('useOCRConfig', () => {
       
       expect(result.cliente).toBe('Solo Cliente')
       expect(result.producto).toBeUndefined()
-      expect(result.codigo_producto).toBeUndefined()
+      expect(result.codigoProducto).toBeUndefined()
       expect(result.lote).toBe('LOT002')
-      expect(result.fecha_fabricacion).toBeUndefined()
+      expect(result.fechaFabricacion).toBeUndefined()
       expect(result.turno).toBe('mañana')
-      expect(result.numero_operario).toBeUndefined()
+      expect(result.numeroOperario).toBeUndefined()
       expect(result.maquina).toBeUndefined()
-      expect(result.inspector_calidad).toBeUndefined()
-      expect(result.jefe_de_turno).toBeUndefined()
-      expect(result.orden_de_compra).toBeUndefined()
+      expect(result.inspectorCalidad).toBeUndefined()
+      expect(result.jefeDeTurno).toBeUndefined()
+      expect(result.ordenDeCompra).toBeUndefined()
     })
   })
 })

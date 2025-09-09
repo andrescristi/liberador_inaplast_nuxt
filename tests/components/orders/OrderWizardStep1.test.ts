@@ -56,21 +56,21 @@ describe('OrderWizardStep1', () => {
       modelValue: {
         cliente: '',
         producto: '',
-        codigo_producto: '',
+        codigoProducto: '',
         pedido: '',
-        fecha_fabricacion: '',
+        fechaFabricacion: '',
         turno: '',
-        numero_operario: '',
+        numeroOperario: '',
         maquina: '',
-        inspector_calidad: '',
-        cantidad_unidades: 1,
+        inspectorCalidad: '',
+        cantidad_unidades_por_embalaje: 1,
         labelImage: null,
         labelImagePreview: '',
         packageImage: null,
         packageImagePreview: '',
         observaciones: '',
         finalResult: 'approved',
-        orden_de_compra: ''
+        ordenDeCompra: ''
       }
     }
 
@@ -111,16 +111,16 @@ describe('OrderWizardStep1', () => {
   })
 
   it('inicializa con valores por defecto correctos', () => {
-    expect(wrapper.vm.localData.cantidad_unidades).toBe(1)
+    expect(wrapper.vm.localData.cantidad_unidades_por_embalaje).toBe(1)
     expect(wrapper.vm.localData.labelImage).toBeNull()
     expect(wrapper.vm.localData.labelImagePreview).toBe('')
   })
 
-  it('actualiza cantidad_unidades cuando cambia el input', async () => {
+  it('actualiza cantidad_unidades_por_embalaje cuando cambia el input', async () => {
     const quantityInput = wrapper.find('input[type="number"]')
     await quantityInput.setValue(5)
     
-    expect(wrapper.vm.localData.cantidad_unidades).toBe(5)
+    expect(wrapper.vm.localData.cantidad_unidades_por_embalaje).toBe(5)
   })
 
   it('emite update:modelValue cuando cambian los datos locales', async () => {
@@ -133,14 +133,14 @@ describe('OrderWizardStep1', () => {
     expect(emittedEvents).toBeTruthy()
     expect(emittedEvents![emittedEvents!.length - 1][0]).toEqual({
       ...defaultProps.modelValue,
-      cantidad_unidades: 10
+      cantidad_unidades_por_embalaje: 10
     })
   })
 
   it('deshabilita el botón cuando no se puede proceder', () => {
     // Sin imagen y sin cantidad válida
     wrapper.vm.localData.labelImage = null
-    wrapper.vm.localData.cantidad_unidades = 0
+    wrapper.vm.localData.cantidad_unidades_por_embalaje = 0
     
     const nextButton = wrapper.find('button')
     expect(nextButton.attributes('disabled')).toBeDefined()
@@ -150,7 +150,7 @@ describe('OrderWizardStep1', () => {
     // Simular imagen y cantidad válida
     const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
     wrapper.vm.localData.labelImage = mockFile
-    wrapper.vm.localData.cantidad_unidades = 5
+    wrapper.vm.localData.cantidad_unidades_por_embalaje = 5
     
     await wrapper.vm.$nextTick()
     
@@ -165,12 +165,12 @@ describe('OrderWizardStep1', () => {
       
       await wrapper.vm.$nextTick()
       
-      expect(wrapper.vm.localData.cantidad_unidades).toBe(10)
+      expect(wrapper.vm.localData.cantidad_unidades_por_embalaje).toBe(10)
     })
 
     it('puede detectar cuando no se puede proceder', async () => {
       wrapper.vm.localData.labelImage = null
-      wrapper.vm.localData.cantidad_unidades = 0
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 0
       
       await wrapper.vm.$nextTick()
       
@@ -187,12 +187,12 @@ describe('OrderWizardStep1', () => {
     it('procesa OCR cuando hay imagen y se hace clic en siguiente', async () => {
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
       wrapper.vm.localData.labelImage = mockFile
-      wrapper.vm.localData.cantidad_unidades = 5
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 5
 
       const mockOCRData: OCRData = {
         cliente: 'Cliente Test',
         producto: 'Producto Test',
-        codigo_producto: 'COD123',
+        codigoProducto: 'COD123',
         lote: 'LOTE123'
       }
 
@@ -211,7 +211,7 @@ describe('OrderWizardStep1', () => {
     it('maneja errores de OCR mostrando opción de continuar', async () => {
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
       wrapper.vm.localData.labelImage = mockFile
-      wrapper.vm.localData.cantidad_unidades = 5
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 5
 
       processOCRWithRetryMock.mockRejectedValue(new Error('OCR Error'))
       
@@ -235,7 +235,7 @@ describe('OrderWizardStep1', () => {
     it('cancela cuando el usuario no acepta continuar sin OCR', async () => {
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
       wrapper.vm.localData.labelImage = mockFile
-      wrapper.vm.localData.cantidad_unidades = 5
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 5
 
       processOCRWithRetryMock.mockRejectedValue(new Error('OCR Error'))
       
@@ -256,11 +256,11 @@ describe('OrderWizardStep1', () => {
     it('maneja el estado isProcessingOCR', async () => {
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
       wrapper.vm.localData.labelImage = mockFile
-      wrapper.vm.localData.cantidad_unidades = 5
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 5
 
       processOCRWithRetryMock.mockResolvedValue({
         cliente: 'Cliente Test',
-        codigo_producto: 'COD123',
+        codigoProducto: 'COD123',
         lote: 'LOTE123'
       })
       
@@ -276,7 +276,7 @@ describe('OrderWizardStep1', () => {
       const mockOCRData: OCRData = {
         cliente: 'Cliente Test',
         producto: 'Producto Test',
-        codigo_producto: 'COD123',
+        codigoProducto: 'COD123',
         lote: 'LOTE123'
       }
 
@@ -292,7 +292,7 @@ describe('OrderWizardStep1', () => {
     it('valida imagen antes de procesar OCR', async () => {
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
       wrapper.vm.localData.labelImage = mockFile
-      wrapper.vm.localData.cantidad_unidades = 5
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 5
 
       validateImageForOCRMock.mockReturnValue({ 
         valid: false, 
@@ -313,12 +313,12 @@ describe('OrderWizardStep1', () => {
     it('registra información durante el procesamiento OCR', async () => {
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
       wrapper.vm.localData.labelImage = mockFile
-      wrapper.vm.localData.cantidad_unidades = 5
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 5
 
       validateImageForOCRMock.mockReturnValue({ valid: true })
       processOCRWithRetryMock.mockResolvedValue({
         cliente: 'Cliente Test',
-        codigo_producto: 'COD123',
+        codigoProducto: 'COD123',
         lote: 'LOTE123'
       })
       
@@ -338,7 +338,7 @@ describe('OrderWizardStep1', () => {
         'Datos OCR extraídos',
         expect.objectContaining({
           cliente: 'Cliente Test',
-          codigo_producto: 'COD123',
+          codigoProducto: 'COD123',
           lote: 'LOTE123'
         })
       )
@@ -352,7 +352,7 @@ describe('OrderWizardStep1', () => {
       const mockLargeFile = new File([largeImageData], 'large-image.png', { type: 'image/png' })
       
       wrapper.vm.localData.labelImage = mockLargeFile
-      wrapper.vm.localData.cantidad_unidades = 5
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 5
 
       validateImageForOCRMock.mockReturnValue({ valid: true })
       processOCRWithRetryMock.mockResolvedValue({
@@ -380,7 +380,7 @@ describe('OrderWizardStep1', () => {
       const mockSmallFile = new File([smallImageData], 'small-image.jpg', { type: 'image/jpeg' })
       
       wrapper.vm.localData.labelImage = mockSmallFile
-      wrapper.vm.localData.cantidad_unidades = 3
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 3
 
       validateImageForOCRMock.mockReturnValue({ valid: true })
       processOCRWithRetryMock.mockResolvedValue({
@@ -420,7 +420,7 @@ describe('OrderWizardStep1', () => {
       const mockFile = new File([imageData], 'medium-image.png', { type: 'image/png' })
       
       wrapper.vm.localData.labelImage = mockFile
-      wrapper.vm.localData.cantidad_unidades = 2
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 2
 
       validateImageForOCRMock.mockReturnValue({ valid: true })
       processOCRWithRetryMock.mockResolvedValue({})
@@ -441,7 +441,7 @@ describe('OrderWizardStep1', () => {
       const mockVeryLargeFile = new File([veryLargeImageData], 'huge-image.png', { type: 'image/png' })
       
       wrapper.vm.localData.labelImage = mockVeryLargeFile
-      wrapper.vm.localData.cantidad_unidades = 1
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 1
 
       // Simular error de validación por tamaño
       validateImageForOCRMock.mockReturnValue({ 
@@ -464,7 +464,7 @@ describe('OrderWizardStep1', () => {
     it('debería actualizar el progreso durante el procesamiento OCR', async () => {
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
       wrapper.vm.localData.labelImage = mockFile
-      wrapper.vm.localData.cantidad_unidades = 1
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 1
 
       validateImageForOCRMock.mockReturnValue({ valid: true })
       
@@ -497,7 +497,7 @@ describe('OrderWizardStep1', () => {
     it('debería manejar múltiples actualizaciones de progreso', async () => {
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
       wrapper.vm.localData.labelImage = mockFile
-      wrapper.vm.localData.cantidad_unidades = 1
+      wrapper.vm.localData.cantidad_unidades_por_embalaje = 1
 
       validateImageForOCRMock.mockReturnValue({ valid: true })
       

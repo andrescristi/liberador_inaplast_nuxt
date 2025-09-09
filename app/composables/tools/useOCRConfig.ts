@@ -11,8 +11,8 @@ interface OCRResponse {
     codigoProducto?: string
     turno?: string
     unidades?: string
-    jefe_de_turno?: string
-    orden_de_compra?: string
+    jefeDeTurno?: string
+    ordenDeCompra?: string
     numeroOperario?: string
     maquina?: string
     inspectorCalidad?: string
@@ -97,18 +97,18 @@ export function useOCRConfig() {
       // Campos básicos
       cliente: production?.cliente || undefined,
       producto: production?.producto || undefined,
-      codigo_producto: production?.codigoProducto || undefined,
+      codigoProducto: production?.codigoProducto || undefined,
       lote: production?.lote || undefined,
-      fecha_fabricacion: production?.fechaFabricacion || undefined,
+      fechaFabricacion: production?.fechaFabricacion || undefined,
       pedido: production?.pedido || undefined,
       
       // Campos adicionales con normalización especial para turno
       turno: normalizeTurno(production?.turno),
-      numero_operario: production?.numeroOperario || undefined,
+      numeroOperario: production?.numeroOperario || undefined,
       maquina: production?.maquina || undefined,
-      inspector_calidad: production?.inspectorCalidad || undefined,
-      jefe_de_turno: production?.jefe_de_turno || undefined,
-      orden_de_compra: production?.orden_de_compra || undefined
+      inspectorCalidad: production?.inspectorCalidad || undefined,
+      jefeDeTurno: production?.jefeDeTurno || undefined,
+      ordenDeCompra: production?.ordenDeCompra || undefined
     }
     
     // Debug: Log del resultado mapeado

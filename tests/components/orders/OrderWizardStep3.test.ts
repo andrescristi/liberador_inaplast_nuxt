@@ -62,18 +62,18 @@ describe('OrderWizardStep3', () => {
         // Step 1
         labelImage: null,
         labelImagePreview: '',
-        cantidad_unidades: 1,
+        cantidad_unidades_por_embalaje: 1,
         
         // Step 2 - campos requeridos
         cliente: 'Cliente Test',
         producto: 'Producto Test',
         pedido: 'PED-001',
-        fecha_fabricacion: '2024-01-01',
-        codigo_producto: 'PROD-001',
+        fechaFabricacion: '2024-01-01',
+        codigoProducto: 'PROD-001',
         turno: 'mañana',
-        numero_operario: 'OP001',
+        numeroOperario: 'OP001',
         maquina: 'MAQ001',
-        inspector_calidad: 'IC001',
+        inspectorCalidad: 'IC001',
         
         // Step 3 - campos opcionales
         testResults: {},
