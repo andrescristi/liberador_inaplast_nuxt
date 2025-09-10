@@ -76,6 +76,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          cantidad_embalajes: number
           cantidad_unidades_por_embalaje: number
           cliente: string
           codigo_producto: string
@@ -90,12 +91,12 @@ export type Database = {
           orden_de_compra: string | null
           pedido: string
           producto: string
+          status: Database["public"]["Enums"]["order_status"]
           turno: string
           updated_at: string
-          status: string
-          cantidad_muestra: number | null
         }
         Insert: {
+          cantidad_embalajes: number
           cantidad_unidades_por_embalaje: number
           cliente: string
           codigo_producto: string
@@ -110,12 +111,12 @@ export type Database = {
           orden_de_compra?: string | null
           pedido: string
           producto: string
+          status?: Database["public"]["Enums"]["order_status"]
           turno: string
           updated_at?: string
-          status?: string
-          cantidad_muestra?: number | null
         }
         Update: {
+          cantidad_embalajes?: number
           cantidad_unidades_por_embalaje?: number
           cliente?: string
           codigo_producto?: string
@@ -130,16 +131,16 @@ export type Database = {
           orden_de_compra?: string | null
           pedido?: string
           producto?: string
+          status?: Database["public"]["Enums"]["order_status"]
           turno?: string
           updated_at?: string
-          status?: string
-          cantidad_muestra?: number | null
         }
         Relationships: []
       }
       orders_tests: {
         Row: {
           aprobado: boolean
+          cantidad_unidades_con_falla: number
           created_at: string
           id: number
           order: string
@@ -147,6 +148,7 @@ export type Database = {
         }
         Insert: {
           aprobado: boolean
+          cantidad_unidades_con_falla?: number
           created_at?: string
           id?: number
           order: string
@@ -154,6 +156,7 @@ export type Database = {
         }
         Update: {
           aprobado?: boolean
+          cantidad_unidades_con_falla?: number
           created_at?: string
           id?: number
           order?: string
@@ -161,17 +164,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "orders_preguntas_order_fkey"
-            columns: ["order"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "orders_preguntas_pregunta_fkey"
             columns: ["pregunta"]
             isOneToOne: false
             referencedRelation: "tests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_tests_order_fkey"
+            columns: ["order"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -191,7 +194,7 @@ export type Database = {
         }
         Update: {
           aql?: string
-          codigo?: string
+          codigo: string
           numero_maximo_fallas?: number | null
           tamano_muestra?: number | null
         }
