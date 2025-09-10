@@ -466,10 +466,6 @@ const totalRejections = computed(() => {
   }, 0)
 })
 
-const successRate = computed(() => {
-  if (totalTests.value === 0) return 0
-  return Math.round((completedTests.value / totalTests.value) * 100)
-})
 
 const canProceed = computed(() => {
   // At least one test should be completed

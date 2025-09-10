@@ -298,13 +298,13 @@ const prepareOrderData = () => {
     codigo_producto: modelValue.codigoProducto,
     turno: modelValue.turno,
     cantidad_embalajes: modelValue.cantidadEmbalajes,
-    cantidad_unidades_por_embalaje: modelValue.unidadesPorEmbalaje,
+    cantidad_unidades_por_embalaje: modelValue.unidadesPorEmbalaje || 0,
     jefe_de_turno: modelValue.jefeDeTurno,
     orden_de_compra: modelValue.ordenDeCompra,
     numero_operario: modelValue.numeroOperario,
     maquina: modelValue.maquina,
     inspector_calidad: modelValue.inspectorCalidad,
-    orders_tests: orders_tests,
+    ordersTests: orders_tests,
     cantidad_muestra: modelValue.cantidadMuestra,
   }
 }
