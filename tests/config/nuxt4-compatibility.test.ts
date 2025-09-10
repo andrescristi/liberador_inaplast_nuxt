@@ -46,8 +46,8 @@ describe('Nuxt 4 Compatibility', () => {
   it('debe tener tipos TypeScript correctos', async () => {
     const { existsSync } = await import('fs')
     
-    expect(existsSync('types/logger.d.ts')).toBe(true)
-    expect(existsSync('types/database.types.ts')).toBe(true)
+    expect(existsSync('app/types/logger.d.ts')).toBe(true)
+    expect(existsSync('app/types/database.types.ts')).toBe(true)
   })
 
   it('debe tener fecha de compatibilidad de Nuxt 4', () => {

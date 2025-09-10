@@ -109,7 +109,7 @@ describe('OrderWizard', () => {
   it('inicializa formData con valores por defecto', () => {
     const vm = wrapper.vm
     expect(vm.formData.labelImage).toBe(null)
-    expect(vm.formData.cantidad_unidades).toBe(1)
+    expect(vm.formData.cantidadUnidadesPorEmbalaje).toBe(1)
     expect(vm.formData.cliente).toBe('')
     expect(vm.formData.finalResult).toBe('approved')
   })
@@ -164,15 +164,15 @@ describe('OrderWizard', () => {
         cliente: 'Test Customer S.A.',
         producto: 'Test Product',
         lote: 'LOT123',
-        fecha_fabricacion: '2024-12-01',
-        codigo_producto: 'PROD001',
+        fechaFabricacion: '2024-12-01',
+        codigoProducto: 'PROD001',
         pedido: 'PED001',
         turno: 'mañana',
-        numero_operario: 'OP001',
+        numeroOperario: 'OP001',
         maquina: 'MAQ001',
-        inspector_calidad: 'Juan Pérez',
-        jefe_de_turno: 'María García',
-        orden_de_compra: 'OC001'
+        inspectorCalidad: 'Juan Pérez',
+        jefeDeTurno: 'María García',
+        ordenDeCompra: 'OC001'
       }
       
       vm.handleOCRComplete(ocrData)
@@ -180,15 +180,15 @@ describe('OrderWizard', () => {
       expect(vm.formData.cliente).toBe('Test Customer S.A.')
       expect(vm.formData.producto).toBe('Test Product')
       expect(vm.formData.lote).toBe('LOT123')
-      expect(vm.formData.fecha_fabricacion).toBe('2024-12-01')
-      expect(vm.formData.codigo_producto).toBe('PROD001')
+      expect(vm.formData.fechaFabricacion).toBe('2024-12-01')
+      expect(vm.formData.codigoProducto).toBe('PROD001')
       expect(vm.formData.pedido).toBe('PED001')
       expect(vm.formData.turno).toBe('mañana')
-      expect(vm.formData.numero_operario).toBe('OP001')
+      expect(vm.formData.numeroOperario).toBe('OP001')
       expect(vm.formData.maquina).toBe('MAQ001')
-      expect(vm.formData.inspector_calidad).toBe('Juan Pérez')
-      expect(vm.formData.jefe_de_turno).toBe('María García')
-      expect(vm.formData.orden_de_compra).toBe('OC001')
+      expect(vm.formData.inspectorCalidad).toBe('Juan Pérez')
+      expect(vm.formData.jefeDeTurno).toBe('María García')
+      expect(vm.formData.ordenDeCompra).toBe('OC001')
       expect(toastSuccessMock).toHaveBeenCalledWith('OCR Completado', 'Se llenaron automáticamente 12 campos')
     })
 

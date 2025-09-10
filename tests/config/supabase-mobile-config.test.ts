@@ -62,6 +62,6 @@ describe('Configuración de Supabase para móviles', () => {
     const configPath = path.join(process.cwd(), 'nuxt.config.ts')
     const configContent = fs.readFileSync(configPath, 'utf-8')
     
-    expect(configContent).toContain('types: \'./types/database.types.ts\'')
+    expect(configContent).toContain('types: \'./app/types/database.types.ts\'')
   })
 })
