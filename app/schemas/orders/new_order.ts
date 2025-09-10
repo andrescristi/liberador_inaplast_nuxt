@@ -6,10 +6,14 @@ import { z } from 'zod'
 export const orderStep1Schema = z.object({
   labelImage: z.instanceof(File).nullable(),
   labelImagePreview: z.string(),
-  cantidadUnidadesPorEmbalaje: z.number()
+  cantidadEmbalajes: z.number()
     .min(1, 'La cantidad debe ser mayor a 0')
     .max(1000, 'La cantidad no puede ser mayor a 1000')
     .int('La cantidad debe ser un número entero'),
+  unidadesPorEmbalaje: z.number()
+    .min(1, 'Las unidades por embalaje deben ser mayor a 0')
+    .int('Las unidades deben ser un número entero')
+    .optional(),
 })
 
 /**
@@ -33,6 +37,7 @@ export const orderStep2Schema = z.object({
   lote: z.string().optional(),
   jefeDeTurno: z.string().optional(),
   ordenDeCompra: z.string().optional(),
+  unidadesPorEmbalaje: z.number().int().positive().optional().nullable(),
 })
 
 /**
@@ -63,10 +68,14 @@ export const newOrderSchema = z.object({
   labelImagePreview: z.string(),
   packageImage: z.instanceof(File).nullable().optional(),
   packageImagePreview: z.string().optional(),
-  cantidadUnidadesPorEmbalaje: z.number()
+  cantidadEmbalajes: z.number()
     .min(1, 'La cantidad debe ser mayor a 0')
     .max(1000, 'La cantidad no puede ser mayor a 1000')
     .int('La cantidad debe ser un número entero'),
+  unidadesPorEmbalaje: z.number()
+    .min(1, 'Las unidades por embalaje deben ser mayor a 0')
+    .int('Las unidades deben ser un número entero')
+    .optional(),
   
   // Step 2 - Datos del producto y cliente
   cliente: z.string().min(1, 'El nombre del cliente es requerido'),
@@ -123,9 +132,13 @@ export const orderAPISchema = z.object({
   fechaFabricacion: z.string().min(1, 'La fecha de fabricación es requerida'),
   codigoProducto: z.string().min(1, 'El código del producto es requerido'),
   turno: z.enum(['mañana', 'tarde', 'noche']),
-  cantidadUnidadesPorEmbalaje: z.number()
+  cantidadEmbalajes: z.number()
     .min(1, 'La cantidad debe ser mayor a 0')
     .int('La cantidad debe ser un número entero'),
+  unidadesPorEmbalaje: z.number()
+    .min(1, 'Las unidades por embalaje deben ser mayor a 0')
+    .int('Las unidades deben ser un número entero')
+    .optional(),
   jefeDeTurno: z.string().optional(),
   ordenDeCompra: z.string().optional(),
   numeroOperario: z.string().min(1, 'El número de operario es requerido'),
@@ -147,7 +160,13 @@ export type OrderAPIData = z.infer<typeof orderAPISchema>
 
 // Tipo específico para el estado local de Step3 (más específico que el esquema)
 export type OrderStep3LocalData = {
-  testResults: Record<number, boolean>
+  testResults: Record<number, number> // Cambiar de boolean a number (cantidad de rechazos)
   qualityNotes: string
   cantidadMuestra: number
+}
+
+// Tipo para resultados de test con cantidad de rechazos
+export type TestResult = {
+  testId: number
+  cantidadRechazos: number // Cantidad de unidades que fallaron este test
 }

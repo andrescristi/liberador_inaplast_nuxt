@@ -16,10 +16,10 @@
       <!-- Quantity Input -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
-          📦 Cantidad de unidades embalajes a analizar (cajas, bolsas, etc) *
+          📦 Cantidad de embalajes a analizar (cajas, bolsas, etc) *
         </label>
         <input 
-          v-model.number="localData.cantidadUnidadesPorEmbalaje"
+          v-model.number="localData.cantidadEmbalajes"
           type="number" 
           min="1" 
           max="1000"
@@ -80,23 +80,24 @@ const toast = useToast()
 const logger = useLogger('OrderWizardStep1')
 
 // Configuración de validación con vee-validate y Zod
-const validationSchema = toTypedSchema(stepDataSchema.pick({ cantidadUnidadesPorEmbalaje: true }))
+const validationSchema = toTypedSchema(stepDataSchema.pick({ cantidadEmbalajes: true }))
 
 const { handleSubmit, errors } = useForm({
   validationSchema,
   initialValues: {
-    cantidadUnidadesPorEmbalaje: props.modelValue.cantidadUnidadesPorEmbalaje || 1
+    cantidadEmbalajes: props.modelValue.cantidadEmbalajes || 1
   }
 })
 
 // Campos individuales para mejor control
-const { errorMessage: boxQuantityError } = useField('cantidadUnidadesPorEmbalaje')
+const { errorMessage: boxQuantityError } = useField('cantidadEmbalajes')
 
 // Local reactive copy para datos no validados por el esquema
 const localData = ref({
   labelImage: props.modelValue.labelImage,
   labelImagePreview: props.modelValue.labelImagePreview,
-  cantidadUnidadesPorEmbalaje: props.modelValue.cantidadUnidadesPorEmbalaje || 1
+  cantidadEmbalajes: props.modelValue.cantidadEmbalajes || 1,
+  unidadesPorEmbalaje: props.modelValue.unidadesPorEmbalaje || undefined
 })
 
 // Watch para sincronizar cambios
@@ -104,14 +105,14 @@ watch(localData, (localValue) => {
   emit('update:modelValue', {
     ...props.modelValue,
     ...localValue,
-    cantidadUnidadesPorEmbalaje: localValue.cantidadUnidadesPorEmbalaje || 1
+    cantidadEmbalajes: localValue.cantidadEmbalajes || 1
   })
 }, { deep: true })
 
 // Computed
 const canProceed = computed(() => {
   return localData.value.labelImage && 
-         (localData.value.cantidadUnidadesPorEmbalaje || 0) > 0 && 
+         (localData.value.cantidadEmbalajes || 0) > 0 && 
          Object.keys(errors.value).length === 0
 })
 
@@ -226,6 +227,7 @@ const processImageOCR = async () => {
 
 const handleOCRComplete = (extractedData: OCRData) => {
   ocrData.value = extractedData
+  console.log('extracted  Data:', extractedData)
   emit('ocr-complete', extractedData)
 }
 </script>

@@ -64,6 +64,7 @@ interface OCRData {
   inspectorCalidad?: string
   jefeDeTurno?: string
   ordenDeCompra?: string
+  unidadesPorEmbalaje?: number
 }
 
 // Composables
@@ -78,7 +79,8 @@ const formData = ref<NewOrderData>({
   // Step 1
   labelImage: null,
   labelImagePreview: '',
-  cantidadUnidadesPorEmbalaje: 1,
+  cantidadEmbalajes: 1,
+  unidadesPorEmbalaje: undefined,
   
   // Step 2 - Campos requeridos por la API
   lote: '',
@@ -171,6 +173,10 @@ const handleOCRComplete = (ocrData: OCRData) => {
       formData.value.ordenDeCompra = ocrData.ordenDeCompra
       updatedFields++
     }
+    if (ocrData.unidadesPorEmbalaje) {
+      formData.value.unidadesPorEmbalaje = ocrData.unidadesPorEmbalaje
+      updatedFields++
+    }
     
     if (updatedFields > 0) {
       toast.success('OCR Completado', `Se llenaron automáticamente ${updatedFields} campo${updatedFields > 1 ? 's' : ''}`)
@@ -183,7 +189,7 @@ const handleOCRComplete = (ocrData: OCRData) => {
   }
 }
 
-const handleSave = async (createdOrder?: Order) => {
+const handleSave = async (createdOrder?: { orderId: number }) => {
   if (isSaving.value) return
   
   isSaving.value = true

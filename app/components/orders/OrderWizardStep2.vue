@@ -33,6 +33,31 @@
               placeholder="Ej: LOT20241201"
             >
         </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Unidades por Embalaje
+            </label>
+            <div class="relative">
+              <input 
+                v-model.number="unidadesPorEmbalaje"
+                type="number" 
+                min="1"
+                step="1"
+                class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 pl-10"
+                :class="{
+                  'border-gray-300': true
+                }"
+                placeholder="Ej: 45"
+              >
+              <Icon name="bx:package" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-indigo-500" />
+              <Icon 
+                v-if="hasOCRData && unidadesPorEmbalaje" 
+                name="bx:check-circle" 
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-500" 
+                title="Dato extraído automáticamente"
+              />
+            </div>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -296,7 +321,8 @@ const { handleSubmit, errors, setFieldValue, values } = useForm({
     ordenDeCompra: props.modelValue.ordenDeCompra || '',
     numeroOperario: props.modelValue.numeroOperario || '',
     maquina: props.modelValue.maquina || '',
-    inspectorCalidad: props.modelValue.inspectorCalidad || ''
+    inspectorCalidad: props.modelValue.inspectorCalidad || '',
+    unidadesPorEmbalaje: props.modelValue.unidadesPorEmbalaje
   }
 })
 
@@ -313,6 +339,7 @@ const { value: ordenDeCompra } = useField('ordenDeCompra')
 const { value: numeroOperario, errorMessage: operarioError } = useField('numeroOperario')
 const { value: maquina, errorMessage: maquinaError } = useField('maquina')
 const { value: inspectorCalidad, errorMessage: inspectorError } = useField('inspectorCalidad')
+const { value: unidadesPorEmbalaje } = useField('unidadesPorEmbalaje')
 
 // State for tracking OCR pre-filled data
 const hasOCRData = ref(false)
@@ -320,7 +347,8 @@ const toast = useToast()
 
 // Check if we have OCR data when component mounts
 onMounted(() => {
-  const hasData = props.modelValue.cliente || props.modelValue.producto || props.modelValue.lote
+  console.log('Step2 - props.modelValue.unidadesPorEmbalaje:', props.modelValue.unidadesPorEmbalaje)
+  const hasData = props.modelValue.cliente || props.modelValue.producto || props.modelValue.lote || props.modelValue.unidadesPorEmbalaje
   if (hasData) {
     hasOCRData.value = true
     const toast = useToast()
@@ -338,6 +366,7 @@ watch(values, (formValues) => {
 
 // Watch for incoming OCR data from parent
 watch(() => props.modelValue, (newValue, oldValue) => {
+  console.log('Step2 - Watch triggered, newValue.unidadesPorEmbalaje:', newValue.unidadesPorEmbalaje, 'oldValue?.unidadesPorEmbalaje:', oldValue?.unidadesPorEmbalaje)
   // Update form fields with new values from OCR
   setFieldValue('lote', newValue.lote || '')
   setFieldValue('cliente', newValue.cliente || '')
@@ -351,11 +380,14 @@ watch(() => props.modelValue, (newValue, oldValue) => {
   setFieldValue('numeroOperario', newValue.numeroOperario || '')
   setFieldValue('maquina', newValue.maquina || '')
   setFieldValue('inspectorCalidad', newValue.inspectorCalidad || '')
+  setFieldValue('unidadesPorEmbalaje', newValue.unidadesPorEmbalaje)
+  console.log('Step2 - After setFieldValue, unidadesPorEmbalaje.value:', unidadesPorEmbalaje.value)
   
   // Show toast notification if new OCR data arrives
   const hasNewData = (newValue.cliente && !oldValue?.cliente) || 
                      (newValue.producto && !oldValue?.producto) ||
-                     (newValue.lote && !oldValue?.lote)
+                     (newValue.lote && !oldValue?.lote) ||
+                     (newValue.unidadesPorEmbalaje && !oldValue?.unidadesPorEmbalaje)
   
   if (hasNewData && !hasOCRData.value) {
     hasOCRData.value = true

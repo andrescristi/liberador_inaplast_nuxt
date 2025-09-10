@@ -34,12 +34,12 @@ export interface AppUser {
 export interface DBOrder {
   fecha_fabricacion: string
   codigo_producto: string
-  cantidad_unidades_por_embalaje: number
+  cantidad_embalajes: number
+  unidades_por_embalaje?: number
   jefe_de_turno?: string
   orden_de_compra?: string
   numero_operario: string
   inspector_calidad: string
-  cantidad_embalajes: number
   created_at: string
   updated_at: string
 }
@@ -47,12 +47,12 @@ export interface DBOrder {
 export interface AppOrder {
   fechaFabricacion: string
   codigoProducto: string
-  cantidadUnidadesPorEmbalaje: number
+  cantidadEmbalajes: number
+  unidadesPorEmbalaje?: number
   jefeDeTurno?: string
   ordenDeCompra?: string
   numeroOperario: string
   inspectorCalidad: string
-  cantidadEmbalajes: number
   createdAt: string
   updatedAt: string
 }
@@ -100,14 +100,12 @@ export const mapDBOrderToApp = (dbOrder: Partial<DBOrder>): Partial<AppOrder> =>
   return {
     ...(dbOrder.fecha_fabricacion && { fechaFabricacion: dbOrder.fecha_fabricacion }),
     ...(dbOrder.codigo_producto && { codigoProducto: dbOrder.codigo_producto }),
-    ...(dbOrder.cantidad_unidades_por_embalaje && { 
-      cantidadUnidadesPorEmbalaje: dbOrder.cantidad_unidades_por_embalaje 
-    }),
+    ...(dbOrder.cantidad_embalajes && { cantidadEmbalajes: dbOrder.cantidad_embalajes }),
+    ...(dbOrder.unidades_por_embalaje && { unidadesPorEmbalaje: dbOrder.unidades_por_embalaje }),
     ...(dbOrder.jefe_de_turno && { jefeDeTurno: dbOrder.jefe_de_turno }),
     ...(dbOrder.orden_de_compra && { ordenDeCompra: dbOrder.orden_de_compra }),
     ...(dbOrder.numero_operario && { numeroOperario: dbOrder.numero_operario }),
     ...(dbOrder.inspector_calidad && { inspectorCalidad: dbOrder.inspector_calidad }),
-    ...(dbOrder.cantidad_embalajes && { cantidadEmbalajes: dbOrder.cantidad_embalajes }),
     ...(dbOrder.created_at && { createdAt: dbOrder.created_at }),
     ...(dbOrder.updated_at && { updatedAt: dbOrder.updated_at })
   }
@@ -120,14 +118,12 @@ export const mapAppOrderToDB = (appOrder: Partial<AppOrder>): Partial<DBOrder> =
   return {
     ...(appOrder.fechaFabricacion && { fecha_fabricacion: appOrder.fechaFabricacion }),
     ...(appOrder.codigoProducto && { codigo_producto: appOrder.codigoProducto }),
-    ...(appOrder.cantidadUnidadesPorEmbalaje && { 
-      cantidad_unidades_por_embalaje: appOrder.cantidadUnidadesPorEmbalaje 
-    }),
+    ...(appOrder.cantidadEmbalajes && { cantidad_embalajes: appOrder.cantidadEmbalajes }),
+    ...(appOrder.unidadesPorEmbalaje && { unidades_por_embalaje: appOrder.unidadesPorEmbalaje }),
     ...(appOrder.jefeDeTurno && { jefe_de_turno: appOrder.jefeDeTurno }),
     ...(appOrder.ordenDeCompra && { orden_de_compra: appOrder.ordenDeCompra }),
     ...(appOrder.numeroOperario && { numero_operario: appOrder.numeroOperario }),
     ...(appOrder.inspectorCalidad && { inspector_calidad: appOrder.inspectorCalidad }),
-    ...(appOrder.cantidadEmbalajes && { cantidad_embalajes: appOrder.cantidadEmbalajes }),
     ...(appOrder.createdAt && { created_at: appOrder.createdAt }),
     ...(appOrder.updatedAt && { updated_at: appOrder.updatedAt })
   }
@@ -185,12 +181,12 @@ export const FIELD_MAPPINGS = {
   // Order fields
   fecha_fabricacion: 'fechaFabricacion',
   codigo_producto: 'codigoProducto',
-  cantidad_unidades_por_embalaje: 'cantidadUnidadesPorEmbalaje',
+  cantidad_embalajes: 'cantidadEmbalajes',
+  unidades_por_embalaje: 'unidadesPorEmbalaje',
   jefe_de_turno: 'jefeDeTurno',
   orden_de_compra: 'ordenDeCompra',
   numero_operario: 'numeroOperario',
   inspector_calidad: 'inspectorCalidad',
-  cantidad_embalajes: 'cantidadEmbalajes',
   
   // Common fields
   created_at: 'createdAt',
