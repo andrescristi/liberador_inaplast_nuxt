@@ -9,6 +9,7 @@ interface OCRResponse {
     pedido?: string
     fechaFabricacion?: string
     codigoProducto?: string
+    unidadesPorEmbalaje?: number
     turno?: string
     unidades?: string
     jefeDeTurno?: string
@@ -101,7 +102,7 @@ export function useOCRConfig() {
       lote: production?.lote || undefined,
       fechaFabricacion: production?.fechaFabricacion || undefined,
       pedido: production?.pedido || undefined,
-      
+      unidadesPorEmbalaje: production?.unidadesPorEmbalaje || undefined,
       // Campos adicionales con normalización especial para turno
       turno: normalizeTurno(production?.turno),
       numeroOperario: production?.numeroOperario || undefined,
@@ -135,6 +136,8 @@ export function useOCRConfig() {
           filename: imageFile.name
         }
       })
+
+      console.log('OCR Response2:', response)
       
       if (!response.success) {
         throw new Error(response.error || 'Error procesando OCR')

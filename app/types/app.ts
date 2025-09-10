@@ -42,14 +42,14 @@ export interface AppOrder {
   fechaFabricacion: string
   codigoProducto: string
   turno: string
-  cantidadUnidadesPorEmbalaje: number
+  cantidadEmbalajes: number
+  unidadesPorEmbalaje?: number
   jefeDeTurno?: string
   ordenDeCompra?: string
   numeroOperario: string
   maquina: string
   inspectorCalidad: string
   status: OrderStatus
-  cantidadEmbalajes?: number
   tests?: AppOrderTest[]
 }
 
@@ -87,13 +87,12 @@ export interface AppProductionData {
   fechaFabricacion?: Date | string
   codigoProducto?: string
   turno?: string
-  unidades?: string
+  unidadesPorEmbalaje?: string
   jefeDeTurno?: string
   ordenDeCompra?: string
   numeroOperario?: string
   maquina?: string
   inspectorCalidad?: string
-  cantidadEmbalajes?: string
 }
 
 // ============================================================================
@@ -111,7 +110,8 @@ export interface AppCreateOrderForm {
   fechaFabricacion: string
   codigoProducto: string
   turno: string
-  cantidadUnidadesPorEmbalaje: number
+  cantidadEmbalajes: number
+  unidadesPorEmbalaje?: number
   jefeDeTurno?: string
   ordenDeCompra?: string
   numeroOperario: string
@@ -141,7 +141,8 @@ export interface AppUpdateOrderForm {
   fechaFabricacion?: string
   codigoProducto?: string
   turno?: string
-  cantidadUnidadesPorEmbalaje?: number
+  cantidadEmbalajes?: number
+  unidadesPorEmbalaje?: number
   jefeDeTurno?: string
   ordenDeCompra?: string
   numeroOperario?: string

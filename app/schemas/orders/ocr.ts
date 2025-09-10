@@ -10,6 +10,7 @@ export const ocrDataSchema = z.object({
   producto: z.string().optional(),
   codigoProducto: z.string().optional(),
   lote: z.string().optional(),
+  unidadesPorEmbalaje: z.number().optional(),
   fechaFabricacion: z.string().optional(),
   pedido: z.string().optional(),
   turno: z.string().optional(),
@@ -37,6 +38,7 @@ export const ocrValidatedSchema = z.object({
   inspectorCalidad: z.string().min(1, 'El inspector de calidad es requerido'),
   // Campos opcionales
   lote: z.string().optional(),
+  unidadesPorEmbalaje: z.number().optional(),
   jefeDeTurno: z.string().optional(),
   ordenDeCompra: z.string().optional(),
 })

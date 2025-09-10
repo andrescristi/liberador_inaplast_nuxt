@@ -16,7 +16,7 @@ interface ProductionData {
   fechaFabricacion?: Date | string
   codigoProducto?: string
   turno?: string
-  unidades?: string
+  unidadesPorEmbalaje?: number
   jefeDeTurno?: string
   ordenDeCompra?: string
   numeroOperario?: string
@@ -293,7 +293,7 @@ JSON:
           fechaFabricacion: parsedData.productionData.fechaFabricacion || null,
           codigoProducto: parsedData.productionData.codigoProducto || null,
           turno: parsedData.productionData.turno || null,
-          unidades: parsedData.productionData.unidades || null,
+          unidadesPorEmbalaje: parsedData.productionData.unidades ? parseInt(parsedData.productionData.unidades) : undefined,
           jefeDeTurno: parsedData.productionData.jefeDeTurno || null,
           ordenDeCompra: parsedData.productionData.ordenDeCompra || null,
           numeroOperario: parsedData.productionData.numeroOperario || null,
