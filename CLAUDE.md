@@ -69,3 +69,4 @@ All messages to the user and errors must be in spanish
 
 ## CREDENTIALS
 - Whenever you need credentials to log in to the sistem, check the .env file
+- Debes seguir las naming convensions de nuxt4, en particular las  variables en camelCase  y las constantes en SNAKE_CASE
