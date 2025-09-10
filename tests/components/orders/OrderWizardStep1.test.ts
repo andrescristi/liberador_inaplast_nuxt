@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mount, VueWrapper } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
 import OrderWizardStep1 from '~/components/orders/OrderWizardStep1.vue'
 import type { NewOrderData } from '~/schemas/orders/new_order'

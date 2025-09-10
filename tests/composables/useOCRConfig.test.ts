@@ -100,7 +100,8 @@ describe('useOCRConfig', () => {
           maquina: 'MAQ001',
           inspectorCalidad: 'Juan Pérez',
           jefeDeTurno: 'María García',
-          ordenDeCompra: 'OC001'
+          ordenDeCompra: 'OC001',
+          unidadesPorEmbalaje: 24
         },
         metadata: {
           filename: 'test.jpg',
@@ -134,7 +135,8 @@ describe('useOCRConfig', () => {
         maquina: 'MAQ001',
         inspectorCalidad: 'Juan Pérez',
         jefeDeTurno: 'María García',
-        ordenDeCompra: 'OC001'
+        ordenDeCompra: 'OC001',
+        unidadesPorEmbalaje: 24
       }
 
       expect(result).toEqual(expectedResult)
@@ -297,7 +299,8 @@ describe('useOCRConfig', () => {
           maquina: 'MAQ001',
           inspectorCalidad: 'Inspector Test',
           jefeDeTurno: 'Jefe Test',
-          ordenDeCompra: 'OC001'
+          ordenDeCompra: 'OC001',
+          unidadesPorEmbalaje: 50
         }
       }
       
@@ -323,6 +326,7 @@ describe('useOCRConfig', () => {
       expect(result.inspectorCalidad).toBe('Inspector Test')
       expect(result.jefeDeTurno).toBe('Jefe Test')
       expect(result.ordenDeCompra).toBe('OC001')
+      expect(result.unidadesPorEmbalaje).toBe(50)
     })
 
     it('maneja correctamente datos parciales del endpoint', async () => {
@@ -359,6 +363,7 @@ describe('useOCRConfig', () => {
       expect(result.inspectorCalidad).toBeUndefined()
       expect(result.jefeDeTurno).toBeUndefined()
       expect(result.ordenDeCompra).toBeUndefined()
+      expect(result.unidadesPorEmbalaje).toBeUndefined()
     })
   })
 })
