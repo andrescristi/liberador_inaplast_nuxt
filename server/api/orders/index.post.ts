@@ -4,8 +4,10 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 interface OrderTestData {
-  test_id: number
+  testId?: number
+  test_id?: number // For backward compatibility
   aprobado: boolean
+  cantidad_unidades_con_falla?: number
 }
 
 interface CreateOrderRequest {
@@ -66,32 +68,43 @@ export default defineEventHandler(async (event) => {
       })
     }
     
-    // Validar cantidad_muestra
-    if (body.cantidad_muestra !== undefined) {
-      if (typeof body.cantidad_muestra !== 'number' || body.cantidad_muestra <= 0) {
+    // Validar cantidad_muestra (compatible con camelCase y snake_case)
+    const cantidadMuestra = (body as any).cantidadMuestra || body.cantidad_muestra
+    if (cantidadMuestra !== undefined) {
+      if (typeof cantidadMuestra !== 'number' || cantidadMuestra <= 0) {
         throw createError({
           statusCode: 400,
-          statusMessage: 'cantidad_muestra debe ser un número mayor a 0'
+          statusMessage: 'cantidadMuestra o cantidad_muestra debe ser un número mayor a 0'
         })
       }
     }
     
+    // Obtener orders_tests con compatibilidad de nombres
+    const ordersTests = (body as any).ordersTests || body.orders_tests
+    
     // Validar estructura de orders_tests si se proporciona y no está vacío
-    if (body.orders_tests && !Array.isArray(body.orders_tests)) {
+    if (ordersTests && !Array.isArray(ordersTests)) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'orders_tests debe ser un array'
+        statusMessage: 'ordersTests u orders_tests debe ser un array'
       })
     }
     
     // Validar cada elemento de orders_tests
-    if (body.orders_tests && body.orders_tests.length > 0) {
-      for (let i = 0; i < body.orders_tests.length; i++) {
-        const orderTest = body.orders_tests[i]
-        if (!orderTest || typeof orderTest.test_id !== 'number') {
+    if (ordersTests && ordersTests.length > 0) {
+      for (let i = 0; i < ordersTests.length; i++) {
+        const orderTest = ordersTests[i]
+        if (!orderTest) {
           throw createError({
             statusCode: 400,
-            statusMessage: `orders_tests[${i}].test_id debe ser un número`
+            statusMessage: `orders_tests[${i}] es requerido`
+          })
+        }
+        const testId = orderTest.testId || orderTest.test_id
+        if (typeof testId !== 'number') {
+          throw createError({
+            statusCode: 400,
+            statusMessage: `orders_tests[${i}].testId o test_id debe ser un número`
           })
         }
         if (typeof orderTest.aprobado !== 'boolean') {
@@ -99,6 +112,14 @@ export default defineEventHandler(async (event) => {
             statusCode: 400,
             statusMessage: `orders_tests[${i}].aprobado debe ser un booleano`
           })
+        }
+        if (orderTest.cantidad_unidades_con_falla !== undefined) {
+          if (typeof orderTest.cantidad_unidades_con_falla !== 'number' || orderTest.cantidad_unidades_con_falla < 0) {
+            throw createError({
+              statusCode: 400,
+              statusMessage: `orders_tests[${i}].cantidad_unidades_con_falla debe ser un número mayor o igual a 0`
+            })
+          }
         }
       }
     }
@@ -120,10 +141,10 @@ export default defineEventHandler(async (event) => {
     }
     
     // Validar que todos los tests estén incluidos si se proporcionan orders_tests
-    if (body.orders_tests) {
-      const providedTestIds = body.orders_tests.map(ot => ot.test_id)
-      const allTestIds = tests.map(t => t.id)
-      const missingTests = allTestIds.filter(id => !providedTestIds.includes(id))
+    if (ordersTests) {
+      const providedTestIds = ordersTests.map((ot: OrderTestData) => ot.testId || ot.test_id)
+      const allTestIds = tests.map((t: any) => t.id)
+      const missingTests = allTestIds.filter((id: number) => !providedTestIds.includes(id))
       
       if (missingTests.length > 0) {
         throw createError({
@@ -132,7 +153,7 @@ export default defineEventHandler(async (event) => {
         })
       }
       
-      const invalidTests = providedTestIds.filter(id => !allTestIds.includes(id))
+      const invalidTests = providedTestIds.filter((id: number) => !allTestIds.includes(id))
       if (invalidTests.length > 0) {
         throw createError({
           statusCode: 400,
@@ -144,24 +165,26 @@ export default defineEventHandler(async (event) => {
     // Preparar datos de los tests (sin el order.id aún)
     let testResults
     
-    if (body.orders_tests) {
+    if (ordersTests) {
       // Usar los datos proporcionados de orders_tests
-      testResults = body.orders_tests.map(orderTest => ({
-        pregunta: orderTest.test_id,
-        aprobado: orderTest.aprobado
+      testResults = ordersTests.map((orderTest: OrderTestData) => ({
+        pregunta: orderTest.testId || orderTest.test_id,
+        aprobado: orderTest.aprobado,
+        cantidad_unidades_con_falla: orderTest.cantidad_unidades_con_falla || 0
       }))
     } else {
       // Fallback: usar test_results o crear con valores por defecto
-      testResults = tests.map(test => ({
+      testResults = tests.map((test: any) => ({
         pregunta: test.id,
-        aprobado: body.test_results?.[test.id] ?? false
+        aprobado: body.test_results?.[test.id] ?? false,
+        cantidad_unidades_con_falla: 0
       }))
     }
     
     // Determinar el status de la orden basado en los tests
     // Si algún test está reprobado (aprobado: false), la orden es "Rechazado"
     // Solo si TODOS los tests están aprobados, la orden es "Aprobado"
-    const hasAnyFailedTest = testResults.some(test => !test.aprobado)
+    const hasAnyFailedTest = testResults.some((test: any) => !test.aprobado)
     const orderStatus: 'Aprobado' | 'Rechazado' = hasAnyFailedTest ? 'Rechazado' : 'Aprobado'
     
     // Preparar datos de la orden según la nueva estructura con el status calculado
@@ -174,7 +197,7 @@ export default defineEventHandler(async (event) => {
       codigo_producto: body.codigo_producto,
       turno: body.turno,
       cantidad_unidades_por_embalaje: body.cantidad_unidades_por_embalaje,
-      cantidad_muestra: body.cantidad_muestra || 1,
+      cantidad_muestra: cantidadMuestra || 1,
       jefe_de_turno: body.jefe_de_turno || null,
       orden_de_compra: body.orden_de_compra || null,
       numero_operario: body.numero_operario,
@@ -200,10 +223,11 @@ export default defineEventHandler(async (event) => {
     }
     
     // Preparar los order_tests con el ID de la orden creada
-    const orderTests = testResults.map(test => ({
+    const orderTests = testResults.map((test: any) => ({
       order: order.id,
       pregunta: test.pregunta,
-      aprobado: test.aprobado
+      aprobado: test.aprobado,
+      cantidad_unidades_con_falla: test.cantidad_unidades_con_falla
     }))
     
     // Insertar todos los order_tests
@@ -230,7 +254,7 @@ export default defineEventHandler(async (event) => {
       .select(`
         id,
         aprobado,
-        observaciones,
+        cantidad_unidades_con_falla,
         tests (id, name)
       `)
       .eq('order', order.id)

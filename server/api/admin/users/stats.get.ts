@@ -1,5 +1,5 @@
 import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
-import type { Database } from '../../../../types/database.types'
+import type { Database } from '../../../../app/types/database.types'
 
 export default defineEventHandler(async (event) => {
   try {

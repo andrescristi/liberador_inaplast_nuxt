@@ -43,12 +43,13 @@ export default defineEventHandler(async (event) => {
     
     // Obtener los tests de la orden con información del test
     const { data: orderTests, error: testsError } = await supabase
-      .from('orders_test')
+      .from('orders_tests')
       .select(`
         id,
         aprobado,
+        cantidad_unidades_con_falla,
         created_at,
-        tests!orders_test_pregunta_fkey (
+        tests!orders_preguntas_pregunta_fkey (
           id,
           name,
           type

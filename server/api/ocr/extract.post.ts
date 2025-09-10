@@ -1,5 +1,6 @@
 import { GoogleGenAI } from '@google/genai'
 import sharp from 'sharp'
+import { sl } from 'zod/v4/locales'
 
 interface OCRRequest {
   imageData: string
@@ -16,8 +17,8 @@ interface ProductionData {
   codigoProducto?: string
   turno?: string
   unidades?: string
-  jefe_de_turno?: string
-  orden_de_compra?: string
+  jefeDeTurno?: string
+  ordenDeCompra?: string
   numeroOperario?: string
   maquina?: string
   inspectorCalidad?: string
@@ -213,8 +214,8 @@ Devuelve el resultado en formato JSON estricto con esta estructura:
     "codigoProducto": "valor encontrado o null",
     "turno": "valor encontrado o null",
     "unidades": "valor encontrado o null",
-    "jefe_de_turno": "valor encontrado o null",
-    "orden_de_compra": "valor encontrado o null",
+    "jefeDeTurno": "valor encontrado o null", <-- Aquí va el Jefe de Turno, o Jefe Turno
+    "ordenDeCompra": "valor encontrado o null", <-- Aquí va la información de la Orden de Compra, u OC
     "numeroOperario": "valor encontrado o null",
     "maquina": "valor encontrado o null",
     "inspectorCalidad": "valor encontrado o null"
@@ -248,6 +249,8 @@ JSON:
 
     // Extraer el texto de la respuesta
     const rawResponse = response.text?.trim() || ''
+
+    console.log('rawResponse', rawResponse)
 
     if (!rawResponse) {
       return {
@@ -291,8 +294,8 @@ JSON:
           codigoProducto: parsedData.productionData.codigoProducto || null,
           turno: parsedData.productionData.turno || null,
           unidades: parsedData.productionData.unidades || null,
-          jefe_de_turno: parsedData.productionData.jefe_de_turno || null,
-          orden_de_compra: parsedData.productionData.orden_de_compra || null,
+          jefeDeTurno: parsedData.productionData.jefeDeTurno || null,
+          ordenDeCompra: parsedData.productionData.ordenDeCompra || null,
           numeroOperario: parsedData.productionData.numeroOperario || null,
           maquina: parsedData.productionData.maquina || null,
           inspectorCalidad: parsedData.productionData.inspectorCalidad || null

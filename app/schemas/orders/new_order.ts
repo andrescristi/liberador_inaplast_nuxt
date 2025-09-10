@@ -6,7 +6,7 @@ import { z } from 'zod'
 export const orderStep1Schema = z.object({
   labelImage: z.instanceof(File).nullable(),
   labelImagePreview: z.string(),
-  cantidad_unidades_por_embalaje: z.number()
+  cantidadUnidadesPorEmbalaje: z.number()
     .min(1, 'La cantidad debe ser mayor a 0')
     .max(1000, 'La cantidad no puede ser mayor a 1000')
     .int('La cantidad debe ser un número entero'),
@@ -20,19 +20,19 @@ export const orderStep2Schema = z.object({
   // Campos requeridos
   cliente: z.string().min(1, 'El nombre del cliente es requerido'),
   producto: z.string().min(1, 'El nombre del producto es requerido'),
-  codigo_producto: z.string().min(1, 'El código del producto es requerido'),
+  codigoProducto: z.string().min(1, 'El código del producto es requerido'),
   pedido: z.string().min(1, 'El número de pedido es requerido'),
-  fecha_fabricacion: z.string().min(1, 'La fecha de fabricación es requerida'),
+  fechaFabricacion: z.string().min(1, 'La fecha de fabricación es requerida'),
   turno: z.enum(['mañana', 'tarde', 'noche'], {
     errorMap: () => ({ message: 'Selecciona un turno válido' })
   }),
-  numero_operario: z.string().min(1, 'El número de operario es requerido'),
+  numeroOperario: z.string().min(1, 'El número de operario es requerido'),
   maquina: z.string().min(1, 'La máquina es requerida'),
-  inspector_calidad: z.string().min(1, 'El inspector de calidad es requerido'),
+  inspectorCalidad: z.string().min(1, 'El inspector de calidad es requerido'),
   // Campos opcionales
   lote: z.string().optional(),
-  jefe_de_turno: z.string().optional(),
-  orden_de_compra: z.string().optional(),
+  jefeDeTurno: z.string().optional(),
+  ordenDeCompra: z.string().optional(),
 })
 
 /**
@@ -40,12 +40,12 @@ export const orderStep2Schema = z.object({
  * Tests de calidad y observaciones
  */
 export const orderStep3Schema = z.object({
-  cantidad_muestra: z.number()
+  cantidadMuestra: z.number()
     .min(1, 'La cantidad de muestra debe ser mayor a 0')
     .int('La cantidad debe ser un número entero')
     .optional(),
-  orders_tests: z.array(z.object({
-    test_id: z.number(),
+  ordersTests: z.array(z.object({
+    testId: z.number(),
     aprobado: z.boolean()
   })).optional(),
   qualityNotes: z.string().optional(),
@@ -63,7 +63,7 @@ export const newOrderSchema = z.object({
   labelImagePreview: z.string(),
   packageImage: z.instanceof(File).nullable().optional(),
   packageImagePreview: z.string().optional(),
-  cantidad_unidades_por_embalaje: z.number()
+  cantidadUnidadesPorEmbalaje: z.number()
     .min(1, 'La cantidad debe ser mayor a 0')
     .max(1000, 'La cantidad no puede ser mayor a 1000')
     .int('La cantidad debe ser un número entero'),
@@ -71,26 +71,26 @@ export const newOrderSchema = z.object({
   // Step 2 - Datos del producto y cliente
   cliente: z.string().min(1, 'El nombre del cliente es requerido'),
   producto: z.string().min(1, 'El nombre del producto es requerido'),
-  codigo_producto: z.string().min(1, 'El código del producto es requerido'),
+  codigoProducto: z.string().min(1, 'El código del producto es requerido'),
   pedido: z.string().min(1, 'El número de pedido es requerido'),
-  fecha_fabricacion: z.string().min(1, 'La fecha de fabricación es requerida'),
+  fechaFabricacion: z.string().min(1, 'La fecha de fabricación es requerida'),
   turno: z.enum(['mañana', 'tarde', 'noche'], {
     errorMap: () => ({ message: 'Selecciona un turno válido' })
   }),
-  numero_operario: z.string().min(1, 'El número de operario es requerido'),
+  numeroOperario: z.string().min(1, 'El número de operario es requerido'),
   maquina: z.string().min(1, 'La máquina es requerida'),
-  inspector_calidad: z.string().min(1, 'El inspector de calidad es requerido'),
+  inspectorCalidad: z.string().min(1, 'El inspector de calidad es requerido'),
   lote: z.string().optional(),
-  jefe_de_turno: z.string().optional(),
-  orden_de_compra: z.string().optional(),
+  jefeDeTurno: z.string().optional(),
+  ordenDeCompra: z.string().optional(),
   
   // Step 3 - Tests de calidad
-  cantidad_muestra: z.number()
+  cantidadMuestra: z.number()
     .min(1, 'La cantidad de muestra debe ser mayor a 0')
     .int('La cantidad debe ser un número entero')
     .optional(),
-  orders_tests: z.array(z.object({
-    test_id: z.number(),
+  ordersTests: z.array(z.object({
+    testId: z.number(),
     aprobado: z.boolean()
   })).optional(),
   qualityNotes: z.string().optional(),
@@ -120,19 +120,19 @@ export const orderAPISchema = z.object({
   cliente: z.string().min(1, 'El nombre del cliente es requerido'),
   producto: z.string().min(1, 'El nombre del producto es requerido'),
   pedido: z.string().min(1, 'El número de pedido es requerido'),
-  fecha_fabricacion: z.string().min(1, 'La fecha de fabricación es requerida'),
-  codigo_producto: z.string().min(1, 'El código del producto es requerido'),
+  fechaFabricacion: z.string().min(1, 'La fecha de fabricación es requerida'),
+  codigoProducto: z.string().min(1, 'El código del producto es requerido'),
   turno: z.enum(['mañana', 'tarde', 'noche']),
-  cantidad_unidades_por_embalaje: z.number()
+  cantidadUnidadesPorEmbalaje: z.number()
     .min(1, 'La cantidad debe ser mayor a 0')
     .int('La cantidad debe ser un número entero'),
-  jefe_de_turno: z.string().optional(),
-  orden_de_compra: z.string().optional(),
-  numero_operario: z.string().min(1, 'El número de operario es requerido'),
+  jefeDeTurno: z.string().optional(),
+  ordenDeCompra: z.string().optional(),
+  numeroOperario: z.string().min(1, 'El número de operario es requerido'),
   maquina: z.string().min(1, 'La máquina es requerida'),
-  inspector_calidad: z.string().min(1, 'El inspector de calidad es requerido'),
-  orders_tests: z.array(z.object({
-    test_id: z.number(),
+  inspectorCalidad: z.string().min(1, 'El inspector de calidad es requerido'),
+  ordersTests: z.array(z.object({
+    testId: z.number(),
     aprobado: z.boolean()
   })).min(1, 'Debe incluir al menos un test')
 })
@@ -149,5 +149,5 @@ export type OrderAPIData = z.infer<typeof orderAPISchema>
 export type OrderStep3LocalData = {
   testResults: Record<number, boolean>
   qualityNotes: string
-  cantidad_muestra: number
+  cantidadMuestra: number
 }
