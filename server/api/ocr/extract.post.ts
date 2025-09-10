@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai'
 import sharp from 'sharp'
-import { sl } from 'zod/v4/locales'
+
 
 interface OCRRequest {
   imageData: string
@@ -242,10 +242,10 @@ JSON:
         model: 'gemini-2.0-flash-exp', // Usando el modelo más reciente disponible
         contents: [imagePart, prompt],
       }),
-      new Promise((_, reject) => 
+      new Promise<never>((_, reject) => 
         setTimeout(() => reject(new Error('Timeout en Gemini API')), 60000) // 60 segundos timeout
       )
-    ]) as any
+    ])
 
     // Extraer el texto de la respuesta
     const rawResponse = response.text?.trim() || ''
