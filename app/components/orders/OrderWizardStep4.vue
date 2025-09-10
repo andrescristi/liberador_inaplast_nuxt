@@ -35,8 +35,12 @@
               <span class="font-medium text-right">{{ modelValue.pedido || 'No especificado' }}</span>
             </div>
             <div class="flex justify-between border-b border-gray-200 pb-2">
-              <span class="text-gray-600">Cantidad:</span>
-              <span class="font-medium text-right">{{ modelValue.cantidadUnidadesPorEmbalaje || 0 }} unidades</span>
+              <span class="text-gray-600">Cantidad Embalajes:</span>
+              <span class="font-medium text-right">{{ modelValue.cantidadEmbalajes || 0 }} embalajes</span>
+            </div>
+            <div v-if="modelValue.unidadesPorEmbalaje" class="flex justify-between border-b border-gray-200 pb-2">
+              <span class="text-gray-600">Unidades por Embalaje:</span>
+              <span class="font-medium text-right">{{ modelValue.unidadesPorEmbalaje }} unidades</span>
             </div>
             <div class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Turno:</span>
@@ -193,9 +197,9 @@ const testsWithResults = computed(() => {
   return tests.value.map(test => {
     let aprobado = false
     
-    // Buscar resultado en orders_tests primero
-    if (props.modelValue.orders_tests) {
-      const orderTest = props.modelValue.orders_tests.find(ot => (ot.testId || ot.test_id) === test.id)
+    // Buscar resultado en ordersTests primero
+    if (props.modelValue.ordersTests) {
+      const orderTest = props.modelValue.ordersTests.find((ot: { testId?: number; test_id?: number; aprobado: boolean }) => (ot.testId || ot.test_id) === test.id)
       if (orderTest) {
         aprobado = orderTest.aprobado
       }
@@ -265,9 +269,9 @@ const prepareOrderData = () => {
     orders_tests = tests.value.map(test => {
       let aprobado = false
       
-      // Buscar el resultado en orders_tests
-      if (modelValue.orders_tests) {
-        const orderTest = modelValue.orders_tests.find(ot => (ot.testId || ot.test_id) === test.id)
+      // Buscar el resultado en ordersTests
+      if (modelValue.ordersTests) {
+        const orderTest = modelValue.ordersTests.find((ot: { testId?: number; test_id?: number; aprobado: boolean }) => (ot.testId || ot.test_id) === test.id)
         if (orderTest) {
           aprobado = orderTest.aprobado
         }
@@ -293,13 +297,14 @@ const prepareOrderData = () => {
     fecha_fabricacion: modelValue.fechaFabricacion,
     codigo_producto: modelValue.codigoProducto,
     turno: modelValue.turno,
-    cantidad_unidades_por_embalaje: modelValue.cantidadUnidadesPorEmbalaje,
+    cantidad_embalajes: modelValue.cantidadEmbalajes,
+    unidades_por_embalaje: modelValue.unidadesPorEmbalaje,
     jefe_de_turno: modelValue.jefeDeTurno,
     orden_de_compra: modelValue.ordenDeCompra,
     numero_operario: modelValue.numeroOperario,
     maquina: modelValue.maquina,
     inspector_calidad: modelValue.inspectorCalidad,
-    orders_tests,
+    orders_tests: orders_tests,
     cantidad_muestra: modelValue.cantidadMuestra,
   }
 }
