@@ -10,6 +10,11 @@ interface OrderTestData {
   cantidad_unidades_con_falla?: number
 }
 
+interface Test {
+  id: number
+  name: string
+}
+
 interface CreateOrderRequest {
   // Datos de la orden según nueva estructura
   lote?: string
@@ -154,7 +159,7 @@ export default defineEventHandler(async (event) => {
     // Validar que todos los tests estén incluidos si se proporcionan orders_tests
     if (ordersTests) {
       const providedTestIds = ordersTests.map((ot: OrderTestData) => ot.testId || ot.test_id).filter((id): id is number => id !== undefined)
-      const allTestIds = tests.map((t: any) => t.id) as number[]
+      const allTestIds = tests.map((t: Test) => t.id)
       const missingTests = allTestIds.filter((id: number) => !providedTestIds.includes(id))
       
       if (missingTests.length > 0) {
@@ -185,7 +190,7 @@ export default defineEventHandler(async (event) => {
       }))
     } else {
       // Fallback: usar test_results o crear con valores por defecto
-      testResults = tests.map((test: any) => ({
+      testResults = tests.map((test: Test) => ({
         pregunta: test.id,
         aprobado: body.test_results?.[test.id] ?? false,
         cantidad_unidades_con_falla: 0
@@ -195,7 +200,7 @@ export default defineEventHandler(async (event) => {
     // Determinar el status de la orden basado en los tests
     // Si algún test está reprobado (aprobado: false), la orden es "Rechazado"
     // Solo si TODOS los tests están aprobados, la orden es "Aprobado"
-    const hasAnyFailedTest = testResults.some((test: any) => !test.aprobado)
+    const hasAnyFailedTest = testResults.some((test: { aprobado: boolean }) => !test.aprobado)
     const orderStatus: 'Aprobado' | 'Rechazado' = hasAnyFailedTest ? 'Rechazado' : 'Aprobado'
     
     // Obtener cantidad_embalajes (compatible con ambos formatos)
@@ -238,9 +243,9 @@ export default defineEventHandler(async (event) => {
     }
     
     // Preparar los order_tests con el ID de la orden creada
-    const orderTests = testResults.map((test: any) => ({
+    const orderTests = testResults.map((test: { pregunta: number | undefined; aprobado: boolean; cantidad_unidades_con_falla: number }) => ({
       order: order.id,
-      pregunta: test.pregunta,
+      pregunta: test.pregunta!,
       aprobado: test.aprobado,
       cantidad_unidades_con_falla: test.cantidad_unidades_con_falla
     }))
