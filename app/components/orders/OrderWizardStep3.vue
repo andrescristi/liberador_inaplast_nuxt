@@ -233,8 +233,8 @@ onMounted(async () => {
 
 // Watch for changes and emit updates
 watch(localData, (newValue) => {
-  // Convertir testResults a formato API orders_tests
-  const _orders_tests: OrderTestData[] = Object.entries(newValue.testResults || {}).map(([testId, aprobado]) => ({
+  // Convertir testResults a formato API ordersTests
+  const ordersTests: OrderTestData[] = Object.entries(newValue.testResults || {}).map(([testId, aprobado]) => ({
     testId: parseInt(testId),
     aprobado
   }))
@@ -249,10 +249,14 @@ watch(localData, (newValue) => {
   })
 }, { deep: true })
 
-// Computed
-const visualTests = computed(() => tests.value?.filter(test => test.type === 'visual') || [])
+// Constantes para tipos de pruebas
+const TEST_TYPE_VISUAL = 'visual' as const
+const TEST_TYPE_FUNCTIONAL = 'funcional' as const
 
-const functionalTests = computed(() => tests.value?.filter(test => test.type === 'funcional') || [])
+// Computed
+const visualTests = computed(() => tests.value?.filter(test => test.type === TEST_TYPE_VISUAL) || [])
+
+const functionalTests = computed(() => tests.value?.filter(test => test.type === TEST_TYPE_FUNCTIONAL) || [])
 
 const totalTests = computed(() => tests.value?.length || 0)
 
