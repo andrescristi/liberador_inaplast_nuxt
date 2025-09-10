@@ -95,7 +95,7 @@
         :current-page="currentPage"
         :total-pages="totalPages"
         :total-users="totalUsers"
-        :page-size="pageSize"
+        :page-size="PAGE_SIZE"
         @next-page="nextPage"
         @previous-page="previousPage"
       />
@@ -161,7 +161,7 @@ const selectedRole = ref<ProfileRole | ''>('')
 const currentPage = ref(1)
 const totalUsers = ref(0)
 const totalPages = ref(0)
-const pageSize = 10
+const PAGE_SIZE = 10
 const hasPermissionsError = ref(false)
 const permissionsErrorMessage = ref('')
 
@@ -186,7 +186,7 @@ const fetchUsers = async () => {
     if (selectedRole.value) filters.role_filter = selectedRole.value
 
     // Use HTTP API endpoint instead of direct Supabase client to bypass RLS issues
-    const response = await userAPI.getAllUsersViaHTTP(filters, currentPage.value, pageSize)
+    const response = await userAPI.getAllUsersViaHTTP(filters, currentPage.value, PAGE_SIZE)
     users.value = response.data
     totalUsers.value = response.total
     totalPages.value = response.total_pages

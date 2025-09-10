@@ -7,15 +7,15 @@
           :columns="tableHeaders"
           :rows="users"
         >
-          <template #user_role-data="{ row }">
+          <template #userRole-data="{ row }">
             <BaseBadge
-              :color="getRoleBadgeVariant((row as unknown as Profile).user_role)"
+              :color="getRoleBadgeVariant((row as unknown as Profile).userRole)"
             >
-              {{ getRoleLabel((row as unknown as Profile).user_role) }}
+              {{ getRoleLabel((row as unknown as Profile).userRole) }}
             </BaseBadge>
           </template>
-          <template #created_at-data="{ row }">
-            {{ formatDate((row as unknown as Profile).created_at) }}
+          <template #createdAt-data="{ row }">
+            {{ formatDate((row as unknown as Profile).createdAt) }}
           </template>
           <template #actions-data="{ row }">
             <div class="flex flex-wrap gap-1">
@@ -40,7 +40,7 @@
                 Resetear
               </BaseButton>
               <BaseButton
-                v-if="(row as unknown as Profile).user_role !== 'Admin'"
+                v-if="(row as unknown as Profile).userRole !== 'Admin'"
                 variant="ghost"
                 color="danger"
                 size="xs"
@@ -65,15 +65,15 @@
           <!-- Header de la tarjeta -->
           <div class="flex items-start justify-between mb-3">
             <div class="flex-1 min-w-0 mr-3">
-              <h3 class="font-medium text-gray-900 truncate">{{ user.full_name }}</h3>
+              <h3 class="font-medium text-gray-900 truncate">{{ user.fullName }}</h3>
               <p class="text-sm text-gray-500 truncate">{{ user.email }}</p>
             </div>
             <div class="flex-shrink-0">
               <BaseBadge
-                :color="getRoleBadgeVariant(user.user_role)"
+                :color="getRoleBadgeVariant(user.userRole)"
                 class="whitespace-nowrap"
               >
-                {{ getRoleLabel(user.user_role) }}
+                {{ getRoleLabel(user.userRole) }}
               </BaseBadge>
             </div>
           </div>
@@ -81,7 +81,7 @@
           <!-- Información adicional -->
           <div class="mb-4">
             <p class="text-xs text-gray-500">
-              Creado: {{ formatDate(user.created_at) }}
+              Creado: {{ formatDate(user.createdAt) }}
             </p>
           </div>
 
@@ -108,7 +108,7 @@
               Resetear
             </BaseButton>
             <BaseButton
-              v-if="user.user_role !== 'Admin'"
+              v-if="user.userRole !== 'Admin'"
               variant="ghost"
               color="danger"
               size="sm"
@@ -151,10 +151,10 @@ defineProps<Props>()
 defineEmits<Emits>()
 
 const tableHeaders = [
-  { key: 'full_name', label: 'Nombre' },
+  { key: 'fullName', label: 'Nombre' },
   { key: 'email', label: 'Email' },
-  { key: 'user_role', label: 'Rol' },
-  { key: 'created_at', label: 'Fecha de Creación' },
+  { key: 'userRole', label: 'Rol' },
+  { key: 'createdAt', label: 'Fecha de Creación' },
   { key: 'actions', label: 'Acciones', width: 'w-48' }
 ]
 

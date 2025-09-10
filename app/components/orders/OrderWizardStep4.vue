@@ -24,7 +24,7 @@
             </div>
             <div class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Código:</span>
-              <span class="font-medium text-right">{{ modelValue.codigo_producto || 'No especificado' }}</span>
+              <span class="font-medium text-right">{{ modelValue.codigoProducto || 'No especificado' }}</span>
             </div>
             <div class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Lote:</span>
@@ -36,7 +36,7 @@
             </div>
             <div class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Cantidad:</span>
-              <span class="font-medium text-right">{{ modelValue.cantidad_unidades_por_embalaje || 0 }} unidades</span>
+              <span class="font-medium text-right">{{ modelValue.cantidadUnidadesPorEmbalaje || 0 }} unidades</span>
             </div>
             <div class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Turno:</span>
@@ -44,27 +44,27 @@
             </div>
             <div class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Fecha Fabricación:</span>
-              <span class="font-medium text-right">{{ modelValue.fecha_fabricacion || 'No especificado' }}</span>
+              <span class="font-medium text-right">{{ modelValue.fechaFabricacion || 'No especificado' }}</span>
             </div>
             <div class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Inspector:</span>
-              <span class="font-medium text-right">{{ modelValue.inspector_calidad || 'No especificado' }}</span>
+              <span class="font-medium text-right">{{ modelValue.inspectorCalidad || 'No especificado' }}</span>
             </div>
             <div class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Operario:</span>
-              <span class="font-medium text-right">{{ modelValue.numero_operario || 'No especificado' }}</span>
+              <span class="font-medium text-right">{{ modelValue.numeroOperario || 'No especificado' }}</span>
             </div>
             <div class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Máquina:</span>
               <span class="font-medium text-right">{{ modelValue.maquina || 'No especificado' }}</span>
             </div>
-            <div v-if="modelValue.jefe_de_turno" class="flex justify-between border-b border-gray-200 pb-2">
+            <div v-if="modelValue.jefeDeTurno" class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Jefe de Turno:</span>
-              <span class="font-medium text-right">{{ modelValue.jefe_de_turno }}</span>
+              <span class="font-medium text-right">{{ modelValue.jefeDeTurno }}</span>
             </div>
-            <div v-if="modelValue.orden_de_compra" class="flex justify-between border-b border-gray-200 pb-2">
+            <div v-if="modelValue.ordenDeCompra" class="flex justify-between border-b border-gray-200 pb-2">
               <span class="text-gray-600">Orden de Compra:</span>
-              <span class="font-medium text-right">{{ modelValue.orden_de_compra }}</span>
+              <span class="font-medium text-right">{{ modelValue.ordenDeCompra }}</span>
             </div>
           </div>
         </div>
@@ -80,7 +80,7 @@
           <div v-if="testsWithResults.length > 0" class="space-y-3">
             <div 
               v-for="test in testsWithResults" 
-              :key="test.test_id" 
+              :key="test.testId" 
               class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 py-3 border-b border-gray-200 last:border-b-0"
             >
               <span class="text-gray-700 font-medium text-sm sm:text-base">{{ test.name }}</span>
@@ -150,7 +150,7 @@ import { useOrderAPI } from '~/composables/orders/useOrderAPI'
 
 // Interface para datos de test del API
 interface OrderTestData {
-  test_id: number
+  testId: number
   aprobado: boolean
 }
 
@@ -195,7 +195,7 @@ const testsWithResults = computed(() => {
     
     // Buscar resultado en orders_tests primero
     if (props.modelValue.orders_tests) {
-      const orderTest = props.modelValue.orders_tests.find(ot => ot.test_id === test.id)
+      const orderTest = props.modelValue.orders_tests.find(ot => (ot.testId || ot.test_id) === test.id)
       if (orderTest) {
         aprobado = orderTest.aprobado
       }
@@ -206,7 +206,7 @@ const testsWithResults = computed(() => {
     }
     
     return {
-      test_id: test.id,
+      testId: test.id,
       name: test.name,
       aprobado
     }
@@ -267,7 +267,7 @@ const prepareOrderData = () => {
       
       // Buscar el resultado en orders_tests
       if (modelValue.orders_tests) {
-        const orderTest = modelValue.orders_tests.find(ot => ot.test_id === test.id)
+        const orderTest = modelValue.orders_tests.find(ot => (ot.testId || ot.test_id) === test.id)
         if (orderTest) {
           aprobado = orderTest.aprobado
         }
@@ -278,7 +278,7 @@ const prepareOrderData = () => {
       }
       
       return {
-        test_id: test.id,
+        testId: test.id,
         aprobado
       }
     })
@@ -290,17 +290,17 @@ const prepareOrderData = () => {
     cliente: modelValue.cliente,
     producto: modelValue.producto,
     pedido: modelValue.pedido,
-    fecha_fabricacion: modelValue.fecha_fabricacion,
-    codigo_producto: modelValue.codigo_producto,
+    fecha_fabricacion: modelValue.fechaFabricacion,
+    codigo_producto: modelValue.codigoProducto,
     turno: modelValue.turno,
-    cantidad_unidades_por_embalaje: modelValue.cantidad_unidades_por_embalaje,
-    jefe_de_turno: modelValue.jefe_de_turno,
-    orden_de_compra: modelValue.orden_de_compra,
-    numero_operario: modelValue.numero_operario,
+    cantidad_unidades_por_embalaje: modelValue.cantidadUnidadesPorEmbalaje,
+    jefe_de_turno: modelValue.jefeDeTurno,
+    orden_de_compra: modelValue.ordenDeCompra,
+    numero_operario: modelValue.numeroOperario,
     maquina: modelValue.maquina,
-    inspector_calidad: modelValue.inspector_calidad,
+    inspector_calidad: modelValue.inspectorCalidad,
     orders_tests,
-    cantidad_muestra: modelValue.cantidad_muestra,
+    cantidad_muestra: modelValue.cantidadMuestra,
   }
 }
 </script>

@@ -105,7 +105,7 @@
           <div class="space-y-2">
             <label class="block text-sm font-medium text-gray-700">Fecha Desde</label>
             <input
-              v-model="filters.date_from"
+              v-model="filters.dateFrom"
               type="date"
               class="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               @change="applyFilters"
@@ -116,7 +116,7 @@
           <div class="space-y-2">
             <label class="block text-sm font-medium text-gray-700">Fecha Hasta</label>
             <input
-              v-model="filters.date_to"
+              v-model="filters.dateTo"
               type="date"
               class="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               @change="applyFilters"
@@ -313,10 +313,10 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="pagination.total_pages > 1" class="mt-6">
+      <div v-if="pagination.totalPages > 1" class="mt-6">
         <div class="flex justify-center">
           <p class="text-sm text-gray-500">
-            Página {{ pagination.page }} de {{ pagination.total_pages }}
+            Página {{ pagination.page }} de {{ pagination.totalPages }}
           </p>
         </div>
       </div>
@@ -412,8 +412,8 @@ const selectedOrder = ref<Order | null>(null)
 const filters = ref<OrderFilters>({
   search: '',
   status: undefined,
-  date_from: '',
-  date_to: ''
+  dateFrom: '',
+  dateTo: ''
 })
 
 // Status options for the listbox
@@ -454,9 +454,9 @@ onMounted(() => {
 const orders = useState('orders-page-data', () => [])
 const pagination = useState('orders-page-pagination', () => ({ 
   total: 0, 
-  total_pages: 0, 
+  totalPages: 0, 
   page: 1, 
-  per_page: 20 
+  perPage: 20 
 }))
 const loading = useState('orders-page-loading', () => false)
 
@@ -464,7 +464,7 @@ const hasActiveFilters = computed(() => {
   try {
     const f = filters.value
     if (!f) return false
-    return !!(f.search || f.status || f.date_from || f.date_to)
+    return !!(f.search || f.status || f.dateFrom || f.dateTo)
   } catch {
     return false
   }
@@ -509,8 +509,8 @@ const clearFilters = () => {
   Object.assign(filters.value, {
     search: '',
     status: undefined,
-    date_from: '',
-    date_to: ''
+    dateFrom: '',
+    dateTo: ''
   })
   applyFilters()
 }

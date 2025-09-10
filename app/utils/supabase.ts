@@ -9,7 +9,7 @@ import type {
   PaginatedResponse,
   OrderStatus
 } from '~/types/orders'
-import type { Database } from '../../types/database.types'
+import type { Database } from '~/types/database.types'
 
 interface DashboardMetrics {
   pending_orders: number

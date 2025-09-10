@@ -48,53 +48,22 @@
 </template>
 
 <script setup lang="ts">
-// Types
-interface OrderFormData {
-  // Step 1
-  labelImage: File | null
-  labelImagePreview: string
-  cantidad_unidades: number
-  
-  // Step 2 - Campos requeridos por la API
-  lote?: string
-  cliente: string
-  producto: string
-  pedido: string
-  fecha_fabricacion: string
-  codigo_producto: string
-  turno: string
-  jefe_de_turno?: string
-  orden_de_compra?: string
-  numero_operario: string
-  maquina: string
-  inspector_calidad: string
-  
-  // Step 3
-  packagingTest: boolean
-  labelingTest: boolean
-  sealingTest: boolean
-  weightTest: boolean
-  qualityNotes: string
-  
-  // Step 4
-  finalResult: 'approved' | 'rejected' | 'conditional'
-  rejectionReason: string
-  recommendations: string
-}
+// Types - Usar el tipo correcto del schema
+import type { NewOrderData } from '~/schemas/orders/new_order'
 
 interface OCRData {
   cliente?: string
   producto?: string
-  codigo_producto?: string
+  codigoProducto?: string
   lote?: string
-  fecha_fabricacion?: string
+  fechaFabricacion?: string
   pedido?: string
   turno?: string
-  numero_operario?: string
+  numeroOperario?: string
   maquina?: string
-  inspector_calidad?: string
-  jefe_de_turno?: string
-  orden_de_compra?: string
+  inspectorCalidad?: string
+  jefeDeTurno?: string
+  ordenDeCompra?: string
 }
 
 // Composables
@@ -105,32 +74,31 @@ const router = useRouter()
 const currentStep = ref(1)
 const isSaving = ref(false)
 
-const formData = ref<OrderFormData>({
+const formData = ref<NewOrderData>({
   // Step 1
   labelImage: null,
   labelImagePreview: '',
-  cantidad_unidades: 1,
+  cantidadUnidadesPorEmbalaje: 1,
   
   // Step 2 - Campos requeridos por la API
   lote: '',
   cliente: '',
   producto: '',
   pedido: '',
-  fecha_fabricacion: '',
-  codigo_producto: '',
-  turno: '',
-  jefe_de_turno: '',
-  orden_de_compra: '',
-  numero_operario: '',
+  fechaFabricacion: '',
+  codigoProducto: '',
+  turno: 'mañana',
+  jefeDeTurno: '',
+  ordenDeCompra: '',
+  numeroOperario: '',
   maquina: '',
-  inspector_calidad: '',
+  inspectorCalidad: '',
   
   // Step 3
-  packagingTest: false,
-  labelingTest: false,  
-  sealingTest: false,
-  weightTest: false,
+  cantidadMuestra: 1,
   qualityNotes: '',
+  testResults: {},
+  ordersTests: [],
   
   // Step 4
   finalResult: 'approved',
@@ -167,12 +135,12 @@ const handleOCRComplete = (ocrData: OCRData) => {
       formData.value.lote = ocrData.lote
       updatedFields++
     }
-    if (ocrData.fecha_fabricacion) {
-      formData.value.fecha_fabricacion = ocrData.fecha_fabricacion
+    if (ocrData.fechaFabricacion) {
+      formData.value.fechaFabricacion = ocrData.fechaFabricacion
       updatedFields++
     }
-    if (ocrData.codigo_producto) {
-      formData.value.codigo_producto = ocrData.codigo_producto
+    if (ocrData.codigoProducto) {
+      formData.value.codigoProducto = ocrData.codigoProducto
       updatedFields++
     }
     if (ocrData.pedido) {
@@ -183,24 +151,24 @@ const handleOCRComplete = (ocrData: OCRData) => {
       formData.value.turno = ocrData.turno
       updatedFields++
     }
-    if (ocrData.numero_operario) {
-      formData.value.numero_operario = ocrData.numero_operario
+    if (ocrData.numeroOperario) {
+      formData.value.numeroOperario = ocrData.numeroOperario
       updatedFields++
     }
     if (ocrData.maquina) {
       formData.value.maquina = ocrData.maquina
       updatedFields++
     }
-    if (ocrData.inspector_calidad) {
-      formData.value.inspector_calidad = ocrData.inspector_calidad
+    if (ocrData.inspectorCalidad) {
+      formData.value.inspectorCalidad = ocrData.inspectorCalidad
       updatedFields++
     }
-    if (ocrData.jefe_de_turno) {
-      formData.value.jefe_de_turno = ocrData.jefe_de_turno
+    if (ocrData.jefeDeTurno) {
+      formData.value.jefeDeTurno = ocrData.jefeDeTurno
       updatedFields++
     }
-    if (ocrData.orden_de_compra) {
-      formData.value.orden_de_compra = ocrData.orden_de_compra
+    if (ocrData.ordenDeCompra) {
+      formData.value.ordenDeCompra = ocrData.ordenDeCompra
       updatedFields++
     }
     

@@ -17,7 +17,7 @@
         </label>
         <div class="relative">
           <input 
-            v-model.number="localData.cantidad_muestra"
+            v-model.number="localData.cantidadMuestra"
             type="number"
             min="1"
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 pl-10"
@@ -190,7 +190,7 @@ import { useTestsAPI } from '~/composables/tests/useTestsAPI'
 
 // Interface para datos de test del API
 interface OrderTestData {
-  test_id: number
+  testId: number
   aprobado: boolean
 }
 
@@ -217,7 +217,7 @@ const loading = ref(true)
 const localData = ref<OrderStep3LocalData>({
   testResults: props.modelValue?.testResults || {},
   qualityNotes: props.modelValue?.qualityNotes || '',
-  cantidad_muestra: props.modelValue?.cantidad_muestra || 0
+  cantidadMuestra: props.modelValue?.cantidadMuestra || 0
 })
 
 // Load tests on component mount
@@ -234,16 +234,16 @@ onMounted(async () => {
 // Watch for changes and emit updates
 watch(localData, (newValue) => {
   // Convertir testResults a formato API orders_tests
-  const orders_tests: OrderTestData[] = Object.entries(newValue.testResults || {}).map(([testId, aprobado]) => ({
-    test_id: parseInt(testId),
+  const _orders_tests: OrderTestData[] = Object.entries(newValue.testResults || {}).map(([testId, aprobado]) => ({
+    testId: parseInt(testId),
     aprobado
   }))
   
   emit('update:modelValue', {
     ...(props.modelValue || {}),
-    orders_tests,
+    ordersTests,
     qualityNotes: newValue.qualityNotes,
-    cantidad_muestra: newValue.cantidad_muestra,
+    cantidadMuestra: newValue.cantidadMuestra,
     // Mantener compatibilidad con formato anterior
     testResults: newValue.testResults
   })

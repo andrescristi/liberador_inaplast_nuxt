@@ -57,6 +57,7 @@ export interface OrderTest {
   pregunta: number
   order: string
   aprobado: boolean
+  cantidad_unidades_con_falla: number
   tests?: Test
 }
 
@@ -66,11 +67,12 @@ export interface OrderTest {
 // ============================================================================
 
 /**
- * Datos de test para una orden - formato API (sin observaciones)
+ * Datos de test para una orden - formato API
  */
 export interface OrderTestData {
   test_id: number
   aprobado: boolean
+  cantidad_unidades_con_falla?: number
 }
 
 /**
@@ -128,8 +130,8 @@ export interface OrderFilters {
   cliente?: string
   producto?: string
   turno?: string
-  fecha_from?: string
-  fecha_to?: string
+  dateFrom?: string
+  dateTo?: string
   search?: string
 }
 

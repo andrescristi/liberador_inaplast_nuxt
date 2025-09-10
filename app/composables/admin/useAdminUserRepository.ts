@@ -16,7 +16,7 @@ import type {
   UpdateProfileForm,
   PaginatedResponse 
 } from '~/types'
-import type { Database } from '../../../types/database.types'
+import type { Database } from '~/types/database.types'
 import { useLogger } from '~/composables/tools/useLogger'
 
 export const useAdminUserRepository = () => {

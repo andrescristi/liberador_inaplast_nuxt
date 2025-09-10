@@ -6,7 +6,7 @@
  */
 
 // Importar enum del database para usar como fuente de verdad
-import type { Database } from '../../types/database.types'
+import type { Database } from '~/types/database.types'
 
 // ============================================================================
 // TIPOS DE PERFILES Y AUTENTICACIÓN

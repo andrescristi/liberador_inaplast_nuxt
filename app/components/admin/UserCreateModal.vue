@@ -15,25 +15,25 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
           <BaseInput
-            v-model="form.first_name"
+            v-model="form.firstName"
             type="text"
             placeholder="Ingresa el nombre"
-            :error="hasFieldError('first_name')"
-            @blur="validateField('first_name')"
+            :error="hasFieldError('firstName')"
+            @blur="validateField('firstName')"
           />
-          <p v-if="getFieldError('first_name')" class="mt-1 text-sm text-red-600">{{ getFieldError('first_name') }}</p>
+          <p v-if="getFieldError('firstName')" class="mt-1 text-sm text-red-600">{{ getFieldError('firstName') }}</p>
         </div>
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
           <BaseInput
-            v-model="form.last_name"
+            v-model="form.lastName"
             type="text"
             placeholder="Ingresa el apellido"
-            :error="hasFieldError('last_name')"
-            @blur="validateField('last_name')"
+            :error="hasFieldError('lastName')"
+            @blur="validateField('lastName')"
           />
-          <p v-if="getFieldError('last_name')" class="mt-1 text-sm text-red-600">{{ getFieldError('last_name') }}</p>
+          <p v-if="getFieldError('lastName')" class="mt-1 text-sm text-red-600">{{ getFieldError('lastName') }}</p>
         </div>
       </div>
 
@@ -87,20 +87,20 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
         <select
-          v-model="form.user_role"
+          v-model="form.userRole"
           class="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors"
           :class="{
-            'border-red-300 focus:ring-red-500 focus:border-red-500': hasFieldError('user_role'),
-            'border-gray-300': !hasFieldError('user_role')
+            'border-red-300 focus:ring-red-500 focus:border-red-500': hasFieldError('userRole'),
+            'border-gray-300': !hasFieldError('userRole')
           }"
-          @change="validateField('user_role')"
+          @change="validateField('userRole')"
         >
           <option value="">Selecciona un rol</option>
           <option value="Admin">Administrador</option>
           <option value="Supervisor">Supervisor</option>
           <option value="Inspector">Inspector</option>
         </select>
-        <p v-if="getFieldError('user_role')" class="mt-1 text-sm text-red-600">{{ getFieldError('user_role') }}</p>
+        <p v-if="getFieldError('userRole')" class="mt-1 text-sm text-red-600">{{ getFieldError('userRole') }}</p>
       </div>
 
       <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
@@ -172,11 +172,11 @@ const {
 } = useModalForm<CreateUserForm>({
   schema: createUserSchema,
   initialData: {
-    first_name: '',
-    last_name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
-    user_role: 'Inspector' // Valor por defecto
+    userRole: 'Inspector' // Valor por defecto
   },
   onSubmit: createUser,
   onSuccess: () => {
@@ -191,9 +191,9 @@ async function createUser(data: CreateUserForm) {
     body: {
       email: data.email,
       password: data.password,
-      first_name: data.first_name,
-      last_name: data.last_name,
-      user_role: data.user_role
+      first_name: data.firstName,
+      last_name: data.lastName,
+      user_role: data.userRole
     }
   })
 }

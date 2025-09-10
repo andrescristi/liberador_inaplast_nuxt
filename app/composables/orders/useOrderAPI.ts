@@ -1,9 +1,12 @@
 /**
  * Composable para operaciones API de órdenes
  * Centraliza todas las llamadas HTTP relacionadas con órdenes
+ * Utiliza mappers para transformar entre BD (snake_case) y aplicación (camelCase)
  */
 
 import type { Order, CreateOrderForm, UpdateOrderForm, OrderFilters, PaginatedResponse } from '~/types/orders'
+// import type { AppOrder, AppOrderFilters, AppPaginatedResponse } from '~/types/app'
+// import { snakeToCamel, camelToSnake } from '~/utils/nameMappers'
 
 export const useOrderAPI = () => {
   const toast = useToast()
@@ -26,8 +29,8 @@ export const useOrderAPI = () => {
         ...(filters.producto && { producto: filters.producto }),
         ...(filters.turno && { turno: filters.turno }),
         ...(filters.search && { search: filters.search }),
-        ...(filters.fecha_from && { fecha_from: filters.fecha_from }),
-        ...(filters.fecha_to && { fecha_to: filters.fecha_to })
+        ...(filters.dateFrom && { fecha_from: filters.dateFrom }),
+        ...(filters.dateTo && { fecha_to: filters.dateTo })
       })
       
       const response = await $fetch<PaginatedResponse<Order>>(`/api/orders?${params}`)

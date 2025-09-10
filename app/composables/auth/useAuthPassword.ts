@@ -2,7 +2,7 @@
  * Composable especializado para gestión de contraseñas
  * Maneja reset de contraseñas y cambios de contraseña
  */
-import type { Database } from '../../../types/database.types'
+import type { Database } from '~/types/database.types'
 
 export const useAuthPassword = () => {
   const supabase = useSupabaseClient<Database>()

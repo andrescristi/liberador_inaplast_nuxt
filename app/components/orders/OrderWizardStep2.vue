@@ -89,7 +89,7 @@
               Código del Producto *
             </label>
             <input 
-              v-model="codigo_producto"
+              v-model="codigoProducto"
               type="text" 
               class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               :class="{
@@ -143,7 +143,7 @@
               Fecha de Fabricación *
             </label>
             <input 
-              v-model="fecha_fabricacion"
+              v-model="fechaFabricacion"
               type="date" 
               class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               :class="{
@@ -169,7 +169,7 @@
               Número de Operario *
             </label>
             <input 
-              v-model="numero_operario"
+              v-model="numeroOperario"
               type="text" 
               class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               :class="{
@@ -203,7 +203,7 @@
               Inspector de Calidad *
             </label>
             <input 
-              v-model="inspector_calidad"
+              v-model="inspectorCalidad"
               type="text" 
               class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               :class="{
@@ -220,7 +220,7 @@
               Jefe de Turno
             </label>
             <input 
-              v-model="jefe_de_turno"
+              v-model="jefeDeTurno"
               type="text" 
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Ej: María García"
@@ -231,7 +231,7 @@
               Orden de Compra
             </label>
             <input 
-              v-model="orden_de_compra"
+              v-model="ordenDeCompra"
               type="text" 
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Ej: OC-2024-001"
@@ -289,14 +289,14 @@ const { handleSubmit, errors, setFieldValue, values } = useForm({
     cliente: props.modelValue.cliente || '',
     producto: props.modelValue.producto || '',
     pedido: props.modelValue.pedido || '',
-    fecha_fabricacion: props.modelValue.fecha_fabricacion || '',
-    codigo_producto: props.modelValue.codigo_producto || '',
+    fechaFabricacion: props.modelValue.fechaFabricacion || '',
+    codigoProducto: props.modelValue.codigoProducto || '',
     turno: props.modelValue.turno || '',
-    jefe_de_turno: props.modelValue.jefe_de_turno || '',
-    orden_de_compra: props.modelValue.orden_de_compra || '',
-    numero_operario: props.modelValue.numero_operario || '',
+    jefeDeTurno: props.modelValue.jefeDeTurno || '',
+    ordenDeCompra: props.modelValue.ordenDeCompra || '',
+    numeroOperario: props.modelValue.numeroOperario || '',
     maquina: props.modelValue.maquina || '',
-    inspector_calidad: props.modelValue.inspector_calidad || ''
+    inspectorCalidad: props.modelValue.inspectorCalidad || ''
   }
 })
 
@@ -305,14 +305,14 @@ const { value: lote } = useField('lote')
 const { value: cliente, errorMessage: clienteError } = useField('cliente')
 const { value: producto, errorMessage: productoError } = useField('producto')
 const { value: pedido, errorMessage: pedidoError } = useField('pedido')
-const { value: fecha_fabricacion, errorMessage: fechaError } = useField('fecha_fabricacion')
-const { value: codigo_producto, errorMessage: codigoError } = useField('codigo_producto')
+const { value: fechaFabricacion, errorMessage: fechaError } = useField('fechaFabricacion')
+const { value: codigoProducto, errorMessage: codigoError } = useField('codigoProducto')
 const { value: turno, errorMessage: turnoError } = useField('turno')
-const { value: jefe_de_turno } = useField('jefe_de_turno')
-const { value: orden_de_compra } = useField('orden_de_compra')
-const { value: numero_operario, errorMessage: operarioError } = useField('numero_operario')
+const { value: jefeDeTurno } = useField('jefeDeTurno')
+const { value: ordenDeCompra } = useField('ordenDeCompra')
+const { value: numeroOperario, errorMessage: operarioError } = useField('numeroOperario')
 const { value: maquina, errorMessage: maquinaError } = useField('maquina')
-const { value: inspector_calidad, errorMessage: inspectorError } = useField('inspector_calidad')
+const { value: inspectorCalidad, errorMessage: inspectorError } = useField('inspectorCalidad')
 
 // State for tracking OCR pre-filled data
 const hasOCRData = ref(false)
@@ -343,14 +343,14 @@ watch(() => props.modelValue, (newValue, oldValue) => {
   setFieldValue('cliente', newValue.cliente || '')
   setFieldValue('producto', newValue.producto || '')
   setFieldValue('pedido', newValue.pedido || '')
-  setFieldValue('fecha_fabricacion', newValue.fecha_fabricacion || '')
-  setFieldValue('codigo_producto', newValue.codigo_producto || '')
+  setFieldValue('fechaFabricacion', newValue.fechaFabricacion || '')
+  setFieldValue('codigoProducto', newValue.codigoProducto || '')
   setFieldValue('turno', newValue.turno || '')
-  setFieldValue('jefe_de_turno', newValue.jefe_de_turno || '')
-  setFieldValue('orden_de_compra', newValue.orden_de_compra || '')
-  setFieldValue('numero_operario', newValue.numero_operario || '')
+  setFieldValue('jefeDeTurno', newValue.jefeDeTurno || '')
+  setFieldValue('ordenDeCompra', newValue.ordenDeCompra || '')
+  setFieldValue('numeroOperario', newValue.numeroOperario || '')
   setFieldValue('maquina', newValue.maquina || '')
-  setFieldValue('inspector_calidad', newValue.inspector_calidad || '')
+  setFieldValue('inspectorCalidad', newValue.inspectorCalidad || '')
   
   // Show toast notification if new OCR data arrives
   const hasNewData = (newValue.cliente && !oldValue?.cliente) || 
@@ -369,12 +369,12 @@ const canProceed = computed(() => {
          cliente.value && 
          producto.value && 
          pedido.value && 
-         codigo_producto.value &&
-         fecha_fabricacion.value &&
+         codigoProducto.value &&
+         fechaFabricacion.value &&
          turno.value &&
-         numero_operario.value &&
+         numeroOperario.value &&
          maquina.value &&
-         inspector_calidad.value
+         inspectorCalidad.value
 })
 
 // Methods - Usar handleSubmit para validación

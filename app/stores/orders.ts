@@ -9,9 +9,9 @@ interface OrdersState {
   error: string | null
   pagination: {
     page: number
-    per_page: number
+    perPage: number
     total: number
-    total_pages: number
+    totalPages: number
   }
   filters: OrderFilters
 }
@@ -24,9 +24,9 @@ export const useOrdersStore = defineStore('orders', {
     error: null,
     pagination: {
       page: 1,
-      per_page: 20,
+      perPage: 20,
       total: 0,
-      total_pages: 0
+      totalPages: 0
     },
     filters: {}
   }),
@@ -54,14 +54,14 @@ export const useOrdersStore = defineStore('orders', {
       this.error = null
       
       try {
-        const response = await supabaseAPI.getOrders(page, this.pagination.per_page, filters)
+        const response = await supabaseAPI.getOrders(page, this.pagination.perPage, filters)
         
         this.orders = response.data
         this.pagination = {
           page: response.pagination.page,
-          per_page: response.pagination.limit,
+          perPage: response.pagination.limit,
           total: response.pagination.total,
-          total_pages: response.pagination.totalPages
+          totalPages: response.pagination.totalPages
         }
         this.filters = filters
       } catch (error) {

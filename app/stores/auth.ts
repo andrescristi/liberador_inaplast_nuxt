@@ -11,9 +11,9 @@ interface HybridAuthUser {
   id: string
   email: string
   role: string
-  first_name?: string
-  last_name?: string
-  full_name?: string
+  firstName?: string
+  lastName?: string
+  fullName?: string
 }
 
 interface AuthState {
@@ -62,7 +62,7 @@ export const useAuthStore = defineStore('auth', {
      */
     fullName: (state): string => {
       if (!state.user) return ''
-      return state.user.full_name || `${state.user.first_name || ''} ${state.user.last_name || ''}`.trim()
+      return state.user.fullName || `${state.user.firstName || ''} ${state.user.lastName || ''}`.trim()
     },
 
     /**
@@ -70,8 +70,8 @@ export const useAuthStore = defineStore('auth', {
      */
     userInitials: (state): string => {
       if (!state.user) return ''
-      const firstName = state.user.first_name || ''
-      const lastName = state.user.last_name || ''
+      const firstName = state.user.firstName || ''
+      const lastName = state.user.lastName || ''
       return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
     }
   },
