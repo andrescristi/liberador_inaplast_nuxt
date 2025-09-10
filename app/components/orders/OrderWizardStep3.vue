@@ -65,10 +65,7 @@
             </div>
           </div>
           
-          <div class="text-xs text-blue-700 bg-blue-100 rounded p-2">
-            <strong>Plan:</strong> {{ recomendacionMuestreo.plan.codigo }} | 
-            <strong>Tipo:</strong> {{ recomendacionMuestreo.grupo.tipo_de_inspeccion }}
-          </div>
+          
         </div>
       </div>
       
@@ -87,10 +84,10 @@
             min="1"
             class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 pl-10"
             :class="{
-              'border-green-300 bg-green-50': recomendacionMuestreo && localData.cantidadMuestra === recomendacionMuestreo.plan.tamano_muestra,
+              'border-green-400 ring-1 ring-green-200': recomendacionMuestreo && localData.cantidadMuestra === recomendacionMuestreo.plan.tamano_muestra,
               'border-gray-300': !recomendacionMuestreo || localData.cantidadMuestra !== recomendacionMuestreo.plan.tamano_muestra
             }"
-            placeholder="Ingresa la cantidad de unidades para el muestreo..."
+            :placeholder="recomendacionMuestreo ? `Recomendado: ${recomendacionMuestreo.plan.tamano_muestra} unidades` : 'Ingresa la cantidad de unidades para el muestreo...'"
           >
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Icon name="bx:package" class="h-5 w-5 text-gray-400" />
@@ -99,7 +96,7 @@
             <button
               type="button"
               class="text-green-600 hover:text-green-800 text-xs font-medium"
-              @click="localData.cantidadMuestra = recomendacionMuestreo.plan.tamano_muestra"
+              @click="localData.cantidadMuestra = recomendacionMuestreo.plan.tamano_muestra || 0"
             >
               Usar recomendado
             </button>
@@ -284,12 +281,7 @@
             <span class="text-gray-600">Pruebas aprobadas:</span>
             <span class="font-medium">{{ completedTests }}/{{ totalTests }}</span>
           </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Porcentaje de éxito:</span>
-            <span class="font-medium" :class="successRate >= 75 ? 'text-green-600' : 'text-yellow-600'">
-              {{ successRate }}%
-            </span>
-          </div>
+          
           <div class="flex justify-between col-span-2">
             <span class="text-gray-600">Total unidades rechazadas:</span>
             <span class="font-medium" :class="totalRejections === 0 ? 'text-green-600' : 'text-red-600'">
@@ -298,17 +290,17 @@
           </div>
           <div v-if="recomendacionMuestreo" class="flex justify-between col-span-2 pt-2 border-t border-gray-200">
             <span class="text-gray-600">Estado del lote:</span>
-            <span class="font-medium" :class="totalRejections <= recomendacionMuestreo.plan.numero_maximo_fallas ? 'text-green-600' : 'text-red-600'">
-              {{ totalRejections <= recomendacionMuestreo.plan.numero_maximo_fallas ? '✓ Aprobado' : '✗ Rechazado' }}
+            <span class="font-medium" :class="totalRejections <= (recomendacionMuestreo.plan.numero_maximo_fallas || 0) ? 'text-green-600' : 'text-red-600'">
+              {{ totalRejections <= (recomendacionMuestreo.plan.numero_maximo_fallas || 0) ? '✓ Aprobado' : '✗ Rechazado' }}
             </span>
           </div>
           <div v-if="recomendacionMuestreo" class="flex justify-between col-span-2">
-            <span class="text-gray-600">Rechazos: {{ totalRejections }} / {{ recomendacionMuestreo.plan.numero_maximo_fallas }} máx.</span>
+            <span class="text-gray-600">Rechazos: {{ totalRejections }} / {{ recomendacionMuestreo.plan.numero_maximo_fallas || 0 }} máx.</span>
             <div class="w-24 bg-gray-200 rounded-full h-2 mt-1">
               <div 
                 class="h-2 rounded-full transition-all"
-                :class="totalRejections <= recomendacionMuestreo.plan.numero_maximo_fallas ? 'bg-green-500' : 'bg-red-500'"
-                :style="{ width: Math.min(100, (totalRejections / Math.max(1, recomendacionMuestreo.plan.numero_maximo_fallas)) * 100) + '%' }"
+                :class="totalRejections <= (recomendacionMuestreo.plan.numero_maximo_fallas || 0) ? 'bg-green-500' : 'bg-red-500'"
+                :style="{ width: Math.min(100, (totalRejections / Math.max(1, recomendacionMuestreo.plan.numero_maximo_fallas || 1)) * 100) + '%' }"
               />
             </div>
           </div>
@@ -330,7 +322,7 @@
           :disabled="!canProceed"
           @click="handleNext"
         >
-          Continuar al Resumen
+          Ver Resumen inspección
         </button>
       </div>
     </div>
@@ -340,6 +332,7 @@
 <script setup lang="ts">
 import type { Test } from '~/types/tests'
 import type { NewOrderData } from '~/schemas/orders/new_order'
+import type { RecomendacionMuestreo } from '~/types/muestreo'
 import { useTestsAPI } from '~/composables/tests/useTestsAPI'
 import { useMuestreoAPI } from '~/composables/muestreo/useMuestreoAPI'
 
@@ -371,7 +364,7 @@ const toast = useToast()
 const tests = ref<Test[]>([])
 const loading = ref(true)
 const loadingMuestreo = ref(false)
-const recomendacionMuestreo = ref<{ tamanioLote: number; tamanioMuestra: number; aceptacion: number; rechazo: number } | null>(null)
+const recomendacionMuestreo = ref<RecomendacionMuestreo | null>(null)
 const muestreoError = ref<string | null>(null)
 
 // Local reactive copy - mantener structure híbrida para switches + cantidad
@@ -461,10 +454,6 @@ const completedTests = computed(() => {
   return Object.values(localData.value.testResults || {}).filter(result => result === true).length
 })
 
-const _rejectedTests = computed(() => {
-  // Tests rechazados (switch en false) 
-  return Object.values(localData.value.testResults || {}).filter(result => result === false).length
-})
 
 const totalRejections = computed(() => {
   // Suma total de unidades rechazadas de todos los tests
@@ -503,8 +492,8 @@ const calcularRecomendacionMuestreo = async () => {
     
     if (recomendacion) {
       recomendacionMuestreo.value = recomendacion
-      // Auto-llenar con la cantidad recomendada (usuario puede modificar)
-      if (recomendacion.plan.tamano_muestra && localData.value.cantidadMuestra === 0) {
+      // Auto-llenar con la cantidad recomendada siempre que haya recomendación
+      if (recomendacion.plan.tamano_muestra) {
         localData.value.cantidadMuestra = recomendacion.plan.tamano_muestra
       }
       toast.success('Recomendación calculada', `Tamaño de lote: ${tamanoLote} unidades`)

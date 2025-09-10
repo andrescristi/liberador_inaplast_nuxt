@@ -360,7 +360,9 @@ onMounted(() => {
 watch(values, (formValues) => {
   emit('update:modelValue', {
     ...props.modelValue,
-    ...formValues
+    ...formValues,
+    // Asegurar que unidadesPorEmbalaje sea number | undefined, no null
+    unidadesPorEmbalaje: formValues.unidadesPorEmbalaje ?? undefined
   })
 }, { deep: true })
 

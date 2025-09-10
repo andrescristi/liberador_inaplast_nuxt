@@ -19,7 +19,10 @@ interface CreateOrderRequest {
   fecha_fabricacion: string
   codigo_producto: string
   turno: string
-  cantidad_unidades_por_embalaje: number
+  cantidad_unidades_por_embalaje?: number
+  unidadesPorEmbalaje?: number // camelCase alternative
+  cantidad_embalajes?: number
+  cantidadEmbalajes?: number // camelCase alternative
   jefe_de_turno?: string
   orden_de_compra?: string
   numero_operario: string
@@ -28,7 +31,9 @@ interface CreateOrderRequest {
   
   // Tests asociados a la orden - cada test debe estar incluido
   orders_tests?: OrderTestData[]
+  ordersTests?: OrderTestData[] // camelCase alternative
   cantidad_muestra?: number
+  cantidadMuestra?: number // camelCase alternative
   // Mantener compatibilidad con formato anterior
   test_results?: { [testId: number]: boolean }
 }
@@ -42,8 +47,13 @@ export default defineEventHandler(async (event) => {
     const body = await readBody<CreateOrderRequest>(event)
     
     // Validar campos requeridos
-    const requiredFields = ['cliente', 'producto', 'pedido', 'fecha_fabricacion', 'codigo_producto', 'turno', 'cantidad_unidades_por_embalaje', 'numero_operario', 'maquina', 'inspector_calidad']
+    const requiredFields = ['cliente', 'producto', 'pedido', 'fecha_fabricacion', 'codigo_producto', 'turno', 'numero_operario', 'maquina', 'inspector_calidad']
     const missingFields = requiredFields.filter(field => !body[field as keyof CreateOrderRequest])
+    
+    // Validar que al menos uno de los campos de unidades por embalaje esté presente
+    if (!body.cantidad_unidades_por_embalaje && !body.unidadesPorEmbalaje) {
+      missingFields.push('cantidad_unidades_por_embalaje o unidadesPorEmbalaje')
+    }
     
     if (missingFields.length > 0) {
       throw createError({
@@ -53,10 +63,11 @@ export default defineEventHandler(async (event) => {
     }
     
     // Validaciones adicionales de tipos y valores
-    if (typeof body.cantidad_unidades_por_embalaje !== 'number' || body.cantidad_unidades_por_embalaje <= 0) {
+    const unidadesPorEmbalaje = body.cantidad_unidades_por_embalaje || body.unidadesPorEmbalaje
+    if (typeof unidadesPorEmbalaje !== 'number' || unidadesPorEmbalaje <= 0) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'cantidad_unidades_por_embalaje debe ser un número mayor a 0'
+        statusMessage: 'cantidad_unidades_por_embalaje o unidadesPorEmbalaje debe ser un número mayor a 0'
       })
     }
     
@@ -69,7 +80,7 @@ export default defineEventHandler(async (event) => {
     }
     
     // Validar cantidad_muestra (compatible con camelCase y snake_case)
-    const cantidadMuestra = (body as any).cantidadMuestra || body.cantidad_muestra
+    const cantidadMuestra = body.cantidadMuestra || body.cantidad_muestra
     if (cantidadMuestra !== undefined) {
       if (typeof cantidadMuestra !== 'number' || cantidadMuestra <= 0) {
         throw createError({
@@ -80,7 +91,7 @@ export default defineEventHandler(async (event) => {
     }
     
     // Obtener orders_tests con compatibilidad de nombres
-    const ordersTests = (body as any).ordersTests || body.orders_tests
+    const ordersTests = body.ordersTests || body.orders_tests
     
     // Validar estructura de orders_tests si se proporciona y no está vacío
     if (ordersTests && !Array.isArray(ordersTests)) {
@@ -142,8 +153,8 @@ export default defineEventHandler(async (event) => {
     
     // Validar que todos los tests estén incluidos si se proporcionan orders_tests
     if (ordersTests) {
-      const providedTestIds = ordersTests.map((ot: OrderTestData) => ot.testId || ot.test_id)
-      const allTestIds = tests.map((t: any) => t.id)
+      const providedTestIds = ordersTests.map((ot: OrderTestData) => ot.testId || ot.test_id).filter((id): id is number => id !== undefined)
+      const allTestIds = tests.map((t: any) => t.id) as number[]
       const missingTests = allTestIds.filter((id: number) => !providedTestIds.includes(id))
       
       if (missingTests.length > 0) {
@@ -187,6 +198,9 @@ export default defineEventHandler(async (event) => {
     const hasAnyFailedTest = testResults.some((test: any) => !test.aprobado)
     const orderStatus: 'Aprobado' | 'Rechazado' = hasAnyFailedTest ? 'Rechazado' : 'Aprobado'
     
+    // Obtener cantidad_embalajes (compatible con ambos formatos)
+    const cantidadEmbalajes = body.cantidad_embalajes || body.cantidadEmbalajes
+    
     // Preparar datos de la orden según la nueva estructura con el status calculado
     const orderData = {
       lote: body.lote || null,
@@ -196,8 +210,9 @@ export default defineEventHandler(async (event) => {
       fecha_fabricacion: body.fecha_fabricacion,
       codigo_producto: body.codigo_producto,
       turno: body.turno,
-      cantidad_unidades_por_embalaje: body.cantidad_unidades_por_embalaje,
-      cantidad_muestra: cantidadMuestra || 1,
+      unidades_por_embalaje: unidadesPorEmbalaje,
+      cantidad_embalajes: cantidadEmbalajes || 1,
+      muestreo_real: cantidadMuestra || 1,
       jefe_de_turno: body.jefe_de_turno || null,
       orden_de_compra: body.orden_de_compra || null,
       numero_operario: body.numero_operario,

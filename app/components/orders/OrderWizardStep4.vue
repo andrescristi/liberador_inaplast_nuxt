@@ -139,7 +139,7 @@
             name="bx:loader-alt" 
             class="animate-spin w-4 h-4 mr-2" 
           />
-          {{ isSaving ? 'Guardando...' : 'Guardar Liberador' }}
+          {{ isSaving ? 'Guardando...' : 'Guardar Inspección' }}
         </button>
       </div>
     </div>
@@ -298,7 +298,7 @@ const prepareOrderData = () => {
     codigo_producto: modelValue.codigoProducto,
     turno: modelValue.turno,
     cantidad_embalajes: modelValue.cantidadEmbalajes,
-    unidades_por_embalaje: modelValue.unidadesPorEmbalaje,
+    cantidad_unidades_por_embalaje: modelValue.unidadesPorEmbalaje,
     jefe_de_turno: modelValue.jefeDeTurno,
     orden_de_compra: modelValue.ordenDeCompra,
     numero_operario: modelValue.numeroOperario,
