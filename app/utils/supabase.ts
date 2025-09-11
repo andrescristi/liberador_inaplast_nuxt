@@ -48,41 +48,55 @@ export class SupabaseAPI {
 
   // Orders
   async getOrders(
-    _page = 1, 
-    _perPage = 20, 
-    _filters: OrderFilters = {}
+    page = 1, 
+    perPage = 20, 
+    filters: OrderFilters = {}
   ): Promise<PaginatedResponse<Order>> {
-    // TODO: Implement search_orders RPC function
-    // const { data, error } = await this.client
-    //   .rpc('search_orders', {
-    //     search_term: filters.search || null,
-    //     status_filter: filters.status || null,
-    //     customer_id_filter: filters.customer_id ? filters.customer_id : null,
-    //     date_from: filters.date_from ? new Date(filters.date_from).toISOString() : null,
-    //     date_to: filters.date_to ? new Date(filters.date_to).toISOString() : null,
-    //     page_num: page,
-    //     page_size: perPage
-    //   })
-
-    // if (error) {
-    //   // Handle orders fetch error
-    //   throw new Error('Failed to fetch orders')
-    // }
-
-    // const orders = data || []
-    // const totalCount = orders[0]?.total_count || 0
-
-    return {
-      success: true,
-      data: [],
-      pagination: {
-        page: 1,
-        limit: 20,
-        total: 0,
-        totalPages: 0,
-        hasNextPage: false,
-        hasPreviousPage: false
+    try {
+      // Construir parámetros de consulta
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: perPage.toString()
+      })
+      
+      if (filters.status) {
+        queryParams.append('status', filters.status)
       }
+      
+      if (filters.search) {
+        queryParams.append('search', filters.search)
+      }
+      
+      if (filters.dateFrom) {
+        queryParams.append('dateFrom', filters.dateFrom)
+      }
+      
+      if (filters.dateTo) {
+        queryParams.append('dateTo', filters.dateTo)
+      }
+
+      // Llamar al endpoint de la API
+      const response = await $fetch<{
+        success: boolean
+        data: Order[]
+        pagination: {
+          page: number
+          limit: number
+          total: number
+          totalPages: number
+          hasNextPage: boolean
+          hasPreviousPage: boolean
+        }
+      }>(`/api/orders?${queryParams.toString()}`)
+
+      if (!response.success) {
+        throw new Error('Failed to fetch orders from API')
+      }
+
+      return response
+    } catch (error) {
+      console.error('Error fetching orders:', error)
+      throw new Error('Failed to fetch orders')
     }
   }
 
@@ -111,13 +125,14 @@ export class SupabaseAPI {
         fecha_fabricacion: orderData.fecha_fabricacion,
         codigo_producto: orderData.codigo_producto,
         turno: orderData.turno,
-        cantidad_unidades_por_embalaje: orderData.cantidad_unidades_por_embalaje,
+        unidades_por_embalaje: orderData.unidades_por_embalaje,
         numero_operario: orderData.numero_operario,
         maquina: orderData.maquina,
         inspector_calidad: orderData.inspector_calidad,
         lote: orderData.lote,
         jefe_de_turno: orderData.jefe_de_turno,
-        orden_de_compra: orderData.orden_de_compra
+        orden_de_compra: orderData.orden_de_compra,
+        cantidad_embalajes: 1
       } as Database['public']['Tables']['orders']['Insert'])
       .select()
       .single()
@@ -162,7 +177,10 @@ export class SupabaseAPI {
       fecha_fabricacion: orderData.fecha_fabricacion,
       codigo_producto: orderData.codigo_producto,
       turno: orderData.turno,
-      cantidad_unidades_por_embalaje: orderData.cantidad_unidades_por_embalaje,
+      unidades_por_embalaje: orderData.unidades_por_embalaje,
+      cantidad_embalajes: validOrder.cantidad_embalajes || 1,
+      muestreo_real: validOrder.muestreo_real || undefined,
+      muestreo_recomendado: validOrder.muestreo_recomendado || undefined,
       numero_operario: orderData.numero_operario,
       maquina: orderData.maquina,
       inspector_calidad: orderData.inspector_calidad,

@@ -26,7 +26,9 @@ export default defineEventHandler(async (event) => {
     }
     
     if (search) {
-      queryBuilder = queryBuilder.or(`customer_id.ilike.%${search}%`)
+      queryBuilder = queryBuilder.or(
+        `cliente.ilike.%${search}%,producto.ilike.%${search}%,id.ilike.%${search}%,pedido.ilike.%${search}%`
+      )
     }
     
     // Aplicar paginación

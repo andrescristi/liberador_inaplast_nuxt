@@ -77,7 +77,6 @@ export type Database = {
       orders: {
         Row: {
           cantidad_embalajes: number
-          cantidad_unidades_por_embalaje: number
           cliente: string
           codigo_producto: string
           created_at: string
@@ -87,17 +86,19 @@ export type Database = {
           jefe_de_turno: string | null
           lote: string | null
           maquina: string
+          muestreo_real: number | null
+          muestreo_recomendado: number | null
           numero_operario: string
           orden_de_compra: string | null
           pedido: string
           producto: string
           status: Database["public"]["Enums"]["order_status"]
           turno: string
+          unidades_por_embalaje: number
           updated_at: string
         }
         Insert: {
           cantidad_embalajes: number
-          cantidad_unidades_por_embalaje: number
           cliente: string
           codigo_producto: string
           created_at?: string
@@ -107,17 +108,19 @@ export type Database = {
           jefe_de_turno?: string | null
           lote?: string | null
           maquina: string
+          muestreo_real?: number | null
+          muestreo_recomendado?: number | null
           numero_operario: string
           orden_de_compra?: string | null
           pedido: string
           producto: string
           status?: Database["public"]["Enums"]["order_status"]
           turno: string
+          unidades_por_embalaje: number
           updated_at?: string
         }
         Update: {
           cantidad_embalajes?: number
-          cantidad_unidades_por_embalaje?: number
           cliente?: string
           codigo_producto?: string
           created_at?: string
@@ -127,12 +130,15 @@ export type Database = {
           jefe_de_turno?: string | null
           lote?: string | null
           maquina?: string
+          muestreo_real?: number | null
+          muestreo_recomendado?: number | null
           numero_operario?: string
           orden_de_compra?: string | null
           pedido?: string
           producto?: string
           status?: Database["public"]["Enums"]["order_status"]
           turno?: string
+          unidades_por_embalaje?: number
           updated_at?: string
         }
         Relationships: []
@@ -194,7 +200,7 @@ export type Database = {
         }
         Update: {
           aql?: string
-          codigo: string
+          codigo?: string
           numero_maximo_fallas?: number | null
           tamano_muestra?: number | null
         }

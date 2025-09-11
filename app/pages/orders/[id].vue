@@ -1,376 +1,381 @@
 <template>
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Loading State -->
-    <div v-if="ordersStore.loading" class="space-y-6">
+    <div v-if="loading" class="space-y-6">
       <div class="skeleton h-8 w-64"/>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="card p-6">
-          <div class="skeleton h-6 w-32 mb-4"/>
-          <div class="space-y-2">
-            <div class="skeleton h-4 w-full"/>
-            <div class="skeleton h-4 w-3/4"/>
-            <div class="skeleton h-4 w-1/2"/>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+          <div class="card p-6">
+            <div class="skeleton h-6 w-32 mb-4"/>
+            <div class="space-y-2">
+              <div class="skeleton h-4 w-full"/>
+              <div class="skeleton h-4 w-3/4"/>
+              <div class="skeleton h-4 w-1/2"/>
+            </div>
           </div>
         </div>
-        <div class="card p-6">
-          <div class="skeleton h-6 w-32 mb-4"/>
-          <div class="space-y-2">
-            <div class="skeleton h-4 w-full"/>
-            <div class="skeleton h-4 w-3/4"/>
+        <div class="space-y-6">
+          <div class="card p-6">
+            <div class="skeleton h-6 w-32 mb-4"/>
+            <div class="skeleton h-20 w-full"/>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Order Content -->
-    <div v-else-if="order" class="space-y-6">
+    <div v-else-if="orderData" class="space-y-6">
       <!-- Header -->
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
-          <Button
-variant="ghost"
-size="sm"
-@click="navigateTo('/orders')">
-            <Icon name="lucide:arrow-left" class="w-4 h-4 mr-2" />
-            Back to Orders
-          </Button>
+          <button
+            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            @click="navigateTo('/orders')"
+          >
+            <Icon name="bx:arrow-back" class="w-4 h-4 mr-2" />
+            Volver a Órdenes
+          </button>
           <div>
-            <h1 class="text-3xl font-bold text-slate-900">Order {{ order.id }}</h1>
-            <p class="text-slate-600 mt-1">{{ formatDate(order.created_at) }}</p>
+            <h1 class="text-3xl font-bold text-gray-900">Orden #{{ orderId }}</h1>
+            <p class="text-gray-600 mt-1">{{ formatDate(orderData.orden.createdAt) }}</p>
           </div>
         </div>
         <div class="flex items-center space-x-3">
-          <Badge :variant="order.status" size="lg">{{ order.status }}</Badge>
-          <Button
-            v-if="order.status === 'pending'"
-            variant="secondary"
-            @click="navigateTo(`/orders/${order.id}/edit`)"
+          <span 
+            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+            :class="statusBadgeClass"
           >
-            <Icon name="lucide:edit" class="w-4 h-4 mr-2" />
-            Edit Order
-          </Button>
+            <Icon :name="statusIcon" class="w-4 h-4 mr-1" />
+            {{ orderData.resumenInspeccion.statusFinal }}
+          </span>
         </div>
       </div>
 
-      <!-- Order Information Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Customer Information -->
-        <Card title="Customer Information">
-          <div v-if="order.customer" class="space-y-4">
-            <div>
-              <label class="text-sm font-medium text-slate-700">Name</label>
-              <p class="text-slate-900">{{ order.customer.name }}</p>
-            </div>
-            <div>
-              <label class="text-sm font-medium text-slate-700">Email</label>
-              <p class="text-slate-900">{{ order.customer.email }}</p>
-            </div>
-            <div>
-              <label class="text-sm font-medium text-slate-700">Phone</label>
-              <p class="text-slate-900">{{ order.customer.phone }}</p>
-            </div>
-            <div>
-              <label class="text-sm font-medium text-slate-700">Address</label>
-              <p class="text-slate-900">{{ order.customer.address }}</p>
-            </div>
-          </div>
-        </Card>
-
-        <!-- Order Status & Actions -->
-        <Card title="Order Status">
-          <div class="space-y-4">
-            <div>
-              <label class="text-sm font-medium text-slate-700">Current Status</label>
-              <div class="mt-1">
-                <Badge :variant="order.status" size="lg">{{ order.status }}</Badge>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Información de la Orden -->
+          <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Información de la Orden</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Cliente</label>
+                <p class="mt-1 text-sm text-gray-900">{{ orderData.orden.cliente }}</p>
               </div>
-            </div>
-            
-            <div>
-              <label class="text-sm font-medium text-slate-700">Order Date</label>
-              <p class="text-slate-900">{{ formatDateTime(order.order_date) }}</p>
-            </div>
-            
-            <div>
-              <label class="text-sm font-medium text-slate-700">Last Updated</label>
-              <p class="text-slate-900">{{ formatDateTime(order.updated_at) }}</p>
-            </div>
-
-            <!-- Status Actions -->
-            <div class="space-y-2 pt-4 border-t border-slate-200">
-              <h4 class="text-sm font-medium text-slate-700">Quick Actions</h4>
-              <div class="space-y-2">
-                <Button
-                  v-if="order.status === 'pending'"
-                  variant="primary"
-                  size="sm"
-                  class="w-full"
-                  :loading="updating"
-                  @click="updateStatus('processing')"
-                >
-                  Mark as Processing
-                </Button>
-                <Button
-                  v-if="order.status === 'processing'"
-                  variant="primary"
-                  size="sm"
-                  class="w-full"
-                  :loading="updating"
-                  @click="updateStatus('completed')"
-                >
-                  Mark as Completed
-                </Button>
-                <Button
-                  v-if="order.status !== 'cancelled'"
-                  variant="destructive"
-                  size="sm"
-                  class="w-full"
-                  :loading="updating"
-                  @click="updateStatus('cancelled')"
-                >
-                  Cancel Order
-                </Button>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Producto</label>
+                <p class="mt-1 text-sm text-gray-900">{{ orderData.orden.producto }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Código de Producto</label>
+                <p class="mt-1 text-sm text-gray-900">{{ orderData.orden.codigoProducto }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Pedido</label>
+                <p class="mt-1 text-sm text-gray-900">{{ orderData.orden.pedido }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Lote</label>
+                <p class="mt-1 text-sm text-gray-900">{{ orderData.orden.lote || 'N/A' }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Fecha de Fabricación</label>
+                <p class="mt-1 text-sm text-gray-900">{{ formatDate(orderData.orden.fechaFabricacion) }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Turno</label>
+                <p class="mt-1 text-sm text-gray-900">{{ orderData.orden.turno }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Máquina</label>
+                <p class="mt-1 text-sm text-gray-900">{{ orderData.orden.maquina }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Número de Operario</label>
+                <p class="mt-1 text-sm text-gray-900">{{ orderData.orden.numeroOperario }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Inspector de Calidad</label>
+                <p class="mt-1 text-sm text-gray-900">{{ orderData.orden.inspectorCalidad }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Jefe de Turno</label>
+                <p class="mt-1 text-sm text-gray-900">{{ orderData.orden.jefeTurno || 'N/A' }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Orden de Compra</label>
+                <p class="mt-1 text-sm text-gray-900">{{ orderData.orden.ordenCompra || 'N/A' }}</p>
               </div>
             </div>
           </div>
-        </Card>
+
+          <!-- Información de Producción -->
+          <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Información de Producción</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="text-center p-4 bg-blue-50 rounded-lg">
+                <p class="text-2xl font-bold text-blue-600">{{ orderData.resumenInspeccion.unidadesPorEmbalaje }}</p>
+                <p class="text-sm text-blue-600">Unidades por Embalaje</p>
+              </div>
+              <div class="text-center p-4 bg-green-50 rounded-lg">
+                <p class="text-2xl font-bold text-green-600">{{ orderData.resumenInspeccion.cantidadEmbalajes }}</p>
+                <p class="text-sm text-green-600">Cantidad de Embalajes</p>
+              </div>
+              <div class="text-center p-4 bg-purple-50 rounded-lg">
+                <p class="text-2xl font-bold text-purple-600">{{ orderData.resumenInspeccion.muestreoReal }}</p>
+                <p class="text-sm text-purple-600">Muestreo Realizado</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resultados de Tests -->
+          <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Resultados de Tests de Calidad</h3>
+            <div class="space-y-4">
+              <div v-for="test in orderData.tests" :key="test.id" 
+                   class="flex items-center justify-between p-4 border rounded-lg"
+                   :class="test.aprobado ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'">
+                <div class="flex items-center space-x-3">
+                  <Icon 
+                    :name="test.aprobado ? 'bx:check-circle' : 'bx:x-circle'" 
+                    class="w-5 h-5"
+                    :class="test.aprobado ? 'text-green-500' : 'text-red-500'"
+                  />
+                  <div>
+                    <p class="font-medium" :class="test.aprobado ? 'text-green-900' : 'text-red-900'">
+                      {{ test.tests?.name || `Test ${test.tests?.id}` }}
+                    </p>
+                    <p class="text-sm" :class="test.aprobado ? 'text-green-700' : 'text-red-700'">
+                      {{ test.aprobado ? 'Aprobado' : 'Rechazado' }}
+                      <span v-if="test.cantidadUnidadesConFalla > 0">
+                        - {{ test.cantidadUnidadesConFalla }} unidades con falla
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <span 
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  :class="test.aprobado ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                >
+                  {{ test.aprobado ? 'PASS' : 'FAIL' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+          <!-- Resumen de Inspección -->
+          <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Resumen de Inspección</h3>
+            <div class="space-y-4">
+              <div class="text-center p-4 rounded-lg"
+                   :class="orderData.resumenInspeccion.statusFinal === 'Aprobado' ? 'bg-green-50' : 'bg-red-50'">
+                <p class="text-3xl font-bold mb-1"
+                   :class="orderData.resumenInspeccion.statusFinal === 'Aprobado' ? 'text-green-600' : 'text-red-600'">
+                  {{ orderData.resumenInspeccion.statusFinal }}
+                </p>
+                <p class="text-sm"
+                   :class="orderData.resumenInspeccion.statusFinal === 'Aprobado' ? 'text-green-600' : 'text-red-600'">
+                  Estado Final
+                </p>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4 text-center">
+                <div class="p-3 bg-green-50 rounded-lg">
+                  <p class="text-xl font-bold text-green-600">{{ orderData.resumenInspeccion.testsAprobados }}</p>
+                  <p class="text-xs text-green-600">Aprobados</p>
+                </div>
+                <div class="p-3 bg-red-50 rounded-lg">
+                  <p class="text-xl font-bold text-red-600">{{ orderData.resumenInspeccion.testsReprobados }}</p>
+                  <p class="text-xs text-red-600">Rechazados</p>
+                </div>
+              </div>
+
+              <div class="border-t pt-4">
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Total de Tests:</span>
+                  <span class="font-medium">{{ orderData.resumenInspeccion.testsTotal }}</span>
+                </div>
+                <div class="flex justify-between text-sm mt-2">
+                  <span class="text-gray-600">Unidades con Falla:</span>
+                  <span class="font-medium">{{ orderData.resumenInspeccion.totalUnidadesConFalla }}</span>
+                </div>
+                <div class="flex justify-between text-sm mt-2">
+                  <span class="text-gray-600">Inspector:</span>
+                  <span class="font-medium">{{ orderData.resumenInspeccion.inspector }}</span>
+                </div>
+                <div class="flex justify-between text-sm mt-2">
+                  <span class="text-gray-600">Fecha de Inspección:</span>
+                  <span class="font-medium">{{ formatDate(orderData.resumenInspeccion.fechaInspeccion) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Acciones</h3>
+            <div class="space-y-3">
+              <button 
+                class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                @click="exportToPDF"
+              >
+                <Icon name="bx:download" class="w-4 h-4 mr-2" />
+                Exportar PDF
+              </button>
+              <button 
+                class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                @click="printReport"
+              >
+                <Icon name="bx:printer" class="w-4 h-4 mr-2" />
+                Imprimir Reporte
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <!-- Order Items -->
-      <Card title="Order Items">
-        <div class="space-y-4">
-          <!-- Desktop Table -->
-          <div class="hidden md:block overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Product</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Quantity</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Unit Price</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                <tr v-for="item in orderItems" :key="item.id">
-                  <td class="px-4 py-4">
-                    <div>
-                      <div class="text-sm font-medium text-slate-900">{{ item.product?.name }}</div>
-                      <div class="text-sm text-slate-500">{{ item.product?.description }}</div>
-                    </div>
-                  </td>
-                  <td class="px-4 py-4 text-sm text-slate-900">{{ item.quantity }}</td>
-                  <td class="px-4 py-4 text-sm text-slate-900">{{ formatCurrency(item.unit_price) }}</td>
-                  <td class="px-4 py-4 text-sm font-semibold text-slate-900">{{ formatCurrency(item.subtotal) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Mobile Cards -->
-          <div class="md:hidden space-y-3">
-            <div
-              v-for="item in orderItems"
-              :key="item.id"
-              class="border border-slate-200 rounded-lg p-4"
-            >
-              <div class="flex justify-between items-start mb-2">
-                <div class="flex-1">
-                  <h4 class="text-sm font-medium text-slate-900">{{ item.product?.name }}</h4>
-                  <p class="text-xs text-slate-500">{{ item.product?.description }}</p>
-                </div>
-                <div class="text-sm font-semibold text-slate-900">{{ formatCurrency(item.subtotal) }}</div>
-              </div>
-              <div class="flex justify-between text-sm text-slate-600">
-                <span>Qty: {{ item.quantity }}</span>
-                <span>{{ formatCurrency(item.unit_price) }} each</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Order Total -->
-          <div class="border-t border-slate-200 pt-4">
-            <div class="flex justify-end">
-              <div class="w-full max-w-xs space-y-2">
-                <div class="flex justify-between text-sm text-slate-600">
-                  <span>Subtotal</span>
-                  <span>{{ formatCurrency(orderSubtotal) }}</span>
-                </div>
-                <div class="flex justify-between text-sm text-slate-600">
-                  <span>Tax</span>
-                  <span>{{ formatCurrency(orderTax) }}</span>
-                </div>
-                <div class="flex justify-between text-lg font-semibold text-slate-900 border-t border-slate-200 pt-2">
-                  <span>Total</span>
-                  <span>{{ formatCurrency(order.total_amount) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      <!-- Status Timeline -->
-      <Card title="Status Timeline">
-        <div class="space-y-4">
-          <div
-            v-for="(timeline, index) in statusTimeline"
-            :key="index"
-            class="flex items-start space-x-3"
-          >
-            <div
-              class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center"
-              :class="timeline.completed ? 'bg-green-500' : 'bg-slate-300'"
-            >
-              <Icon
-                v-if="timeline.completed"
-                name="lucide:check"
-                class="w-3 h-3 text-white"
-              />
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-slate-900 capitalize">{{ timeline.status }}</p>
-              <p v-if="timeline.timestamp" class="text-sm text-slate-500">{{ formatDateTime(timeline.timestamp) }}</p>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      <!-- Danger Zone -->
-      <Card
-title="Danger Zone"
-variant="outlined"
-class="border-red-200">
-        <div class="space-y-4">
-          <p class="text-sm text-slate-600">
-            Estas acciones no se pueden deshacer. Por favor, ten cuidado.
-          </p>
-          <Button
-            variant="destructive"
-            @click="deleteOrder"
-          >
-            <Icon name="lucide:trash-2" class="w-4 h-4 mr-2" />
-            Delete Order
-          </Button>
-        </div>
-      </Card>
+    <!-- Error State -->
+    <div v-else-if="error" class="text-center py-12">
+      <Icon name="bx:error-circle" class="w-16 h-16 text-red-500 mx-auto mb-4" />
+      <h3 class="text-lg font-medium text-gray-900 mb-2">Error al cargar la orden</h3>
+      <p class="text-gray-600 mb-4">{{ error }}</p>
+      <button 
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+        @click="fetchOrder"
+      >
+        Reintentar
+      </button>
     </div>
 
     <!-- Not Found State -->
-    <div v-else class="empty-state">
-      <Icon name="lucide:file-x" class="empty-state-icon" />
-      <h3 class="empty-state-title">Order Not Found</h3>
-      <p class="empty-state-description">
-        The order you're looking for doesn't exist or has been deleted.
+    <div v-else class="text-center py-12">
+      <Icon name="bx:file-blank" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
+      <h3 class="text-lg font-medium text-gray-900 mb-2">Orden no encontrada</h3>
+      <p class="text-gray-600 mb-4">
+        La orden que buscas no existe o ha sido eliminada.
       </p>
-      <Button class="mt-4" @click="navigateTo('/orders')">
-        Back to Orders
-      </Button>
+      <button 
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+        @click="navigateTo('/orders')"
+      >
+        Volver a Órdenes
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useOrdersStore } from '~/stores/orders'
-import type { OrderStatus, StatusTimelineItem } from '~/types'
-import { formatCurrency, formatDate, formatDateTime } from '~/utils/formatters'
+interface OrderData {
+  orden: {
+    id: number
+    cliente: string
+    producto: string
+    codigoProducto: string
+    pedido: string
+    lote?: string
+    fechaFabricacion: string
+    turno: string
+    maquina: string
+    numeroOperario: string
+    inspectorCalidad: string
+    jefeTurno?: string
+    ordenCompra?: string
+    unidadesPorEmbalaje: number
+    cantidadEmbalajes: number
+    muestreoReal: number
+    status: string
+    createdAt: string
+  }
+  tests: Array<{
+    id: number
+    aprobado: boolean
+    cantidadUnidadesConFalla: number
+    tests?: {
+      id: number
+      name: string
+      type?: string
+    }
+  }>
+  resumenInspeccion: {
+    statusFinal: string
+    testsTotal: number
+    testsAprobados: number
+    testsReprobados: number
+    totalUnidadesConFalla: number
+    unidadesPorEmbalaje: number
+    cantidadEmbalajes: number
+    muestreoReal: number
+    fechaInspeccion: string
+    inspector: string
+  }
+}
 
 const route = useRoute()
-const ordersStore = useOrdersStore()
+const orderId = route.params.id as string
 
-const updating = ref(false)
+const orderData = ref<OrderData | null>(null)
+const loading = ref(true)
+const error = ref<string | null>(null)
 
-// Get order from store or fetch it
-const order = computed(() => ordersStore.currentOrder)
-
-// Order items will be loaded from the order data
-const orderItems = computed(() => {
-  return order.value?.order_items || []
+const statusBadgeClass = computed(() => {
+  if (!orderData.value) return ''
+  
+  const status = orderData.value.resumenInspeccion.statusFinal
+  return status === 'Aprobado' 
+    ? 'bg-green-100 text-green-800' 
+    : 'bg-red-100 text-red-800'
 })
 
-// Computed values
-const orderSubtotal = computed(() => {
-  return orderItems.value.reduce((sum, item) => sum + item.subtotal, 0)
+const statusIcon = computed(() => {
+  if (!orderData.value) return 'bx:question-mark'
+  
+  const status = orderData.value.resumenInspeccion.statusFinal
+  return status === 'Aprobado' ? 'bx:check-circle' : 'bx:x-circle'
 })
 
-const orderTax = computed(() => {
-  return orderSubtotal.value * 0.1 // 10% tax
-})
-
-const statusTimeline = computed((): StatusTimelineItem[] => {
-  if (!order.value) return []
+const fetchOrder = async () => {
+  loading.value = true
+  error.value = null
   
-  const currentStatus = order.value.status
-  const timeline: StatusTimelineItem[] = [
-    { 
-      status: 'pending', 
-      timestamp: order.value.created_at, 
-      completed: true 
-    },
-    { 
-      status: 'processing', 
-      timestamp: currentStatus !== 'pending' ? order.value.updated_at : '', 
-      completed: currentStatus === 'processing' || currentStatus === 'completed' 
-    },
-    { 
-      status: 'completed', 
-      timestamp: currentStatus === 'completed' ? order.value.updated_at : '', 
-      completed: currentStatus === 'completed' 
-    }
-  ]
-  
-  // Add cancelled status if applicable
-  if (currentStatus === 'cancelled') {
-    timeline.push({ 
-      status: 'cancelled', 
-      timestamp: order.value.updated_at, 
-      completed: true 
-    })
-  }
-  
-  return timeline
-})
-
-// Methods
-const updateStatus = async (newStatus: OrderStatus) => {
-  if (!order.value) return
-  
-  updating.value = true
   try {
-    await ordersStore.updateOrderStatus(order.value.id, newStatus)
-  } catch (error) {
-    console.error('Error al actualizar estado de orden:', error)
+    const { data } = await $fetch<{ success: boolean, data: OrderData }>(`/api/orders/${orderId}`)
+    orderData.value = data
+  } catch (err: any) {
+    error.value = err.data?.message || 'Error al cargar la orden'
   } finally {
-    updating.value = false
+    loading.value = false
   }
 }
 
-const deleteOrder = async () => {
-  if (!order.value) return
-  
-  if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
-    try {
-      await ordersStore.deleteOrder(order.value.id)
-      await navigateTo('/orders')
-    } catch (error) {
-      console.error('Error al eliminar orden:', error)
-    }
-  }
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
 }
 
-// All formatting functions are now imported from ~/utils/formatters
+const exportToPDF = () => {
+  alert('Funcionalidad de exportación a PDF en desarrollo')
+}
 
-// Fetch order data on client side
-onMounted(async () => {
-  await ordersStore.fetchOrderById(route.params.id as string)
+const printReport = () => {
+  window.print()
+}
+
+onMounted(() => {
+  fetchOrder()
 })
 
-// SEO
 useSeoMeta({
-  title: `Order ${route.params.id} - Order Management`,
-  description: `View details for order ${route.params.id} including customer information, items, and status.`
+  title: `Orden ${orderId} - Sistema de Inspección`,
+  description: `Detalles de la orden ${orderId} incluyendo resultados de inspección y tests de calidad.`
 })
 
-// Page meta
 definePageMeta({
   middleware: 'auth'
 })

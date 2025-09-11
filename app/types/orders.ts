@@ -38,7 +38,10 @@ export interface Order {
   fecha_fabricacion: string
   codigo_producto: string
   turno: string
-  cantidad_unidades_por_embalaje: number
+  unidades_por_embalaje: number
+  cantidad_embalajes: number
+  muestreo_real?: number
+  muestreo_recomendado?: number
   jefe_de_turno?: string
   orden_de_compra?: string
   numero_operario: string
@@ -86,7 +89,8 @@ export interface CreateOrderForm {
   fecha_fabricacion: string
   codigo_producto: string
   turno: string
-  cantidad_unidades_por_embalaje: number
+  unidades_por_embalaje: number
+  cantidad_embalajes: number
   jefe_de_turno?: string
   orden_de_compra?: string
   numero_operario: string
