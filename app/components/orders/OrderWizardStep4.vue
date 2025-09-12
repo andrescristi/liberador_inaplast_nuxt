@@ -156,6 +156,7 @@ import { useOrderAPI } from '~/composables/orders/useOrderAPI'
 interface OrderTestData {
   testId: number
   aprobado: boolean
+  cantidad_unidades_con_falla?: number
 }
 
 interface Props {
@@ -268,22 +269,26 @@ const prepareOrderData = () => {
     // Crear un array con TODOS los tests disponibles
     orders_tests = tests.value.map(test => {
       let aprobado = false
+      let cantidad_unidades_con_falla = 0
       
       // Buscar el resultado en ordersTests
       if (modelValue.ordersTests) {
-        const orderTest = modelValue.ordersTests.find((ot: { testId?: number; test_id?: number; aprobado: boolean }) => (ot.testId || ot.test_id) === test.id)
+        const orderTest = modelValue.ordersTests.find((ot: { testId?: number; test_id?: number; aprobado: boolean; cantidad_unidades_con_falla?: number }) => (ot.testId || ot.test_id) === test.id)
         if (orderTest) {
           aprobado = orderTest.aprobado
+          cantidad_unidades_con_falla = orderTest.cantidad_unidades_con_falla || 0
         }
       } 
       // Buscar en testResults como fallback
       else if (modelValue.testResults && modelValue.testResults[test.id] !== undefined) {
         aprobado = modelValue.testResults[test.id] || false
+        cantidad_unidades_con_falla = 0 // No hay datos de cantidad en testResults
       }
       
       return {
         testId: test.id,
-        aprobado
+        aprobado,
+        cantidad_unidades_con_falla
       }
     })
   }

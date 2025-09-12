@@ -340,7 +340,7 @@ import { useMuestreoAPI } from '~/composables/muestreo/useMuestreoAPI'
 interface OrderTestData {
   testId: number
   aprobado: boolean
-  cantidadUnidadesConFalla?: number
+  cantidad_unidades_con_falla?: number
 }
 
 interface Props {
@@ -367,6 +367,20 @@ const loadingMuestreo = ref(false)
 const recomendacionMuestreo = ref<RecomendacionMuestreo | null>(null)
 const muestreoError = ref<string | null>(null)
 
+// Helper function para inicializar testRejections desde ordersTests existentes
+const initializeTestRejections = () => {
+  const rejections: Record<number, number> = {}
+  
+  // Si hay ordersTests existentes, extraer las cantidades de fallas
+  if (props.modelValue?.ordersTests) {
+    props.modelValue.ordersTests.forEach(orderTest => {
+      rejections[orderTest.testId] = orderTest.cantidad_unidades_con_falla || 0
+    })
+  }
+  
+  return rejections
+}
+
 // Local reactive copy - mantener structure híbrida para switches + cantidad
 const localData = ref<{
   testResults: Record<number, boolean> // Para switches
@@ -375,7 +389,7 @@ const localData = ref<{
   cantidadMuestra: number
 }>({
   testResults: props.modelValue?.testResults || {},
-  testRejections: {}, // Inicializar vacío
+  testRejections: initializeTestRejections(), // ✅ Inicializar con datos existentes
   qualityNotes: props.modelValue?.qualityNotes || '',
   cantidadMuestra: props.modelValue?.cantidadMuestra || 0
 })
@@ -384,11 +398,17 @@ const localData = ref<{
 watch(() => tests.value, (newTests) => {
   if (newTests.length > 0) {
     newTests.forEach(test => {
+      // Solo inicializar testResults si no existe
       if (!(test.id in localData.value.testResults)) {
-        localData.value.testResults[test.id] = true // Default aprobado
+        // Verificar si hay datos existentes en ordersTests para determinar el estado inicial
+        const existingOrderTest = props.modelValue?.ordersTests?.find(ot => ot.testId === test.id)
+        localData.value.testResults[test.id] = existingOrderTest ? existingOrderTest.aprobado : true
       }
+      
+      // Solo inicializar testRejections si no existe (preservar valores existentes)
       if (!(test.id in localData.value.testRejections)) {
-        localData.value.testRejections[test.id] = 0 // Default 0 rechazos
+        const existingOrderTest = props.modelValue?.ordersTests?.find(ot => ot.testId === test.id)
+        localData.value.testRejections[test.id] = existingOrderTest?.cantidad_unidades_con_falla || 0
       }
     })
   }
@@ -424,7 +444,7 @@ watch(localData, (newValue) => {
     return {
       testId: parseInt(testId),
       aprobado,
-      cantidadUnidadesConFalla: cantidadRechazos
+      cantidad_unidades_con_falla: cantidadRechazos
     }
   })
   

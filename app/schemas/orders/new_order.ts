@@ -51,7 +51,8 @@ export const orderStep3Schema = z.object({
     .optional(),
   ordersTests: z.array(z.object({
     testId: z.number(),
-    aprobado: z.boolean()
+    aprobado: z.boolean(),
+    cantidad_unidades_con_falla: z.number().min(0).optional()
   })).optional(),
   qualityNotes: z.string().optional(),
   // Mantener compatibilidad
@@ -100,7 +101,8 @@ export const newOrderSchema = z.object({
     .optional(),
   ordersTests: z.array(z.object({
     testId: z.number(),
-    aprobado: z.boolean()
+    aprobado: z.boolean(),
+    cantidad_unidades_con_falla: z.number().min(0).optional()
   })).optional(),
   qualityNotes: z.string().optional(),
   testResults: z.record(z.number(), z.boolean()).optional(),
@@ -146,7 +148,8 @@ export const orderAPISchema = z.object({
   inspectorCalidad: z.string().min(1, 'El inspector de calidad es requerido'),
   ordersTests: z.array(z.object({
     testId: z.number(),
-    aprobado: z.boolean()
+    aprobado: z.boolean(),
+    cantidad_unidades_con_falla: z.number().min(0).optional()
   })).min(1, 'Debe incluir al menos un test')
 })
 
