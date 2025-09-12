@@ -428,10 +428,17 @@ const fetchOrders = async () => {
       queryParams.append('search', filters.value.search)
     }
     
-    const { data: response } = await $fetch<PaginatedResponse<Order>>(`/api/orders?${queryParams}`)
+    const response = await $fetch<PaginatedResponse<Order>>(`/api/orders?${queryParams}`)
     
-    orders.value = response.data
-    pagination.value = response.pagination
+    orders.value = response?.data || []
+    pagination.value = response?.pagination || {
+      page: 1,
+      limit: 20,
+      total: 0,
+      totalPages: 0,
+      hasNextPage: false,
+      hasPreviousPage: false
+    }
     
     // Calcular estadísticas
     await calculateStats()
@@ -447,8 +454,8 @@ const fetchOrders = async () => {
 const calculateStats = async () => {
   try {
     // Obtener todas las órdenes para estadísticas (sin paginación)
-    const { data: allOrdersResponse } = await $fetch<PaginatedResponse<Order>>('/api/orders?limit=1000')
-    const allOrders = allOrdersResponse.data
+    const response = await $fetch<PaginatedResponse<Order>>('/api/orders?limit=1000')
+    const allOrders = response?.data || []
     
     stats.value.total = allOrders.length
     stats.value.approved = allOrders.filter(order => order.status === 'Aprobado').length
@@ -465,6 +472,13 @@ const calculateStats = async () => {
     
   } catch (error) {
     console.error('Error calculating stats:', error)
+    // Establecer valores por defecto en caso de error
+    stats.value = {
+      total: 0,
+      approved: 0,
+      rejected: 0,
+      thisMonth: 0
+    }
   }
 }
 
