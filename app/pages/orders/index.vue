@@ -151,11 +151,16 @@
             Limpiar filtros
           </button>
           <button
-            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             @click="exportToExcel"
+            :disabled="exporting"
           >
-            <Icon name="bx:download" class="w-4 h-4 mr-2" />
-            Exportar
+            <Icon 
+              :name="exporting ? 'bx:loader-alt' : 'bx:download'" 
+              class="w-4 h-4 mr-2" 
+              :class="{ 'animate-spin': exporting }"
+            />
+            {{ exporting ? 'Exportando...' : 'Exportar' }}
           </button>
         </div>
         <div class="flex items-center space-x-2 text-sm text-gray-500">
@@ -415,6 +420,7 @@ import type { Order, OrderFilters, PaginatedResponse } from '~/types/orders'
 // Estado reactivo
 const orders = ref<Order[]>([])
 const loading = ref(true)
+const exporting = ref(false)
 const filters = ref<OrderFilters & { limit: number }>({
   status: undefined,
   search: '',
@@ -609,9 +615,126 @@ const handleDateRangeChange = () => {
   fetchOrders()
 }
 
-const exportToExcel = () => {
-  // TODO: Implementar exportación a Excel
-  alert('Funcionalidad de exportación en desarrollo')
+const exportToExcel = async () => {
+  if (exporting.value) return // Prevenir múltiples clics
+  
+  exporting.value = true
+  
+  try {
+    // Obtener todas las órdenes (sin paginación) para la exportación
+    const queryParams = new URLSearchParams({
+      limit: '10000' // Límite alto para obtener todas las órdenes
+    })
+    
+    // Aplicar los mismos filtros que en la vista actual
+    if (filters.value.status) {
+      queryParams.append('status', filters.value.status)
+    }
+    
+    if (filters.value.search) {
+      queryParams.append('search', filters.value.search)
+    }
+    
+    if (filters.value.dateFrom) {
+      queryParams.append('dateFrom', filters.value.dateFrom)
+    }
+    
+    if (filters.value.dateTo) {
+      queryParams.append('dateTo', filters.value.dateTo)
+    }
+    
+    const response = await $fetch<PaginatedResponse<Order>>(`/api/orders?${queryParams}`)
+    const ordersToExport = response?.data || []
+    
+    if (ordersToExport.length === 0) {
+      alert('No hay órdenes para exportar con los filtros aplicados')
+      return
+    }
+    
+    // Importar xlsx dinámicamente (solo en el cliente)
+    const XLSX = await import('xlsx')
+    
+    // Preparar los datos para Excel
+    const excelData = ordersToExport.map(order => ({
+      'ID de Orden': order.id.slice(0, 8),
+      'Cliente': order.cliente,
+      'Producto': order.producto,
+      'Pedido': order.pedido,
+      'Código Producto': order.codigo_producto,
+      'Estado': order.status,
+      'Inspector': order.inspector_calidad,
+      'Máquina': order.maquina,
+      'Turno': order.turno,
+      'Fecha Fabricación': formatDate(order.fecha_fabricacion),
+      'Fecha Creación': formatDate(order.created_at),
+      'Unidades por Embalaje': order.unidades_por_embalaje,
+      'Cantidad Embalajes': order.cantidad_embalajes,
+      'Muestreo Real': order.muestreo_real || 'N/A',
+      'Muestreo Recomendado': order.muestreo_recomendado || 'N/A',
+      'Jefe de Turno': order.jefe_de_turno || 'N/A',
+      'Número Operario': order.numero_operario,
+      'Orden de Compra': order.orden_de_compra || 'N/A',
+      'Lote': order.lote || 'N/A'
+    }))
+    
+    // Crear workbook y worksheet
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.json_to_sheet(excelData)
+    
+    // Ajustar ancho de columnas
+    const colWidths = [
+      { wch: 12 }, // ID de Orden
+      { wch: 25 }, // Cliente
+      { wch: 30 }, // Producto
+      { wch: 15 }, // Pedido
+      { wch: 15 }, // Código Producto
+      { wch: 10 }, // Estado
+      { wch: 20 }, // Inspector
+      { wch: 15 }, // Máquina
+      { wch: 10 }, // Turno
+      { wch: 15 }, // Fecha Fabricación
+      { wch: 15 }, // Fecha Creación
+      { wch: 18 }, // Unidades por Embalaje
+      { wch: 18 }, // Cantidad Embalajes
+      { wch: 15 }, // Muestreo Real
+      { wch: 20 }, // Muestreo Recomendado
+      { wch: 20 }, // Jefe de Turno
+      { wch: 15 }, // Número Operario
+      { wch: 20 }, // Orden de Compra
+      { wch: 15 }  // Lote
+    ]
+    
+    ws['!cols'] = colWidths
+    
+    // Añadir worksheet al workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Órdenes de Inspección')
+    
+    // Generar nombre de archivo con fecha y filtros
+    const today = new Date()
+    const dateStr = today.toISOString().split('T')[0]
+    let fileName = `ordenes_inspeccion_${dateStr}`
+    
+    if (filters.value.status) {
+      fileName += `_${filters.value.status.toLowerCase()}`
+    }
+    
+    if (filters.value.search) {
+      const searchClean = filters.value.search.replace(/[^\w\s]/gi, '').substring(0, 10)
+      fileName += `_${searchClean}`
+    }
+    
+    // Descargar archivo
+    XLSX.writeFile(wb, `${fileName}.xlsx`)
+    
+    // Mensaje de éxito
+    alert(`Se han exportado ${ordersToExport.length} órdenes a Excel exitosamente`)
+    
+  } catch (error) {
+    console.error('Error exporting to Excel:', error)
+    alert('Error al exportar a Excel. Por favor, inténtalo de nuevo.')
+  } finally {
+    exporting.value = false
+  }
 }
 
 // Utilidades
