@@ -101,7 +101,7 @@
               v-model="filters.search"
               type="text"
               class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-              placeholder="Buscar por ID, cliente, producto..."
+              placeholder="Buscar por cliente, producto, pedido, inspector..."
               @input="debouncedSearch"
             />
           </div>
@@ -205,54 +205,32 @@
       <ul v-else class="divide-y divide-gray-200">
         <li v-for="order in orders" :key="order.id" class="hover:bg-gray-50">
           <div class="px-4 py-4 sm:px-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-4">
-                <div class="flex-shrink-0">
+            <div class="flex flex-col space-y-3">
+              <!-- Header con Orden y Estado -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
                   <div 
-                    class="w-3 h-3 rounded-full"
+                    class="w-3 h-3 rounded-full flex-shrink-0"
                     :class="order.status === 'Aprobado' ? 'bg-green-400' : 'bg-red-400'"
                   ></div>
+                  <p class="text-lg font-semibold text-blue-600">
+                    <NuxtLink :to="`/orders/${order.id}`" class="hover:underline">
+                      Orden #{{ order.id.slice(0, 8) }}
+                    </NuxtLink>
+                  </p>
+                  <span 
+                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                    :class="order.status === 'Aprobado' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'"
+                  >
+                    {{ order.status }}
+                  </span>
                 </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center space-x-3">
-                    <p class="text-sm font-medium text-blue-600 truncate">
-                      <NuxtLink :to="`/orders/${order.id}`" class="hover:underline">
-                        Orden #{{ order.id.slice(0, 8) }}
-                      </NuxtLink>
-                    </p>
-                    <span 
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                      :class="order.status === 'Aprobado' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'"
-                    >
-                      {{ order.status }}
-                    </span>
+                <div class="flex items-center space-x-2">
+                  <div class="text-right text-sm text-gray-600">
+                    <div class="font-medium">{{ formatDate(order.created_at) }}</div>
                   </div>
-                  <div class="mt-1">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm text-gray-600">
-                      <div class="flex items-center">
-                        <Icon name="bx:user" class="w-4 h-4 mr-1 text-gray-400" />
-                        {{ order.cliente }}
-                      </div>
-                      <div class="flex items-center">
-                        <Icon name="bx:package" class="w-4 h-4 mr-1 text-gray-400" />
-                        {{ order.producto }}
-                      </div>
-                      <div class="flex items-center">
-                        <Icon name="bx:barcode" class="w-4 h-4 mr-1 text-gray-400" />
-                        {{ order.codigo_producto }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="flex items-center space-x-4">
-                <div class="text-right">
-                  <p class="text-sm font-medium text-gray-900">{{ formatDate(order.created_at) }}</p>
-                  <p class="text-sm text-gray-500">{{ order.turno }} - {{ order.maquina }}</p>
-                </div>
-                <div class="flex-shrink-0">
                   <button
                     class="inline-flex items-center p-2 border border-transparent rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     @click="navigateTo(`/orders/${order.id}`)"
@@ -261,80 +239,169 @@
                   </button>
                 </div>
               </div>
+
+              <!-- Información Principal -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Información del Cliente y Producto -->
+                <div class="space-y-2">
+                  <div class="flex items-center space-x-2 text-sm">
+                    <Icon name="bx:user" class="w-4 h-4 text-gray-500" />
+                    <span class="font-medium text-gray-700">Cliente:</span>
+                    <span class="text-gray-900">{{ order.cliente }}</span>
+                  </div>
+                  <div class="flex items-center space-x-2 text-sm">
+                    <Icon name="bx:package" class="w-4 h-4 text-gray-500" />
+                    <span class="font-medium text-gray-700">Producto:</span>
+                    <span class="text-gray-900">{{ order.producto }}</span>
+                  </div>
+                  <div class="flex items-center space-x-2 text-sm">
+                    <Icon name="bx:user-check" class="w-4 h-4 text-gray-500" />
+                    <span class="font-medium text-gray-700">Inspector:</span>
+                    <span class="text-gray-900">{{ order.inspector_calidad }}</span>
+                  </div>
+                </div>
+
+                <!-- Información de Pedido y Máquina -->
+                <div class="space-y-2">
+                  <div class="flex items-center space-x-2 text-sm">
+                    <Icon name="bx:receipt" class="w-4 h-4 text-gray-500" />
+                    <span class="font-medium text-gray-700">Pedido:</span>
+                    <span class="text-gray-900">{{ order.pedido }}</span>
+                  </div>
+                  <div class="flex items-center space-x-2 text-sm">
+                    <Icon name="bx:cog" class="w-4 h-4 text-gray-500" />
+                    <span class="font-medium text-gray-700">Máquina:</span>
+                    <span class="text-gray-900">{{ order.maquina }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </li>
       </ul>
 
       <!-- Paginación -->
-      <div v-if="pagination.totalPages > 1" class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-        <div class="flex items-center justify-between">
+      <div v-if="pagination.total > 0" class="bg-white px-4 py-4 border-t border-gray-200 sm:px-6">
+        <!-- Selector de cantidad por página y información -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <!-- Selector de cantidad por página -->
+          <div class="flex items-center space-x-3">
+            <label for="page-size" class="text-sm font-medium text-gray-700">
+              Mostrar:
+            </label>
+            <select
+              id="page-size"
+              v-model="filters.limit"
+              class="block w-auto pl-3 pr-8 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+              @change="handlePageSizeChange"
+            >
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="text-sm text-gray-700">por página</span>
+          </div>
+
+          <!-- Información de resultados -->
+          <div class="text-sm text-gray-700">
+            <span class="font-medium">{{ (pagination.page - 1) * pagination.limit + 1 }}</span>
+            -
+            <span class="font-medium">{{ Math.min(pagination.page * pagination.limit, pagination.total) }}</span>
+            de
+            <span class="font-medium">{{ pagination.total }}</span>
+            órdenes
+          </div>
+        </div>
+
+        <!-- Navegación de páginas -->
+        <div v-if="pagination.totalPages > 1" class="flex items-center justify-between">
+          <!-- Navegación móvil -->
           <div class="flex-1 flex justify-between sm:hidden">
             <button
-              class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="!pagination.hasPreviousPage"
               @click="changePage(pagination.page - 1)"
             >
+              <Icon name="bx:chevron-left" class="w-4 h-4 mr-1" />
               Anterior
             </button>
+            <span class="px-4 py-2 text-sm text-gray-700">
+              Página {{ pagination.page }} de {{ pagination.totalPages }}
+            </span>
             <button
-              class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="!pagination.hasNextPage"
               @click="changePage(pagination.page + 1)"
             >
               Siguiente
+              <Icon name="bx:chevron-right" class="w-4 h-4 ml-1" />
             </button>
           </div>
-          <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p class="text-sm text-gray-700">
-                Mostrando
-                <span class="font-medium">{{ (pagination.page - 1) * pagination.limit + 1 }}</span>
-                a
-                <span class="font-medium">{{ Math.min(pagination.page * pagination.limit, pagination.total) }}</span>
-                de
-                <span class="font-medium">{{ pagination.total }}</span>
-                resultados
-              </p>
-            </div>
-            <div>
-              <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+
+          <!-- Navegación desktop con números de página -->
+          <div class="hidden sm:flex sm:items-center sm:justify-center sm:flex-1">
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <!-- Botón Primera -->
+              <button
+                v-if="pagination.page > 3"
+                class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="!pagination.hasPreviousPage"
+                @click="changePage(1)"
+              >
+                Primera
+              </button>
+              
+              <!-- Botón Anterior -->
+              <button
+                class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                :class="pagination.page <= 3 ? 'rounded-l-md' : ''"
+                :disabled="!pagination.hasPreviousPage"
+                @click="changePage(pagination.page - 1)"
+              >
+                <Icon name="bx:chevron-left" class="w-5 h-5" />
+              </button>
+              
+              <!-- Números de página -->
+              <template v-for="page in visiblePages" :key="page">
                 <button
-                  class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                  :disabled="!pagination.hasPreviousPage"
-                  @click="changePage(pagination.page - 1)"
+                  v-if="page === '...'"
+                  class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 cursor-default"
                 >
-                  <Icon name="bx:chevron-left" class="w-5 h-5" />
+                  ...
                 </button>
-                
-                <template v-for="page in visiblePages" :key="page">
-                  <button
-                    v-if="page === '...'"
-                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
-                  >
-                    ...
-                  </button>
-                  <button
-                    v-else
-                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium"
-                    :class="page === pagination.page 
-                      ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' 
-                      : 'bg-white text-gray-500 hover:bg-gray-50'"
-                    @click="changePage(page)"
-                  >
-                    {{ page }}
-                  </button>
-                </template>
-                
                 <button
-                  class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                  :disabled="!pagination.hasNextPage"
-                  @click="changePage(pagination.page + 1)"
+                  v-else
+                  class="relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200"
+                  :class="page === pagination.page 
+                    ? 'border-blue-500 bg-blue-50 text-blue-600 z-10' 
+                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'"
+                  @click="changePage(page)"
                 >
-                  <Icon name="bx:chevron-right" class="w-5 h-5" />
+                  {{ page }}
                 </button>
-              </nav>
-            </div>
+              </template>
+              
+              <!-- Botón Siguiente -->
+              <button
+                class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                :class="pagination.page >= pagination.totalPages - 2 ? 'rounded-r-md' : ''"
+                :disabled="!pagination.hasNextPage"
+                @click="changePage(pagination.page + 1)"
+              >
+                <Icon name="bx:chevron-right" class="w-5 h-5" />
+              </button>
+
+              <!-- Botón Última -->
+              <button
+                v-if="pagination.page < pagination.totalPages - 2"
+                class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="!pagination.hasNextPage"
+                @click="changePage(pagination.totalPages)"
+              >
+                Última
+              </button>
+            </nav>
           </div>
         </div>
       </div>
@@ -348,9 +415,10 @@ import type { Order, OrderFilters, PaginatedResponse } from '~/types/orders'
 // Estado reactivo
 const orders = ref<Order[]>([])
 const loading = ref(true)
-const filters = ref<OrderFilters>({
+const filters = ref<OrderFilters & { limit: number }>({
   status: undefined,
-  search: ''
+  search: '',
+  limit: 20
 })
 const selectedDateRange = ref('')
 const pagination = ref({
@@ -417,7 +485,7 @@ const fetchOrders = async () => {
   try {
     const queryParams = new URLSearchParams({
       page: pagination.value.page.toString(),
-      limit: pagination.value.limit.toString()
+      limit: filters.value.limit.toString()
     })
     
     if (filters.value.status) {
@@ -487,10 +555,17 @@ const changePage = (page: number) => {
   fetchOrders()
 }
 
+const handlePageSizeChange = () => {
+  pagination.value.page = 1 // Reset a la primera página
+  pagination.value.limit = Number(filters.value.limit)
+  fetchOrders()
+}
+
 const clearFilters = () => {
   filters.value = {
     status: undefined,
-    search: ''
+    search: '',
+    limit: 20
   }
   selectedDateRange.value = ''
   pagination.value.page = 1
