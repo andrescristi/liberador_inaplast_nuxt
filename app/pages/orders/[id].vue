@@ -148,7 +148,10 @@
                     <p class="text-sm" :class="test.aprobado ? 'text-green-700' : 'text-red-700'">
                       {{ test.aprobado ? 'Aprobado' : 'Rechazado' }}
                       <span v-if="test.cantidadUnidadesConFalla > 0">
-                        - {{ test.cantidadUnidadesConFalla }} unidades con falla
+                        - {{ test.cantidadUnidadesConFalla }} {{ test.cantidadUnidadesConFalla === 1 ? 'unidad' : 'unidades' }} con falla
+                      </span>
+                      <span v-else-if="!test.aprobado && test.cantidadUnidadesConFalla === 0">
+                        - Falla general del test
                       </span>
                     </p>
                   </div>
@@ -352,15 +355,182 @@ const fetchOrder = async () => {
 }
 
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('es-ES', {
+  if (!dateString) {
+    return 'Fecha no disponible'
+  }
+  
+  const date = new Date(dateString)
+  
+  // Verificar si la fecha es válida
+  if (isNaN(date.getTime())) {
+    return 'Fecha inválida'
+  }
+  
+  return date.toLocaleDateString('es-ES', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   })
 }
 
-const exportToPDF = () => {
-  alert('Funcionalidad de exportación a PDF en desarrollo')
+const exportToPDF = async () => {
+  if (!orderData.value) {
+    alert('No hay datos de orden para exportar')
+    return
+  }
+
+  try {
+    const { jsPDF } = await import('jspdf')
+    const html2canvas = await import('html2canvas')
+    
+    // Crear un nuevo documento PDF
+    const doc = new jsPDF('p', 'mm', 'a4')
+    
+    // Configuración del documento
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const margin = 20
+    let yPosition = margin
+    
+    // Título del documento
+    doc.setFontSize(20)
+    doc.setFont('helvetica', 'bold')
+    doc.text(`Orden #${orderId}`, margin, yPosition)
+    yPosition += 15
+    
+    // Fecha de creación
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Fecha: ${formatDate(orderData.value.orden.createdAt)}`, margin, yPosition)
+    yPosition += 10
+    
+    // Estado de la orden
+    doc.setFont('helvetica', 'bold')
+    doc.text(`Estado: ${orderData.value.resumenInspeccion.statusFinal}`, margin, yPosition)
+    yPosition += 15
+    
+    // Información de la Orden
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('INFORMACIÓN DE LA ORDEN', margin, yPosition)
+    yPosition += 10
+    
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    
+    const orderInfo = [
+      ['Cliente:', orderData.value.orden.cliente],
+      ['Producto:', orderData.value.orden.producto],
+      ['Código de Producto:', orderData.value.orden.codigoProducto],
+      ['Pedido:', orderData.value.orden.pedido],
+      ['Lote:', orderData.value.orden.lote || 'N/A'],
+      ['Fecha de Fabricación:', formatDate(orderData.value.orden.fechaFabricacion)],
+      ['Turno:', orderData.value.orden.turno],
+      ['Máquina:', orderData.value.orden.maquina],
+      ['Número de Operario:', orderData.value.orden.numeroOperario],
+      ['Inspector de Calidad:', orderData.value.orden.inspectorCalidad],
+      ['Jefe de Turno:', orderData.value.orden.jefeTurno || 'N/A'],
+      ['Orden de Compra:', orderData.value.orden.ordenCompra || 'N/A']
+    ]
+    
+    orderInfo.forEach(([label, value]) => {
+      doc.text(`${label} ${value}`, margin, yPosition)
+      yPosition += 6
+    })
+    
+    yPosition += 10
+    
+    // Información de Producción
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('INFORMACIÓN DE PRODUCCIÓN', margin, yPosition)
+    yPosition += 10
+    
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    
+    const productionInfo = [
+      ['Unidades por Embalaje:', orderData.value.resumenInspeccion.unidadesPorEmbalaje.toString()],
+      ['Cantidad de Embalajes:', orderData.value.resumenInspeccion.cantidadEmbalajes.toString()],
+      ['Muestreo Realizado:', orderData.value.resumenInspeccion.muestreoReal.toString()]
+    ]
+    
+    productionInfo.forEach(([label, value]) => {
+      doc.text(`${label} ${value}`, margin, yPosition)
+      yPosition += 6
+    })
+    
+    yPosition += 10
+    
+    // Resumen de Inspección
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('RESUMEN DE INSPECCIÓN', margin, yPosition)
+    yPosition += 10
+    
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    
+    const inspectionInfo = [
+      ['Total de Tests:', orderData.value.resumenInspeccion.testsTotal.toString()],
+      ['Tests Aprobados:', orderData.value.resumenInspeccion.testsAprobados.toString()],
+      ['Tests Rechazados:', orderData.value.resumenInspeccion.testsReprobados.toString()],
+      ['Unidades con Falla:', orderData.value.resumenInspeccion.totalUnidadesConFalla.toString()],
+      ['Inspector:', orderData.value.resumenInspeccion.inspector],
+      ['Fecha de Inspección:', formatDate(orderData.value.resumenInspeccion.fechaInspeccion)]
+    ]
+    
+    inspectionInfo.forEach(([label, value]) => {
+      doc.text(`${label} ${value}`, margin, yPosition)
+      yPosition += 6
+    })
+    
+    yPosition += 10
+    
+    // Verificar si necesitamos una nueva página
+    if (yPosition > pageHeight - 50) {
+      doc.addPage()
+      yPosition = margin
+    }
+    
+    // Resultados de Tests
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('RESULTADOS DE TESTS DE CALIDAD', margin, yPosition)
+    yPosition += 10
+    
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    
+    orderData.value.tests.forEach((test, index) => {
+      if (yPosition > pageHeight - 30) {
+        doc.addPage()
+        yPosition = margin
+      }
+      
+      const testName = test.tests?.name || `Test ${test.tests?.id}`
+      const status = test.aprobado ? 'APROBADO' : 'RECHAZADO'
+      const failUnits = test.cantidadUnidadesConFalla > 0 
+        ? ` - ${test.cantidadUnidadesConFalla} ${test.cantidadUnidadesConFalla === 1 ? 'unidad' : 'unidades'} con falla`
+        : ''
+      
+      doc.setFont('helvetica', 'bold')
+      doc.text(`${index + 1}. ${testName}`, margin, yPosition)
+      yPosition += 5
+      
+      doc.setFont('helvetica', 'normal')
+      doc.text(`Estado: ${status}${failUnits}`, margin + 5, yPosition)
+      yPosition += 8
+    })
+    
+    // Guardar el PDF
+    const fileName = `orden-${orderId}-${new Date().toISOString().split('T')[0]}.pdf`
+    doc.save(fileName)
+    
+  } catch (error) {
+    console.error('Error generando PDF:', error)
+    alert('Error al generar el PDF. Por favor, inténtalo de nuevo.')
+  }
 }
 
 const printReport = () => {
