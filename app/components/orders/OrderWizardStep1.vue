@@ -23,6 +23,7 @@
           type="number" 
           min="1" 
           max="1000"
+          data-testid="cantidad-embalajes"
           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
           :class="{
             'border-red-300 focus:ring-red-500 focus:border-red-500': boxQuantityError,

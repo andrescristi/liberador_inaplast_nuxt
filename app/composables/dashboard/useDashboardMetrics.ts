@@ -98,11 +98,11 @@ export function useDashboardMetrics() {
   const metricsArray = computed(() => [
     {
       key: 'pending',
-      label: 'Pendientes',
-      value: metrics.value.pending,
+      label: 'Total Realizadas',
+      value: metrics.value.completed + metrics.value.rejected,
       color: 'bg-yellow-500',
       icon: 'bx:time-five',
-      description: 'Inspecciones en espera'
+      description: 'Total de inspecciones completadas'
     },
     {
       key: 'completed', 
@@ -155,10 +155,10 @@ export function useDashboardMetrics() {
 
   return {
     // Estados
-    metrics: readonly(metrics),
-    loading: readonly(loading),
-    error: readonly(error),
-    lastUpdated: readonly(lastUpdated),
+    metrics,
+    loading,
+    error,
+    lastUpdated,
     
     // Métodos
     fetchMetrics,

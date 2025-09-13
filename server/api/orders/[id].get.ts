@@ -63,14 +63,14 @@ export default defineEventHandler(async (event) => {
         aprobado,
         cantidad_unidades_con_falla,
         created_at,
-        tests!orders_tests_pregunta_fkey (
+        pregunta,
+        tests!pregunta (
           id,
           name,
           type
         )
       `)
-      .eq('order', orderId)
-      .order('pregunta')
+      .eq('"order"', orderId)
     
     if (testsError) {
       console.error('Error obteniendo tests de la orden:', testsError)
@@ -86,8 +86,8 @@ export default defineEventHandler(async (event) => {
       sum + (test.cantidad_unidades_con_falla || 0), 0
     )
     
-    // Determinar status de inspección
-    const statusInspeccion = testsReprobados > 0 ? 'Rechazado' : 'Aprobado'
+    // Determinar status de inspección - usar el status de la orden si existe, sino calcular basado en tests
+    const statusInspeccion = order.status || (testsReprobados > 0 ? 'Rechazado' : 'Aprobado')
     
     // Calcular porcentaje de calidad
     const porcentajeCalidad = tests.length > 0 ? 
@@ -108,11 +108,41 @@ export default defineEventHandler(async (event) => {
       inspector: order.inspector_calidad
     }
     
+    // Mapear campos de la base de datos a los nombres esperados por el frontend
+    const ordenMapeada = {
+      id: order.id,
+      cliente: order.cliente,
+      producto: order.producto,
+      codigoProducto: order.codigo_producto,
+      pedido: order.pedido,
+      lote: order.lote,
+      fechaFabricacion: order.fecha_fabricacion,
+      turno: order.turno,
+      maquina: order.maquina,
+      numeroOperario: order.numero_operario,
+      inspectorCalidad: order.inspector_calidad,
+      jefeTurno: order.jefe_de_turno,
+      ordenCompra: order.orden_de_compra,
+      unidadesPorEmbalaje: order.unidades_por_embalaje,
+      cantidadEmbalajes: order.cantidad_embalajes,
+      muestreoReal: order.muestreo_real,
+      status: order.status,
+      createdAt: order.created_at
+    }
+
+    // Mapear tests con nombres correctos
+    const testsMapeados = tests.map((test: OrderTest) => ({
+      id: test.id,
+      aprobado: test.aprobado,
+      cantidadUnidadesConFalla: test.cantidad_unidades_con_falla,
+      tests: test.tests
+    }))
+
     return {
       success: true,
       data: {
-        orden: order,
-        tests,
+        orden: ordenMapeada,
+        tests: testsMapeados,
         resumenInspeccion,
         message: `Orden ${statusInspeccion.toLowerCase()} - ${testsAprobados}/${tests.length} tests aprobados`
       }

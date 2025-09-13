@@ -44,7 +44,7 @@
               <dt class="text-xs sm:text-sm font-medium text-yellow-800">
                 {{ shouldShowAllStats ? 'Inspecciones Realizadas' : 'Mis Inspecciones Realizadas' }}
               </dt>
-              <dd class="text-xl sm:text-2xl font-bold text-yellow-900">{{ metrics.pending }}</dd>
+              <dd class="text-xl sm:text-2xl font-bold text-yellow-900">{{ metrics.completed + metrics.rejected }}</dd>
             </div>
           </div>
         </BaseCard>
@@ -285,6 +285,8 @@ async function loadDashboardData() {
     
     // Cargar métricas reales desde la API
     await fetchMetrics()
+
+    // Métricas cargadas exitosamente
 
     // Si hay error en las métricas, mostrar notificación
     if (metricsError.value) {
