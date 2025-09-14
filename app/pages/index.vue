@@ -184,7 +184,13 @@
 
             <template #customer-data="{ row }">
               <div class="text-gray-700">
-                {{ (row.customers as any)?.name || 'Unknown' }}
+                {{ row.cliente || 'Cliente no especificado' }}
+              </div>
+            </template>
+
+            <template #product-data="{ row }">
+              <div class="text-gray-700 max-w-xs truncate" :title="row.producto">
+                {{ row.producto || 'Producto no especificado' }}
               </div>
             </template>
 
@@ -198,15 +204,15 @@
               </BaseBadge>
             </template>
 
-            <template #amount-data="{ row }">
-              <div class="font-medium text-gray-900">
-                ${{ (row.total_amount as number).toFixed(2) }}
+            <template #inspector-data="{ row }">
+              <div class="text-gray-600 text-sm">
+                {{ row.inspector_calidad || 'No asignado' }}
               </div>
             </template>
 
             <template #date-data="{ row }">
               <div class="text-gray-600">
-                {{ formatDate(row.order_date as string) }}
+                {{ formatDate(row.created_at as string) }}
               </div>
             </template>
           </BaseTable>
@@ -256,11 +262,12 @@ const recentOrders = ref([])
 
 /** Configuración de columnas para la tabla de órdenes recientes */
 const tableColumns = ref([
-  { key: 'order', label: 'Order' },
-  { key: 'customer', label: 'Customer' },
-  { key: 'status', label: 'Status' },
-  { key: 'amount', label: 'Amount' },
-  { key: 'date', label: 'Date' }
+  { key: 'order', label: 'Orden' },
+  { key: 'customer', label: 'Cliente' },
+  { key: 'product', label: 'Producto' },
+  { key: 'status', label: 'Estado' },
+  { key: 'inspector', label: 'Inspector' },
+  { key: 'date', label: 'Fecha' }
 ])
 
 onMounted(async () => {
@@ -286,7 +293,14 @@ async function loadDashboardData() {
     // Cargar métricas reales desde la API
     await fetchMetrics()
 
-    // Métricas cargadas exitosamente
+    // Cargar órdenes recientes desde la API
+    try {
+      const response = await $fetch('/api/orders?limit=5&page=1')
+      recentOrders.value = response.data || []
+    } catch (ordersError) {
+      console.error('Error loading recent orders:', ordersError)
+      toast.warning('Datos Parciales', 'No se pudieron cargar las liberaciones recientes')
+    }
 
     // Si hay error en las métricas, mostrar notificación
     if (metricsError.value) {
@@ -324,10 +338,12 @@ const shouldShowAllStats = computed(() => {
  */
 function getStatusColor(status: string): 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink' {
   const colors: Record<string, 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'indigo' | 'purple' | 'pink'> = {
-    pending: 'yellow',    // Amarillo para pendientes
-    processing: 'blue',   // Azul para en proceso
-    completed: 'green',   // Verde para completadas
-    cancelled: 'red'      // Rojo para canceladas
+    'Aprobado': 'green',    // Verde para aprobado
+    'Rechazado': 'red',     // Rojo para rechazado
+    pending: 'yellow',      // Amarillo para pendientes
+    processing: 'blue',     // Azul para en proceso
+    completed: 'green',     // Verde para completadas
+    cancelled: 'red'        // Rojo para canceladas
   }
   return colors[status] || 'gray' // Gris como fallback
 }
