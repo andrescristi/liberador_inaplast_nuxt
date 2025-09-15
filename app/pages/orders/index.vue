@@ -101,7 +101,7 @@
               v-model="filters.search"
               type="text"
               class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-              placeholder="Buscar por cliente, producto, pedido, inspector..."
+              placeholder="Buscar por cliente, producto, pedido, inspector, número de orden..."
               @input="debouncedSearch"
             />
           </div>
@@ -220,7 +220,7 @@
                   ></div>
                   <p class="text-lg font-semibold text-blue-600">
                     <NuxtLink :to="`/orders/${order.id}`" class="hover:underline">
-                      Orden #{{ order.id.slice(0, 8) }}
+                      Orden #{{ order.numero_orden }}
                     </NuxtLink>
                   </p>
                   <span 
@@ -654,7 +654,7 @@ const exportToExcel = async () => {
     
     // Preparar los datos para Excel
     const excelData = ordersToExport.map(order => ({
-      'ID de Orden': order.id.slice(0, 8),
+      'Número de Orden': order.numero_orden,
       'Cliente': order.cliente,
       'Producto': order.producto,
       'Pedido': order.pedido,

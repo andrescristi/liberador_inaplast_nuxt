@@ -113,6 +113,7 @@ export default defineEventHandler(async (event) => {
     // Mapear campos de la base de datos a los nombres esperados por el frontend
     const ordenMapeada = {
       id: order.id,
+      numeroOrden: order.numero_orden,
       cliente: order.cliente,
       producto: order.producto,
       codigoProducto: order.codigo_producto,

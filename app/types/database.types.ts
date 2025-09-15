@@ -89,6 +89,7 @@ export type Database = {
           muestreo_real: number | null
           muestreo_recomendado: number | null
           numero_operario: string
+          numero_orden: number
           orden_de_compra: string | null
           pedido: string
           producto: string
@@ -111,6 +112,7 @@ export type Database = {
           muestreo_real?: number | null
           muestreo_recomendado?: number | null
           numero_operario: string
+          numero_orden?: number
           orden_de_compra?: string | null
           pedido: string
           producto: string
@@ -133,6 +135,7 @@ export type Database = {
           muestreo_real?: number | null
           muestreo_recomendado?: number | null
           numero_operario?: string
+          numero_orden?: number
           orden_de_compra?: string | null
           pedido?: string
           producto?: string

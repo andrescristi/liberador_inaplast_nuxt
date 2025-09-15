@@ -31,6 +31,7 @@ export interface Order {
   id: string
   created_at: string
   updated_at: string
+  numero_orden: number
   lote?: string
   cliente: string
   producto: string

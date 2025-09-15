@@ -168,10 +168,11 @@ export class SupabaseAPI {
       throw new Error('Order creation failed')
     }
 
-    const validOrder = order!
+    const validOrder = order! as Database['public']['Tables']['orders']['Row']
 
     return {
       id: validOrder.id!,
+      numero_orden: validOrder.numero_orden || 0,
       cliente: orderData.cliente,
       producto: orderData.producto,
       pedido: orderData.pedido,

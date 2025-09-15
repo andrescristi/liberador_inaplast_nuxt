@@ -20,7 +20,6 @@ interface MetricsResponse {
 
 export function useDashboardMetrics() {
   const supabaseUser = useSupabaseUser()
-  const supabaseClient = useSupabaseClient()
   
   // Estados reactivos
   const metrics = ref<DashboardMetrics>({
@@ -47,20 +46,8 @@ export function useDashboardMetrics() {
       loading.value = true
       error.value = null
 
-      // Obtener sesión actual
-      const { data: { session } } = await supabaseClient.auth.getSession()
-      const accessToken = session?.access_token
-
-      if (!accessToken) {
-        throw new Error('No se pudo obtener token de acceso')
-      }
-
-      // Llamar a la API con el token de autorización
-      const response: MetricsResponse = await $fetch('/api/dashboard/metrics', {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
-      })
+      // Llamar a la API - la autenticación se maneja automáticamente por Nuxt Supabase
+      const response: MetricsResponse = await $fetch('/api/dashboard/metrics')
 
       if (response.success) {
         metrics.value = response.data
@@ -71,7 +58,7 @@ export function useDashboardMetrics() {
 
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error desconocido'
-      
+
       // Fallback con datos vacíos
       metrics.value = {
         pending: 0,

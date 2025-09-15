@@ -36,7 +36,7 @@
             Volver a Órdenes
           </button>
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Orden #{{ orderId }}</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Orden #{{ orderData.orden.numeroOrden }}</h1>
             <p class="text-gray-600 mt-1">{{ formatDate(orderData.orden.createdAt) }}</p>
           </div>
         </div>
@@ -291,6 +291,7 @@
 interface OrderData {
   orden: {
     id: number
+    numeroOrden: number
     cliente: string
     producto: string
     codigoProducto: string
@@ -364,7 +365,7 @@ const fetchOrder = async () => {
     const { data } = await $fetch<{ success: boolean, data: OrderData }>(`/api/orders/${orderId}`)
     orderData.value = data
   } catch (err: unknown) {
-    error.value = (err as any)?.data?.message || 'Error al cargar la orden'
+    error.value = (err as { data?: { message?: string } })?.data?.message || 'Error al cargar la orden'
   } finally {
     loading.value = false
   }
@@ -408,7 +409,7 @@ const exportToPDF = async () => {
     // Título del documento
     doc.setFontSize(20)
     doc.setFont('helvetica', 'bold')
-    doc.text(`Orden #${orderId}`, margin, yPosition)
+    doc.text(`Orden #${orderData.value.orden.numeroOrden}`, margin, yPosition)
     yPosition += 15
     
     // Fecha de creación
@@ -539,7 +540,7 @@ const exportToPDF = async () => {
     })
     
     // Guardar el PDF
-    const fileName = `orden-${orderId}-${new Date().toISOString().split('T')[0]}.pdf`
+    const fileName = `orden-${orderData.value.orden.numeroOrden}-${new Date().toISOString().split('T')[0]}.pdf`
     doc.save(fileName)
     
   } catch {
@@ -573,7 +574,7 @@ const exportQRCodePDF = async () => {
         const serverIp = serverIpResponse.success ? serverIpResponse.ip : 'localhost'
         const currentPort = window.location.port || '3000'
         baseDomain = `http://${serverIp}:${currentPort}`
-      } catch (error) {
+      } catch {
         // Fallback si falla la API
         baseDomain = window.location.origin
       }
@@ -647,8 +648,8 @@ onMounted(() => {
 })
 
 useSeoMeta({
-  title: `Orden ${orderId} - Sistema de Inspección`,
-  description: `Detalles de la orden ${orderId} incluyendo resultados de inspección y tests de calidad.`
+  title: computed(() => orderData.value ? `Orden ${orderData.value.orden.numeroOrden} - Sistema de Inspección` : `Orden ${orderId} - Sistema de Inspección`),
+  description: computed(() => orderData.value ? `Detalles de la orden ${orderData.value.orden.numeroOrden} incluyendo resultados de inspección y tests de calidad.` : `Detalles de la orden ${orderId} incluyendo resultados de inspección y tests de calidad.`)
 })
 
 definePageMeta({

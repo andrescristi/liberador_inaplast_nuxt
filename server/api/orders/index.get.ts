@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     
     if (search) {
       queryBuilder = queryBuilder.or(
-        `cliente.ilike.%${search}%,producto.ilike.%${search}%,pedido.ilike.%${search}%,inspector_calidad.ilike.%${search}%`
+        `cliente.ilike.%${search}%,producto.ilike.%${search}%,pedido.ilike.%${search}%,inspector_calidad.ilike.%${search}%,numero_orden.eq.${parseInt(search) || 0}`
       )
     }
     

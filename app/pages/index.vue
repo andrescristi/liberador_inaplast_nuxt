@@ -178,7 +178,7 @@
           >
             <template #order-data="{ row }">
               <div class="font-medium text-gray-900">
-                #{{ (row.id as string).slice(0, 8) }}
+                #{{ row.numeroOrden || row.numero_orden }}
               </div>
             </template>
 

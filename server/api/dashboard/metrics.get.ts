@@ -1,16 +1,21 @@
-import { createClient } from '@supabase/supabase-js'
-import type { H3Event } from 'h3'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   try {
-    const user = await requireAuthenticatedUser(event)
+    // Obtener usuario autenticado
+    const user = await serverSupabaseUser(event)
+
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Usuario no autenticado'
+      })
+    }
+
     const userRole = user.user_metadata?.user_role || 'User'
-    
-    // Inicializar cliente Supabase con service role para queries administrativas
-    const supabase = createClient(
-      process.env.NUXT_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NUXT_SUPABASE_ANON_KEY!
-    )
+
+    // Usar serverSupabaseServiceRole para bypass de RLS
+    const supabase = serverSupabaseServiceRole(event)
 
     let metrics = {
       pending: 0,
@@ -79,18 +84,7 @@ export default defineEventHandler(async (event) => {
         metrics.customers = uniqueCustomers.size
       }
 
-      // Implementación temporal: usar datos reales conocidos
-      // TODO: Resolver problema de conexión a BD que devuelve arrays vacíos
-      // Por ahora usamos los datos que confirmamos existen en la BD
-      if (allOrders && allOrders.length === 0) {
-        // Datos reales confirmados en BD: 2 órdenes rechazadas de "AGUACOL/COMERCIAL JJV SPA"
-        metrics = {
-          pending: 0,
-          completed: 0,
-          rejected: 2,
-          customers: 1
-        }
-      }
+      // Los datos ahora deberían venir correctamente de Supabase
     }
 
     
@@ -118,35 +112,3 @@ export default defineEventHandler(async (event) => {
     }
   }
 })
-
-/**
- * Helper function para requerir usuario autenticado
- */
-async function requireAuthenticatedUser(event: H3Event) {
-  const headers = getHeaders(event)
-  const authHeader = headers.authorization
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Token de autorización requerido'
-    })
-  }
-
-  const token = authHeader.substring(7)
-  const supabase = createClient(
-    process.env.NUXT_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NUXT_SUPABASE_ANON_KEY!
-  )
-
-  const { data: { user }, error } = await supabase.auth.getUser(token)
-  
-  if (error || !user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Token inválido o expirado'
-    })
-  }
-
-  return user
-}
