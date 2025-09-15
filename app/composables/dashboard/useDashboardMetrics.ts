@@ -70,7 +70,6 @@ export function useDashboardMetrics() {
       }
 
     } catch (err) {
-      console.error('Error fetching dashboard metrics:', err)
       error.value = err instanceof Error ? err.message : 'Error desconocido'
       
       // Fallback con datos vacíos

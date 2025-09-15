@@ -43,6 +43,7 @@ export default defineEventHandler(async (event) => {
     const { data: orders, error, count } = await queryBuilder
     
     if (error) {
+      // eslint-disable-next-line no-console
       console.error('Error obteniendo orders:', error)
       throw createError({
         statusCode: 500,
@@ -69,6 +70,7 @@ export default defineEventHandler(async (event) => {
     }
     
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error en API orders/list:', error)
     
     // Si es un error de createError, re-lanzarlo

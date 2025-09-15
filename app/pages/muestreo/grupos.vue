@@ -409,7 +409,7 @@ const fetchGrupos = async () => {
     totalGrupos.value = response.total
     totalPages.value = response.total_pages
   } catch (error) {
-    console.error('Error fetching grupos:', error)
+    // Error fetching grupos
   } finally {
     loading.value = false
   }
@@ -419,7 +419,7 @@ const fetchStats = async () => {
   try {
     stats.value = await muestreoAPI.getEstadisticasMuestreo()
   } catch (error) {
-    console.error('Error fetching stats:', error)
+    // Error fetching stats
   }
 }
 
@@ -455,7 +455,7 @@ const deleteGrupo = async () => {
     grupoToDelete.value = null
     await Promise.all([fetchGrupos(), fetchStats()])
   } catch (error) {
-    console.error('Error deleting grupo:', error)
+    // Error deleting grupo
   }
 }
 

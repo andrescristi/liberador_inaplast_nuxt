@@ -93,7 +93,6 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // console.log('✅ [Dashboard Metrics API] Métricas calculadas:', metrics)
     
     return {
       success: true,
@@ -103,6 +102,7 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error fetching dashboard metrics:', error)
     
     return {

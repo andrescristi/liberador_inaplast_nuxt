@@ -145,6 +145,7 @@ export const useAuthStore = defineStore('auth', {
         this.setError(null)
         
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Error durante logout en store:', error)
         // Limpiar estado de todas formas
         this.setUser(null)
@@ -180,6 +181,7 @@ export const useAuthStore = defineStore('auth', {
         return isAuthenticated
         
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Error verificando autenticación:', error)
         this.setUser(null)
         this.setInitialized(true)
@@ -202,6 +204,7 @@ export const useAuthStore = defineStore('auth', {
         return true
         
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Error refrescando sesión:', error)
         // Si falla el refresh, limpiar estado
         this.setUser(null)

@@ -370,7 +370,7 @@ const fetchPlanes = async () => {
     totalPlanes.value = response.total
     totalPages.value = response.total_pages
   } catch (error) {
-    console.error('Error fetching planes:', error)
+    // Error fetching planes
   } finally {
     loading.value = false
   }
@@ -380,7 +380,7 @@ const fetchStats = async () => {
   try {
     stats.value = await muestreoAPI.getEstadisticasMuestreo()
   } catch (error) {
-    console.error('Error fetching stats:', error)
+    // Error fetching stats
   }
 }
 
@@ -411,7 +411,7 @@ const deletePlan = async () => {
     planToDelete.value = null
     await Promise.all([fetchPlanes(), fetchStats()])
   } catch (error) {
-    console.error('Error deleting plan:', error)
+    // Error deleting plan
   }
 }
 

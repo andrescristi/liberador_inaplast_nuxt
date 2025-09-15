@@ -228,7 +228,6 @@ const processImageOCR = async () => {
 
 const handleOCRComplete = (extractedData: OCRData) => {
   ocrData.value = extractedData
-  console.log('extracted  Data:', extractedData)
   emit('ocr-complete', extractedData)
 }
 </script>

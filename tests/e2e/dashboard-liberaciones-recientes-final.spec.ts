@@ -36,22 +36,18 @@ test.describe('Dashboard - Liberaciones Recientes - Verificación Final', () => 
     const table = await page.locator('table').isVisible()
     
     if (noDataMessage && createButton) {
-      console.log('✅ Dashboard muestra correctamente el estado inicial sin liberaciones')
       
       // Verificar que el botón "Crear Liberación" es funcional
       expect(createButton, 'Debe mostrar botón para crear liberación').toBe(true)
       
       // Verificar métricas del usuario (pueden estar en 0 inicialmente)
       const metrics = await page.locator('dd').allTextContents()
-      console.log('Métricas mostradas:', metrics)
       expect(metrics.length, 'Debe mostrar métricas del usuario').toBeGreaterThanOrEqual(3)
       
     } else if (table) {
-      console.log('✅ Dashboard muestra tabla con liberaciones existentes')
       
       // Verificar headers de la tabla si existe
       const headers = await page.locator('th').allTextContents()
-      console.log('Headers de tabla:', headers)
       expect(headers.length, 'La tabla debe tener columnas').toBeGreaterThan(0)
     }
     
@@ -65,7 +61,6 @@ test.describe('Dashboard - Liberaciones Recientes - Verificación Final', () => 
       fullPage: true 
     })
     
-    console.log('✅ Verificación completa: La sección "Liberaciones Recientes" está funcionando correctamente')
   })
   
   test('debe verificar la funcionalidad de navegación desde el dashboard', async ({ page }) => {
@@ -83,6 +78,5 @@ test.describe('Dashboard - Liberaciones Recientes - Verificación Final', () => 
     const goToHistoryLink = page.locator('text=Ir a historial')
     await expect(goToHistoryLink).toBeVisible()
     
-    console.log('✅ Todos los elementos de navegación están presentes y visibles')
   })
 })

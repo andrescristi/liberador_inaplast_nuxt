@@ -51,10 +51,9 @@ export const useAuthProfile = () => {
    */
   const getCurrentUserProfile = async (force = false): Promise<Profile | null> => {
     const hasJWT = hasValidJWT()
-    console.log('🔍 [useAuthProfile] Iniciando getCurrentUserProfile...', { hasValidJWT: hasJWT, force })
+    // Getting current user profile
     
     if (!hasJWT) {
-      console.log('❌ [useAuthProfile] No hay JWT válido')
       return null
     }
 
@@ -62,7 +61,6 @@ export const useAuthProfile = () => {
     if (!force && profile.value && lastProfileFetch.value) {
       const timeSinceLastFetch = Date.now() - lastProfileFetch.value.getTime()
       if (timeSinceLastFetch < PROFILE_CACHE_DURATION) {
-        console.log('✅ [useAuthProfile] Usando cache del perfil')
         return profile.value
       }
     }
@@ -71,11 +69,11 @@ export const useAuthProfile = () => {
       isProfileLoading.value = true
       profileError.value = null
       
-      console.log('🌐 [useAuthProfile] Haciendo fetch a /api/auth/profile...')
+      // Fetching profile from API
       const response = await $fetch<ProfileResponse>('/api/auth/profile', {
         headers: getAuthHeaders()
       })
-      console.log('✅ [useAuthProfile] Respuesta recibida:', response)
+      // Profile response received
       
       // Convertir respuesta API a formato Profile
       const profileData: Profile = {
@@ -92,7 +90,7 @@ export const useAuthProfile = () => {
       
       profile.value = profileData
       lastProfileFetch.value = new Date()
-      console.log('✅ [useAuthProfile] Perfil guardado exitosamente:', profileData)
+      // Profile saved successfully
       
       return profileData
     } catch (error) {
@@ -100,7 +98,7 @@ export const useAuthProfile = () => {
       profileError.value = errorMessage
       profile.value = null
       
-      // Log del error
+      // eslint-disable-next-line no-console
       console.error('❌ [useAuthProfile] Error fetching user profile:', errorMessage, error)
       
       return null

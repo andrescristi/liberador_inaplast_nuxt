@@ -39,6 +39,7 @@ export default defineEventHandler(async (event) => {
       .single()
 
     if (error) {
+      // eslint-disable-next-line no-console
       console.error('Error obteniendo perfil desde BD:', error)
       throw createError({
         statusCode: 404,

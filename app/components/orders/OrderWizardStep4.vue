@@ -252,9 +252,8 @@ const handleSave = async () => {
   } catch (error) {
     // El error ya se maneja en el composable useOrderAPI con toast
     // Solo rethrow si es necesario para debuging en desarrollo
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error al guardar la orden:', error)
-    }
+    // eslint-disable-next-line no-console
+    console.error('Error al guardar la orden:', error)
   }
 }
 

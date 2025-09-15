@@ -16,8 +16,6 @@ test.describe('Vercel Deployment', () => {
     // Esperar que la página cargue
     await expect(page).toHaveTitle(/Iniciar Sesión/)
 
-    console.log('🔐 Por favor, ingresa las credenciales de login manualmente en el navegador')
-    console.log('⏱️  Tienes 20 segundos para completar el login...')
     
     // Esperar 20 segundos para que el usuario pueda ingresar credenciales manualmente
     await page.waitForTimeout(20000)
@@ -32,8 +30,6 @@ test.describe('Vercel Deployment', () => {
   test('should display CoreAppNavigation component with login wait', async ({ page }) => {
     await page.goto('/')
 
-    console.log('🔐 Ingresa credenciales para probar la navegación')
-    console.log('⏱️  Tienes 20 segundos...')
     
     // Esperar 20 segundos para login manual
     await page.waitForTimeout(20000)

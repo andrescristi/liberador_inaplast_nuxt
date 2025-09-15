@@ -1,4 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+
+// Cargar variables de entorno
+dotenv.config();
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -16,6 +20,8 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
+  // Hacer variables de entorno disponibles para los tests
+  reportSlowTests: null,
   projects: [
     {
       name: 'chromium',

@@ -40,6 +40,7 @@ export default defineEventHandler(async (event) => {
       .single()
     
     if (orderError) {
+      // eslint-disable-next-line no-console
       console.error('Error obteniendo orden:', orderError)
       
       if (orderError.code === 'PGRST116') {
@@ -73,6 +74,7 @@ export default defineEventHandler(async (event) => {
       .eq('"order"', orderId)
     
     if (testsError) {
+      // eslint-disable-next-line no-console
       console.error('Error obteniendo tests de la orden:', testsError)
       // No es un error crítico, continuamos sin los tests
     }
@@ -149,6 +151,7 @@ export default defineEventHandler(async (event) => {
     }
     
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error en API orders/[id]:', error)
     
     // Si es un error de createError, re-lanzarlo

@@ -6,14 +6,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     // Verificar que Pinia esté disponible antes del mount
     const pinia = nuxtApp.$pinia
     if (!pinia) {
-      console.warn('[Pinia Plugin] Pinia not available before mount')
+      // Pinia not available before mount
     }
   })
   
   nuxtApp.hook('app:mounted', () => {
     // Pinia completamente inicializado en cliente
-    if (import.meta.dev) {
-      console.log('[Pinia Plugin] Client initialized successfully')
-    }
+    // Pinia client initialized
   })
 })

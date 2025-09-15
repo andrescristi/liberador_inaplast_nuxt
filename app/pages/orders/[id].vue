@@ -528,7 +528,6 @@ const exportToPDF = async () => {
     doc.save(fileName)
     
   } catch (error) {
-    console.error('Error generando PDF:', error)
     alert('Error al generar el PDF. Por favor, inténtalo de nuevo.')
   }
 }

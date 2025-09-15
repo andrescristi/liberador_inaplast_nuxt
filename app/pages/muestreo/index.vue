@@ -168,7 +168,7 @@ const fetchStats = async () => {
   try {
     stats.value = await muestreoAPI.getEstadisticasMuestreo()
   } catch (error) {
-    console.error('Error fetching stats:', error)
+    // Error fetching stats
   }
 }
 

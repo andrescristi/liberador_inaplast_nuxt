@@ -95,6 +95,7 @@ export class SupabaseAPI {
 
       return response
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error fetching orders:', error)
       throw new Error('Failed to fetch orders')
     }

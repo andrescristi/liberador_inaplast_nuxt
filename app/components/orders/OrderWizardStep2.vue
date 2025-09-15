@@ -347,7 +347,6 @@ const toast = useToast()
 
 // Check if we have OCR data when component mounts
 onMounted(() => {
-  console.log('Step2 - props.modelValue.unidadesPorEmbalaje:', props.modelValue.unidadesPorEmbalaje)
   const hasData = props.modelValue.cliente || props.modelValue.producto || props.modelValue.lote || props.modelValue.unidadesPorEmbalaje
   if (hasData) {
     hasOCRData.value = true
@@ -368,7 +367,6 @@ watch(values, (formValues) => {
 
 // Watch for incoming OCR data from parent
 watch(() => props.modelValue, (newValue, oldValue) => {
-  console.log('Step2 - Watch triggered, newValue.unidadesPorEmbalaje:', newValue.unidadesPorEmbalaje, 'oldValue?.unidadesPorEmbalaje:', oldValue?.unidadesPorEmbalaje)
   // Update form fields with new values from OCR
   setFieldValue('lote', newValue.lote || '')
   setFieldValue('cliente', newValue.cliente || '')
@@ -383,7 +381,6 @@ watch(() => props.modelValue, (newValue, oldValue) => {
   setFieldValue('maquina', newValue.maquina || '')
   setFieldValue('inspectorCalidad', newValue.inspectorCalidad || '')
   setFieldValue('unidadesPorEmbalaje', newValue.unidadesPorEmbalaje)
-  console.log('Step2 - After setFieldValue, unidadesPorEmbalaje.value:', unidadesPorEmbalaje.value)
   
   // Show toast notification if new OCR data arrives
   const hasNewData = (newValue.cliente && !oldValue?.cliente) || 

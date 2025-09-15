@@ -233,7 +233,7 @@ export async function verifyHybridAuth(event: H3Event) {
   // RECUPERACIÓN AUTOMÁTICA DE SESIÓN PARA DESARROLLO
   // Si JWT es válido pero sesión no existe (servidor reiniciado), recrear sesión
   if (!session && (process.env.NODE_ENV as string) === 'development') {
-    console.log('🔄 Sesión perdida detectada en desarrollo. Recreando sesión...')
+    // Session lost in development, recreating session
     
     // Crear nueva sesión usando datos del JWT
     const now = Date.now()
@@ -255,7 +255,7 @@ export async function verifyHybridAuth(event: H3Event) {
     })
     
     session = sessionStore.get(sessionId) || null
-    console.log('✅ Sesión recreada exitosamente para:', jwtPayload.email)
+    // Session recreated successfully
   }
   
   if (!session) {

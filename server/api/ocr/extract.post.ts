@@ -55,14 +55,12 @@ export default defineEventHandler(async (event): Promise<OCRResponse> => {
     
     // Log de inicio de procesamiento
     const startTime = Date.now()
-    console.log('🔍 Iniciando procesamiento OCR...')
 
     // Leer el cuerpo de la petición con timeout y límite de tamaño
     const body = await readBody<OCRRequest>(event)
     
     // Log del tamaño de payload recibido
     const payloadSize = JSON.stringify(body).length
-    console.log(`📊 Payload recibido: ${(payloadSize / 1024 / 1024).toFixed(2)}MB`)
 
     // Validar los datos requeridos
     if (!body.imageData || !body.mimeType) {
@@ -145,7 +143,6 @@ export default defineEventHandler(async (event): Promise<OCRResponse> => {
           size: finalBuffer.length
         }
       } catch (error) {
-        console.log('Error comprimiendo imagen:', error)
         // Fallback: devolver imagen original
         return {
           data: base64Data,
@@ -158,7 +155,6 @@ export default defineEventHandler(async (event): Promise<OCRResponse> => {
     const cleanImageData = body.imageData.replace(/^data:image\/[a-z]+;base64,/, '')
     const originalSize = Buffer.from(cleanImageData, 'base64').length
     
-    console.log(`📷 Imagen original: ${(originalSize / 1024).toFixed(2)}KB`)
     
     // Si la imagen ya es pequeña, evitar compresión innecesaria
     let finalImageData = cleanImageData
@@ -168,9 +164,7 @@ export default defineEventHandler(async (event): Promise<OCRResponse> => {
       const { data: compressedImageData, size: compressedSize } = await compressImage(cleanImageData)
       finalImageData = compressedImageData
       finalSize = compressedSize
-      console.log(`⚙️ Imagen comprimida: ${(finalSize / 1024).toFixed(2)}KB`)
     } else {
-      console.log('✅ Imagen ya optimizada, omitiendo compresión')
     }
 
     // Inicializar el cliente de Gemini
@@ -234,7 +228,6 @@ JSON:
 `
 
     // Log antes de llamar a Gemini
-    console.log(`🤖 Enviando a Gemini API - Tamaño final: ${(finalSize / 1024).toFixed(2)}KB`)
     
     // Llamar a la API de Gemini con timeout
     const response = await Promise.race([
@@ -250,7 +243,6 @@ JSON:
     // Extraer el texto de la respuesta
     const rawResponse = response.text?.trim() || ''
 
-    console.log('rawResponse', rawResponse)
 
     if (!rawResponse) {
       return {
@@ -303,7 +295,6 @@ JSON:
 
         // Log de tiempo de procesamiento
         const processingTime = Date.now() - startTime
-        console.log(`✅ OCR con datos estructurados completado en ${processingTime}ms`)
         
         return {
           text: parsedData.rawText || '',
@@ -325,7 +316,6 @@ JSON:
 
     // Log de tiempo de procesamiento
     const processingTime = Date.now() - startTime
-    console.log(`✅ OCR completado en ${processingTime}ms`)
     
     return {
       text: rawResponse,
@@ -341,6 +331,7 @@ JSON:
     }
 
   } catch (error: unknown) {
+    // eslint-disable-next-line no-console
     console.error('❌ Error en OCR:', error)
 
     // Manejar errores específicos de la API de Gemini

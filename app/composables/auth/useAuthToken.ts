@@ -23,6 +23,7 @@ export const useAuthToken = () => {
     try {
       localStorage.setItem(AUTH_TOKEN_KEY, JSON.stringify(tokenData))
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error saving auth token:', error)
     }
   }
@@ -47,6 +48,7 @@ export const useAuthToken = () => {
       
       return token
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error retrieving auth token:', error)
       removeToken()
       return null
@@ -62,6 +64,7 @@ export const useAuthToken = () => {
     try {
       localStorage.removeItem(AUTH_TOKEN_KEY)
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error removing auth token:', error)
     }
   }

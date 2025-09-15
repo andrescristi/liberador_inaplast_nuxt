@@ -225,8 +225,6 @@ export default defineEventHandler(async (event) => {
       inspector_calidad: body.inspector_calidad,
       status: orderStatus
     }
-    console.log('orderData')
-    console.log(orderData)
     
     // Crear la orden
     const { data: order, error: orderError } = await supabase

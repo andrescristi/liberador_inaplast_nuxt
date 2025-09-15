@@ -24,7 +24,7 @@
     </div>
     
     <!-- Trailing icon or button -->
-    <div v-if="trailingIcon || $slots.trailing" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+    <div v-if="trailingIcon || $slots.trailing" class="absolute inset-y-0 right-0 pr-3 flex items-center z-20">
       <slot name="trailing">
         <Icon
 v-if="trailingIcon"
@@ -133,6 +133,7 @@ interface Emits {
 }
 
 const emit = defineEmits<Emits>()
+const slots = useSlots()
 
 /**
  * Determina el tag HTML a renderizar (input o textarea)
@@ -199,7 +200,7 @@ const inputClasses = computed(() => {
     classes.push('pl-10')
   }
   
-  if (props.trailingIcon) {
+  if (props.trailingIcon || slots.trailing) {
     classes.push('pr-10')
   }
   

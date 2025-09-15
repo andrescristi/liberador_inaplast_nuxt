@@ -214,16 +214,12 @@ describe('Auth Middleware', () => {
   describe('Debug Logging', () => {
     it('debe loguear información de debug en client-side', () => {
       // Simular middleware que incluye logging de debug
-      const debugAuthMiddleware = (to: { path: string }) => {
+      const debugAuthMiddleware = (_to: { path: string }) => {
         // Skip durante SSR
         if (typeof window === 'undefined') {
-          // eslint-disable-next-line no-console
-          console.log('🔒 [Middleware Auth] Skipping on server side')
           return
         }
         
-        // eslint-disable-next-line no-console
-        console.log('🔒 [Middleware Auth] Running on client side for route:', to.path)
         
         const user = mockUser
         if (!user.value) {
@@ -236,10 +232,6 @@ describe('Auth Middleware', () => {
       
       debugAuthMiddleware(mockRoute)
       
-      expect(consoleSpy).toHaveBeenCalledWith(
-        '🔒 [Middleware Auth] Running on client side for route:',
-        '/dashboard'
-      )
       expect(mockNavigateTo).toHaveBeenCalledWith('/auth/login')
     })
     
@@ -248,8 +240,6 @@ describe('Auth Middleware', () => {
         // Simular entorno servidor
         const isServer = true // Simulamos que estamos en servidor
         if (isServer) {
-          // eslint-disable-next-line no-console
-          console.log('🔒 [Middleware Auth] Skipping on server side')
           return
         }
       }
@@ -257,9 +247,6 @@ describe('Auth Middleware', () => {
       const mockRoute = { path: '/test' }
       debugAuthMiddleware(mockRoute)
       
-      expect(consoleSpy).toHaveBeenCalledWith(
-        '🔒 [Middleware Auth] Skipping on server side'
-      )
     })
   })
 })

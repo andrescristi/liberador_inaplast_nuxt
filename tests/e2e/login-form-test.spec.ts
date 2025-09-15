@@ -186,7 +186,6 @@ test.describe('Login Form Functionality Tests', () => {
     
     // Check if there are JavaScript errors
     if (errors.length > 0) {
-      console.log('JavaScript Errors Found:', errors)
     }
     
     expect(errors.length).toBe(0)
@@ -276,7 +275,6 @@ test.describe('Login Form Functionality Tests', () => {
     await page.waitForSelector('form')
     const loadTime = Date.now() - startTime
     
-    console.log(`Page load time: ${loadTime}ms`)
     expect(loadTime).toBeLessThan(5000) // Should load within 5 seconds
   })
 })

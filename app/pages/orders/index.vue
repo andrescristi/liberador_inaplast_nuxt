@@ -518,7 +518,6 @@ const fetchOrders = async () => {
     await calculateStats()
     
   } catch (error) {
-    console.error('Error fetching orders:', error)
     // TODO: Mostrar toast de error
   } finally {
     loading.value = false
@@ -545,7 +544,6 @@ const calculateStats = async () => {
     ).length
     
   } catch (error) {
-    console.error('Error calculating stats:', error)
     // Establecer valores por defecto en caso de error
     stats.value = {
       total: 0,
@@ -730,7 +728,6 @@ const exportToExcel = async () => {
     alert(`Se han exportado ${ordersToExport.length} órdenes a Excel exitosamente`)
     
   } catch (error) {
-    console.error('Error exporting to Excel:', error)
     alert('Error al exportar a Excel. Por favor, inténtalo de nuevo.')
   } finally {
     exporting.value = false

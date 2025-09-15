@@ -107,9 +107,8 @@ export const useAuthState = () => {
       }
       
       // Log del error en desarrollo
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching user:', errorMessage, 'Retry count:', retryCount)
-      }
+      // eslint-disable-next-line no-console
+      console.error('Error fetching user:', errorMessage, 'Retry count:', retryCount)
     } finally {
       isLoading.value = false
     }

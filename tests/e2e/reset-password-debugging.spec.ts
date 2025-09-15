@@ -9,96 +9,82 @@ test.describe('Reset Password Flow - Debugging', () => {
   })
 
   test('Diagnóstico inicial - verificar disponibilidad de la página', async ({ page }) => {
-    console.log('🔍 Verificando que la página de reset sea accesible...')
-    
     // Intentar navegar directamente a la página (sin token)
     await page.goto(`${baseURL}/auth/reset-password`)
-    
+
     // Capturar screenshot de la página inicial
-    await page.screenshot({ 
+    await page.screenshot({
       path: 'screenshots/reset-password-page-initial.png',
-      fullPage: true 
+      fullPage: true
     })
-    
+
     // Verificar que se carga la página
     await expect(page.locator('h2')).toContainText('Restablecer Contraseña')
-    
-    console.log('✅ Página de reset accesible')
   })
 
   test('Escenario 1 - Validación de contraseñas no coincidentes', async ({ page }) => {
-    console.log('🔍 Probando validación de contraseñas no coincidentes...')
-    
     await page.goto(`${baseURL}/auth/reset-password`)
-    
+
     // Llenar el formulario con contraseñas diferentes
     await page.fill('#password', 'nuevaPassword123')
     await page.fill('#confirmPassword', 'diferentePassword456')
-    
+
     // Capturar estado antes de enviar
-    await page.screenshot({ 
+    await page.screenshot({
       path: 'screenshots/reset-password-different-passwords-before.png',
-      fullPage: true 
+      fullPage: true
     })
-    
+
     // Enviar formulario
     await page.click('button[type="submit"]')
-    
+
     // Capturar estado después de enviar
-    await page.screenshot({ 
+    await page.screenshot({
       path: 'screenshots/reset-password-different-passwords-after.png',
-      fullPage: true 
+      fullPage: true
     })
-    
+
     // Verificar que aparece el mensaje de error
     const errorMessage = page.locator('.bg-red-50 .text-red-600')
     await expect(errorMessage).toContainText('Las contraseñas no coinciden')
-    
-    console.log('✅ Validación de contraseñas no coincidentes funciona')
   })
 
   test('Escenario 2 - Contraseña muy corta', async ({ page }) => {
-    console.log('🔍 Probando validación de contraseña muy corta...')
-    
     await page.goto(`${baseURL}/auth/reset-password`)
-    
+
     // Llenar el formulario con contraseña corta
     const shortPassword = '123'
     await page.fill('#password', shortPassword)
     await page.fill('#confirmPassword', shortPassword)
-    
+
     // Capturar estado antes de enviar
-    await page.screenshot({ 
+    await page.screenshot({
       path: 'screenshots/reset-password-short-password-before.png',
-      fullPage: true 
+      fullPage: true
     })
-    
+
     // Enviar formulario
     await page.click('button[type="submit"]')
-    
+
     // Esperar por mensaje de error o respuesta
     await page.waitForTimeout(2000)
-    
+
     // Capturar estado después de enviar
-    await page.screenshot({ 
+    await page.screenshot({
       path: 'screenshots/reset-password-short-password-after.png',
-      fullPage: true 
+      fullPage: true
     })
-    
+
     // Verificar si hay error en pantalla
     const errorElement = page.locator('.bg-red-50')
     const hasError = await errorElement.isVisible()
-    
+
     if (hasError) {
       const errorText = await errorElement.textContent()
-      console.log('❌ Error mostrado:', errorText)
-    } else {
-      console.log('⚠️  No se muestra error para contraseña corta')
     }
   })
 
   test('Escenario 3 - Contraseña válida sin token de reset', async ({ page }) => {
-    console.log('🔍 Probando envío de contraseña válida sin token de reset...')
     
     // Interceptar llamadas a la API
     let apiCallMade = false
@@ -113,7 +99,6 @@ test.describe('Reset Password Flow - Debugging', () => {
         } catch (e) {
           apiError = e
         }
-        console.log(`📡 API Response Status: ${response.status()}`)
       }
     })
     
@@ -147,7 +132,6 @@ test.describe('Reset Password Flow - Debugging', () => {
     const buttonText = await submitButton.textContent()
     const isDisabled = await submitButton.isDisabled()
     
-    console.log(`🔘 Estado del botón: "${buttonText}", Deshabilitado: ${isDisabled}`)
     
     // Verificar si hay mensajes de error
     const errorElement = page.locator('.bg-red-50')
@@ -155,21 +139,15 @@ test.describe('Reset Password Flow - Debugging', () => {
     
     if (hasError) {
       const errorText = await errorElement.textContent()
-      console.log('❌ Error mostrado:', errorText)
     }
     
-    console.log(`📡 API llamada realizada: ${apiCallMade}`)
-    if (apiResponse) console.log('📡 API Response:', apiResponse)
-    if (apiError) console.log('📡 API Error:', apiError)
   })
 
   test('Escenario 4 - Simular con token de reset válido', async ({ page }) => {
-    console.log('🔍 Probando flujo con token de reset simulado...')
     
     // Interceptar respuestas de la API para simular diferentes escenarios
     await page.route('**/api/auth/update-password', async (route, request) => {
       const body = request.postDataJSON()
-      console.log('📡 Interceptada llamada API con body:', body)
       
       // Simular diferentes respuestas basadas en la contraseña
       if (body.password === 'errorPassword') {
@@ -210,7 +188,6 @@ test.describe('Reset Password Flow - Debugging', () => {
     })
     
     // Caso exitoso
-    console.log('  📝 Probando caso exitoso...')
     await page.goto(`${baseURL}/auth/reset-password?access_token=dummy_token`)
     
     const successPassword = 'validNewPassword123!'
@@ -231,7 +208,6 @@ test.describe('Reset Password Flow - Debugging', () => {
     })
     
     // Caso de error 400
-    console.log('  📝 Probando error 400...')
     await page.goto(`${baseURL}/auth/reset-password`)
     
     await page.fill('#password', 'errorPassword')
@@ -251,10 +227,8 @@ test.describe('Reset Password Flow - Debugging', () => {
     })
     
     const errorMessage = await page.locator('.bg-red-50').textContent()
-    console.log('❌ Error 400 mostrado:', errorMessage)
     
     // Caso de rate limit
-    console.log('  📝 Probando rate limit...')
     await page.goto(`${baseURL}/auth/reset-password`)
     
     await page.fill('#password', 'rateLimitPassword')
@@ -269,10 +243,8 @@ test.describe('Reset Password Flow - Debugging', () => {
     })
     
     const rateLimitMessage = await page.locator('.bg-red-50').textContent()
-    console.log('⏳ Rate limit mostrado:', rateLimitMessage)
     
     // Caso de sesión expirada
-    console.log('  📝 Probando sesión expirada...')
     await page.goto(`${baseURL}/auth/reset-password`)
     
     await page.fill('#password', 'sessionExpiredPassword')
@@ -287,11 +259,9 @@ test.describe('Reset Password Flow - Debugging', () => {
     })
     
     const sessionMessage = await page.locator('.bg-red-50').textContent()
-    console.log('🔒 Sesión expirada mostrado:', sessionMessage)
   })
 
   test('Escenario 5 - Verificar comportamiento del UI durante carga', async ({ page }) => {
-    console.log('🔍 Probando comportamiento del UI durante estados de carga...')
     
     // Simular respuesta lenta de la API
     await page.route('**/api/auth/update-password', async (route) => {
@@ -333,7 +303,6 @@ test.describe('Reset Password Flow - Debugging', () => {
     const isDisabled = await submitButton.isDisabled()
     const buttonText = await submitButton.textContent()
     
-    console.log(`🔘 Durante carga - Botón deshabilitado: ${isDisabled}, Texto: "${buttonText}"`)
     
     // Esperar a que termine la carga
     await page.waitForTimeout(4000)
@@ -348,11 +317,9 @@ test.describe('Reset Password Flow - Debugging', () => {
     const finalButtonText = await submitButton.textContent()
     const finalIsDisabled = await submitButton.isDisabled()
     
-    console.log(`🔘 Después de carga - Botón deshabilitado: ${finalIsDisabled}, Texto: "${finalButtonText}"`)
   })
 
   test('Escenario 6 - Verificar accesibilidad y navegación', async ({ page }) => {
-    console.log('🔍 Probando accesibilidad y navegación...')
     
     await page.goto(`${baseURL}/auth/reset-password`)
     
@@ -389,13 +356,10 @@ test.describe('Reset Password Flow - Debugging', () => {
       fullPage: true 
     })
     
-    console.log('✅ Navegación con teclado verificada')
     
     // Verificar labels y estructura
     const passwordLabel = await page.locator('label[for="password"]').textContent()
     const confirmLabel = await page.locator('label[for="confirmPassword"]').textContent()
     
-    console.log(`🏷️  Label contraseña: "${passwordLabel}"`)
-    console.log(`🏷️  Label confirmación: "${confirmLabel}"`)
   })
 })

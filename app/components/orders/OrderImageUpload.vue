@@ -135,7 +135,7 @@ const processFile = async (file: File) => {
     
     // Comprimir imagen si es necesaria (mayor a 200KB para OCR óptimo)
     if (needsCompression(file, 200)) {
-      console.log(`📸 Imagen original: ${formatFileSize(file.size)} - Comprimiendo para OCR...`)
+      // Compressing image for OCR optimization
       
       const compressionResult = await compressImage(file, {
         targetSizeKB: 200, // Target 200KB para balance OCR/velocidad
@@ -147,7 +147,7 @@ const processFile = async (file: File) => {
       
       processedFile = compressionResult.compressedFile
       
-      console.log(`✅ Imagen comprimida: ${formatFileSize(processedFile.size)} (${compressionResult.compressionRatio}% reducción)`)
+      // Image compressed successfully
       
       // Mostrar notificación de compresión exitosa
       if (compressionResult.compressionRatio > 50) {
@@ -168,6 +168,7 @@ const processFile = async (file: File) => {
     reader.readAsDataURL(processedFile)
     
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error procesando imagen:', error)
     toast.error(
       'Error de procesamiento',

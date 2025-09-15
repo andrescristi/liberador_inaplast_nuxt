@@ -60,16 +60,11 @@ export const useHybridAuth = () => {
         user_id: payload.user_id
       }
       
-      // Debug log para verificar la expiración
-      console.log('🔍 [setJWT] Token expiration:', {
-        exp_seconds: payload.exp,
-        exp_date: new Date(payload.exp * 1000).toISOString(),
-        current_date: new Date().toISOString(),
-        is_expired: Date.now() > payload.exp * 1000
-      })
+      // Token expiration calculated
       
       localStorage.setItem(AUTH_TOKEN_KEY, JSON.stringify(tokenData))
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error guardando JWT:', error)
     }
   }
@@ -83,7 +78,6 @@ export const useHybridAuth = () => {
     try {
       const tokenStr = localStorage.getItem(AUTH_TOKEN_KEY)
       if (!tokenStr) {
-        console.log('🔍 [getJWT] No token found in localStorage')
         return null
       }
       
@@ -91,26 +85,17 @@ export const useHybridAuth = () => {
       const now = Date.now()
       const expirationMs = token.expires_at * 1000 // Convertir segundos a milisegundos
       
-      console.log('🔍 [getJWT] Token validation:', {
-        expires_at_seconds: token.expires_at,
-        expires_at_date: new Date(expirationMs).toISOString(),
-        current_date: new Date(now).toISOString(),
-        current_ms: now,
-        expiration_ms: expirationMs,
-        is_expired: now > expirationMs,
-        time_until_expiry_hours: Math.round((expirationMs - now) / (1000 * 60 * 60))
-      })
+      // Token validation performed
       
       // Verificar si el token ha expirado
       if (now > expirationMs) {
-        console.log('❌ [getJWT] Token expired, removing from localStorage')
         removeJWT()
         return null
       }
       
-      console.log('✅ [getJWT] Token is valid')
       return token.access_token
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('❌ [getJWT] Error obteniendo JWT:', error)
       removeJWT()
       return null
@@ -124,13 +109,9 @@ export const useHybridAuth = () => {
     if (import.meta.server) return
     
     try {
-      console.log('🚨 [removeJWT] REMOVING JWT FROM LOCALSTORAGE!', {
-        reason: 'Manual call to removeJWT',
-        stack: new Error().stack,
-        timestamp: new Date().toISOString()
-      })
       localStorage.removeItem(AUTH_TOKEN_KEY)
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('❌ [removeJWT] Error eliminando JWT:', error)
     }
   }
@@ -223,6 +204,7 @@ export const useHybridAuth = () => {
       await navigateTo('/auth/login')
       
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Error durante logout:', err)
       // Limpiar de todas formas en caso de error
       removeJWT()

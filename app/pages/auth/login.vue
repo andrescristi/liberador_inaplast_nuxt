@@ -223,7 +223,6 @@ const isFormValid = computed(() => {
                          formState.password.length >= 6
     return emailValid && passwordValid
   } catch (error) {
-    console.warn('[Login] Form validation error:', error)
     return false
   }
 })
@@ -268,17 +267,12 @@ const validateResetForm = () => {
 
 // Nuevo handler con nuxt-auth-utils
 const handleLogin = async () => {
-  console.log('handleLogin called!')
-  console.log('Form state:', formState)
-  
   if (!validateForm()) {
-    console.log('Form validation failed')
     return
   }
-  
+
   loading.value = true
   error.value = ''
-  console.log('Starting login process...')
 
   try {
     // Usar el endpoint híbrido de login
@@ -290,7 +284,7 @@ const handleLogin = async () => {
       }
     })
     
-    console.log('[Login] Response:', response)
+    // Login response received
     
     if (response.success && response.jwt) {
       // Usar el composable híbrido para guardar el JWT y configurar el estado
@@ -299,7 +293,7 @@ const handleLogin = async () => {
       
       // Guardar JWT en localStorage
       setJWT(response.jwt)
-      console.log('[Login] JWT guardado en localStorage')
+      // JWT saved to localStorage
       
       // Actualizar estado del usuario
       user.value = {
@@ -312,21 +306,22 @@ const handleLogin = async () => {
                    `${response.user.first_name} ${response.user.last_name}` : 
                    response.user?.email || ''
       }
-      console.log('[Login] Estado de usuario actualizado')
+      // User state updated
       
       // Success toast
       toast.success('¡Bienvenido!', response.user?.full_name || response.user?.email || 'Usuario')
       
-      console.log('[Login] Iniciando navegación al dashboard...')
+      // Navigating to dashboard
       
       // Navegar al dashboard
       await navigateTo('/', { replace: true })
-      console.log('[Login] Navegación exitosa')
+      // Navigation successful
     } else {
       throw new Error(response.message || 'Error en la respuesta del servidor')
     }
     
   } catch (err: unknown) {
+    // eslint-disable-next-line no-console
     console.error('Login error:', err)
     const errorObj = err as { data?: { statusMessage?: string }, statusMessage?: string }
     error.value = errorObj?.data?.statusMessage || errorObj?.statusMessage || 'Error al iniciar sesión. Verifica tus credenciales.'

@@ -35,7 +35,6 @@ export function useSafePinia() {
         if (attempts < maxAttempts) {
           setTimeout(check, 100)
         } else {
-          console.warn('[useSafePinia] Timeout waiting for Pinia to be available')
           resolve(false)
         }
       }

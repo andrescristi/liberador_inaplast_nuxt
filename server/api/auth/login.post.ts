@@ -25,8 +25,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const { email, password } = loginSchema.parse(body)
     
-    // Log de auditoría
-    console.log('🔐 Login attempt:', { email, timestamp: new Date().toISOString() })
+    // Login attempt logged
     
     // Autenticar usuario
     const authData = await authenticateUser(event, email, password)
@@ -37,13 +36,7 @@ export default defineEventHandler(async (event) => {
     setHeader(event, 'Pragma', 'no-cache')
     setHeader(event, 'Vary', 'User-Agent')
     
-    // Log de éxito
-    console.log('✅ Login successful:', { 
-      userId: authData.user.id, 
-      email: authData.user.email,
-      role: authData.user.role,
-      timestamp: new Date().toISOString() 
-    })
+    // Login successful
     
     // Responder con JWT (cookie se configura automáticamente)
     return {
@@ -54,7 +47,7 @@ export default defineEventHandler(async (event) => {
     }
     
   } catch (error) {
-    // Log de error
+    // eslint-disable-next-line no-console
     console.error('❌ Login failed:', error)
     
     // Si es un error de validación de Zod

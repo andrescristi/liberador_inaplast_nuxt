@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
       .single()
       
     if (profileError || !profile) {
-      console.warn('No se pudo obtener perfil completo, retornando datos básicos')
+      // Warning: No se pudo obtener perfil completo, retornando datos básicos
       return {
         user: {
           id: auth.userId,
@@ -65,6 +65,7 @@ export default defineEventHandler(async (event) => {
     }
     
     // Para otros errores, lanzar error
+    // eslint-disable-next-line no-console
     console.error('Error en /api/auth/user:', error)
     throw createError({
       statusCode: 500,

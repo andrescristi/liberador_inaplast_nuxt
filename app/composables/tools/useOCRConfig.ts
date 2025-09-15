@@ -91,8 +91,7 @@ export function useOCRConfig() {
   const mapToOCRData = (response: OCRResponse): OCRData => {
     const production = response.productionData
     
-    // Debug: Log para verificar qué datos recibe
-    console.log('OCR Response productionData:', production)
+    // Processing OCR production data
     
     const mappedData = {
       // Campos básicos
@@ -112,9 +111,7 @@ export function useOCRConfig() {
       ordenDeCompra: production?.ordenDeCompra || undefined
     }
     
-    // Debug: Log del resultado mapeado
-    console.log('Mapped OCR Data:', mappedData)
-    console.log('Turno normalizado:', mappedData.turno)
+    // OCR data mapped successfully
     
     return mappedData
   }
@@ -137,7 +134,7 @@ export function useOCRConfig() {
         }
       })
 
-      console.log('OCR Response2:', response)
+      // OCR response received
       
       if (!response.success) {
         throw new Error(response.error || 'Error procesando OCR')

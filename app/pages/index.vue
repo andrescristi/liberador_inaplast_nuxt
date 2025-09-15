@@ -298,7 +298,6 @@ async function loadDashboardData() {
       const response = await $fetch('/api/orders?limit=5&page=1')
       recentOrders.value = response.data || []
     } catch (ordersError) {
-      console.error('Error loading recent orders:', ordersError)
       toast.warning('Datos Parciales', 'No se pudieron cargar las liberaciones recientes')
     }
 
@@ -309,7 +308,6 @@ async function loadDashboardData() {
 
   } catch (error) {
     // Manejo de errores durante la carga de datos
-    console.error('Error loading dashboard data:', error)
     toast.error('Error', 'Error al cargar los datos del dashboard')
   }
 }
