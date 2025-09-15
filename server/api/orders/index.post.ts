@@ -197,14 +197,41 @@ export default defineEventHandler(async (event) => {
       }))
     }
     
-    // Determinar el status de la orden basado en los tests
-    // Si algún test está reprobado (aprobado: false), la orden es "Rechazado"
-    // Solo si TODOS los tests están aprobados, la orden es "Aprobado"
-    const hasAnyFailedTest = testResults.some((test: { aprobado: boolean }) => !test.aprobado)
-    const orderStatus: 'Aprobado' | 'Rechazado' = hasAnyFailedTest ? 'Rechazado' : 'Aprobado'
-    
+    // Determinar el status de la orden basado en los tests y el AQL
+    // Calcular el total de unidades con falla de todos los tests
+    const totalUnidadesConFalla = testResults.reduce((total: number, test: { aprobado: boolean; cantidad_unidades_con_falla: number }) => {
+      return test.aprobado ? total : total + test.cantidad_unidades_con_falla
+    }, 0)
+
     // Obtener cantidad_embalajes (compatible con ambos formatos)
-    const cantidadEmbalajes = body.cantidad_embalajes || body.cantidadEmbalajes
+    const cantidadEmbalajes = body.cantidad_embalajes || body.cantidadEmbalajes || 1
+
+    // Obtener información del plan de muestreo AQL basado en el tamaño del lote
+    let orderStatus: 'Aprobado' | 'Rechazado' = 'Rechazado'
+    let muestreoRecomendado: number | null = null
+
+    try {
+      const tamanoLote = unidadesPorEmbalaje * cantidadEmbalajes
+
+      // Llamar al endpoint de planes de muestreo
+      const planMuestreo = await $fetch(`/api/calidad/planes-muestreo?tamano_lote=${tamanoLote}`)
+
+      if (planMuestreo && !('error' in planMuestreo)) {
+        // Capturar el muestreo recomendado del plan AQL
+        muestreoRecomendado = planMuestreo.tamano_muestra || null
+
+        // Comparar el total de fallas con el máximo permitido por el AQL
+        orderStatus = totalUnidadesConFalla <= (planMuestreo.numero_maximo_fallas || 0) ? 'Aprobado' : 'Rechazado'
+      } else {
+        // Si no hay plan de muestreo, usar lógica fallback: cualquier test reprobado = rechazado
+        const hasAnyFailedTest = testResults.some((test: { aprobado: boolean }) => !test.aprobado)
+        orderStatus = hasAnyFailedTest ? 'Rechazado' : 'Aprobado'
+      }
+    } catch {
+      // En caso de error al obtener el plan de muestreo, usar lógica fallback
+      const hasAnyFailedTest = testResults.some((test: { aprobado: boolean }) => !test.aprobado)
+      orderStatus = hasAnyFailedTest ? 'Rechazado' : 'Aprobado'
+    }
     
     // Preparar datos de la orden según la nueva estructura con el status calculado
     const orderData = {
@@ -216,7 +243,8 @@ export default defineEventHandler(async (event) => {
       codigo_producto: body.codigo_producto,
       turno: body.turno,
       unidades_por_embalaje: unidadesPorEmbalaje,
-      cantidad_embalajes: cantidadEmbalajes || 1,
+      cantidad_embalajes: cantidadEmbalajes,
+      muestreo_recomendado: muestreoRecomendado,
       muestreo_real: cantidadMuestra || 1,
       jefe_de_turno: body.jefe_de_turno || null,
       orden_de_compra: body.orden_de_compra || null,
