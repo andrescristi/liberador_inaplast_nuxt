@@ -132,9 +132,12 @@
           <div class="bg-white shadow rounded-lg p-6">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Resultados de Tests de Calidad</h3>
             <div class="space-y-4">
-              <div v-for="test in orderData.tests" :key="test.id" 
-                   class="flex items-center justify-between p-4 border rounded-lg"
-                   :class="test.aprobado ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'">
+              <div
+                v-for="test in orderData.tests"
+                :key="test.id"
+                class="flex items-center justify-between p-4 border rounded-lg"
+                :class="test.aprobado ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'"
+              >
                 <div class="flex items-center space-x-3">
                   <Icon 
                     :name="test.aprobado ? 'bx:check-circle' : 'bx:x-circle'" 
@@ -173,14 +176,20 @@
           <div class="bg-white shadow rounded-lg p-6">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Resumen de Inspección</h3>
             <div class="space-y-4">
-              <div class="text-center p-4 rounded-lg"
-                   :class="orderData.resumenInspeccion.statusFinal === 'Aprobado' ? 'bg-green-50' : 'bg-red-50'">
-                <p class="text-3xl font-bold mb-1"
-                   :class="orderData.resumenInspeccion.statusFinal === 'Aprobado' ? 'text-green-600' : 'text-red-600'">
+              <div
+                class="text-center p-4 rounded-lg"
+                :class="orderData.resumenInspeccion.statusFinal === 'Aprobado' ? 'bg-green-50' : 'bg-red-50'"
+              >
+                <p
+                  class="text-3xl font-bold mb-1"
+                  :class="orderData.resumenInspeccion.statusFinal === 'Aprobado' ? 'text-green-600' : 'text-red-600'"
+                >
                   {{ orderData.resumenInspeccion.statusFinal }}
                 </p>
-                <p class="text-sm"
-                   :class="orderData.resumenInspeccion.statusFinal === 'Aprobado' ? 'text-green-600' : 'text-red-600'">
+                <p
+                  class="text-sm"
+                  :class="orderData.resumenInspeccion.statusFinal === 'Aprobado' ? 'text-green-600' : 'text-red-600'"
+                >
                   Estado Final
                 </p>
               </div>
@@ -228,12 +237,19 @@
                 <Icon name="bx:download" class="w-4 h-4 mr-2" />
                 Exportar PDF
               </button>
-              <button 
+              <button
                 class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 @click="printReport"
               >
                 <Icon name="bx:printer" class="w-4 h-4 mr-2" />
                 Imprimir Reporte
+              </button>
+              <button
+                class="w-full inline-flex justify-center items-center px-4 py-2 border border-green-300 text-sm font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                @click="exportQRCodePDF"
+              >
+                <Icon name="bx:qr-scan" class="w-4 h-4 mr-2" />
+                Descargar Código QR
               </button>
             </div>
           </div>
@@ -347,8 +363,8 @@ const fetchOrder = async () => {
   try {
     const { data } = await $fetch<{ success: boolean, data: OrderData }>(`/api/orders/${orderId}`)
     orderData.value = data
-  } catch (err: any) {
-    error.value = err.data?.message || 'Error al cargar la orden'
+  } catch (err: unknown) {
+    error.value = (err as any)?.data?.message || 'Error al cargar la orden'
   } finally {
     loading.value = false
   }
@@ -381,14 +397,11 @@ const exportToPDF = async () => {
 
   try {
     const { jsPDF } = await import('jspdf')
-    const html2canvas = await import('html2canvas')
     
     // Crear un nuevo documento PDF
     const doc = new jsPDF('p', 'mm', 'a4')
-    
+
     // Configuración del documento
-    const pageWidth = doc.internal.pageSize.getWidth()
-    const pageHeight = doc.internal.pageSize.getHeight()
     const margin = 20
     let yPosition = margin
     
@@ -488,6 +501,7 @@ const exportToPDF = async () => {
     yPosition += 10
     
     // Verificar si necesitamos una nueva página
+    const pageHeight = doc.internal.pageSize.getHeight()
     if (yPosition > pageHeight - 50) {
       doc.addPage()
       yPosition = margin
@@ -503,7 +517,8 @@ const exportToPDF = async () => {
     doc.setFont('helvetica', 'normal')
     
     orderData.value.tests.forEach((test, index) => {
-      if (yPosition > pageHeight - 30) {
+      const currentPageHeight = doc.internal.pageSize.getHeight()
+      if (yPosition > currentPageHeight - 30) {
         doc.addPage()
         yPosition = margin
       }
@@ -527,13 +542,104 @@ const exportToPDF = async () => {
     const fileName = `orden-${orderId}-${new Date().toISOString().split('T')[0]}.pdf`
     doc.save(fileName)
     
-  } catch (error) {
+  } catch {
     alert('Error al generar el PDF. Por favor, inténtalo de nuevo.')
   }
 }
 
 const printReport = () => {
   window.print()
+}
+
+const exportQRCodePDF = async () => {
+  if (!orderData.value) {
+    alert('No hay datos de orden para generar el código QR')
+    return
+  }
+
+  try {
+    const { jsPDF } = await import('jspdf')
+    const QRCode = await import('qrcode')
+
+    // Obtener el dominio según el entorno
+    const appConfig = useAppConfig()
+    const isDevelopment = process.env.NODE_ENV === 'development' || import.meta.dev
+
+    // En desarrollo, obtener la IP real del servidor
+    let baseDomain: string
+    if (isDevelopment) {
+      try {
+        const serverIpResponse = await $fetch<{ success: boolean, ip: string }>('/api/server-ip')
+        const serverIp = serverIpResponse.success ? serverIpResponse.ip : 'localhost'
+        const currentPort = window.location.port || '3000'
+        baseDomain = `http://${serverIp}:${currentPort}`
+      } catch (error) {
+        // Fallback si falla la API
+        baseDomain = window.location.origin
+      }
+    } else {
+      baseDomain = appConfig.domain?.production || window.location.origin
+    }
+
+    // Generar la URL completa de la orden
+    const orderURL = `${baseDomain}/orders/${orderId}`
+
+    // Crear un nuevo documento PDF
+    const doc = new jsPDF('p', 'mm', 'a4')
+
+    // Configuración del documento
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const margin = 20
+    let yPosition = margin + 20
+
+    // Título del documento
+    doc.setFontSize(18)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Etiqueta QR - Orden', pageWidth / 2, yPosition, { align: 'center' })
+    yPosition += 20
+
+    // Información básica de la orden
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+
+    const orderInfo = [
+      `Número de Pedido: ${orderData.value.orden.pedido}`,
+      `Cliente: ${orderData.value.orden.cliente}`,
+      `Estado: ${orderData.value.resumenInspeccion.statusFinal}`,
+      `Fecha: ${formatDate(orderData.value.orden.createdAt)}`
+    ]
+
+    orderInfo.forEach(info => {
+      doc.text(info, pageWidth / 2, yPosition, { align: 'center' })
+      yPosition += 8
+    })
+
+    yPosition += 10
+
+    // Generar código QR
+    const qrCodeDataURL = await QRCode.toDataURL(orderURL, {
+      width: 200,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      }
+    })
+
+    // Agregar código QR al PDF (centrado)
+    const qrSize = 60
+    const qrX = (pageWidth - qrSize) / 2
+    doc.addImage(qrCodeDataURL, 'PNG', qrX, yPosition, qrSize, qrSize)
+
+    // Guardar el PDF
+    const fileName = `qr-orden-${orderData.value.orden.pedido}-${new Date().toISOString().split('T')[0]}.pdf`
+    doc.save(fileName)
+
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error al generar el PDF con código QR:', error)
+    alert('Error al generar el PDF con código QR. Por favor, inténtalo de nuevo.')
+  }
 }
 
 onMounted(() => {
@@ -546,6 +652,6 @@ useSeoMeta({
 })
 
 definePageMeta({
-  middleware: 'auth'
+  middleware: ['auth']
 })
 </script>

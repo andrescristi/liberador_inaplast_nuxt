@@ -10,5 +10,8 @@ export default defineAppConfig({
         openDelay: 500
       }
     }
+  },
+  domain: {
+    production: 'https://liberador-inaplast-nuxt.vercel.app'
   }
 })
