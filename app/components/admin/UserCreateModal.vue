@@ -1,7 +1,7 @@
 <template>
   <BaseModal
     :show="true"
-    size="md"
+    size="xl"
     @close="$emit('close')"
   >
     <template #header>
@@ -54,18 +54,32 @@
         <div class="relative">
           <BaseInput
             v-model="form.password"
-            type="password"
+            :type="showPassword ? 'text' : 'password'"
             placeholder="Contraseña temporal"
             :error="hasFieldError('password')"
             @blur="validateField('password')"
           />
-          <button
-            type="button"
-            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none"
-            @click="generatePassword"
-          >
-            Generar
-          </button>
+          <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1 z-20">
+            <button
+              type="button"
+              class="p-1 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
+              @click="showPassword = !showPassword"
+              :title="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <Icon
+                :name="showPassword ? 'bx:bx-hide' : 'bx:bx-show'"
+                class="h-4 w-4"
+              />
+            </button>
+            <div class="w-px h-4 bg-gray-300"></div>
+            <button
+              type="button"
+              class="px-2 py-1 text-xs text-blue-600 hover:text-blue-800 focus:outline-none transition-colors"
+              @click="generatePassword"
+            >
+              Generar
+            </button>
+          </div>
         </div>
         <p v-if="getFieldError('password')" class="mt-1 text-sm text-red-600">{{ getFieldError('password') }}</p>
         
@@ -198,6 +212,9 @@ async function createUser(data: CreateUserForm) {
   })
 }
 
+// Estado para mostrar/ocultar contraseña
+const showPassword = ref(false)
+
 // Generar contraseña segura
 const generatePassword = () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*'
@@ -231,7 +248,7 @@ const passwordStrength = computed(() => {
   if (/[a-z]/.test(password)) score += 1
   if (/[A-Z]/.test(password)) score += 1
   if (/[0-9]/.test(password)) score += 1
-  if (/[^A-Za-z0-9]/.test(password)) score += 1
+  if (/[@$!%*?&.#+-]/.test(password)) score += 1
   
   return score
 })

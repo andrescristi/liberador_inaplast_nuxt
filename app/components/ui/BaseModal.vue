@@ -2,7 +2,8 @@
   <TransitionRoot as="template" :show="show">
     <Dialog
 as="div"
-class="relative z-10"
+class="relative"
+style="z-index: var(--z-modal)"
 @close="$emit('close')">
       <TransitionChild
         as="template"
@@ -13,10 +14,10 @@ class="relative z-10"
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" style="z-index: var(--z-modal-backdrop)" />
       </TransitionChild>
 
-      <div class="fixed inset-0 z-10 overflow-y-auto">
+      <div class="fixed inset-0 overflow-y-auto" style="z-index: var(--z-modal)">
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <TransitionChild
             as="template"
