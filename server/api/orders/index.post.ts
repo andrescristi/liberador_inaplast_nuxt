@@ -1,7 +1,7 @@
 /**
  * API endpoint para crear nueva orden con tests automáticos
  */
-import { serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 
 interface OrderTestData {
   testId?: number
@@ -50,6 +50,15 @@ export default defineEventHandler(async (event) => {
     
     // Obtener datos del body
     const body = await readBody<CreateOrderRequest>(event)
+
+    // Obtener usuario actual
+    const user = await serverSupabaseUser(event)
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Usuario no autenticado'
+      })
+    }
     
     // Validar campos requeridos
     const requiredFields = ['cliente', 'producto', 'pedido', 'fecha_fabricacion', 'codigo_producto', 'turno', 'numero_operario', 'maquina', 'inspector_calidad']
@@ -251,7 +260,8 @@ export default defineEventHandler(async (event) => {
       numero_operario: body.numero_operario,
       maquina: body.maquina,
       inspector_calidad: body.inspector_calidad,
-      status: orderStatus
+      status: orderStatus,
+      liberador: user.id
     }
     
     // Crear la orden

@@ -9,13 +9,13 @@
         >
           <template #userRole-data="{ row }">
             <BaseBadge
-              :color="getRoleBadgeVariant((row as unknown as Profile).userRole)"
+              :color="getRoleBadgeVariant((row as unknown as ProfileResponse).userRole)"
             >
-              {{ getRoleLabel((row as unknown as Profile).userRole) }}
+              {{ getRoleLabel((row as unknown as ProfileResponse).userRole) }}
             </BaseBadge>
           </template>
           <template #createdAt-data="{ row }">
-            {{ formatDate((row as unknown as Profile).createdAt) }}
+            {{ formatDate((row as unknown as ProfileResponse).createdAt) }}
           </template>
           <template #actions-data="{ row }">
             <div class="flex flex-wrap gap-1">
@@ -25,7 +25,7 @@
                 size="xs"
                 leading-icon="bx:edit"
                 class="min-w-0 px-2"
-                @click="$emit('edit', row as unknown as Profile)"
+                @click="$emit('edit', row as unknown as ProfileResponse)"
               >
                 Editar
               </BaseButton>
@@ -35,18 +35,18 @@
                 size="xs"
                 leading-icon="bx:key"
                 class="min-w-0 px-2"
-                @click="$emit('resetPassword', row as unknown as Profile)"
+                @click="$emit('resetPassword', row as unknown as ProfileResponse)"
               >
                 Resetear
               </BaseButton>
               <BaseButton
-                v-if="(row as unknown as Profile).userRole !== 'Admin'"
+                v-if="(row as unknown as ProfileResponse).userRole !== 'Admin'"
                 variant="ghost"
                 color="danger"
                 size="xs"
                 leading-icon="bx:trash"
                 class="min-w-0 px-2"
-                @click="$emit('delete', row as unknown as Profile)"
+                @click="$emit('delete', row as unknown as ProfileResponse)"
               >
                 Eliminar
               </BaseButton>
@@ -133,18 +133,18 @@
 </template>
 
 <script setup lang="ts">
-import type { Profile, ProfileRole } from '~/types'
+import type { ProfileRole, ProfileResponse } from '~/types'
 import BaseCard from '~/components/ui/BaseCard.vue'
 import BaseTable from '~/components/ui/BaseTable.vue'
 import BaseBadge from '~/components/ui/BaseBadge.vue'
 // Components are auto-imported by Nuxt
 
 interface Props {
-  users: Profile[]
+  users: ProfileResponse[]
 }
 
 interface Emits {
-  (e: 'edit' | 'delete' | 'resetPassword', user: Profile): void
+  (e: 'edit' | 'delete' | 'resetPassword', user: ProfileResponse): void
 }
 
 defineProps<Props>()

@@ -35,7 +35,15 @@ export default defineEventHandler(async (event) => {
     // Obtener la orden
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select('*')
+      .select(`
+        *,
+        liberador_profile:profiles!liberador (
+          id,
+          first_name,
+          last_name,
+          user_role
+        )
+      `)
       .eq('id', orderId)
       .single()
     
@@ -130,7 +138,9 @@ export default defineEventHandler(async (event) => {
       cantidadEmbalajes: order.cantidad_embalajes,
       muestreoReal: order.muestreo_real,
       status: order.status,
-      createdAt: order.created_at
+      createdAt: order.created_at,
+      liberador: order.liberador,
+      liberadorProfile: order.liberador_profile
     }
 
     // Mapear tests con nombres correctos

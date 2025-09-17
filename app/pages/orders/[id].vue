@@ -33,7 +33,7 @@
             @click="navigateTo('/orders')"
           >
             <Icon name="bx:arrow-back" class="w-4 h-4 mr-2" />
-            Volver a Órdenes
+            Volver
           </button>
           <div>
             <h1 class="text-3xl font-bold text-gray-900">Orden #{{ orderData.orden.numeroOrden }}</h1>
@@ -97,6 +97,14 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700">Inspector de Calidad</label>
                 <p class="mt-1 text-sm text-gray-900">{{ orderData.orden.inspectorCalidad }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Liberado por</label>
+                <p class="mt-1 text-sm text-gray-900">
+                  {{ orderData.orden.liberadorProfile ?
+                    `${orderData.orden.liberadorProfile.first_name} ${orderData.orden.liberadorProfile.last_name}` :
+                    'N/A' }}
+                </p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700">Jefe de Turno</label>
@@ -235,7 +243,7 @@
                 @click="exportToPDF"
               >
                 <Icon name="bx:download" class="w-4 h-4 mr-2" />
-                Exportar PDF
+                Descargar PDF
               </button>
               <button
                 class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -281,7 +289,7 @@
         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
         @click="navigateTo('/orders')"
       >
-        Volver a Órdenes
+        Volver
       </button>
     </div>
   </div>
@@ -309,6 +317,13 @@ interface OrderData {
     muestreoReal: number
     status: string
     createdAt: string
+    liberador?: string
+    liberadorProfile?: {
+      id: string
+      first_name: string
+      last_name: string
+      user_role: string
+    }
   }
   tests: Array<{
     id: number
@@ -443,6 +458,9 @@ const exportToPDF = async () => {
       ['Máquina:', orderData.value.orden.maquina],
       ['Número de Operario:', orderData.value.orden.numeroOperario],
       ['Inspector de Calidad:', orderData.value.orden.inspectorCalidad],
+      ['Liberado por:', orderData.value.orden.liberadorProfile ?
+        `${orderData.value.orden.liberadorProfile.first_name} ${orderData.value.orden.liberadorProfile.last_name}` :
+        'N/A'],
       ['Jefe de Turno:', orderData.value.orden.jefeTurno || 'N/A'],
       ['Orden de Compra:', orderData.value.orden.ordenCompra || 'N/A']
     ]
@@ -596,7 +614,7 @@ const exportQRCodePDF = async () => {
     // Título del documento
     doc.setFontSize(18)
     doc.setFont('helvetica', 'bold')
-    doc.text('Etiqueta QR - Orden', pageWidth / 2, yPosition, { align: 'center' })
+    doc.text('Orden de liberación de pedido', pageWidth / 2, yPosition, { align: 'center' })
     yPosition += 20
 
     // Información básica de la orden

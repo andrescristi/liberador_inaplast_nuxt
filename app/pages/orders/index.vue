@@ -264,6 +264,15 @@
                     <span class="font-medium text-gray-700">Inspector:</span>
                     <span class="text-gray-900">{{ order.inspector_calidad }}</span>
                   </div>
+                  <div class="flex items-center space-x-2 text-sm">
+                    <Icon name="bx:user-pin" class="w-4 h-4 text-gray-500" />
+                    <span class="font-medium text-gray-700">Liberado por:</span>
+                    <span class="text-gray-900">
+                      {{ order.liberador_profile ?
+                        `${order.liberador_profile.first_name} ${order.liberador_profile.last_name}` :
+                        'N/A' }}
+                    </span>
+                  </div>
                 </div>
 
                 <!-- Información de Pedido y Máquina -->
@@ -661,6 +670,9 @@ const exportToExcel = async () => {
       'Código Producto': order.codigo_producto,
       'Estado': order.status,
       'Inspector': order.inspector_calidad,
+      'Liberado por': order.liberador_profile ?
+        `${order.liberador_profile.first_name} ${order.liberador_profile.last_name}` :
+        'N/A',
       'Máquina': order.maquina,
       'Turno': order.turno,
       'Fecha Fabricación': formatDate(order.fecha_fabricacion),
@@ -688,6 +700,7 @@ const exportToExcel = async () => {
       { wch: 15 }, // Código Producto
       { wch: 10 }, // Estado
       { wch: 20 }, // Inspector
+      { wch: 20 }, // Liberado por
       { wch: 15 }, // Máquina
       { wch: 10 }, // Turno
       { wch: 15 }, // Fecha Fabricación
