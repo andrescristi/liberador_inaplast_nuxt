@@ -23,6 +23,7 @@
 export type {
   ProfileRole,
   Profile,
+  ProfileResponse,
   CreateProfileForm,
   UpdateProfileForm,
   CreateUserForm,

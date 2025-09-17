@@ -131,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Profile, ProfileRole } from '~/types'
+import type { Profile, ProfileRole, ProfileResponse } from '~/types'
 
 // Components are auto-imported by Nuxt
 import UserCreateModal from '~/components/admin/UserCreateModal.vue'
@@ -153,7 +153,7 @@ const toast = useToast()
 const { debounce } = useDebounce()
 
 // Reactive data
-const users = ref<Profile[]>([])
+const users = ref<ProfileResponse[]>([])
 const stats = ref<{ total: number; admins: number; supervisors: number; inspectors: number } | null>(null)
 const loading = ref(false)
 const searchTerm = ref('')
@@ -252,18 +252,54 @@ const fetchStats = async () => {
   }
 }
 
-const editUser = (user: Profile) => {
-  selectedUser.value = user
+const editUser = (user: ProfileResponse) => {
+  // Convert ProfileResponse back to Profile for modal compatibility
+  const profileUser: Profile = {
+    id: user.id,
+    user_id: user.userId,
+    first_name: user.firstName,
+    last_name: user.lastName,
+    user_role: user.userRole,
+    created_at: user.createdAt,
+    updated_at: user.updatedAt,
+    full_name: user.fullName,
+    email: user.email
+  }
+  selectedUser.value = profileUser
   showEditModal.value = true
 }
 
-const confirmDeleteUser = (user: Profile) => {
-  userToDelete.value = user
+const confirmDeleteUser = (user: ProfileResponse) => {
+  // Convert ProfileResponse back to Profile for modal compatibility
+  const profileUser: Profile = {
+    id: user.id,
+    user_id: user.userId,
+    first_name: user.firstName,
+    last_name: user.lastName,
+    user_role: user.userRole,
+    created_at: user.createdAt,
+    updated_at: user.updatedAt,
+    full_name: user.fullName,
+    email: user.email
+  }
+  userToDelete.value = profileUser
   showDeleteModal.value = true
 }
 
-const confirmResetPassword = (user: Profile) => {
-  userToResetPassword.value = user
+const confirmResetPassword = (user: ProfileResponse) => {
+  // Convert ProfileResponse back to Profile for modal compatibility
+  const profileUser: Profile = {
+    id: user.id,
+    user_id: user.userId,
+    first_name: user.firstName,
+    last_name: user.lastName,
+    user_role: user.userRole,
+    created_at: user.createdAt,
+    updated_at: user.updatedAt,
+    full_name: user.fullName,
+    email: user.email
+  }
+  userToResetPassword.value = profileUser
   showResetPasswordModal.value = true
 }
 
@@ -290,7 +326,7 @@ const resetPassword = async () => {
   
   try {
     await userAPI.resetUserPasswordViaHTTP(userToResetPassword.value.user_id)
-    toast.success('Éxito', `Email de recuperación enviado a ${userToResetPassword.value.full_name}`)
+    toast.success('Éxito', `Email de recuperación enviado a ${userToResetPassword.value.full_name || userToResetPassword.value.first_name}`)
     showResetPasswordModal.value = false
     userToResetPassword.value = null
   } catch (error: unknown) {

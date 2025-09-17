@@ -125,8 +125,50 @@ export interface CreateUserForm {
 }
 
 /**
+ * Perfil de usuario normalizado para APIs (usando camelCase)
+ *
+ * Representa un usuario con nomenclatura camelCase para uso en el frontend.
+ * Se usa como respuesta de APIs que necesitan consistencia con las convenciones de Nuxt.
+ *
+ * @example
+ * ```typescript
+ * const userProfile: ProfileResponse = {
+ *   id: 'uuid-profile-id',
+ *   userId: 'uuid-auth-user-id',
+ *   firstName: 'Juan',
+ *   lastName: 'Pérez',
+ *   userRole: 'Inspector',
+ *   createdAt: '2023-01-01T00:00:00Z',
+ *   updatedAt: '2023-06-01T00:00:00Z',
+ *   fullName: 'Juan Pérez',
+ *   email: 'juan.perez@inaplast.com'
+ * }
+ * ```
+ */
+export interface ProfileResponse {
+  /** ID único del perfil en la tabla profiles */
+  id: string
+  /** ID del usuario en Supabase Auth (FK a auth.users) */
+  userId: string
+  /** Nombre del usuario */
+  firstName: string
+  /** Apellido del usuario */
+  lastName: string
+  /** Rol del usuario en el sistema */
+  userRole: ProfileRole
+  /** Fecha de creación del perfil */
+  createdAt: string | null
+  /** Fecha de última actualización */
+  updatedAt: string | null
+  /** Campo calculado: nombre completo (firstName + lastName) */
+  fullName: string
+  /** Email del usuario (poblado desde auth.users) */
+  email: string
+}
+
+/**
  * Filtros para búsqueda y filtrado de perfiles
- * 
+ *
  * Usado en el panel de administración para filtrar la lista de usuarios.
  */
 export interface ProfileFilters {

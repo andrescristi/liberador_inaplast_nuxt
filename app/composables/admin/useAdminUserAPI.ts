@@ -9,7 +9,7 @@
  * @since v2.5.0
  */
 
-import type { ProfileFilters, PaginatedResponse, Profile } from '~/types'
+import type { ProfileFilters, PaginatedResponse, Profile, ProfileResponse } from '~/types'
 import { useAdminUserCRUD } from './useAdminUserCRUD'
 import { useLogger } from '~/composables/tools/useLogger'
 
@@ -95,7 +95,7 @@ export const useAdminUserAPI = () => {
     filters: ProfileFilters = {},
     page = 1,
     pageSize = 20
-  ): Promise<PaginatedResponse<Profile>> => {
+  ): Promise<PaginatedResponse<ProfileResponse>> => {
     try {
       // Construir query string dinámicamente
       const query = new URLSearchParams()
@@ -122,7 +122,7 @@ export const useAdminUserAPI = () => {
       })
 
       // Llamada a API REST con type safety completo
-      const response = await $fetch<PaginatedResponse<Profile>>(`/api/admin/users/list?${query.toString()}`)
+      const response = await $fetch<PaginatedResponse<ProfileResponse>>(`/api/admin/users/list?${query.toString()}`)
       
       logger.info('Usuarios obtenidos via HTTP exitosamente', {
         total: response.total,

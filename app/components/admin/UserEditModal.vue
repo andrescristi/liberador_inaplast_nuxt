@@ -56,7 +56,7 @@
             'border-red-300 focus:ring-red-500 focus:border-red-500': hasFieldError('userRole'),
             'border-gray-300': !hasFieldError('userRole')
           }"
-          :disabled="user.userRole === 'Admin'"
+          :disabled="user.user_role === 'Admin'"
           @change="validateField('userRole')"
         >
           <option value="">Selecciona un rol</option>
@@ -67,7 +67,7 @@
         <p v-if="getFieldError('userRole')" class="mt-1 text-sm text-red-600">
           {{ getFieldError('userRole') }}
         </p>
-        <p v-if="user.userRole === 'Admin'" class="mt-1 text-sm text-yellow-600">
+        <p v-if="user.user_role === 'Admin'" class="mt-1 text-sm text-yellow-600">
           No se puede cambiar el rol de otros administradores
         </p>
       </div>
@@ -90,8 +90,8 @@ clip-rule="evenodd"/>
               Información del Usuario
             </h3>
             <div class="mt-2 text-sm text-blue-700 space-y-1">
-              <p><strong>Creado:</strong> {{ formatDate(user.createdAt) }}</p>
-              <p><strong>Última actualización:</strong> {{ formatDate(user.updatedAt) }}</p>
+              <p><strong>Creado:</strong> {{ formatDate(user.created_at) }}</p>
+              <p><strong>Última actualización:</strong> {{ formatDate(user.updated_at) }}</p>
               <p v-if="hasChanges" class="text-orange-600">
                 <strong>⚠️ Hay cambios pendientes por guardar</strong>
               </p>
@@ -165,10 +165,10 @@ const {
 } = useModalForm<UpdateUserForm>({
   schema: updateUserSchema,
   initialData: {
-    firstName: props.user.firstName,
-    lastName: props.user.lastName,
+    firstName: props.user.first_name,
+    lastName: props.user.last_name,
     email: props.user.email || '',
-    userRole: props.user.userRole
+    userRole: props.user.user_role
   },
   onSubmit: updateUser,
   onSuccess: () => {
@@ -179,17 +179,17 @@ const {
 // Métodos
 async function updateUser(data: UpdateUserForm) {
   const updateData: UpdateUserForm = {}
-  
+
   // Solo incluir campos que han cambiado
-  if (data.firstName !== props.user.firstName) {
+  if (data.firstName !== props.user.first_name) {
     updateData.first_name = data.firstName
   }
-  
-  if (data.lastName !== props.user.lastName) {
+
+  if (data.lastName !== props.user.last_name) {
     updateData.last_name = data.lastName
   }
-  
-  if (data.userRole !== props.user.userRole && props.user.userRole !== 'Admin') {
+
+  if (data.userRole !== props.user.user_role && props.user.user_role !== 'Admin') {
     updateData.user_role = data.userRole
   }
 
@@ -203,7 +203,7 @@ async function updateUser(data: UpdateUserForm) {
     return
   }
 
-  await $fetch(`/api/admin/users/${props.user.userId}`, {
+  await $fetch(`/api/admin/users/${props.user.user_id}`, {
     method: 'PUT',
     body: {
       ...updateData,
@@ -218,7 +218,7 @@ const resetPassword = async () => {
   }
 
   try {
-    await $fetch(`/api/admin/users/${props.user.userId}/reset-password`, {
+    await $fetch(`/api/admin/users/${props.user.user_id}/reset-password`, {
       method: 'POST'
     })
     toast.success('Éxito', 'Se ha enviado un email para restablecer la contraseña')
@@ -228,7 +228,8 @@ const resetPassword = async () => {
   }
 }
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return 'N/A'
   return new Date(dateString).toLocaleDateString('es-ES', {
     year: 'numeric',
     month: 'long',

@@ -1,8 +1,8 @@
-import type { Profile, PaginatedResponse } from '~/types'
+import type { ProfileResponse, PaginatedResponse } from '~/types'
 import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 import type { Database } from '../../../../app/types/database.types'
 
-export default defineEventHandler(async (event): Promise<PaginatedResponse<Profile>> => {
+export default defineEventHandler(async (event): Promise<PaginatedResponse<ProfileResponse>> => {
   const query = getQuery(event)
   const { 
     search = '', 
@@ -84,13 +84,19 @@ export default defineEventHandler(async (event): Promise<PaginatedResponse<Profi
       })
     }
 
-    // Get emails for all users using admin client
+    // Get emails for all users using admin client and normalize to camelCase
     const profilesWithEmails = await Promise.all((data || []).map(async (profile) => {
       try {
         const { data: authUser } = await supabase.auth.admin.getUserById(profile.user_id)
         return {
-          ...profile,
-          full_name: `${profile.first_name} ${profile.last_name}`,
+          id: profile.id,
+          userId: profile.user_id,
+          firstName: profile.first_name,
+          lastName: profile.last_name,
+          userRole: profile.user_role,
+          createdAt: profile.created_at,
+          updatedAt: profile.updated_at,
+          fullName: `${profile.first_name} ${profile.last_name}`,
           email: authUser.user?.email || ''
         }
       } catch (error) {
@@ -102,8 +108,14 @@ export default defineEventHandler(async (event): Promise<PaginatedResponse<Profi
           context: 'admin/users/list.get - getUserById'
         }, 'Error getting user email')
         return {
-          ...profile,
-          full_name: `${profile.first_name} ${profile.last_name}`,
+          id: profile.id,
+          userId: profile.user_id,
+          firstName: profile.first_name,
+          lastName: profile.last_name,
+          userRole: profile.user_role,
+          createdAt: profile.created_at,
+          updatedAt: profile.updated_at,
+          fullName: `${profile.first_name} ${profile.last_name}`,
           email: ''
         }
       }
