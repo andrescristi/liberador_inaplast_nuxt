@@ -1,86 +1,184 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+// Mock todos los composables necesarios antes de importar useAdminUserAPI
+const mockCrudFunctions = {
+  getAllUsers: vi.fn(),
+  getUserStats: vi.fn(),
+  resetUserPassword: vi.fn()
+}
+
+vi.mock('~/composables/admin/useAdminUserCRUD', () => ({
+  useAdminUserCRUD: () => mockCrudFunctions
+}))
+
+vi.mock('~/composables/tools/useLogger', () => ({
+  useLogger: () => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn()
+  })
+}))
+
+// Ahora sí importamos el composable que queremos testear
 import { useAdminUserAPI } from '~/composables/admin/useAdminUserAPI'
 
 describe('useAdminUserAPI', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Setup mock $fetch
-    global.$fetch.mockImplementation(vi.fn())
+    global.$fetch = vi.fn()
   })
 
-  describe('fetchUsers', () => {
-    it('debe obtener usuarios exitosamente', async () => {
-      const mockUsers = [
-        { id: '1', email: 'user1@test.com', display_name: 'User 1' },
-        { id: '2', email: 'user2@test.com', display_name: 'User 2' }
-      ]
+  describe('getAllUsersFromAPI', () => {
+    it('debe obtener usuarios exitosamente usando el composable CRUD', async () => {
+      const mockUsers = {
+        data: [
+          { id: '1', email: 'user1@test.com', display_name: 'User 1' },
+          { id: '2', email: 'user2@test.com', display_name: 'User 2' }
+        ],
+        total: 2,
+        page: 1,
+        totalPages: 1
+      }
 
-      global.$fetch.mockResolvedValueOnce(mockUsers)
+      mockCrudFunctions.getAllUsers.mockResolvedValueOnce(mockUsers)
 
-      const { fetchUsers } = useAdminUserAPI()
-      const result = await fetchUsers({ page: 1, limit: 10 })
+      const { getAllUsersFromAPI } = useAdminUserAPI()
+      const result = await getAllUsersFromAPI({}, 1, 10)
 
       expect(result).toEqual(mockUsers)
-      expect(global.$fetch).toHaveBeenCalledWith('/api/admin/users/list', {
-        method: 'GET',
-        query: { page: 1, limit: 10 }
-      })
+      expect(mockCrudFunctions.getAllUsers).toHaveBeenCalledWith({}, 1, 10)
     })
 
     it('debe manejar errores al obtener usuarios', async () => {
-      global.$fetch.mockRejectedValueOnce(new Error('Network error'))
+      mockCrudFunctions.getAllUsers.mockRejectedValueOnce(new Error('Network error'))
 
-      const { fetchUsers } = useAdminUserAPI()
+      const { getAllUsersFromAPI } = useAdminUserAPI()
 
-      await expect(fetchUsers({ page: 1, limit: 10 })).rejects.toThrow('Network error')
+      await expect(getAllUsersFromAPI({}, 1, 10)).rejects.toThrow('Error al obtener usuarios: Network error')
     })
   })
 
-  describe('fetchUserStats', () => {
-    it('debe obtener estadísticas de usuarios', async () => {
+  describe('getUserStatsFromAPI', () => {
+    it('debe obtener estadísticas de usuarios usando el composable CRUD', async () => {
       const mockStats = {
-        totalUsers: 100,
-        activeUsers: 80,
-        inactiveUsers: 20,
-        newUsersThisMonth: 10
+        total: 100,
+        admins: 10,
+        supervisors: 20,
+        inspectors: 70
       }
 
-      global.$fetch.mockResolvedValueOnce(mockStats)
+      mockCrudFunctions.getUserStats.mockResolvedValueOnce(mockStats)
 
-      const { fetchUserStats } = useAdminUserAPI()
-      const result = await fetchUserStats()
+      const { getUserStatsFromAPI } = useAdminUserAPI()
+      const result = await getUserStatsFromAPI()
 
       expect(result).toEqual(mockStats)
-      expect(global.$fetch).toHaveBeenCalledWith('/api/admin/users/stats', {
-        method: 'GET'
-      })
+      expect(mockCrudFunctions.getUserStats).toHaveBeenCalledWith()
+    })
+
+    it('debe manejar errores al obtener estadísticas', async () => {
+      mockCrudFunctions.getUserStats.mockRejectedValueOnce(new Error('Database error'))
+
+      const { getUserStatsFromAPI } = useAdminUserAPI()
+
+      await expect(getUserStatsFromAPI()).rejects.toThrow('Error al obtener estadísticas: Database error')
     })
   })
 
   describe('resetUserPassword', () => {
-    it('debe resetear contraseña exitosamente', async () => {
+    it('debe resetear contraseña exitosamente usando el composable CRUD', async () => {
+      mockCrudFunctions.resetUserPassword.mockResolvedValueOnce()
+
+      const { resetUserPassword } = useAdminUserAPI()
+      await resetUserPassword('user-id')
+
+      expect(mockCrudFunctions.resetUserPassword).toHaveBeenCalledWith('user-id')
+    })
+
+    it('debe manejar errores al resetear contraseña', async () => {
+      mockCrudFunctions.resetUserPassword.mockRejectedValueOnce(new Error('User not found'))
+
+      const { resetUserPassword } = useAdminUserAPI()
+
+      await expect(resetUserPassword('invalid-id')).rejects.toThrow('Error al resetear contraseña: User not found')
+    })
+  })
+
+  describe('getAllUsersViaHTTP', () => {
+    it('debe obtener usuarios via HTTP exitosamente', async () => {
       const mockResponse = {
-        success: true,
-        message: 'Contraseña reseteada exitosamente'
+        data: [
+          { id: '1', email: 'user1@test.com', display_name: 'User 1' },
+          { id: '2', email: 'user2@test.com', display_name: 'User 2' }
+        ],
+        total: 2,
+        page: 1,
+        totalPages: 1
       }
 
       global.$fetch.mockResolvedValueOnce(mockResponse)
 
-      const { resetUserPassword } = useAdminUserAPI()
-      const result = await resetUserPassword('user-id')
+      const { getAllUsersViaHTTP } = useAdminUserAPI()
+      const result = await getAllUsersViaHTTP({}, 1, 10)
 
       expect(result).toEqual(mockResponse)
+      expect(global.$fetch).toHaveBeenCalledWith('/api/admin/users/list?page=1&page_size=10')
+    })
+
+    it('debe manejar errores HTTP al obtener usuarios', async () => {
+      global.$fetch.mockRejectedValueOnce({
+        statusCode: 500,
+        statusMessage: 'Internal Server Error'
+      })
+
+      const { getAllUsersViaHTTP } = useAdminUserAPI()
+
+      await expect(getAllUsersViaHTTP({}, 1, 10)).rejects.toThrow('Internal Server Error')
+    })
+  })
+
+  describe('getUserStatsViaHTTP', () => {
+    it('debe obtener estadísticas via HTTP exitosamente', async () => {
+      const mockStats = {
+        total: 100,
+        admins: 10,
+        supervisors: 20,
+        inspectors: 70
+      }
+
+      global.$fetch.mockResolvedValueOnce(mockStats)
+
+      const { getUserStatsViaHTTP } = useAdminUserAPI()
+      const result = await getUserStatsViaHTTP()
+
+      expect(result).toEqual(mockStats)
+      expect(global.$fetch).toHaveBeenCalledWith('/api/admin/users/stats')
+    })
+  })
+
+  describe('resetUserPasswordViaHTTP', () => {
+    it('debe resetear contraseña via HTTP exitosamente', async () => {
+      global.$fetch.mockResolvedValueOnce()
+
+      const { resetUserPasswordViaHTTP } = useAdminUserAPI()
+      await resetUserPasswordViaHTTP('user-id')
+
       expect(global.$fetch).toHaveBeenCalledWith('/api/admin/users/user-id/reset-password', {
         method: 'POST'
       })
     })
 
-    it('debe manejar errores al resetear contraseña', async () => {
-      global.$fetch.mockRejectedValueOnce(new Error('User not found'))
+    it('debe manejar errores HTTP al resetear contraseña', async () => {
+      global.$fetch.mockRejectedValueOnce({
+        statusCode: 404,
+        statusMessage: 'User not found'
+      })
 
-      const { resetUserPassword } = useAdminUserAPI()
+      const { resetUserPasswordViaHTTP } = useAdminUserAPI()
 
-      await expect(resetUserPassword('invalid-id')).rejects.toThrow('User not found')
+      await expect(resetUserPasswordViaHTTP('invalid-id')).rejects.toThrow('User not found')
     })
   })
 })

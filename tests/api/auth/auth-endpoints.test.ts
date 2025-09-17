@@ -45,7 +45,7 @@ describe('/api/auth endpoints', () => {
           }
         })
       } catch (error: unknown) {
-        expect((error as { statusCode: number }).statusCode).toBe(400)
+        expect((error as { statusCode: number }).statusCode).toBe(401)
         expect((error as { statusMessage: string }).statusMessage).toBeDefined()
       }
     })

@@ -37,6 +37,7 @@ global.reactive = reactive
 global.readonly = vi.fn((val) => val) // Mock readonly to pass through value
 global.onMounted = onMounted
 global.watch = watch
+global.getCurrentInstance = vi.fn(() => null) // Mock getCurrentInstance for logger
 
 // Mock process.env for tests
 process.env.SUPABASE_URL = 'http://localhost:3000'
