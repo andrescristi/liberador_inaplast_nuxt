@@ -5,6 +5,8 @@
  * @since v2.6.0
  */
 
+import type { Profile } from './auth'
+
 // ============================================================================
 // ENTIDADES PRINCIPALES
 // ============================================================================
@@ -49,6 +51,11 @@ export interface Order {
   maquina: string
   inspector_calidad: string
   status: OrderStatus
+  id_usuario?: string
+  usuario?: {
+    id: string
+    email: string
+  }
   tests?: OrderTest[]
 }
 

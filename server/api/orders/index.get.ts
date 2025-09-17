@@ -18,7 +18,9 @@ export default defineEventHandler(async (event) => {
     // Construir consulta base
     let queryBuilder = supabase
       .from('orders')
-      .select('*', { count: 'exact' })
+      .select(`
+        *
+      `, { count: 'exact' })
     
     // Aplicar filtros
     if (status) {
