@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     
     if (search) {
       queryBuilder = queryBuilder.or(
-        `cliente.ilike.%${search}%,producto.ilike.%${search}%,pedido.ilike.%${search}%,inspector_calidad.ilike.%${search}%,numero_orden.eq.${parseInt(search) || 0}`
+        `cliente.ilike.%${search}%,producto.ilike.%${search}%,pedido.ilike.%${search}%,numero_orden.eq.${parseInt(search) || 0}`
       )
     }
     
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
     
     // Ejecutar consulta
     const { data: orders, error, count } = await queryBuilder
-    
+
     if (error) {
       // eslint-disable-next-line no-console
       console.error('Error obteniendo orders:', error)
@@ -51,6 +51,27 @@ export default defineEventHandler(async (event) => {
         statusCode: 500,
         statusMessage: 'Error al obtener las órdenes: ' + error.message
       })
+    }
+
+    // Enriquecer con información de los liberadores
+    let enrichedOrders = orders || []
+    if (orders && orders.length > 0) {
+      // Obtener IDs únicos de usuarios
+      const userIds = [...new Set(orders.map(order => order.id_usuario).filter(Boolean))]
+
+      if (userIds.length > 0) {
+        // Obtener perfiles de usuarios
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, first_name, last_name, user_role')
+          .in('user_id', userIds)
+
+        // Mapear perfiles a órdenes
+        enrichedOrders = orders.map(order => ({
+          ...order,
+          liberador_profile: profiles?.find(profile => profile.user_id === order.id_usuario) || null
+        }))
+      }
     }
     
     // Calcular información de paginación
@@ -60,7 +81,7 @@ export default defineEventHandler(async (event) => {
     
     return {
       success: true,
-      data: orders || [],
+      data: enrichedOrders,
       pagination: {
         page,
         limit,

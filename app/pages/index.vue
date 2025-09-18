@@ -206,7 +206,7 @@
 
             <template #inspector-data="{ row }">
               <div class="text-gray-600 text-sm">
-                {{ row.inspector_calidad || 'No asignado' }}
+                {{ row.liberador_profile ? `${row.liberador_profile.first_name} ${row.liberador_profile.last_name}` : 'No asignado' }}
               </div>
             </template>
 
@@ -266,7 +266,7 @@ const tableColumns = ref([
   { key: 'customer', label: 'Cliente' },
   { key: 'product', label: 'Producto' },
   { key: 'status', label: 'Estado' },
-  { key: 'inspector', label: 'Inspector' },
+  { key: 'inspector', label: 'Liberó' },
   { key: 'date', label: 'Fecha' }
 ])
 
