@@ -14,7 +14,7 @@ El **Sistema Liberador Inaplast** es una aplicación web empresarial que digital
 
 - **🔄 Proceso de Liberación en 4 Pasos**: Flujo guiado desde captura de imagen hasta decisión final
 - **🤖 OCR Inteligente**: Extracción automática de datos con Google Gemini AI y fallback a Tesseract.js
-- **👥 Sistema de Administración Avanzado**: CRUD completo de usuarios con gestión de roles y permisos
+- **👥 Sistema de Administración Avanzado**: CRUD completo de usuarios con gestión de roles, permisos y establecimiento manual de contraseñas
 - **🔐 Autenticación Híbrida**: JWT + Session con recuperación automática y validación estricta
 - **📊 Dashboard Personalizado**: Métricas diferenciadas por rol de usuario con estadísticas en tiempo real
 - **🔍 Búsqueda Avanzada**: Incluye búsqueda por número de orden secuencial y filtros múltiples
@@ -110,7 +110,7 @@ El **Sistema Liberador Inaplast** es una aplicación web empresarial que digital
   - **CRUD Completo de Usuarios**: Crear, editar, eliminar y gestionar usuarios
   - **Gestión de Roles**: Asignar y modificar roles (Admin, Supervisor, Inspector)
   - **Panel de Administración**: Acceso a estadísticas detalladas y filtros avanzados
-  - **Gestión de Contraseñas**: Resetear contraseñas y generar credenciales temporales
+  - **Gestión de Contraseñas**: Establecimiento manual de contraseñas por administradores para usuarios que perdieron credenciales
   - **Configuración del Sistema**: Parámetros avanzados y configuraciones globales
   - **Acceso Total**: Logs, métricas detalladas y funcionalidades de mantenimiento
 
@@ -411,7 +411,7 @@ FOREIGN KEY (id_usuario) REFERENCES auth.users(id);
 - **Filtros y Búsqueda**: Búsqueda por nombre/email y filtros por rol (Admin, Supervisor, Inspector)
 - **Paginación Optimizada**: Navegación eficiente con 10 usuarios por página
 - **Estadísticas en Tiempo Real**: Dashboard con métricas de usuarios por rol
-- **Modales Especializados**: Componentes dedicados para cada operación (crear, editar, confirmar)
+- **Modales Especializados**: Componentes dedicados para cada operación (crear, editar, confirmar, establecer contraseña)
 
 **Características Técnicas Avanzadas**:
 - **Validación Robusta**: Schemas Zod para validación de datos en frontend y backend
@@ -429,6 +429,7 @@ FOREIGN KEY (id_usuario) REFERENCES auth.users(id);
 5. **UserStatsCards.vue**: Tarjetas de estadísticas con métricas por rol
 6. **UserPagination.vue**: Navegación paginada optimizada
 7. **UserConfirmationModals.vue**: Modales de confirmación para acciones críticas
+8. **UserSetPasswordModal.vue**: Modal para establecimiento manual de contraseñas por administradores
 
 #### 🔐 **Mejoras de UI/UX - Sistema de Modales**
 
@@ -443,6 +444,14 @@ FOREIGN KEY (id_usuario) REFERENCES auth.users(id);
 - **Solución**: Ajuste de z-index en contenedor de botones (`z-20`)
 - **Beneficio**: Interfaz completamente funcional para gestión de contraseñas
 
+**Nueva Funcionalidad: Establecimiento Manual de Contraseñas**:
+- **Acceso**: Botón "Contraseña" en tabla de usuarios (solo administradores)
+- **Interfaz**: Modal dedicado con campos de contraseña y confirmación
+- **Validaciones**: Longitud mínima (8 caracteres), coincidencia de contraseñas
+- **Seguridad**: Verificación de rol de admin, encriptación segura de contraseñas
+- **UX**: Toggle de visibilidad, advertencias de seguridad, feedback inmediato
+- **Beneficio**: Solución completa para administradores que necesitan ayudar a usuarios con contraseñas perdidas
+
 #### 📊 **API Endpoints para Administración**
 
 ```typescript
@@ -452,7 +461,7 @@ POST /api/admin/users            # Crear usuario con validaciones
 PUT  /api/admin/users/[id]       # Actualizar usuario existente
 DELETE /api/admin/users/[id]     # Eliminar usuario con confirmación
 GET  /api/admin/users/stats      # Estadísticas por rol
-POST /api/admin/users/[id]/reset-password # Reset de contraseña
+POST /api/admin/users/[id]/set-password    # Establecer contraseña manualmente por admin
 ```
 
 #### 🧪 **Testing Integral**
