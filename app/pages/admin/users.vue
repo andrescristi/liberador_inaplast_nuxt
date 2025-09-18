@@ -87,6 +87,7 @@
         @edit="editUser"
         @delete="confirmDeleteUser"
         @reset-password="confirmResetPassword"
+        @set-password="confirmSetPassword"
       />
 
       <!-- Pagination -->
@@ -116,6 +117,14 @@
       @updated="handleUserUpdated"
     />
 
+    <!-- Set Password Modal -->
+    <UserSetPasswordModal
+      v-if="showSetPasswordModal && userToSetPassword"
+      :user="userToSetPassword"
+      @close="showSetPasswordModal = false"
+      @success="handlePasswordSet"
+    />
+
     <!-- Confirmation Modals -->
     <UserConfirmationModals
       :show-delete-modal="showDeleteModal"
@@ -136,6 +145,7 @@ import type { Profile, ProfileRole, ProfileResponse } from '~/types'
 // Components are auto-imported by Nuxt
 import UserCreateModal from '~/components/admin/UserCreateModal.vue'
 import UserEditModal from '~/components/admin/UserEditModal.vue'
+import UserSetPasswordModal from '~/components/admin/UserSetPasswordModal.vue'
 import UserStatsCards from '~/components/admin/UserStatsCards.vue'
 import UserFilters from '~/components/admin/UserFilters.vue'
 import UserTable from '~/components/admin/UserTable.vue'
@@ -170,9 +180,11 @@ const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
 const showResetPasswordModal = ref(false)
+const showSetPasswordModal = ref(false)
 const selectedUser = ref<Profile | null>(null)
 const userToDelete = ref<Profile | null>(null)
 const userToResetPassword = ref<Profile | null>(null)
+const userToSetPassword = ref<ProfileResponse | null>(null)
 
 // Methods
 const fetchUsers = async () => {
@@ -303,6 +315,11 @@ const confirmResetPassword = (user: ProfileResponse) => {
   showResetPasswordModal.value = true
 }
 
+const confirmSetPassword = (user: ProfileResponse) => {
+  userToSetPassword.value = user
+  showSetPasswordModal.value = true
+}
+
 const deleteUser = async () => {
   if (!userToDelete.value) return
   
@@ -348,6 +365,12 @@ const handleUserUpdated = async () => {
   await fetchUsers()
   await fetchStats()
   toast.success('Éxito', 'Usuario actualizado correctamente')
+}
+
+const handlePasswordSet = async () => {
+  showSetPasswordModal.value = false
+  userToSetPassword.value = null
+  toast.success('Éxito', 'Contraseña establecida correctamente')
 }
 
 const nextPage = () => {

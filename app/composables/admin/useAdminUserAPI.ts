@@ -272,7 +272,7 @@ export const useAdminUserAPI = () => {
       await $fetch(`/api/admin/users/${userId}/reset-password`, {
         method: 'POST'
       })
-      
+
       logger.info('Contraseña reseteada exitosamente via HTTP', {
         userId,
         action: 'reset_user_password_via_http'
@@ -281,26 +281,72 @@ export const useAdminUserAPI = () => {
       // Errores HTTP estructurados
       if (error && typeof error === 'object' && 'statusCode' in error) {
         const fetchError = error as { statusCode: number; statusMessage: string }
-        
+
         logger.error('Error HTTP al resetear contraseña', {
           statusCode: fetchError.statusCode,
           statusMessage: fetchError.statusMessage,
           userId,
           action: 'reset_user_password_via_http'
         })
-        
+
         throw new Error(fetchError.statusMessage || 'Error al resetear contraseña')
       }
-      
+
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-      
+
       logger.error('Error en resetUserPasswordViaHTTP', {
         error: errorMessage,
         userId,
         action: 'reset_user_password_via_http'
       })
-      
+
       throw new Error(`Error al resetear contraseña: ${errorMessage}`)
+    }
+  }
+
+  /**
+   * Establece una nueva contraseña para un usuario usando endpoint HTTP REST
+   */
+  const setUserPasswordViaHTTP = async (userId: string, password: string): Promise<void> => {
+    try {
+      logger.debug('Estableciendo contraseña via HTTP endpoint', {
+        userId,
+        action: 'set_user_password_via_http'
+      })
+
+      await $fetch(`/api/admin/users/${userId}/set-password`, {
+        method: 'POST',
+        body: { password }
+      })
+
+      logger.info('Contraseña establecida exitosamente via HTTP', {
+        userId,
+        action: 'set_user_password_via_http'
+      })
+    } catch (error: unknown) {
+      // Errores HTTP estructurados
+      if (error && typeof error === 'object' && 'statusCode' in error) {
+        const fetchError = error as { statusCode: number; statusMessage: string }
+
+        logger.error('Error HTTP al establecer contraseña', {
+          statusCode: fetchError.statusCode,
+          statusMessage: fetchError.statusMessage,
+          userId,
+          action: 'set_user_password_via_http'
+        })
+
+        throw new Error(fetchError.statusMessage || 'Error al establecer contraseña')
+      }
+
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
+
+      logger.error('Error en setUserPasswordViaHTTP', {
+        error: errorMessage,
+        userId,
+        action: 'set_user_password_via_http'
+      })
+
+      throw new Error(`Error al establecer contraseña: ${errorMessage}`)
     }
   }
 
@@ -311,12 +357,13 @@ export const useAdminUserAPI = () => {
     getAllUsersFromAPI,
     getUserStatsFromAPI,
     resetUserPassword,
-    
+
     // Funciones adicionales (usan endpoints HTTP REST)
     getAllUsersViaHTTP,
     getUserStatsViaHTTP,
     resetUserPasswordViaHTTP,
-    
+    setUserPasswordViaHTTP,
+
     // Acceso directo al composable CRUD para operaciones avanzadas
     crud
   }

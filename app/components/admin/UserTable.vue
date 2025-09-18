@@ -40,6 +40,16 @@
                 Resetear
               </BaseButton>
               <BaseButton
+                variant="ghost"
+                color="indigo"
+                size="xs"
+                leading-icon="bx:lock"
+                class="min-w-0 px-2"
+                @click="$emit('setPassword', row as unknown as ProfileResponse)"
+              >
+                Contraseña
+              </BaseButton>
+              <BaseButton
                 v-if="(row as unknown as ProfileResponse).userRole !== 'Admin'"
                 variant="ghost"
                 color="danger"
@@ -108,6 +118,16 @@
               Resetear
             </BaseButton>
             <BaseButton
+              variant="ghost"
+              color="indigo"
+              size="sm"
+              leading-icon="bx:lock"
+              class="flex-1"
+              @click="$emit('setPassword', user)"
+            >
+              Contraseña
+            </BaseButton>
+            <BaseButton
               v-if="user.userRole !== 'Admin'"
               variant="ghost"
               color="danger"
@@ -144,7 +164,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'edit' | 'delete' | 'resetPassword', user: ProfileResponse): void
+  (e: 'edit' | 'delete' | 'resetPassword' | 'setPassword', user: ProfileResponse): void
 }
 
 defineProps<Props>()
