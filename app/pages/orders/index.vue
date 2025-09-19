@@ -88,7 +88,7 @@
 
     <!-- Filtros y búsqueda -->
     <div class="bg-white shadow rounded-lg p-6 mb-8">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <!-- Búsqueda -->
         <div class="lg:col-span-2">
           <label for="search" class="block text-sm font-medium text-gray-700">Buscar</label>
@@ -103,7 +103,7 @@
               class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
               placeholder="Buscar por cliente, producto, pedido, inspector, número de orden..."
               @input="debouncedSearch"
-            />
+            >
           </div>
         </div>
 
@@ -138,6 +138,26 @@
             <option value="quarter">Este trimestre</option>
           </select>
         </div>
+
+        <!-- Liberador -->
+        <div>
+          <label for="liberador" class="block text-sm font-medium text-gray-700">Liberador</label>
+          <select
+            id="liberador"
+            v-model="filters.liberador"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+            @change="fetchOrders"
+          >
+            <option value="">Todos los liberadores</option>
+            <option
+              v-for="liberador in liberadores"
+              :key="liberador.user_id"
+              :value="liberador.user_id"
+            >
+              {{ liberador.first_name }} {{ liberador.last_name }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <!-- Botones de acción -->
@@ -151,9 +171,9 @@
             Limpiar filtros
           </button>
           <button
+            :disabled="exporting"
             class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             @click="exportToExcel"
-            :disabled="exporting"
           >
             <Icon 
               :name="exporting ? 'bx:loader-alt' : 'bx:download'" 
@@ -166,11 +186,15 @@
         <div class="flex items-center space-x-2 text-sm text-gray-500">
           <span>{{ pagination.total }} orden{{ pagination.total !== 1 ? 'es' : '' }}</span>
           <button
+            :disabled="loading"
             class="p-1 rounded hover:bg-gray-100"
             @click="fetchOrders"
-            :disabled="loading"
           >
-            <Icon name="bx:refresh" class="w-4 h-4" :class="{ 'animate-spin': loading }" />
+            <Icon
+              name="bx:refresh"
+              class="w-4 h-4"
+              :class="{ 'animate-spin': loading }"
+            />
           </button>
         </div>
       </div>
@@ -181,11 +205,11 @@
       <!-- Loading State -->
       <div v-if="loading" class="p-6">
         <div class="animate-pulse space-y-4">
-          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-4 bg-gray-200 rounded w-3/4" />
           <div class="space-y-2">
-            <div class="h-4 bg-gray-200 rounded"></div>
-            <div class="h-4 bg-gray-200 rounded w-5/6"></div>
-            <div class="h-4 bg-gray-200 rounded w-4/6"></div>
+            <div class="h-4 bg-gray-200 rounded" />
+            <div class="h-4 bg-gray-200 rounded w-5/6" />
+            <div class="h-4 bg-gray-200 rounded w-4/6" />
           </div>
         </div>
       </div>
@@ -208,16 +232,19 @@
 
       <!-- Tabla -->
       <ul v-else class="divide-y divide-gray-200">
-        <li v-for="order in orders" :key="order.id" class="hover:bg-gray-50">
+        <li
+v-for="order in orders"
+:key="order.id"
+class="hover:bg-gray-50">
           <div class="px-4 py-4 sm:px-6">
             <div class="flex flex-col space-y-3">
               <!-- Header con Orden y Estado -->
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                  <div 
-                    class="w-3 h-3 rounded-full flex-shrink-0"
+                  <div
                     :class="order.status === 'Aprobado' ? 'bg-green-400' : 'bg-red-400'"
-                  ></div>
+                    class="w-3 h-3 rounded-full flex-shrink-0"
+                  />
                   <p class="text-lg font-semibold text-blue-600">
                     <NuxtLink :to="`/orders/${order.id}`" class="hover:underline">
                       Orden #{{ order.numero_orden }}
@@ -386,11 +413,11 @@
                 </button>
                 <button
                   v-else
-                  class="relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200"
-                  :class="page === pagination.page 
-                    ? 'border-blue-500 bg-blue-50 text-blue-600 z-10' 
+                  :class="page === pagination.page
+                    ? 'border-blue-500 bg-blue-50 text-blue-600 z-10'
                     : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'"
-                  @click="changePage(page)"
+                  class="relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-200"
+                  @click="changePage(Number(page))"
                 >
                   {{ page }}
                 </button>
@@ -430,6 +457,7 @@ import type { Order, OrderFilters, PaginatedResponse } from '~/types/orders'
 const orders = ref<Order[]>([])
 const loading = ref(true)
 const exporting = ref(false)
+const liberadores = ref<Array<{ user_id: string; first_name: string; last_name: string; user_role: string }>>([])
 const filters = ref<OrderFilters & { limit: number }>({
   status: undefined,
   search: '',
@@ -455,7 +483,7 @@ const stats = ref({
 
 // Computadas
 const hasActiveFilters = computed(() => {
-  return filters.value.status || filters.value.search || selectedDateRange.value
+  return filters.value.status || filters.value.search || filters.value.liberador || selectedDateRange.value
 })
 
 const visiblePages = computed(() => {
@@ -510,7 +538,11 @@ const fetchOrders = async () => {
     if (filters.value.search) {
       queryParams.append('search', filters.value.search)
     }
-    
+
+    if (filters.value.liberador) {
+      queryParams.append('liberador', filters.value.liberador)
+    }
+
     const response = await $fetch<PaginatedResponse<Order>>(`/api/orders?${queryParams}`)
     
     orders.value = response?.data || []
@@ -526,7 +558,7 @@ const fetchOrders = async () => {
     // Calcular estadísticas
     await calculateStats()
     
-  } catch (error) {
+  } catch {
     // TODO: Mostrar toast de error
   } finally {
     loading.value = false
@@ -552,7 +584,7 @@ const calculateStats = async () => {
       new Date(order.created_at) >= thisMonth
     ).length
     
-  } catch (error) {
+  } catch {
     // Establecer valores por defecto en caso de error
     stats.value = {
       total: 0,
@@ -578,6 +610,7 @@ const clearFilters = () => {
   filters.value = {
     status: undefined,
     search: '',
+    liberador: undefined,
     limit: 20
   }
   selectedDateRange.value = ''
@@ -598,23 +631,26 @@ const handleDateRangeChange = () => {
         filters.value.dateFrom = new Date(now.setHours(0, 0, 0, 0)).toISOString()
         filters.value.dateTo = new Date(now.setHours(23, 59, 59, 999)).toISOString()
         break
-      case 'week':
+      case 'week': {
         const weekStart = new Date(now)
         weekStart.setDate(now.getDate() - now.getDay())
         weekStart.setHours(0, 0, 0, 0)
         filters.value.dateFrom = weekStart.toISOString()
         filters.value.dateTo = new Date().toISOString()
         break
-      case 'month':
+      }
+      case 'month': {
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
         filters.value.dateFrom = monthStart.toISOString()
         filters.value.dateTo = new Date().toISOString()
         break
-      case 'quarter':
+      }
+      case 'quarter': {
         const quarterStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1)
         filters.value.dateFrom = quarterStart.toISOString()
         filters.value.dateTo = new Date().toISOString()
         break
+      }
     }
   }
   
@@ -641,7 +677,11 @@ const exportToExcel = async () => {
     if (filters.value.search) {
       queryParams.append('search', filters.value.search)
     }
-    
+
+    if (filters.value.liberador) {
+      queryParams.append('liberador', filters.value.liberador)
+    }
+
     if (filters.value.dateFrom) {
       queryParams.append('dateFrom', filters.value.dateFrom)
     }
@@ -740,7 +780,7 @@ const exportToExcel = async () => {
     // Mensaje de éxito
     alert(`Se han exportado ${ordersToExport.length} órdenes a Excel exitosamente`)
     
-  } catch (error) {
+  } catch {
     alert('Error al exportar a Excel. Por favor, inténtalo de nuevo.')
   } finally {
     exporting.value = false
@@ -766,9 +806,20 @@ const debouncedSearch = () => {
   }, 500)
 }
 
+// Cargar lista de liberadores
+const fetchLiberadores = async () => {
+  try {
+    const { data: profiles } = await $fetch('/api/users/liberadores')
+    liberadores.value = profiles
+  } catch {
+    // Error silencioso - los liberadores son opcionales
+  }
+}
+
 // Ciclo de vida
 onMounted(() => {
   fetchOrders()
+  fetchLiberadores()
 })
 
 // Meta tags

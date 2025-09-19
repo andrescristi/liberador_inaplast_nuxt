@@ -5,7 +5,6 @@
  * @since v2.6.0
  */
 
-import type { Profile } from './auth'
 
 // ============================================================================
 // ENTIDADES PRINCIPALES
@@ -57,6 +56,12 @@ export interface Order {
     email: string
   }
   tests?: OrderTest[]
+  liberador_profile?: {
+    user_id: string
+    first_name: string
+    last_name: string
+    user_role: string
+  }
 }
 
 /**
@@ -119,7 +124,8 @@ export interface UpdateOrderForm {
   fecha_fabricacion?: string
   codigo_producto?: string
   turno?: string
-  cantidad_unidades_por_embalaje?: number
+  unidades_por_embalaje?: number
+  cantidad_embalajes?: number
   jefe_de_turno?: string
   orden_de_compra?: string
   numero_operario?: string
@@ -145,6 +151,7 @@ export interface OrderFilters {
   dateFrom?: string
   dateTo?: string
   search?: string
+  liberador?: string
 }
 
 
