@@ -13,7 +13,7 @@ El **Sistema Liberador Inaplast** es una aplicación web empresarial que digital
 ### ✨ Características Principales
 
 - **🔄 Proceso de Liberación en 4 Pasos**: Flujo guiado desde captura de imagen hasta decisión final
-- **🤖 OCR Inteligente**: Extracción automática de datos con Google Gemini AI y fallback a Tesseract.js
+- **🤖 OCR Inteligente**: Extracción automática de datos con Google Gemini AI
 - **👥 Sistema de Administración Avanzado**: CRUD completo de usuarios con gestión de roles, permisos y establecimiento manual de contraseñas
 - **🔐 Autenticación Híbrida**: JWT + Session con recuperación automática y validación estricta
 - **📊 Dashboard Personalizado**: Métricas diferenciadas por rol de usuario con estadísticas en tiempo real
@@ -45,7 +45,6 @@ El **Sistema Liberador Inaplast** es una aplicación web empresarial que digital
 
 ### IA y Procesamiento
 - **Google GenAI 1.15.0** - OCR principal con Gemini AI para extracción de datos
-- **Tesseract.js** - OCR fallback local para mayor confiabilidad
 - **Sharp 0.34.3** - Procesamiento y optimización de imágenes
 - **HTML2Canvas 1.4.1** - Captura de screenshots para debugging
 
@@ -70,7 +69,7 @@ El **Sistema Liberador Inaplast** es una aplicación web empresarial que digital
 
 ### Paso 2: Extracción OCR Inteligente
 - **Procesamiento Primario**: Google Gemini AI para extracción precisa
-- **Fallback Robusto**: Tesseract.js si Gemini no está disponible
+- **Procesamiento Robusto**: Gemini AI con manejo de errores avanzado
 - **Mapeo Inteligente**: Conversión automática entre nomenclaturas
 - **Auto-población**: Formularios se llenan automáticamente con datos extraídos
 
@@ -223,7 +222,7 @@ server/
 │   │   ├── stats.get.ts          # Estadísticas de usuarios por rol
 │   │   └── [id]/reset-password.post.ts # Reset de contraseña
 │   ├── ocr/                      # Procesamiento OCR con IA
-│   │   └── extract.post.ts       # Extracción con Gemini + Tesseract
+│   │   └── extract.post.ts       # Extracción con Gemini AI
 │   ├── dashboard/                # Métricas del dashboard
 │   │   └── metrics.get.ts        # Métricas por rol
 │   └── profiles/                 # Gestión de perfiles
@@ -730,7 +729,7 @@ tests/
 
 #### **Sistema de Liberación**
 - **Wizard Tests**: 4 pasos completos con validaciones
-- **OCR Tests**: Procesamiento con Gemini AI y fallback Tesseract
+- **OCR Tests**: Procesamiento con Gemini AI
 - **Export Tests**: Generación de PDF y Excel
 - **QR Tests**: Generación y validación de códigos QR
 
@@ -777,7 +776,7 @@ describe('OrderWizard', () => {
 // Sistema OCR
 describe('OCR Processing', () => {
   it('should extract data from product labels')
-  it('should fallback to Tesseract when Gemini fails')
+  it('should handle Gemini AI errors gracefully')
   it('should map database fields correctly')
   it('should handle image optimization')
 })
@@ -1025,7 +1024,7 @@ Has accedido a un sistema de **misión crítica** que digitaliza los procesos de
    - Proceso completo de liberación (wizard 4 pasos)
    - Gestión de usuarios (crear, editar, eliminar)
    - Búsqueda y filtros avanzados
-8. ✅ **Revisar flujo OCR** - Entender integración Gemini AI + Tesseract
+8. ✅ **Revisar flujo OCR** - Entender integración Gemini AI
 9. ✅ **Entender sistema de z-index** - Variables CSS para layering consistente
 
 ### Recursos de Apoyo

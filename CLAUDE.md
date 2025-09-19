@@ -17,7 +17,7 @@
 ### Utilities & Features
 - **VueUse**: @vueuse/nuxt 13.6.0
 - **Form Validation**: @vee-validate/nuxt 4.15.1, @vee-validate/zod 4.15.1
-- **OCR**: @google/genai 1.15.0, tesseract.js 6.0.1
+- **OCR**: @google/genai 1.15.0
 - **Logging**: pino 9.9.0
 - **Validation**: zod 3.25.76
 
