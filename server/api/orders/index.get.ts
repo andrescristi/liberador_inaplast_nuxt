@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
     const limit = parseInt(query.limit as string) || 20
     const status = query.status as string || null
     const search = query.search as string || null
+    const liberador = query.liberador as string || null
     
     // Obtener cliente de Supabase con permisos de servicio
     const supabase = serverSupabaseServiceRole(event)
@@ -31,6 +32,10 @@ export default defineEventHandler(async (event) => {
       queryBuilder = queryBuilder.or(
         `cliente.ilike.%${search}%,producto.ilike.%${search}%,pedido.ilike.%${search}%,numero_orden.eq.${parseInt(search) || 0}`
       )
+    }
+
+    if (liberador) {
+      queryBuilder = queryBuilder.eq('id_usuario', liberador)
     }
     
     // Aplicar paginación

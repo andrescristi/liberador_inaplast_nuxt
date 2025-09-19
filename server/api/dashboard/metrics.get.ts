@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     // Usar serverSupabaseServiceRole para bypass de RLS
     const supabase = serverSupabaseServiceRole(event)
 
-    let metrics = {
+    const metrics = {
       pending: 0,
       completed: 0,
       rejected: 0,
