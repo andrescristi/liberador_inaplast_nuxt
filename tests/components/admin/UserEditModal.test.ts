@@ -9,7 +9,8 @@
  * - Prevención de edición de rol de administradores
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount, VueWrapper } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import UserEditModal from '~/components/admin/UserEditModal.vue'
 import type { Profile } from '~/types'

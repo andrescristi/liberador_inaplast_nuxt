@@ -63,15 +63,15 @@
             <button
               type="button"
               class="p-1 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
-              @click="showPassword = !showPassword"
               :title="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              @click="showPassword = !showPassword"
             >
               <Icon
                 :name="showPassword ? 'bx:bx-hide' : 'bx:bx-show'"
                 class="h-4 w-4"
               />
             </button>
-            <div class="w-px h-4 bg-gray-300"></div>
+            <div class="w-px h-4 bg-gray-300"/>
             <button
               type="button"
               class="px-2 py-1 text-xs text-blue-600 hover:text-blue-800 focus:outline-none transition-colors"

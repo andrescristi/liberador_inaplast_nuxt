@@ -26,7 +26,7 @@
         </div>
 
         <!-- Formulario -->
-        <form @submit.prevent="handleSubmit" class="space-y-4">
+        <form class="space-y-4" @submit.prevent="handleSubmit">
           <div>
             <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
               Nueva Contraseña
@@ -106,16 +106,16 @@
         <BaseButton
           variant="ghost"
           color="gray"
-          @click="$emit('close')"
           :disabled="loading"
+          @click="$emit('close')"
         >
           Cancelar
         </BaseButton>
         <BaseButton
           color="indigo"
-          @click="handleSubmit"
           :loading="loading"
           :disabled="!isFormValid"
+          @click="handleSubmit"
         >
           Establecer Contraseña
         </BaseButton>

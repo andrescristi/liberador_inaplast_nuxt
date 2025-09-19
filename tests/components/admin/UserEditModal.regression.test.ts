@@ -11,7 +11,8 @@
  * Cada test documenta el bug específico que previene.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount, VueWrapper } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils'
 import UserEditModal from '~/components/admin/UserEditModal.vue'
 import type { Profile } from '~/types'
 

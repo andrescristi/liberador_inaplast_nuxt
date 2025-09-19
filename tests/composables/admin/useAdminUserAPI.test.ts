@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+// Ahora sí importamos el composable que queremos testear
+import { useAdminUserAPI } from '~/composables/admin/useAdminUserAPI'
+
 // Mock todos los composables necesarios antes de importar useAdminUserAPI
 const mockCrudFunctions = {
   getAllUsers: vi.fn(),
@@ -19,9 +22,6 @@ vi.mock('~/composables/tools/useLogger', () => ({
     warn: vi.fn()
   })
 }))
-
-// Ahora sí importamos el composable que queremos testear
-import { useAdminUserAPI } from '~/composables/admin/useAdminUserAPI'
 
 describe('useAdminUserAPI', () => {
   beforeEach(() => {

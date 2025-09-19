@@ -8,7 +8,8 @@
  * - Verificación de actualización de datos
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mount, VueWrapper } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import UserTable from '~/components/admin/UserTable.vue'
 import UserEditModal from '~/components/admin/UserEditModal.vue'
