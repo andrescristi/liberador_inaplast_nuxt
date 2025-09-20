@@ -580,24 +580,56 @@ const exportQRCodePDF = async () => {
     const { jsPDF } = await import('jspdf')
     const QRCode = await import('qrcode')
 
-    // Obtener el dominio según el entorno
-    const appConfig = useAppConfig()
+    // Obtener el dominio de forma segura usando variables de entorno
+    const runtimeConfig = useRuntimeConfig()
     const isDevelopment = process.env.NODE_ENV === 'development' || import.meta.dev
 
-    // En desarrollo, obtener la IP real del servidor
+    // Obtener dominios permitidos desde variables de entorno
+    const allowedDomains = (runtimeConfig.public.allowedDomains as string)?.split(',') || ['http://localhost:3000']
+    const productionDomain = (runtimeConfig.public.productionDomain as string) || 'https://liberador-inaplast-nuxt.vercel.app'
+
+    // Función para validar IP
+    const isValidIP = (ip: string): boolean => {
+      const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+      return ipRegex.test(ip)
+    }
+
+    // Función para validar que el dominio esté permitido
+    const isAllowedDomain = (domain: string): boolean => {
+      return allowedDomains.includes(domain)
+    }
+
+    // Obtener dominio base de forma segura
     let baseDomain: string
     if (isDevelopment) {
       try {
         const serverIpResponse = await $fetch<{ success: boolean, ip: string }>('/api/server-ip')
-        const serverIp = serverIpResponse.success ? serverIpResponse.ip : 'localhost'
-        const currentPort = window.location.port || '3000'
-        baseDomain = `http://${serverIp}:${currentPort}`
+        if (serverIpResponse.success && isValidIP(serverIpResponse.ip)) {
+          const currentPort = window.location.port || '3000'
+          const candidateDomain = `http://${serverIpResponse.ip}:${currentPort}`
+
+          // Verificar si el dominio candidato está permitido
+          if (isAllowedDomain(candidateDomain) || allowedDomains.some(domain => domain.includes('localhost'))) {
+            baseDomain = candidateDomain
+          } else {
+            baseDomain = 'http://localhost:3000' // Fallback seguro
+          }
+        } else {
+          baseDomain = 'http://localhost:3000' // Fallback seguro
+        }
       } catch {
-        // Fallback si falla la API
-        baseDomain = window.location.origin
+        // Fallback seguro si falla la API
+        baseDomain = 'http://localhost:3000'
       }
     } else {
-      baseDomain = appConfig.domain?.production || window.location.origin
+      // En producción, usar solo el dominio configurado
+      baseDomain = productionDomain
+
+      // Validar que el dominio esté en la lista de permitidos
+      if (!isAllowedDomain(baseDomain)) {
+        // Dominio no permitido, usar fallback seguro
+        baseDomain = 'https://liberador-inaplast-nuxt.vercel.app'
+      }
     }
 
     // Generar la URL completa de la orden

@@ -77,7 +77,10 @@ export default defineNuxtConfig({
       },
       // Feature flags para alternar funcionalidades
       enableMockOCR: process.env.NUXT_ENABLE_MOCK_OCR || 'true', // Default a true para desarrollo
-      enableDebugMode: process.env.NUXT_ENABLE_DEBUG_MODE || 'false'
+      enableDebugMode: process.env.NUXT_ENABLE_DEBUG_MODE || 'false',
+      // Configuración de seguridad para generación de QR
+      allowedDomains: process.env.NUXT_ALLOWED_DOMAINS || 'http://localhost:3000',
+      productionDomain: process.env.NUXT_PRODUCTION_DOMAIN || 'https://liberador-inaplast-nuxt.vercel.app'
     }
   },
   

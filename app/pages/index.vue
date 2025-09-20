@@ -239,7 +239,7 @@
  * @since v1.0.0
  */
 
-import type { Profile } from '~/types'
+import type { Profile, Order } from '~/types'
 
 // Composables y utilitiesystem/toast
 const toast = useToast()
@@ -258,7 +258,7 @@ const {
 } = useDashboardMetrics()
 
 /** Lista de órdenes recientes para mostrar en la tabla del dashboard */
-const recentOrders = ref([])
+const recentOrders = ref<Order[]>([])
 
 /** Configuración de columnas para la tabla de órdenes recientes */
 const tableColumns = ref([
@@ -297,7 +297,7 @@ async function loadDashboardData() {
     try {
       const response = await $fetch('/api/orders?limit=5&page=1')
       recentOrders.value = response.data || []
-    } catch (ordersError) {
+    } catch {
       toast.warning('Datos Parciales', 'No se pudieron cargar las liberaciones recientes')
     }
 
@@ -306,7 +306,7 @@ async function loadDashboardData() {
       toast.warning('Datos Parciales', 'Algunas métricas no pudieron cargarse completamente')
     }
 
-  } catch (error) {
+  } catch {
     // Manejo de errores durante la carga de datos
     toast.error('Error', 'Error al cargar los datos del dashboard')
   }
