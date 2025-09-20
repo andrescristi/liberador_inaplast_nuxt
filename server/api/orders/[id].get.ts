@@ -35,15 +35,7 @@ export default defineEventHandler(async (event) => {
     // Obtener la orden
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select(`
-        *,
-        liberador_profile:profiles!liberador (
-          id,
-          first_name,
-          last_name,
-          user_role
-        )
-      `)
+      .select('*')
       .eq('id', orderId)
       .single()
     
@@ -63,7 +55,20 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Error al obtener la orden: ' + orderError.message
       })
     }
-    
+
+    // Obtener datos del usuario liberador si existe
+    let liberadorUser = null
+    if (order.id_usuario) {
+      const { data: userData, error: userError } = await supabase.auth.admin.getUserById(order.id_usuario)
+      if (!userError && userData.user) {
+        liberadorUser = {
+          id: userData.user.id,
+          email: userData.user.email,
+          user_metadata: userData.user.user_metadata
+        }
+      }
+    }
+
     // Obtener los tests de la orden con información del test
     const { data: orderTests, error: testsError } = await supabase
       .from('orders_tests')
@@ -139,8 +144,8 @@ export default defineEventHandler(async (event) => {
       muestreoReal: order.muestreo_real,
       status: order.status,
       createdAt: order.created_at,
-      liberador: order.liberador,
-      liberadorProfile: order.liberador_profile
+      liberador: order.id_usuario,
+      liberadorUser
     }
 
     // Mapear tests con nombres correctos

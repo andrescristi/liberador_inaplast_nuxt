@@ -572,124 +572,37 @@ const printReport = () => {
 
 const exportQRCodePDF = async () => {
   if (!orderData.value) {
-    alert('No hay datos de orden para generar el código QR')
+    alert('No hay datos de orden para descargar el código QR')
     return
   }
 
   try {
-    const { jsPDF } = await import('jspdf')
-    const QRCode = await import('qrcode')
+    // Obtener la URL del PDF desde el bucket de Supabase
+    const response = await $fetch<{ success: boolean, data: { qr_pdf_url: string } }>(`/api/orders/${orderId}/qr-pdf`)
 
-    // Obtener el dominio de forma segura usando variables de entorno
-    const runtimeConfig = useRuntimeConfig()
-    const isDevelopment = process.env.NODE_ENV === 'development' || import.meta.dev
-
-    // Obtener dominios permitidos desde variables de entorno
-    const allowedDomains = (runtimeConfig.public.allowedDomains as string)?.split(',') || ['http://localhost:3000']
-    const productionDomain = (runtimeConfig.public.productionDomain as string) || 'https://liberador-inaplast-nuxt.vercel.app'
-
-    // Función para validar IP
-    const isValidIP = (ip: string): boolean => {
-      const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
-      return ipRegex.test(ip)
-    }
-
-    // Función para validar que el dominio esté permitido
-    const isAllowedDomain = (domain: string): boolean => {
-      return allowedDomains.includes(domain)
-    }
-
-    // Obtener dominio base de forma segura
-    let baseDomain: string
-    if (isDevelopment) {
-      try {
-        const serverIpResponse = await $fetch<{ success: boolean, ip: string }>('/api/server-ip')
-        if (serverIpResponse.success && isValidIP(serverIpResponse.ip)) {
-          const currentPort = window.location.port || '3000'
-          const candidateDomain = `http://${serverIpResponse.ip}:${currentPort}`
-
-          // Verificar si el dominio candidato está permitido
-          if (isAllowedDomain(candidateDomain) || allowedDomains.some(domain => domain.includes('localhost'))) {
-            baseDomain = candidateDomain
-          } else {
-            baseDomain = 'http://localhost:3000' // Fallback seguro
-          }
-        } else {
-          baseDomain = 'http://localhost:3000' // Fallback seguro
-        }
-      } catch {
-        // Fallback seguro si falla la API
-        baseDomain = 'http://localhost:3000'
-      }
+    if (response.success && response.data.qr_pdf_url) {
+      // Crear un enlace temporal para descargar el archivo
+      const link = document.createElement('a')
+      link.href = response.data.qr_pdf_url
+      link.download = `qr-${orderData.value.orden.pedido}.pdf`
+      link.target = '_blank'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
     } else {
-      // En producción, usar solo el dominio configurado
-      baseDomain = productionDomain
-
-      // Validar que el dominio esté en la lista de permitidos
-      if (!isAllowedDomain(baseDomain)) {
-        // Dominio no permitido, usar fallback seguro
-        baseDomain = 'https://liberador-inaplast-nuxt.vercel.app'
-      }
+      throw new Error('No se pudo obtener la URL del PDF')
     }
-
-    // Generar la URL completa de la orden
-    const orderURL = `${baseDomain}/orders/${orderId}`
-
-    // Crear un nuevo documento PDF
-    const doc = new jsPDF('p', 'mm', 'a4')
-
-    // Configuración del documento
-    const pageWidth = doc.internal.pageSize.getWidth()
-    const margin = 20
-    let yPosition = margin + 20
-
-    // Título del documento
-    doc.setFontSize(18)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Orden de liberación de pedido', pageWidth / 2, yPosition, { align: 'center' })
-    yPosition += 20
-
-    // Información básica de la orden
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'normal')
-
-    const orderInfo = [
-      `Número de Pedido: ${orderData.value.orden.pedido}`,
-      `Cliente: ${orderData.value.orden.cliente}`,
-      `Estado: ${orderData.value.resumenInspeccion.statusFinal}`,
-      `Fecha: ${formatDate(orderData.value.orden.createdAt)}`
-    ]
-
-    orderInfo.forEach(info => {
-      doc.text(info, pageWidth / 2, yPosition, { align: 'center' })
-      yPosition += 8
-    })
-
-    yPosition += 10
-
-    // Generar código QR
-    const qrCodeDataURL = await QRCode.toDataURL(orderURL, {
-      width: 200,
-      margin: 2,
-      color: {
-        dark: '#000000',
-        light: '#FFFFFF'
-      }
-    })
-
-    // Agregar código QR al PDF (centrado)
-    const qrSize = 60
-    const qrX = (pageWidth - qrSize) / 2
-    doc.addImage(qrCodeDataURL, 'PNG', qrX, yPosition, qrSize, qrSize)
-
-    // Guardar el PDF
-    const fileName = `qr-orden-${orderData.value.orden.pedido}-${new Date().toISOString().split('T')[0]}.pdf`
-    doc.save(fileName)
 
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('Error al generar el PDF con código QR:', error)
-    alert('Error al generar el PDF con código QR. Por favor, inténtalo de nuevo.')
+    console.error('Error al descargar el PDF con código QR:', error)
+
+    // Mostrar mensaje de error específico
+    if (error && typeof error === 'object' && 'data' in error && error.data && typeof error.data === 'object' && 'message' in error.data) {
+      alert(`Error: ${error.data.message}`)
+    } else {
+      alert('Error al descargar el PDF con código QR. El archivo puede no haber sido generado aún.')
+    }
   }
 }
 

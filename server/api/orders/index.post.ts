@@ -2,6 +2,7 @@
  * API endpoint para crear nueva orden con tests automáticos
  */
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { generateOrderQRPDF } from '../../utils/qr-pdf-generator'
 
 interface OrderTestData {
   testId?: number
@@ -261,7 +262,7 @@ export default defineEventHandler(async (event) => {
       maquina: body.maquina,
       inspector_calidad: body.inspector_calidad,
       status: orderStatus,
-      liberador: user.id
+      id_usuario: user.id
     }
     
     // Crear la orden
@@ -315,10 +316,53 @@ export default defineEventHandler(async (event) => {
       `)
       .eq('order', order.id)
       .order('id')
-    
+
     if (fetchOrderTestsError) {
       // Los order_tests no se pudieron obtener, pero la orden se creó correctamente
       // Continuar con la respuesta pero sin los detalles de los tests
+    }
+
+    // Generar y subir el PDF con QR al bucket de Supabase
+    let qrPdfUrl: string | null = null
+    try {
+      // Preparar datos para el PDF
+      const orderQRData = {
+        id: order.id,
+        pedido: order.pedido,
+        cliente: order.cliente,
+        status: orderStatus,
+        createdAt: order.created_at
+      }
+
+      // Generar el PDF
+      const pdfBuffer = await generateOrderQRPDF(orderQRData)
+
+      // Subir al bucket qr_bucket con el nombre del ID de la orden
+      const fileName = `${order.id}.pdf`
+      const { error: uploadError } = await supabase.storage
+        .from('qr_bucket')
+        .upload(fileName, pdfBuffer, {
+          contentType: 'application/pdf',
+          upsert: true // Reemplazar si ya existe
+        })
+
+      if (uploadError) {
+        // eslint-disable-next-line no-console
+        console.error('Error al subir PDF al bucket:', uploadError)
+      } else {
+        // Generar URL firmada para bucket privado (válida por 24 horas)
+        const { data: signedUrlData, error: urlError } = await supabase.storage
+          .from('qr_bucket')
+          .createSignedUrl(fileName, 86400) // 24 horas
+
+        if (!urlError && signedUrlData) {
+          qrPdfUrl = signedUrlData.signedUrl
+        }
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error al generar o subir el PDF con QR:', error)
+      // No fallar la creación de la orden por este error
     }
     
     // Retornar la orden creada con información adicional
@@ -327,7 +371,8 @@ export default defineEventHandler(async (event) => {
       data: {
         order: {
           ...order,
-          orders_tests: createdOrderTests || []
+          orders_tests: createdOrderTests || [],
+          qr_pdf_url: qrPdfUrl // URL del PDF con QR generado
         },
         summary: {
           tests_total: tests.length,
@@ -335,7 +380,7 @@ export default defineEventHandler(async (event) => {
           tests_reprobados: createdOrderTests?.filter(ot => !ot.aprobado).length || 0,
           status_final: orderStatus
         },
-        message: `Orden creada exitosamente con ${tests.length} tests asociados. Status: ${orderStatus}`
+        message: `Orden creada exitosamente con ${tests.length} tests asociados. Status: ${orderStatus}${qrPdfUrl ? '. PDF con QR generado automáticamente.' : ''}`
       }
     }
     
