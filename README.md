@@ -14,9 +14,10 @@ El **Sistema Liberador Inaplast** es una aplicación web diseñada para optimiza
 
 ## ✨ Características Principales
 
-- **🔄 Proceso de Liberación en 4 Pasos**: Flujo guiado desde captura de imagen hasta decisión final
+- **🔄 Proceso de Liberación en 5 Pasos**: Flujo guiado desde captura hasta notificación automática
 - **🤖 OCR Inteligente**: Extracción automática de datos con Google Gemini AI
-- **👥 Sistema de Administración**: CRUD completo de usuarios con gestión de roles y permisos
+- **📧 Notificaciones Automáticas**: Envío de emails con códigos QR al completar órdenes
+- **👥 Sistema de Administración**: CRUD completo de usuarios con gestión de roles
 - **🔐 Autenticación Híbrida**: JWT + Session con recuperación automática
 - **📊 Dashboard Personalizado**: Métricas diferenciadas por rol de usuario
 
@@ -35,6 +36,7 @@ El **Sistema Liberador Inaplast** es una aplicación web diseñada para optimiza
 ### Backend & Database
 - **Supabase**: @nuxtjs/supabase 1.6.0
 - **PostgreSQL**: (via Supabase)
+- **Edge Functions**: Supabase (notificaciones automáticas)
 
 ### IA y Procesamiento
 - **Google GenAI**: 1.15.0 - OCR principal con Gemini AI
@@ -123,6 +125,11 @@ Admin: ['manage:users', 'manage:system', 'access:admin-panel']
 - Aprobación o rechazo basado en criterios establecidos
 - Generación automática de reportes
 
+### Paso 5: Notificación Automática
+- Envío automático de email con código QR
+- Link directo al código QR de la orden
+- Notificación al usuario que creó la orden
+
 ## 🧪 Testing
 
 ### Estructura de Tests
@@ -166,6 +173,7 @@ npx vercel deploy --prebuilt
 ```env
 SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_key
 GOOGLE_AI_API_KEY=your_gemini_key
 NUXT_SECRET_KEY=your_secret_key
 ```
@@ -177,8 +185,9 @@ NUXT_SECRET_KEY=your_secret_key
 - [ ] ✅ **Ejecutar tests** - Verificar que todo funciona
 - [ ] ✅ **Explorar dashboard** - Familiarizarse con la UI
 - [ ] ✅ **Revisar flujo OCR** - Entender integración Gemini AI
+- [ ] ✅ **Probar notificaciones** - Verificar envío automático de emails
 - [ ] ✅ **Entender sistema de roles** - Admin vs Inspector vs Supervisor
-- [ ] ✅ **Crear orden de prueba** - Proceso completo de liberación
+- [ ] ✅ **Crear orden completa** - Proceso end-to-end con notificación
 
 ### Recursos Útiles
 - **Documentación Técnica**: `/docs` (estructura detallada)
@@ -219,5 +228,5 @@ Código propietario - Todos los derechos reservados.
 
 Para soporte técnico o preguntas sobre el sistema, contactar al equipo de desarrollo interno.
 
-**Versión**: 2.6.0
-**Última actualización**: Diciembre 2024
+**Versión**: 2.7.0
+**Última actualización**: Septiembre 2025

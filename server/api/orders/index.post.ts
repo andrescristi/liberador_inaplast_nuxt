@@ -364,6 +364,28 @@ export default defineEventHandler(async (event) => {
       console.error('Error al generar o subir el PDF con QR:', error)
       // No fallar la creación de la orden por este error
     }
+
+    // Enviar email con el QR code después de crear la orden y subir el PDF
+    try {
+      const emailResponse = await $fetch('https://ohgyqnxrtvjjambumksj.supabase.co/functions/v1/send-order-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
+        },
+        body: {
+          user_id: user.id,
+          order_id: order.id
+        }
+      })
+
+      // eslint-disable-next-line no-console
+      console.log('Email enviado exitosamente:', emailResponse)
+    } catch (emailError) {
+      // eslint-disable-next-line no-console
+      console.error('Error al enviar email con QR code:', emailError)
+      // No fallar la creación de la orden por este error
+    }
     
     // Retornar la orden creada con información adicional
     return {
