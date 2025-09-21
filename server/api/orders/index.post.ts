@@ -371,7 +371,7 @@ export default defineEventHandler(async (event) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
+          'Authorization': `Bearer ${process.env.NUXT_SUPABASE_SERVICE_KEY}`
         },
         body: {
           user_id: user.id,

@@ -171,11 +171,12 @@ npx vercel deploy --prebuilt
 
 ### Variables de Entorno Requeridas
 ```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_key
-GOOGLE_AI_API_KEY=your_gemini_key
-NUXT_SECRET_KEY=your_secret_key
+NUXT_SUPABASE_URL=your_supabase_url
+NUXT_SUPABASE_ANON_KEY=your_anon_key
+NUXT_SUPABASE_SERVICE_KEY=your_service_key
+NUXT_GEMINI_API_KEY=your_gemini_key
+NUXT_SESSION_PASSWORD=your_session_password
+NUXT_JWT_SECRET=your_jwt_secret
 ```
 
 ## 📚 Para Nuevos Desarrolladores
