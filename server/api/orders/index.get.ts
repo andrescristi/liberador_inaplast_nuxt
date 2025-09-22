@@ -41,6 +41,7 @@ export default defineEventHandler(async (event) => {
       .select(`
         *
       `, { count: 'exact' })
+      .is('eliminado_por', null) // Solo mostrar órdenes no eliminadas
 
     // VALIDACIÓN CRÍTICA: Si es Inspector, solo puede ver las órdenes que él creó (creado_por)
     if (userRole === 'Inspector') {

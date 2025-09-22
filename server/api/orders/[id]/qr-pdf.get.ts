@@ -29,11 +29,12 @@ export default defineEventHandler(async (event) => {
     // Obtener cliente de Supabase con permisos de servicio
     const supabase = serverSupabaseServiceRole(event)
 
-    // Verificar que la orden existe
+    // Verificar que la orden existe y no está eliminada
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select('id, pedido, creado_por')
       .eq('id', orderId)
+      .is('eliminado_por', null) // Solo órdenes no eliminadas
       .single()
 
     if (orderError || !order) {

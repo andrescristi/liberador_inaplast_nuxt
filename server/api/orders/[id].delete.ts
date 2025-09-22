@@ -1,5 +1,5 @@
 /**
- * API endpoint para eliminar una orden específica
+ * API endpoint para marcar una orden como eliminada (soft delete)
  * Solo usuarios con rol Admin o Supervisor pueden eliminar órdenes
  */
 import type { H3Event } from 'h3'
@@ -78,10 +78,10 @@ export default defineEventHandler(async (event) => {
     // Obtener cliente de Supabase con permisos de servicio
     const supabase = serverSupabaseServiceRole(event)
 
-    // Verificar que la orden existe antes de intentar eliminarla
+    // Verificar que la orden existe y no está ya eliminada
     const { data: existingOrder, error: checkError } = await supabase
       .from('orders')
-      .select('id, numero_orden, cliente, producto')
+      .select('id, numero_orden, cliente, producto, eliminado_por')
       .eq('id', orderId)
       .single()
 
@@ -99,52 +99,32 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Eliminar primero los tests relacionados (orders_tests)
-    // Esto es necesario debido a las restricciones de clave foránea
-    const { error: deleteTestsError } = await supabase
-      .from('orders_tests')
-      .delete()
-      .eq('"order"', orderId)
-
-    if (deleteTestsError) {
-      // eslint-disable-next-line no-console
-      console.error('Error eliminando tests de la orden:', deleteTestsError)
+    // Verificar que la orden no esté ya eliminada
+    if (existingOrder.eliminado_por) {
       throw createError({
-        statusCode: 500,
-        statusMessage: 'Error al eliminar los tests de la orden: ' + deleteTestsError.message
+        statusCode: 400,
+        statusMessage: 'La orden ya ha sido eliminada previamente'
       })
     }
 
-    // Eliminar el archivo PDF del bucket de Supabase si existe
-    try {
-      const fileName = `${orderId}.pdf`
-      const { error: deleteFileError } = await supabase.storage
-        .from('qr_bucket')
-        .remove([fileName])
+    // Obtener usuario autenticado para marcar quién eliminó la orden
+    const deleteUser = await requireDeleteOrderAuth(event)
 
-      if (deleteFileError) {
-        // eslint-disable-next-line no-console
-        console.warn('No se pudo eliminar el archivo PDF:', deleteFileError.message)
-        // No fallar la operación por esto, el archivo puede no existir
-      }
-    } catch (fileError) {
-      // eslint-disable-next-line no-console
-      console.warn('Error al intentar eliminar archivo PDF:', fileError)
-      // Continuar con la eliminación de la orden
-    }
-
-    // Ahora eliminar la orden principal
-    const { error: deleteOrderError } = await supabase
+    // Marcar la orden como eliminada (soft delete) estableciendo eliminado_por
+    const { error: updateOrderError } = await supabase
       .from('orders')
-      .delete()
+      .update({
+        eliminado_por: deleteUser.id,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', orderId)
 
-    if (deleteOrderError) {
+    if (updateOrderError) {
       // eslint-disable-next-line no-console
-      console.error('Error eliminando la orden:', deleteOrderError)
+      console.error('Error marcando la orden como eliminada:', updateOrderError)
       throw createError({
         statusCode: 500,
-        statusMessage: 'Error al eliminar la orden: ' + deleteOrderError.message
+        statusMessage: 'Error al marcar la orden como eliminada: ' + updateOrderError.message
       })
     }
 
@@ -158,9 +138,10 @@ export default defineEventHandler(async (event) => {
           numeroOrden: existingOrder.numero_orden,
           cliente: existingOrder.cliente,
           producto: existingOrder.producto
-        }
+        },
+        eliminadoPor: deleteUser.id
       },
-      message: `Orden ${existingOrder.numero_orden || orderId} eliminada exitosamente`
+      message: `Orden ${existingOrder.numero_orden || orderId} marcada como eliminada exitosamente`
     }
 
   } catch (error) {

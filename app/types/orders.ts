@@ -51,6 +51,7 @@ export interface Order {
   inspector_calidad: string
   status: OrderStatus
   creado_por?: string
+  eliminado_por?: string
   usuario?: {
     id: string
     email: string

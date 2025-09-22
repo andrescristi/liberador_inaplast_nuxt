@@ -8,11 +8,12 @@ export default defineEventHandler(async (event) => {
     // Obtener cliente de Supabase con permisos de servicio
     const supabase = serverSupabaseServiceRole(event)
 
-    // Primero obtener los IDs únicos de usuarios que han liberado órdenes
+    // Primero obtener los IDs únicos de usuarios que han liberado órdenes (no eliminadas)
     const { data: userIds, error: userIdsError } = await supabase
       .from('orders')
       .select('creado_por')
       .not('creado_por', 'is', null)
+      .is('eliminado_por', null)
 
     if (userIdsError) {
       console.error('Error obteniendo IDs de usuarios:', userIdsError)

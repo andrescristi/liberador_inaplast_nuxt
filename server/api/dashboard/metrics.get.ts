@@ -33,11 +33,12 @@ export default defineEventHandler(async (event) => {
 
     if (userRole === 'Inspector') {
       // Métricas específicas del inspector - solo órdenes que él creó
-      // Filtrar por creado_por para que vea solo sus inspecciones
+      // Filtrar por creado_por para que vea solo sus inspecciones (no eliminadas)
       const { data: orders } = await supabase
         .from('orders')
         .select('status')
         .eq('creado_por', user.id)
+        .is('eliminado_por', null)
 
       if (orders) {
         // En este contexto, pending = 0 (no hay status pendiente en la BD)
@@ -48,11 +49,12 @@ export default defineEventHandler(async (event) => {
         metrics.rejected = orders.filter(o => o.status === 'Rechazado').length
       }
 
-      // Obtener clientes únicos de las órdenes creadas por el inspector
+      // Obtener clientes únicos de las órdenes creadas por el inspector (no eliminadas)
       const { data: customerOrders } = await supabase
         .from('orders')
         .select('cliente')
         .eq('creado_por', user.id)
+        .is('eliminado_por', null)
         .not('cliente', 'is', null)
 
       if (customerOrders) {
@@ -63,10 +65,11 @@ export default defineEventHandler(async (event) => {
     } else {
       // Métricas globales para Admin y Supervisor
       
-      // Obtener todas las órdenes
+      // Obtener todas las órdenes (no eliminadas)
       const { data: allOrders, error: ordersError } = await supabase
         .from('orders')
         .select('status, cliente')
+        .is('eliminado_por', null)
 
       if (ordersError) {
         throw new Error(`Error de base de datos: ${ordersError.message}`)
