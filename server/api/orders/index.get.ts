@@ -1,10 +1,20 @@
 /**
  * API endpoint para obtener orders con paginación y filtros
  */
-import { serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   try {
+    // Obtener usuario autenticado
+    const user = await serverSupabaseUser(event)
+
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Usuario no autenticado'
+      })
+    }
+
     // Obtener parámetros de consulta
     const query = getQuery(event)
     const page = parseInt(query.page as string) || 1
@@ -12,29 +22,44 @@ export default defineEventHandler(async (event) => {
     const status = query.status as string || null
     const search = query.search as string || null
     const liberador = query.liberador as string || null
-    
+
     // Obtener cliente de Supabase con permisos de servicio
     const supabase = serverSupabaseServiceRole(event)
-    
+
+    // Obtener perfil del usuario desde la BD para verificar el rol
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('user_role')
+      .eq('user_id', user.id)
+      .single()
+
+    const userRole = userProfile?.user_role || user.user_metadata?.user_role || 'User'
+
     // Construir consulta base
     let queryBuilder = supabase
       .from('orders')
       .select(`
         *
       `, { count: 'exact' })
-    
-    // Aplicar filtros
+
+    // VALIDACIÓN CRÍTICA: Si es Inspector, solo puede ver las órdenes que él creó (id_usuario)
+    if (userRole === 'Inspector') {
+      queryBuilder = queryBuilder.eq('id_usuario', user.id)
+    }
+
+    // Aplicar filtros adicionales
     if (status) {
       queryBuilder = queryBuilder.eq('status', status)
     }
-    
+
     if (search) {
       queryBuilder = queryBuilder.or(
         `cliente.ilike.%${search}%,producto.ilike.%${search}%,pedido.ilike.%${search}%,numero_orden.eq.${parseInt(search) || 0}`
       )
     }
 
-    if (liberador) {
+    // Para Admin/Supervisor, permitir filtrar por liberador específico
+    if (liberador && (userRole === 'Admin' || userRole === 'Supervisor')) {
       queryBuilder = queryBuilder.eq('id_usuario', liberador)
     }
     

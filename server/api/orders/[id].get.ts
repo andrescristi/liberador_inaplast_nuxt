@@ -1,7 +1,7 @@
 /**
  * API endpoint para obtener una orden específica con sus tests y resumen de inspección
  */
-import { serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 
 interface Test {
   id: number
@@ -19,16 +19,26 @@ interface OrderTest {
 
 export default defineEventHandler(async (event) => {
   try {
+    // Obtener usuario autenticado
+    const user = await serverSupabaseUser(event)
+
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Usuario no autenticado'
+      })
+    }
+
     // Obtener ID de la orden
     const orderId = getRouterParam(event, 'id')
-    
+
     if (!orderId) {
       throw createError({
         statusCode: 400,
         statusMessage: 'ID de orden requerido'
       })
     }
-    
+
     // Obtener cliente de Supabase con permisos de servicio
     const supabase = serverSupabaseServiceRole(event)
     
@@ -38,21 +48,38 @@ export default defineEventHandler(async (event) => {
       .select('*')
       .eq('id', orderId)
       .single()
-    
+
     if (orderError) {
       // eslint-disable-next-line no-console
       console.error('Error obteniendo orden:', orderError)
-      
+
       if (orderError.code === 'PGRST116') {
         throw createError({
           statusCode: 404,
           statusMessage: 'Orden no encontrada'
         })
       }
-      
+
       throw createError({
         statusCode: 500,
         statusMessage: 'Error al obtener la orden: ' + orderError.message
+      })
+    }
+
+    // Obtener perfil del usuario para verificar el rol
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('user_role')
+      .eq('user_id', user.id)
+      .single()
+
+    const userRole = userProfile?.user_role || user.user_metadata?.user_role || 'User'
+
+    // VALIDACIÓN CRÍTICA: Si es Inspector, solo puede ver las órdenes que él creó
+    if (userRole === 'Inspector' && order.id_usuario !== user.id) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'No tienes permisos para acceder a esta orden'
       })
     }
 
