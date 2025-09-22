@@ -9,6 +9,10 @@ interface AuthUser {
   created_at?: string
   updated_at?: string
   last_sign_in_at?: string
+  role?: string
+  first_name?: string
+  last_name?: string
+  full_name?: string
 }
 
 interface AuthUserResponse {
