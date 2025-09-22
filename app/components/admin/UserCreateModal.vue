@@ -167,6 +167,12 @@ import { createUserSchema, type CreateUserForm } from '~/schemas/admin/user'
 
 // Components are auto-imported by Nuxt
 
+interface ApiError {
+  data?: {
+    statusMessage?: string
+  }
+}
+
 const emit = defineEmits<{
   close: []
   created: []
@@ -182,6 +188,7 @@ const {
   validateField,
   getFieldError,
   hasFieldError,
+  setFieldError,
   // resetForm
 } = useModalForm<CreateUserForm>({
   schema: createUserSchema,
@@ -195,21 +202,50 @@ const {
   onSubmit: createUser,
   onSuccess: () => {
     emit('created')
+  },
+  onError: (error: Error) => {
+    // Manejar errores específicos de validación
+    if (error.message === 'DUPLICATE_EMAIL' && error.name === 'ValidationError') {
+      setFieldError('email', 'Este email ya está registrado en el sistema')
+    }
   }
 })
 
 // Métodos
 async function createUser(data: CreateUserForm) {
-  await $fetch('/api/admin/users', {
-    method: 'POST',
-    body: {
-      email: data.email,
-      password: data.password,
-      first_name: data.firstName,
-      last_name: data.lastName,
-      user_role: data.userRole
+  try {
+    await $fetch('/api/admin/users', {
+      method: 'POST',
+      body: {
+        email: data.email,
+        password: data.password,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        user_role: data.userRole
+      }
+    })
+  } catch (error: unknown) {
+    // Manejar errores específicos
+    const apiError = error as ApiError
+    if (apiError?.data?.statusMessage) {
+      // Verificar si es un error de email duplicado
+      if (apiError.data.statusMessage.includes('User already registered') ||
+          apiError.data.statusMessage.includes('already been registered') ||
+          apiError.data.statusMessage.includes('ya está registrado') ||
+          apiError.data.statusMessage.includes('duplicate') ||
+          apiError.data.statusMessage.includes('duplicado') ||
+          apiError.data.statusMessage.includes('email address has already been')) {
+        // Crear un error customizado para email duplicado
+        const emailError = new Error('DUPLICATE_EMAIL')
+        emailError.name = 'ValidationError'
+        throw emailError
+      }
+      throw new Error(apiError.data.statusMessage)
     }
-  })
+
+    // Error genérico
+    throw new Error('Error al crear el usuario. Por favor, intenta nuevamente.')
+  }
 }
 
 // Estado para mostrar/ocultar contraseña
@@ -217,23 +253,29 @@ const showPassword = ref(false)
 
 // Generar contraseña segura
 const generatePassword = () => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*'
+  // Usar exactamente los mismos caracteres que permite el schema de validación
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz'
+  const numbers = '0123456789'
+  const specialChars = '@$!%*?&.#+-' // Mismos caracteres especiales que el regex del schema
+  const allChars = uppercase + lowercase + numbers + specialChars
+
   let password = ''
-  
-  // Asegurar al menos un caracter de cada tipo
-  password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.charAt(Math.floor(Math.random() * 26)) // Mayúscula
-  password += 'abcdefghijklmnopqrstuvwxyz'.charAt(Math.floor(Math.random() * 26)) // Minúscula  
-  password += '0123456789'.charAt(Math.floor(Math.random() * 10)) // Número
-  password += '!@#$%^&*'.charAt(Math.floor(Math.random() * 8)) // Especial
-  
-  // Completar hasta 12 caracteres
+
+  // Asegurar al menos un caracter de cada tipo requerido
+  password += uppercase.charAt(Math.floor(Math.random() * uppercase.length)) // Mayúscula
+  password += lowercase.charAt(Math.floor(Math.random() * lowercase.length)) // Minúscula
+  password += numbers.charAt(Math.floor(Math.random() * numbers.length)) // Número
+  password += specialChars.charAt(Math.floor(Math.random() * specialChars.length)) // Especial
+
+  // Completar hasta 12 caracteres con caracteres aleatorios
   for (let i = 4; i < 12; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length))
+    password += allChars.charAt(Math.floor(Math.random() * allChars.length))
   }
-  
-  // Mezclar caracteres
+
+  // Mezclar caracteres para evitar patrones predecibles
   password = password.split('').sort(() => Math.random() - 0.5).join('')
-  
+
   form.value.password = password
   validateField('password')
 }

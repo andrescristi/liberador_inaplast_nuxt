@@ -60,39 +60,40 @@ export function useModalForm<T extends Record<string, unknown>>(
    * Valida un campo específico
    */
   const validateField = (fieldName: keyof T): void => {
+    const fieldKey = fieldName as string
+
+    // Limpiar errores previos del campo específico
+    if (fieldKey in errors.value) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete errors.value[fieldKey]
+    }
+    if (fieldKey in fieldErrors.value) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete fieldErrors.value[fieldKey]
+    }
+
     try {
-      // Crear un objeto temporal con solo el campo a validar
-      const testData = {
-        ...form.value,
-        [fieldName]: form.value[fieldName]
-      } as T
-      
-      // Validar todo el objeto pero solo reportar errores del campo específico
-      schema.parse(testData)
-      
-      // Limpiar errores del campo si la validación pasa
-      const fieldKey = fieldName as string
-      if (fieldKey in errors.value) {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-        delete errors.value[fieldKey]
-      }
-      if (fieldKey in fieldErrors.value) {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-        delete fieldErrors.value[fieldKey]
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        // Buscar errores específicos del campo
-        const fieldErrors_ = error.errors.filter(err => 
+      // Crear un esquema temporal solo para validar este campo
+      // Usamos safeParse en lugar de parse para evitar excepciones
+      const result = schema.safeParse(form.value)
+
+      if (!result.success) {
+        // Buscar errores específicos del campo que estamos validando
+        const fieldErrors_ = result.error.errors.filter(err =>
           err.path.length > 0 && err.path[0] === fieldName
         )
-        
+
         if (fieldErrors_.length > 0) {
-          const fieldName_ = fieldName as string
-          errors.value[fieldName_] = fieldErrors_[0]?.message || 'Error de validación'
-          fieldErrors.value[fieldName_] = fieldErrors_.map(e => e.message)
+          // Solo aplicar errores si hay errores específicos de este campo
+          const errorMessage = fieldErrors_[0]?.message || 'Error de validación'
+          errors.value[fieldKey] = errorMessage
+          fieldErrors.value[fieldKey] = fieldErrors_.map(e => e.message)
         }
       }
+      // Si result.success es true, no hay errores (ya limpiamos arriba)
+    } catch {
+      // Fallback en caso de error inesperado
+      // Silenciar error para evitar logs innecesarios
     }
   }
 
@@ -175,9 +176,33 @@ export function useModalForm<T extends Record<string, unknown>>(
    */
   const hasChanges = computed((): boolean => {
     if (!initialData) return Object.keys(form.value).length > 0
-    
+
     return JSON.stringify(form.value) !== JSON.stringify(initialData)
   })
+
+  /**
+   * Establece un error específico en un campo
+   */
+  const setFieldError = (fieldName: keyof T, errorMessage: string): void => {
+    const fieldKey = fieldName as string
+    errors.value[fieldKey] = errorMessage
+    fieldErrors.value[fieldKey] = [errorMessage]
+  }
+
+  /**
+   * Limpia el error de un campo específico
+   */
+  const clearFieldError = (fieldName: keyof T): void => {
+    const fieldKey = fieldName as string
+    if (fieldKey in errors.value) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete errors.value[fieldKey]
+    }
+    if (fieldKey in fieldErrors.value) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete fieldErrors.value[fieldKey]
+    }
+  }
 
   // Limpiar errores cuando se cambia un campo
   watch(
@@ -208,6 +233,8 @@ export function useModalForm<T extends Record<string, unknown>>(
     updateForm,
     getFieldError,
     getFieldErrors,
-    hasFieldError
+    hasFieldError,
+    setFieldError,
+    clearFieldError
   }
 }

@@ -5,6 +5,9 @@
       <CoreAppNavigation v-if="!isAuthLayout" />
       <NuxtPage />
     </NuxtLayout>
+
+    <!-- Contenedor de notificaciones toast -->
+    <ToastContainer />
   </div>
 </template>
 

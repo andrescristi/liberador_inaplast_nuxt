@@ -92,9 +92,21 @@ export default defineEventHandler(async (event) => {
 
     if (authError) {
       // Error al crear usuario Auth
+      // Manejar errores específicos de Supabase Auth
+      let errorMessage = authError.message
+
+      // Verificar si es un error de email duplicado
+      if (authError.message.includes('User already registered') ||
+          authError.message.includes('already registered') ||
+          authError.message.includes('duplicate') ||
+          authError.message.includes('violates unique constraint') ||
+          authError.code === 'email_address_not_authorized') {
+        errorMessage = 'Este email ya está registrado en el sistema'
+      }
+
       throw createError({
         statusCode: 400,
-        statusMessage: `Error de autenticación: ${authError.message}`
+        statusMessage: errorMessage
       })
     }
 
