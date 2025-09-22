@@ -262,7 +262,7 @@ export default defineEventHandler(async (event) => {
       maquina: body.maquina,
       inspector_calidad: body.inspector_calidad,
       status: orderStatus,
-      id_usuario: user.id
+      creado_por: user.id
     }
     
     // Crear la orden

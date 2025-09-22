@@ -19,7 +19,7 @@ El **Sistema Liberador Inaplast** es una aplicación web diseñada para optimiza
 - **📧 Notificaciones Automáticas**: Envío de emails con códigos QR al completar órdenes
 - **👥 Sistema de Administración**: CRUD completo de usuarios con gestión de roles
 - **🔐 Autenticación Híbrida**: JWT + Session con recuperación automática
-- **📊 Dashboard Personalizado**: Métricas diferenciadas por rol de usuario
+- **📊 Dashboard Personalizado**: Métricas diferenciadas por rol de usuario con filtrado automático
 
 ## 🛠 Stack Tecnológico
 
@@ -102,10 +102,14 @@ pnpm typecheck        # Verificación TypeScript
 
 ### Permisos por Rol
 ```typescript
-Inspector: ['create:order', 'read:own-orders', 'update:own-orders']
-Supervisor: ['read:all-orders', 'create:reports', 'export:data']
-Admin: ['manage:users', 'manage:system', 'access:admin-panel']
+Inspector: ['create:order', 'read:own-orders', 'update:own-orders', 'view:own-metrics']
+Supervisor: ['read:all-orders', 'create:reports', 'export:data', 'view:global-metrics']
+Admin: ['manage:users', 'manage:system', 'access:admin-panel', 'view:global-metrics']
 ```
+
+### Filtrado de Datos por Rol
+- **Inspector**: Ve únicamente las órdenes que él mismo creó y sus métricas personales
+- **Supervisor/Admin**: Acceso completo a todas las órdenes y métricas globales del sistema
 
 ## 🔄 Flujo de Liberación
 

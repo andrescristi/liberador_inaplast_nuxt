@@ -65,7 +65,7 @@ describe('Order Types', () => {
         muestreo_recomendado: 3,
         jefe_de_turno: 'Jefe Test',
         orden_de_compra: 'OC001',
-        id_usuario: 'user-123-456-789'
+        creado_por: 'user-123-456-789'
       }
 
       expect(orderWithOptionals.lote).toBe('LOT001')
@@ -73,10 +73,10 @@ describe('Order Types', () => {
       expect(orderWithOptionals.muestreo_recomendado).toBe(3)
       expect(orderWithOptionals.jefe_de_turno).toBe('Jefe Test')
       expect(orderWithOptionals.orden_de_compra).toBe('OC001')
-      expect(orderWithOptionals.id_usuario).toBe('user-123-456-789')
+      expect(orderWithOptionals.creado_por).toBe('user-123-456-789')
     })
 
-    it('debería aceptar id_usuario como string UUID válido', () => {
+    it('debería aceptar creado_por como string UUID válido', () => {
       const orderWithUser: Order = {
         id: 'test-id',
         created_at: '2024-12-01T10:00:00Z',
@@ -94,14 +94,14 @@ describe('Order Types', () => {
         maquina: 'MAQ001',
         inspector_calidad: 'INS001',
         status: 'Aprobado',
-        id_usuario: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
+        creado_por: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
       }
 
-      expect(typeof orderWithUser.id_usuario).toBe('string')
-      expect(orderWithUser.id_usuario).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+      expect(typeof orderWithUser.creado_por).toBe('string')
+      expect(orderWithUser.creado_por).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
     })
 
-    it('debería permitir id_usuario undefined para órdenes legacy', () => {
+    it('debería permitir creado_por undefined para órdenes legacy', () => {
       const legacyOrder: Order = {
         id: 'test-id',
         created_at: '2024-12-01T10:00:00Z',
@@ -119,10 +119,10 @@ describe('Order Types', () => {
         maquina: 'MAQ001',
         inspector_calidad: 'INS001',
         status: 'Aprobado'
-        // id_usuario no definido - debería ser válido
+        // creado_por no definido - debería ser válido
       }
 
-      expect(legacyOrder.id_usuario).toBeUndefined()
+      expect(legacyOrder.creado_por).toBeUndefined()
     })
 
     it('NO debería tener propiedades de usuario expandidas', () => {
@@ -143,7 +143,7 @@ describe('Order Types', () => {
         maquina: 'MAQ001',
         inspector_calidad: 'INS001',
         status: 'Aprobado',
-        id_usuario: 'user-123'
+        creado_por: 'user-123'
       }
 
       // Verificar que NO tiene propiedades de usuario expandidas
@@ -292,7 +292,7 @@ describe('Order Types', () => {
         maquina: 'MAQ001',
         inspector_calidad: 'INS001',
         status: 'Aprobado',
-        id_usuario: 'user-123'
+        creado_por: 'user-123'
       }
 
       // Debería poder extraer CreateOrderForm de Order

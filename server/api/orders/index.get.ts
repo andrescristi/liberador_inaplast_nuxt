@@ -42,9 +42,9 @@ export default defineEventHandler(async (event) => {
         *
       `, { count: 'exact' })
 
-    // VALIDACIÓN CRÍTICA: Si es Inspector, solo puede ver las órdenes que él creó (id_usuario)
+    // VALIDACIÓN CRÍTICA: Si es Inspector, solo puede ver las órdenes que él creó (creado_por)
     if (userRole === 'Inspector') {
-      queryBuilder = queryBuilder.eq('id_usuario', user.id)
+      queryBuilder = queryBuilder.eq('creado_por', user.id)
     }
 
     // Aplicar filtros adicionales
@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
 
     // Para Admin/Supervisor, permitir filtrar por liberador específico
     if (liberador && (userRole === 'Admin' || userRole === 'Supervisor')) {
-      queryBuilder = queryBuilder.eq('id_usuario', liberador)
+      queryBuilder = queryBuilder.eq('creado_por', liberador)
     }
     
     // Aplicar paginación
@@ -87,7 +87,7 @@ export default defineEventHandler(async (event) => {
     let enrichedOrders = orders || []
     if (orders && orders.length > 0) {
       // Obtener IDs únicos de usuarios
-      const userIds = [...new Set(orders.map(order => order.id_usuario).filter(Boolean))]
+      const userIds = [...new Set(orders.map(order => order.creado_por).filter(Boolean))]
 
       if (userIds.length > 0) {
         // Obtener perfiles de usuarios
@@ -99,7 +99,7 @@ export default defineEventHandler(async (event) => {
         // Mapear perfiles a órdenes
         enrichedOrders = orders.map(order => ({
           ...order,
-          liberador_profile: profiles?.find(profile => profile.user_id === order.id_usuario) || null
+          liberador_profile: profiles?.find(profile => profile.user_id === order.creado_por) || null
         }))
       }
     }

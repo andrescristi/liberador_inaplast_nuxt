@@ -76,7 +76,7 @@ export default defineEventHandler(async (event) => {
     const userRole = userProfile?.user_role || user.user_metadata?.user_role || 'User'
 
     // VALIDACIÓN CRÍTICA: Si es Inspector, solo puede ver las órdenes que él creó
-    if (userRole === 'Inspector' && order.id_usuario !== user.id) {
+    if (userRole === 'Inspector' && order.creado_por !== user.id) {
       throw createError({
         statusCode: 403,
         statusMessage: 'No tienes permisos para acceder a esta orden'
@@ -85,8 +85,8 @@ export default defineEventHandler(async (event) => {
 
     // Obtener datos del usuario liberador si existe
     let liberadorUser = null
-    if (order.id_usuario) {
-      const { data: userData, error: userError } = await supabase.auth.admin.getUserById(order.id_usuario)
+    if (order.creado_por) {
+      const { data: userData, error: userError } = await supabase.auth.admin.getUserById(order.creado_por)
       if (!userError && userData.user) {
         liberadorUser = {
           id: userData.user.id,
@@ -171,7 +171,7 @@ export default defineEventHandler(async (event) => {
       muestreoReal: order.muestreo_real,
       status: order.status,
       createdAt: order.created_at,
-      liberador: order.id_usuario,
+      liberador: order.creado_por,
       liberadorUser
     }
 

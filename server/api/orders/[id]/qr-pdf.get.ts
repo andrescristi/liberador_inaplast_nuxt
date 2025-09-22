@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     // Verificar que la orden existe
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select('id, pedido, id_usuario')
+      .select('id, pedido, creado_por')
       .eq('id', orderId)
       .single()
 
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
     const userRole = userProfile?.user_role || user.user_metadata?.user_role || 'User'
 
     // VALIDACIÓN CRÍTICA: Si es Inspector, solo puede acceder a las órdenes que él creó
-    if (userRole === 'Inspector' && order.id_usuario !== user.id) {
+    if (userRole === 'Inspector' && order.creado_por !== user.id) {
       throw createError({
         statusCode: 403,
         statusMessage: 'No tienes permisos para acceder a esta orden'

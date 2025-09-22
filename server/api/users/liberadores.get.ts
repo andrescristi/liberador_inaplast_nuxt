@@ -11,8 +11,8 @@ export default defineEventHandler(async (event) => {
     // Primero obtener los IDs únicos de usuarios que han liberado órdenes
     const { data: userIds, error: userIdsError } = await supabase
       .from('orders')
-      .select('id_usuario')
-      .not('id_usuario', 'is', null)
+      .select('creado_por')
+      .not('creado_por', 'is', null)
 
     if (userIdsError) {
       console.error('Error obteniendo IDs de usuarios:', userIdsError)
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Extraer IDs únicos
-    const uniqueUserIds = [...new Set((userIds || []).map(item => item.id_usuario).filter(Boolean))]
+    const uniqueUserIds = [...new Set((userIds || []).map(item => item.creado_por).filter(Boolean))]
 
     if (uniqueUserIds.length === 0) {
       return {

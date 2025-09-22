@@ -12,10 +12,17 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const userRole = user.user_metadata?.user_role || 'User'
-
     // Usar serverSupabaseServiceRole para bypass de RLS
     const supabase = serverSupabaseServiceRole(event)
+
+    // Obtener el rol del usuario desde la tabla profiles
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('user_role')
+      .eq('user_id', user.id)
+      .single()
+
+    const userRole = profile?.user_role || 'User'
 
     const metrics = {
       pending: 0,
@@ -25,14 +32,12 @@ export default defineEventHandler(async (event) => {
     }
 
     if (userRole === 'Inspector') {
-      // Métricas específicas del inspector
-      const inspectorName = user.user_metadata?.full_name || user.email
-
-      // Obtener órdenes del inspector
+      // Métricas específicas del inspector - solo órdenes que él creó
+      // Filtrar por creado_por para que vea solo sus inspecciones
       const { data: orders } = await supabase
         .from('orders')
         .select('status')
-        .eq('inspector_calidad', inspectorName)
+        .eq('creado_por', user.id)
 
       if (orders) {
         // En este contexto, pending = 0 (no hay status pendiente en la BD)
@@ -43,11 +48,11 @@ export default defineEventHandler(async (event) => {
         metrics.rejected = orders.filter(o => o.status === 'Rechazado').length
       }
 
-      // Obtener clientes únicos asignados al inspector
+      // Obtener clientes únicos de las órdenes creadas por el inspector
       const { data: customerOrders } = await supabase
         .from('orders')
         .select('cliente')
-        .eq('inspector_calidad', inspectorName)
+        .eq('creado_por', user.id)
         .not('cliente', 'is', null)
 
       if (customerOrders) {

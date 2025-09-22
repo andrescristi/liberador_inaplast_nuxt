@@ -50,7 +50,7 @@ export interface Order {
   maquina: string
   inspector_calidad: string
   status: OrderStatus
-  id_usuario?: string
+  creado_por?: string
   usuario?: {
     id: string
     email: string

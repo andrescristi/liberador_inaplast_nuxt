@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { Order } from '~/types/orders'
 
-describe('/api/orders - ID Usuario Integration Tests', () => {
+describe('/api/orders - Creado Por Integration Tests', () => {
   let mockFetch: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
@@ -9,8 +9,8 @@ describe('/api/orders - ID Usuario Integration Tests', () => {
     global.$fetch = mockFetch
   })
 
-  describe('Orders with id_usuario field', () => {
-    it('debería retornar órdenes con campo id_usuario', async () => {
+  describe('Orders with creado_por field', () => {
+    it('debería retornar órdenes con campo creado_por', async () => {
       const mockOrders: Order[] = [
         {
           id: '1',
@@ -29,7 +29,7 @@ describe('/api/orders - ID Usuario Integration Tests', () => {
           maquina: 'MAQ001',
           inspector_calidad: 'INS001',
           status: 'Aprobado',
-          id_usuario: 'user-123-456-789'
+          creado_por: 'user-123-456-789'
         },
         {
           id: '2',
@@ -48,7 +48,7 @@ describe('/api/orders - ID Usuario Integration Tests', () => {
           maquina: 'MAQ002',
           inspector_calidad: 'INS002',
           status: 'Rechazado',
-          id_usuario: 'user-987-654-321'
+          creado_por: 'user-987-654-321'
         }
       ]
 
@@ -74,12 +74,12 @@ describe('/api/orders - ID Usuario Integration Tests', () => {
 
       expect(response.success).toBe(true)
       expect(response.data).toHaveLength(2)
-      expect(response.data[0]).toHaveProperty('id_usuario')
-      expect(response.data[0].id_usuario).toBe('user-123-456-789')
-      expect(response.data[1].id_usuario).toBe('user-987-654-321')
+      expect(response.data[0]).toHaveProperty('creado_por')
+      expect(response.data[0].creado_por).toBe('user-123-456-789')
+      expect(response.data[1].creado_por).toBe('user-987-654-321')
     })
 
-    it('debería manejar órdenes sin id_usuario (valor null)', async () => {
+    it('debería manejar órdenes sin creado_por (valor null)', async () => {
       const mockOrders: Order[] = [
         {
           id: '3',
@@ -98,7 +98,7 @@ describe('/api/orders - ID Usuario Integration Tests', () => {
           maquina: 'MAQ003',
           inspector_calidad: 'INS003',
           status: 'Aprobado',
-          id_usuario: undefined // Orden creada antes de agregar la columna
+          creado_por: undefined // Orden creada antes de agregar la columna
         }
       ]
 
@@ -122,11 +122,11 @@ describe('/api/orders - ID Usuario Integration Tests', () => {
       })
 
       expect(response.success).toBe(true)
-      expect(response.data[0]).toHaveProperty('id_usuario')
-      expect(response.data[0].id_usuario).toBeUndefined()
+      expect(response.data[0]).toHaveProperty('creado_por')
+      expect(response.data[0].creado_por).toBeUndefined()
     })
 
-    it('debería filtrar órdenes correctamente sin afectar el id_usuario', async () => {
+    it('debería filtrar órdenes correctamente sin afectar el creado_por', async () => {
       const mockResponse = {
         success: true,
         data: [
@@ -134,7 +134,7 @@ describe('/api/orders - ID Usuario Integration Tests', () => {
             id: '1',
             cliente: 'Cliente Test',
             status: 'Aprobado',
-            id_usuario: 'user-123'
+            creado_por: 'user-123'
           }
         ],
         pagination: {
@@ -159,15 +159,15 @@ describe('/api/orders - ID Usuario Integration Tests', () => {
 
       expect(response.success).toBe(true)
       expect(response.data[0].status).toBe('Aprobado')
-      expect(response.data[0]).toHaveProperty('id_usuario')
+      expect(response.data[0]).toHaveProperty('creado_por')
     })
 
-    it('debería mantener paginación funcionando con id_usuario', async () => {
+    it('debería mantener paginación funcionando con creado_por', async () => {
       const mockResponse = {
         success: true,
         data: [
-          { id: '1', cliente: 'Cliente 1', id_usuario: 'user-1' },
-          { id: '2', cliente: 'Cliente 2', id_usuario: 'user-2' }
+          { id: '1', cliente: 'Cliente 1', creado_por: 'user-1' },
+          { id: '2', cliente: 'Cliente 2', creado_por: 'user-2' }
         ],
         pagination: {
           page: 1,
@@ -189,8 +189,8 @@ describe('/api/orders - ID Usuario Integration Tests', () => {
       expect(response.pagination.hasNextPage).toBe(true)
       expect(response.pagination.totalPages).toBe(3)
       expect(response.data).toHaveLength(2)
-      expect(response.data[0]).toHaveProperty('id_usuario')
-      expect(response.data[1]).toHaveProperty('id_usuario')
+      expect(response.data[0]).toHaveProperty('creado_por')
+      expect(response.data[1]).toHaveProperty('creado_por')
     })
   })
 
@@ -219,7 +219,7 @@ describe('/api/orders - ID Usuario Integration Tests', () => {
           {
             id: '1',
             cliente: 'Cliente Test',
-            id_usuario: 'user-123',
+            creado_por: 'user-123',
             // No incluye datos de usuario expandidos
             // porque ya no hacemos join con auth.users
           }
@@ -239,15 +239,15 @@ describe('/api/orders - ID Usuario Integration Tests', () => {
       const response = await mockFetch('/api/orders')
 
       expect(response.success).toBe(true)
-      expect(response.data[0]).toHaveProperty('id_usuario')
+      expect(response.data[0]).toHaveProperty('creado_por')
       // Verificar que NO tiene datos de usuario expandidos
       expect(response.data[0]).not.toHaveProperty('usuario')
       expect(response.data[0]).not.toHaveProperty('usuario_profile')
     })
   })
 
-  describe('Data integrity with id_usuario', () => {
-    it('debería validar que id_usuario sea UUID válido cuando está presente', () => {
+  describe('Data integrity with creado_por', () => {
+    it('debería validar que creado_por sea UUID válido cuando está presente', () => {
       const validUUIDs = [
         'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
@@ -272,26 +272,26 @@ describe('/api/orders - ID Usuario Integration Tests', () => {
       })
     })
 
-    it('debería permitir id_usuario null para órdenes legacy', () => {
+    it('debería permitir creado_por null para órdenes legacy', () => {
       const orderWithoutUser = {
         id: '1',
         cliente: 'Cliente Legacy',
-        id_usuario: null
+        creado_por: null
       }
 
       const orderWithUser = {
         id: '2',
         cliente: 'Cliente Nuevo',
-        id_usuario: 'user-123-456'
+        creado_por: 'user-123-456'
       }
 
-      expect(orderWithoutUser.id_usuario).toBeNull()
-      expect(orderWithUser.id_usuario).toBeTruthy()
+      expect(orderWithoutUser.creado_por).toBeNull()
+      expect(orderWithUser.creado_por).toBeTruthy()
     })
   })
 
   describe('Query parameters handling', () => {
-    it('debería procesar filtros sin afectar consulta de id_usuario', async () => {
+    it('debería procesar filtros sin afectar consulta de creado_por', async () => {
       const mockResponse = {
         success: true,
         data: [],
