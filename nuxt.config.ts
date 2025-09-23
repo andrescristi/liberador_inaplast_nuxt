@@ -174,10 +174,13 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         
         // Meta descripción para SEO y compartir en redes sociales
-        { 
-          name: 'description', 
-          content: 'Sistema de control de calidad para liberación de productos - Inaplast' 
+        {
+          name: 'description',
+          content: 'Sistema de control de calidad para liberación de productos - Inaplast'
         },
+
+        // Evitar indexación por buscadores
+        { name: 'robots', content: 'noindex, nofollow' },
         
         // Color del theme del navegador (mobile browsers)
         // Coincide con color primary de TailwindCSS (indigo-600)
