@@ -70,7 +70,7 @@ export default defineEventHandler(async (event): Promise<OCRResponse> => {
       })
     }
 
-    // Verificar que la API key esté configurada
+    // Verificar que la API key y modelo estén configurados
     const apiKey = process.env.NUXT_GEMINI_API_KEY
     if (!apiKey) {
       throw createError({
@@ -78,6 +78,8 @@ export default defineEventHandler(async (event): Promise<OCRResponse> => {
         statusMessage: 'API key de Gemini no configurada'
       })
     }
+
+    const geminiModel = process.env.NUXT_GEMINI_MODEL || 'gemini-2.5-flash'
 
     // Validar tipo de imagen
     const validMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/gif']
@@ -232,10 +234,16 @@ JSON:
     // Llamar a la API de Gemini con timeout
     const response = await Promise.race([
       ai.models.generateContent({
-        model: 'gemini-2.0-flash-exp', // Usando el modelo más reciente disponible
-        contents: [imagePart, prompt],
+        model: geminiModel,
+        contents: {
+          role: 'user',
+          parts: [
+            imagePart,
+            { text: prompt }
+          ]
+        }
       }),
-      new Promise<never>((_, reject) => 
+      new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Timeout en Gemini API')), 60000) // 60 segundos timeout
       )
     ])
@@ -252,7 +260,7 @@ JSON:
         metadata: {
           filename: body.filename,
           processedAt: new Date().toISOString(),
-          model: 'gemini-2.0-flash-exp'
+          model: geminiModel
         }
       }
     }
@@ -268,7 +276,7 @@ JSON:
           metadata: {
             filename: body.filename,
             processedAt: new Date().toISOString(),
-            model: 'gemini-2.0-flash-exp'
+            model: geminiModel
           }
         }
       }
@@ -303,7 +311,7 @@ JSON:
           metadata: {
             filename: body.filename,
             processedAt: new Date().toISOString(),
-            model: 'gemini-2.0-flash-exp',
+            model: geminiModel,
             processingTimeMs: processingTime,
             originalSizeKB: Math.round(originalSize / 1024),
             finalSizeKB: Math.round(finalSize / 1024)
@@ -316,14 +324,14 @@ JSON:
 
     // Log de tiempo de procesamiento
     const processingTime = Date.now() - startTime
-    
+
     return {
       text: rawResponse,
       success: true,
       metadata: {
         filename: body.filename,
         processedAt: new Date().toISOString(),
-        model: 'gemini-2.0-flash-exp',
+        model: geminiModel,
         processingTimeMs: processingTime,
         originalSizeKB: Math.round(originalSize / 1024),
         finalSizeKB: Math.round(finalSize / 1024)
