@@ -275,7 +275,7 @@
 
       <!-- Test Results Summary -->
       <div class="bg-gray-50 rounded-lg p-4">
-        <h4 class="font-medium text-gray-900 mb-2">Resumen del análisis</h4>
+        <h4 class="font-medium text-gray-900 mb-2">Resumen de Pruebas</h4>
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div class="flex justify-between">
             <span class="text-gray-600">Pruebas aprobadas:</span>

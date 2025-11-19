@@ -106,9 +106,7 @@ export default defineNuxtConfig({
 
   // ===== CONFIGURACIÓN NITRO PARA VERCEL =====
   nitro: {
-    // Usar node-server en desarrollo para evitar bug de Nuxt 4.2.1
-    // En producción Vercel automáticamente usa preset 'vercel'
-    preset: process.env.NODE_ENV === 'production' ? 'vercel' : 'node-server',
+    preset: 'vercel',
     prerender: {
       crawlLinks: false
     },

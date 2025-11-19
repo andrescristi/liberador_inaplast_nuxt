@@ -175,25 +175,12 @@
             class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             @click="exportToExcel"
           >
-            <Icon
-              :name="exporting ? 'bx:loader-alt' : 'bx:download'"
-              class="w-4 h-4 mr-2"
+            <Icon 
+              :name="exporting ? 'bx:loader-alt' : 'bx:download'" 
+              class="w-4 h-4 mr-2" 
               :class="{ 'animate-spin': exporting }"
             />
             {{ exporting ? 'Exportando...' : 'Exportar' }}
-          </button>
-          <button
-            v-if="hasSelectedOrders"
-            :disabled="downloadingQR"
-            class="inline-flex items-center px-3 py-2 border border-green-300 shadow-sm text-sm leading-4 font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            @click="downloadMultipleQRPDFs"
-          >
-            <Icon
-              :name="downloadingQR ? 'bx:loader-alt' : 'bx:qr-scan'"
-              class="w-4 h-4 mr-2"
-              :class="{ 'animate-spin': downloadingQR }"
-            />
-            {{ downloadingQR ? 'Descargando...' : `Descargar ${selectedOrdersCount} QR` }}
           </button>
         </div>
         <div class="flex items-center space-x-2 text-sm text-gray-500">
@@ -245,38 +232,15 @@
 
       <!-- Tabla -->
       <ul v-else class="divide-y divide-gray-200">
-        <!-- Header con selección de todas -->
-        <li v-if="orders.length > 0" class="bg-gray-50 px-4 py-3 border-b border-gray-200">
-          <div class="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              :checked="isAllSelected"
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
-              @change="toggleSelectAll"
-            >
-            <span class="text-sm font-medium text-gray-700">
-              {{ hasSelectedOrders ? `${selectedOrdersCount} seleccionada${selectedOrdersCount !== 1 ? 's' : ''}` : 'Seleccionar todo' }}
-            </span>
-          </div>
-        </li>
-
         <li
-          v-for="order in orders"
-          :key="order.id"
-          class="hover:bg-gray-50"
-        >
+v-for="order in orders"
+:key="order.id"
+class="hover:bg-gray-50">
           <div class="px-4 py-4 sm:px-6">
             <div class="flex flex-col space-y-3">
               <!-- Header con Orden y Estado -->
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    :checked="isOrderSelected(order.id)"
-                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
-                    @change="toggleOrderSelection(order.id)"
-                    @click.stop
-                  >
                   <div
                     :class="order.status === 'Aprobado' ? 'bg-green-400' : 'bg-red-400'"
                     class="w-3 h-3 rounded-full flex-shrink-0"
@@ -565,8 +529,6 @@ const orders = ref<Order[]>([])
 const loading = ref(true)
 const exporting = ref(false)
 const deleting = ref(false)
-const downloadingQR = ref(false)
-const selectedOrders = ref<Set<number>>(new Set())
 const liberadores = ref<Array<{ user_id: string; first_name: string; last_name: string; user_role: string }>>([])
 const filters = ref<OrderFilters & { limit: number }>({
   status: undefined,
@@ -607,14 +569,6 @@ const hasActiveFilters = computed(() => {
 const canDeleteOrders = computed(() => {
   return user.value?.role === 'Admin' || user.value?.role === 'Supervisor'
 })
-
-const hasSelectedOrders = computed(() => selectedOrders.value.size > 0)
-
-const selectedOrdersCount = computed(() => selectedOrders.value.size)
-
-const isAllSelected = computed(() => orders.value.length > 0 && selectedOrders.value.size === orders.value.length)
-
-const isOrderSelected = (orderId: number) => selectedOrders.value.has(orderId)
 
 const visiblePages = computed(() => {
   const current = pagination.value.page
@@ -946,70 +900,6 @@ const fetchLiberadores = async () => {
   }
 }
 
-// Funciones para selección
-const toggleOrderSelection = (orderId: number) => {
-  if (selectedOrders.value.has(orderId)) {
-    selectedOrders.value.delete(orderId)
-  } else {
-    selectedOrders.value.add(orderId)
-  }
-}
-
-const toggleSelectAll = () => {
-  if (isAllSelected.value) {
-    selectedOrders.value.clear()
-  } else {
-    orders.value.forEach(order => selectedOrders.value.add(order.id))
-  }
-}
-
-const clearSelection = () => {
-  selectedOrders.value.clear()
-}
-
-// Función para descargar múltiples QR PDFs
-const downloadMultipleQRPDFs = async () => {
-  if (!hasSelectedOrders.value) {
-    toast.error('Error', 'Selecciona al menos una orden')
-    return
-  }
-
-  downloadingQR.value = true
-
-  try {
-    const orderIds = Array.from(selectedOrders.value)
-
-    // Llamar al endpoint que combina los PDFs
-    const response = await $fetch('/api/orders/bulk-qr-pdf', {
-      method: 'POST',
-      body: { orderIds }
-    })
-
-    if (response.success && response.data.pdfUrl) {
-      // Descargar el PDF combinado
-      const link = document.createElement('a')
-      link.href = response.data.pdfUrl
-      link.download = `codigos-qr-${new Date().toISOString().split('T')[0]}.pdf`
-      link.target = '_blank'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-
-      toast.success('Éxito', `Se descargaron ${orderIds.length} códigos QR`)
-      clearSelection()
-    } else {
-      throw new Error('No se pudo generar el PDF combinado')
-    }
-
-  } catch (error: unknown) {
-    const err = error as { data?: { message?: string }; message?: string }
-    const errorMessage = err?.data?.message || err?.message || 'Error al descargar los códigos QR'
-    toast.error('Error', errorMessage)
-  } finally {
-    downloadingQR.value = false
-  }
-}
-
 // Funciones para eliminación
 const confirmDeleteOrder = (order: Order) => {
   orderToDelete.value = order
@@ -1038,8 +928,7 @@ const deleteOrder = async () => {
 
   } catch (error: unknown) {
     // Mostrar mensaje de error
-    const err = error as { data?: { message?: string }; message?: string }
-    const errorMessage = err?.data?.message || err?.message || 'Error al eliminar la orden'
+    const errorMessage = (error as any)?.data?.message || (error as any)?.message || 'Error al eliminar la orden'
     toast.error('Error al eliminar', errorMessage)
   } finally {
     deleting.value = false
