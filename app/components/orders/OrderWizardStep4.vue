@@ -78,7 +78,7 @@
       <div>
         <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
           <Icon name="bx:check-circle" class="w-5 h-5 mr-2 text-indigo-500" />
-          Resultados de Pruebas
+          Resultados del análisis
         </h3>
         <div class="bg-gray-50 rounded-lg p-6">
           <div v-if="testsWithResults.length > 0" class="space-y-3">

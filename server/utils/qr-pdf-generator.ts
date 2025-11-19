@@ -66,7 +66,7 @@ export async function generateOrderQRPDF(
     // Título del documento más compacto
     doc.setFontSize(12) // Fuente más pequeña
     doc.setFont('helvetica', 'bold')
-    doc.text('Orden de liberación', pageWidth / 2, yPosition, { align: 'center' })
+    doc.text('Registro de inspección', pageWidth / 2, yPosition, { align: 'center' })
     yPosition += 10
 
     // Información básica de la orden más compacta
@@ -81,6 +81,7 @@ export async function generateOrderQRPDF(
     ]
 
     orderInfo.forEach(info => {
+      
       doc.text(info, pageWidth / 2, yPosition, { align: 'center' })
       yPosition += 6
     })
