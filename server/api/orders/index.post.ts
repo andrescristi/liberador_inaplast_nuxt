@@ -3,6 +3,7 @@
  */
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import { generateOrderQRPDF } from '../../utils/qr-pdf-generator'
+import { orderLogger } from '../../utils/logger'
 
 interface OrderTestData {
   testId?: number
@@ -347,8 +348,11 @@ export default defineEventHandler(async (event) => {
         })
 
       if (uploadError) {
-        // eslint-disable-next-line no-console
-        console.error('Error al subir PDF al bucket:', uploadError)
+        orderLogger.error({
+          error: uploadError.message,
+          orderId: order.id,
+          fileName
+        }, 'Error al subir PDF al bucket')
       } else {
         // Generar URL firmada para bucket privado (válida por 24 horas)
         const { data: signedUrlData, error: urlError } = await supabase.storage
@@ -360,8 +364,11 @@ export default defineEventHandler(async (event) => {
         }
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error al generar o subir el PDF con QR:', error)
+      orderLogger.error({
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        orderId: order.id
+      }, 'Error al generar o subir el PDF con QR')
       // No fallar la creación de la orden por este error
     }
 
@@ -379,11 +386,17 @@ export default defineEventHandler(async (event) => {
         }
       })
 
-      // eslint-disable-next-line no-console
-      console.log('Email enviado exitosamente:', emailResponse)
+      orderLogger.info({
+        orderId: order.id,
+        userId: user.id
+      }, 'Email enviado exitosamente')
     } catch (emailError) {
-      // eslint-disable-next-line no-console
-      console.error('Error al enviar email con QR code:', emailError)
+      orderLogger.error({
+        error: emailError instanceof Error ? emailError.message : String(emailError),
+        stack: emailError instanceof Error ? emailError.stack : undefined,
+        orderId: order.id,
+        userId: user.id
+      }, 'Error al enviar email con QR code')
       // No fallar la creación de la orden por este error
     }
     

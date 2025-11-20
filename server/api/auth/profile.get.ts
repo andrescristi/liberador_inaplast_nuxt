@@ -1,5 +1,6 @@
 import { verifyHybridAuth } from '../../utils/hybrid-auth'
 import { serverSupabaseServiceRole } from '#supabase/server'
+import { authLogger } from '../../utils/logger'
 
 /**
  * Endpoint para obtener el perfil completo del usuario autenticado
@@ -39,8 +40,10 @@ export default defineEventHandler(async (event) => {
       .single()
 
     if (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error obteniendo perfil desde BD:', error)
+      authLogger.error({
+        error: error.message,
+        userId: auth.userId
+      }, 'Error obteniendo perfil desde BD')
       throw createError({
         statusCode: 404,
         statusMessage: `Error al obtener perfil: ${error.message}`

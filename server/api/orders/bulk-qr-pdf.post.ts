@@ -1,5 +1,6 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import { generateBulkOrderQRPDF } from '../../../server/utils/bulk-qr-pdf-generator'
+import { orderLogger } from '../../utils/logger'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -129,8 +130,11 @@ export default defineEventHandler(async (event) => {
           .from('qr_bucket')
           .remove([tempFileName])
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('Error al limpiar archivo temporal:', error)
+        orderLogger.error({
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          fileName: tempFileName
+        }, 'Error al limpiar archivo temporal')
       }
     }, 2 * 60 * 60 * 1000) // 2 horas
 
@@ -142,8 +146,10 @@ export default defineEventHandler(async (event) => {
       }
     }
   } catch (error: unknown) {
-    // eslint-disable-next-line no-console
-    console.error('Error en bulk-qr-pdf:', error)
+    orderLogger.error({
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    }, 'Error en bulk-qr-pdf')
 
     if (error && typeof error === 'object' && 'statusCode' in error) {
       throw error

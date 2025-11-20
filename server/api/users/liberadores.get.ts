@@ -2,6 +2,7 @@
  * API endpoint para obtener solo los usuarios que han realizado liberaciones de órdenes
  */
 import { serverSupabaseServiceRole } from '#supabase/server'
+import { logger } from '../../utils/logger'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -16,7 +17,9 @@ export default defineEventHandler(async (event) => {
       .is('eliminado_por', null)
 
     if (userIdsError) {
-      console.error('Error obteniendo IDs de usuarios:', userIdsError)
+      logger.error({
+        error: userIdsError.message
+      }, 'Error obteniendo IDs de usuarios')
       throw createError({
         statusCode: 500,
         statusMessage: 'Error al obtener los usuarios liberadores: ' + userIdsError.message
@@ -41,7 +44,9 @@ export default defineEventHandler(async (event) => {
       .order('first_name', { ascending: true })
 
     if (error) {
-      console.error('Error obteniendo usuarios:', error)
+      logger.error({
+        error: error.message
+      }, 'Error obteniendo usuarios')
       throw createError({
         statusCode: 500,
         statusMessage: 'Error al obtener los usuarios: ' + error.message
@@ -54,7 +59,10 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error) {
-    console.error('Error en API users/liberadores:', error)
+    logger.error({
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    }, 'Error en API users/liberadores')
 
     // Si es un error de createError, re-lanzarlo
     if (error && typeof error === 'object' && 'statusCode' in error) {

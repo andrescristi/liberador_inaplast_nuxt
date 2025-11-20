@@ -2,6 +2,7 @@
  * API endpoint para obtener una orden específica con sus tests y resumen de inspección
  */
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { orderLogger } from '../../utils/logger'
 
 interface Test {
   id: number
@@ -51,8 +52,11 @@ export default defineEventHandler(async (event) => {
       .single()
 
     if (orderError) {
-      // eslint-disable-next-line no-console
-      console.error('Error obteniendo orden:', orderError)
+      orderLogger.error({
+        error: orderError.message,
+        code: orderError.code,
+        orderId
+      }, 'Error obteniendo orden')
 
       if (orderError.code === 'PGRST116') {
         throw createError({
@@ -115,8 +119,10 @@ export default defineEventHandler(async (event) => {
       .eq('"order"', orderId)
     
     if (testsError) {
-      // eslint-disable-next-line no-console
-      console.error('Error obteniendo tests de la orden:', testsError)
+      orderLogger.warn({
+        error: testsError.message,
+        orderId
+      }, 'Error obteniendo tests de la orden')
       // No es un error crítico, continuamos sin los tests
     }
     
@@ -195,14 +201,16 @@ export default defineEventHandler(async (event) => {
     }
     
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error en API orders/[id]:', error)
-    
+    orderLogger.error({
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    }, 'Error en API orders/[id]')
+
     // Si es un error de createError, re-lanzarlo
     if (error && typeof error === 'object' && 'statusCode' in error) {
       throw error
     }
-    
+
     // Error genérico
     throw createError({
       statusCode: 500,

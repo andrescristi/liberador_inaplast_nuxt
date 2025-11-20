@@ -1,5 +1,6 @@
 import { verifyHybridAuth } from '../../../server/utils/hybrid-auth'
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { authLogger } from '../../utils/logger'
 
 /**
  * Endpoint para obtener la información del usuario autenticado actual
@@ -51,8 +52,9 @@ export default defineEventHandler(async (event) => {
       }
     } catch (hybridAuthError) {
       // Si falla autenticación híbrida, intentar con Supabase como fallback
-      // eslint-disable-next-line no-console
-      console.log('Hybrid auth failed, trying Supabase fallback:', hybridAuthError)
+      authLogger.debug({
+        error: hybridAuthError instanceof Error ? hybridAuthError.message : String(hybridAuthError)
+      }, 'Hybrid auth failed, trying Supabase fallback')
     }
 
     // FALLBACK: Usar autenticación de Supabase directamente
@@ -103,8 +105,10 @@ export default defineEventHandler(async (event) => {
     const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
 
     // Para cualquier otro error, retornar no autenticado
-    // eslint-disable-next-line no-console
-    console.error('Error en /api/auth/user:', error)
+    authLogger.error({
+      error: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined
+    }, 'Error en /api/auth/user')
     return {
       user: null,
       authenticated: false

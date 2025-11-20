@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { logger } from '../../utils/logger'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -104,9 +105,11 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error fetching dashboard metrics:', error)
-    
+    logger.error({
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    }, 'Error fetching dashboard metrics')
+
     return {
       success: false,
       data: {

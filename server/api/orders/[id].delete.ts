@@ -4,6 +4,7 @@
  */
 import type { H3Event } from 'h3'
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { orderLogger } from '../../utils/logger'
 
 /**
  * Verifica que el usuario tenga permisos para eliminar órdenes (Admin o Supervisor)
@@ -120,8 +121,11 @@ export default defineEventHandler(async (event) => {
       .eq('id', orderId)
 
     if (updateOrderError) {
-      // eslint-disable-next-line no-console
-      console.error('Error marcando la orden como eliminada:', updateOrderError)
+      orderLogger.error({
+        error: updateOrderError.message,
+        orderId,
+        userId: deleteUser.id
+      }, 'Error marcando la orden como eliminada')
       throw createError({
         statusCode: 500,
         statusMessage: 'Error al marcar la orden como eliminada: ' + updateOrderError.message
@@ -145,8 +149,10 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error en API orders/[id].delete:', error)
+    orderLogger.error({
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    }, 'Error en API orders/[id].delete')
 
     // Si es un error de createError, re-lanzarlo
     if (error && typeof error === 'object' && 'statusCode' in error) {

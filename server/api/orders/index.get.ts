@@ -2,6 +2,7 @@
  * API endpoint para obtener orders con paginación y filtros
  */
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { orderLogger } from '../../utils/logger'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -76,8 +77,9 @@ export default defineEventHandler(async (event) => {
     const { data: orders, error, count } = await queryBuilder
 
     if (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error obteniendo orders:', error)
+      orderLogger.error({
+        error: error.message
+      }, 'Error obteniendo orders')
       throw createError({
         statusCode: 500,
         statusMessage: 'Error al obtener las órdenes: ' + error.message
@@ -124,14 +126,16 @@ export default defineEventHandler(async (event) => {
     }
     
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('Error en API orders/list:', error)
-    
+    orderLogger.error({
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    }, 'Error en API orders/list')
+
     // Si es un error de createError, re-lanzarlo
     if (error && typeof error === 'object' && 'statusCode' in error) {
       throw error
     }
-    
+
     // Error genérico
     throw createError({
       statusCode: 500,

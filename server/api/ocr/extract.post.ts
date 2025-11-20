@@ -1,5 +1,6 @@
 import { GoogleGenAI } from '@google/genai'
 import sharp from 'sharp'
+import { ocrLogger } from '../../utils/logger'
 
 
 interface OCRRequest {
@@ -339,8 +340,10 @@ JSON:
     }
 
   } catch (error: unknown) {
-    // eslint-disable-next-line no-console
-    console.error('❌ Error en OCR:', error)
+    ocrLogger.error({
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    }, 'Error en OCR')
 
     // Manejar errores específicos de la API de Gemini
     if (error && typeof error === 'object' && 'status' in error) {
