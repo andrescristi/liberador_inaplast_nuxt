@@ -17,6 +17,7 @@ El **Sistema Liberador Inaplast** es una aplicación web diseñada para optimiza
 - **🔄 Proceso de Liberación en 5 Pasos**: Flujo guiado desde captura hasta notificación automática
 - **🤖 OCR Inteligente**: Extracción automática de datos con Google Gemini AI
 - **📧 Notificaciones Automáticas**: Envío de emails con códigos QR al completar órdenes
+- **📦 Descarga Masiva de QR**: Selección múltiple de órdenes y descarga de PDFs combinados
 - **👥 Sistema de Administración**: CRUD completo de usuarios con gestión de roles
 - **🔐 Autenticación Híbrida**: JWT + Session con recuperación automática
 - **📊 Dashboard Personalizado**: Métricas diferenciadas por rol de usuario con filtrado automático
@@ -41,6 +42,7 @@ El **Sistema Liberador Inaplast** es una aplicación web diseñada para optimiza
 ### IA y Procesamiento
 - **Google GenAI**: 1.15.0 - OCR principal con Gemini AI
 - **Sharp**: 0.34.3 - Procesamiento de imágenes
+- **PDF-Lib**: 1.17.1 - Manipulación y fusión de PDFs
 
 ### Testing
 - **Vitest**: 3.2.4 (Unit Testing)
@@ -133,6 +135,22 @@ Admin: ['manage:users', 'manage:system', 'access:admin-panel', 'view:global-metr
 - Envío automático de email con código QR
 - Link directo al código QR de la orden
 - Notificación al usuario que creó la orden
+
+## 📦 Gestión de Códigos QR
+
+### Descarga Individual
+- Acceso directo al PDF con código QR desde el detalle de cada orden
+- URLs firmadas temporales para seguridad
+- Códigos QR con información completa de la orden
+
+### Descarga Masiva
+- **Selección múltiple**: Checkboxes para seleccionar órdenes individuales o todas en la página
+- **Fusión automática**: Combina múltiples PDFs con códigos QR en un solo documento
+- **Barra de acciones flotante**: Interfaz intuitiva con contador de selección
+- **Barra de progreso**: Feedback visual durante la generación del PDF
+- **Límite de 100 órdenes**: Control de rendimiento y timeouts
+- **Validación por rol**: Inspectores solo pueden descargar sus propias órdenes
+- **Limpieza automática**: Archivos temporales se eliminan después de 2 horas
 
 ## 🧪 Testing
 
@@ -233,5 +251,5 @@ Código propietario - Todos los derechos reservados.
 
 Para soporte técnico o preguntas sobre el sistema, contactar al equipo de desarrollo interno.
 
-**Versión**: 2.7.0
-**Última actualización**: Septiembre 2025
+**Versión**: 2.8.0
+**Última actualización**: Noviembre 2025
