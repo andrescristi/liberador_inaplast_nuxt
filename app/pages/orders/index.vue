@@ -232,15 +232,43 @@
 
       <!-- Tabla -->
       <ul v-else class="divide-y divide-gray-200">
+        <!-- Header con checkbox de seleccionar todo -->
+        <li class="bg-gray-50 border-b-2 border-gray-200">
+          <div class="px-4 py-3 sm:px-6">
+            <div class="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+                :checked="currentPageOrderIds.length > 0 && areAllSelected(currentPageOrderIds)"
+                @change="toggleSelectAll(currentPageOrderIds)"
+              >
+              <span class="text-sm font-medium text-gray-700">
+                Seleccionar todas las órdenes en esta página
+              </span>
+            </div>
+          </div>
+        </li>
+
         <li
-v-for="order in orders"
-:key="order.id"
-class="hover:bg-gray-50">
-          <div class="px-4 py-4 sm:px-6">
+          v-for="order in orders"
+          :key="order.id"
+          class="hover:bg-gray-50 transition-colors"
+          :class="{ 'bg-blue-50': isOrderSelected(order.id) }"
+        >
+          <div
+            class="px-4 py-4 sm:px-6"
+          >
             <div class="flex flex-col space-y-3">
               <!-- Header con Orden y Estado -->
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
+                  <!-- Checkbox de selección -->
+                  <input
+                    type="checkbox"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+                    :checked="isOrderSelected(order.id)"
+                    @change="toggleOrderSelection(order.id)"
+                  >
                   <div
                     :class="order.status === 'Aprobado' ? 'bg-green-400' : 'bg-red-400'"
                     class="w-3 h-3 rounded-full flex-shrink-0"
@@ -463,6 +491,15 @@ class="hover:bg-gray-50">
       </div>
     </div>
 
+    <!-- Barra de acciones masivas -->
+    <BulkActionBar
+      :selected-count="selectedCount"
+      :is-downloading="isDownloading"
+      :download-progress="downloadProgress"
+      @download="handleBulkDownload"
+      @clear="clearSelection"
+    />
+
     <!-- Modal de confirmación de eliminación -->
     <div v-if="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -560,6 +597,16 @@ const stats = ref({
 // Composables
 const { user, fetchUser } = useAuthState()
 const toast = useToast()
+const {
+  isOrderSelected,
+  toggleOrderSelection,
+  clearSelection,
+  selectedCount,
+  selectedOrderIds,
+  areAllSelected,
+  toggleSelectAll
+} = useOrderSelection()
+const { isDownloading, downloadProgress, downloadBulkQRPDF } = useBulkQRDownload()
 
 // Computadas
 const hasActiveFilters = computed(() => {
@@ -574,36 +621,39 @@ const visiblePages = computed(() => {
   const current = pagination.value.page
   const total = pagination.value.totalPages
   const pages: (number | string)[] = []
-  
+
   if (total <= 7) {
     for (let i = 1; i <= total; i++) {
       pages.push(i)
     }
   } else {
     pages.push(1)
-    
+
     if (current > 4) {
       pages.push('...')
     }
-    
+
     const start = Math.max(2, current - 1)
     const end = Math.min(total - 1, current + 1)
-    
+
     for (let i = start; i <= end; i++) {
       pages.push(i)
     }
-    
+
     if (current < total - 3) {
       pages.push('...')
     }
-    
+
     if (total > 1) {
       pages.push(total)
     }
   }
-  
+
   return pages
 })
+
+// IDs de las órdenes en la página actual (para selección múltiple)
+const currentPageOrderIds = computed(() => orders.value.map(order => order.id))
 
 // Funciones principales
 const fetchOrders = async () => {
@@ -928,10 +978,20 @@ const deleteOrder = async () => {
 
   } catch (error: unknown) {
     // Mostrar mensaje de error
-    const errorMessage = (error as any)?.data?.message || (error as any)?.message || 'Error al eliminar la orden'
+    const errorData = error as { data?: { message?: string }; message?: string }
+    const errorMessage = errorData?.data?.message || errorData?.message || 'Error al eliminar la orden'
     toast.error('Error al eliminar', errorMessage)
   } finally {
     deleting.value = false
+  }
+}
+
+// Función para manejar la descarga masiva de QR PDFs
+const handleBulkDownload = async () => {
+  await downloadBulkQRPDF(selectedOrderIds.value)
+  // Limpiar selección después de una descarga exitosa
+  if (!isDownloading.value) {
+    clearSelection()
   }
 }
 
