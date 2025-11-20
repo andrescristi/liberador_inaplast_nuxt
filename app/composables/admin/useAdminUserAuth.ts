@@ -8,11 +8,8 @@
  * @since v2.5.0
  */
 
-import { useAuth } from '~/composables/auth'
-import { useLogger } from '~/composables/tools/useLogger'
-
 export const useAdminUserAuth = () => {
-  const { getCurrentUserProfile } = useAuth()
+  const { getCurrentUserProfile } = useAuthProfile()
   const logger = useLogger()
 
   /**
