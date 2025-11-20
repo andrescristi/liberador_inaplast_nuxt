@@ -39,10 +39,15 @@ El **Sistema Liberador Inaplast** es una aplicación web diseñada para optimiza
 - **PostgreSQL**: (via Supabase)
 - **Edge Functions**: Supabase (notificaciones automáticas)
 
+### Seguridad & Logging
+- **Pino**: 9.9.0 - Logging estructurado de alto rendimiento
+- **Rate Limiting**: Sistema en memoria con doble capa (IP + usuario)
+- **CSRF Protection**: Tokens firmados con HMAC-SHA256
+
 ### IA y Procesamiento
 - **Google GenAI**: 1.15.0 - OCR principal con Gemini AI
 - **Sharp**: 0.34.3 - Procesamiento de imágenes
-- **PDF-Lib**: 1.17.1 - Manipulación y fusión de PDFs
+- **jsPDF**: 3.0.2 - Generación de PDFs con QR codes
 
 ### Testing
 - **Vitest**: 3.2.4 (Unit Testing)
@@ -154,10 +159,11 @@ Admin: ['manage:users', 'manage:system', 'access:admin-panel', 'view:global-metr
 - **Limpieza automática**: Archivos temporales se eliminan después de 2 horas
 
 ### Implementación Técnica
-- **bulk-qr-pdf-generator.ts**: Generador de PDFs con múltiples QR codes usando jsPDF
-- **Optimización de rendimiento**: Genera directamente en lugar de fusionar PDFs individuales
+- **unified-pdf-generator.ts**: Generador unificado de PDFs con código DRY y arquitectura optimizada
+- **Generación optimizada**: Crea PDFs directamente sin necesidad de fusionar archivos individuales
 - **Menor uso de almacenamiento**: No requiere descargar PDFs individuales desde Supabase
 - **Procesamiento en servidor**: Edge functions de Vercel para máximo rendimiento
+- **Logging estructurado**: Pino para monitoreo y debugging de operaciones PDF
 
 ## 🧪 Testing
 
@@ -200,12 +206,20 @@ npx vercel deploy --prebuilt
 
 ### Variables de Entorno Requeridas
 ```env
+# Supabase
 NUXT_SUPABASE_URL=your_supabase_url
 NUXT_SUPABASE_ANON_KEY=your_anon_key
 NUXT_SUPABASE_SERVICE_KEY=your_service_key
+
+# IA y Procesamiento
 NUXT_GEMINI_API_KEY=your_gemini_key
+
+# Autenticación
 NUXT_SESSION_PASSWORD=your_session_password
 NUXT_JWT_SECRET=your_jwt_secret
+
+# Seguridad (CSRF Protection)
+NUXT_CSRF_SECRET=your_csrf_secret
 ```
 
 ## 📚 Para Nuevos Desarrolladores
@@ -258,5 +272,22 @@ Código propietario - Todos los derechos reservados.
 
 Para soporte técnico o preguntas sobre el sistema, contactar al equipo de desarrollo interno.
 
-**Versión**: 2.9.0
+**Versión**: 3.0.0
 **Última actualización**: Noviembre 2025
+
+### Changelog v3.0.0 (20 Nov 2025)
+
+#### 🔒 Seguridad
+- ✅ Implementado rate limiting de doble capa (IP + usuario)
+- ✅ Protección CSRF con tokens HMAC firmados
+- ✅ Logging estructurado con Pino y sanitización de datos sensibles
+
+#### ⚡ Performance
+- ✅ Optimización de queries (endpoint stats para estadísticas)
+- ✅ Generador PDF unificado (reducción del 80% de código duplicado)
+- ✅ Sistema de logging de alto rendimiento
+
+#### 🧹 Mantenibilidad
+- ✅ Migración de 22 console.log a logging estructurado
+- ✅ Refactorización DRY de generadores PDF
+- ✅ Eliminación de archivos no utilizados (pdf-merger.ts)
