@@ -1,5 +1,5 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
-import { mergePDFs } from '../../../server/utils/pdf-merger'
+import { generateBulkOrderQRPDF } from '../../../server/utils/bulk-qr-pdf-generator'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -47,10 +47,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Verificar que las órdenes existan y el usuario tenga permiso
+    // Obtener la información completa de las órdenes
     const { data: orders, error: ordersError } = await supabase
       .from('orders')
-      .select('id, numero_orden, pedido, inspector_calidad, eliminado_por')
+      .select('id, numero_orden, pedido, cliente, status, inspector_calidad, eliminado_por, created_at')
       .in('id', orderIds)
       .is('eliminado_por', null)
 
@@ -79,43 +79,17 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Descargar todos los PDFs del bucket
-    const pdfBuffers: Uint8Array[] = []
-    const failedOrders: string[] = []
+    // Preparar datos para el generador de PDF
+    const ordersData = orders.map(order => ({
+      id: order.id,
+      pedido: order.pedido || 'Sin pedido',
+      cliente: order.cliente || 'Sin cliente',
+      status: order.status || 'pendiente',
+      createdAt: order.created_at
+    }))
 
-    for (const order of orders) {
-      try {
-        const fileName = `${order.id}.pdf`
-        const { data: pdfData, error: downloadError } = await supabase.storage
-          .from('qr_bucket')
-          .download(fileName)
-
-        if (downloadError || !pdfData) {
-          // eslint-disable-next-line no-console
-          console.error(`Error al descargar PDF para orden ${order.numero_orden}:`, downloadError)
-          failedOrders.push(order.numero_orden.toString())
-          continue
-        }
-
-        // Convertir Blob a Uint8Array
-        const arrayBuffer = await pdfData.arrayBuffer()
-        pdfBuffers.push(new Uint8Array(arrayBuffer))
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(`Error al procesar orden ${order.numero_orden}:`, error)
-        failedOrders.push(order.numero_orden.toString())
-      }
-    }
-
-    if (pdfBuffers.length === 0) {
-      throw createError({
-        statusCode: 404,
-        message: 'No se pudieron descargar los PDFs con códigos QR. Es posible que aún no hayan sido generados.'
-      })
-    }
-
-    // Combinar todos los PDFs
-    const mergedPdfBuffer = await mergePDFs(pdfBuffers)
+    // Generar el PDF con todos los QR codes
+    const pdfBuffer = await generateBulkOrderQRPDF(ordersData)
 
     // Generar nombre único para el archivo temporal
     const timestamp = Date.now()
@@ -124,7 +98,7 @@ export default defineEventHandler(async (event) => {
     // Subir el PDF combinado al bucket en una carpeta temporal
     const { error: uploadError } = await supabase.storage
       .from('qr_bucket')
-      .upload(tempFileName, mergedPdfBuffer, {
+      .upload(tempFileName, pdfBuffer, {
         contentType: 'application/pdf',
         upsert: true
       })
@@ -164,9 +138,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       data: {
         downloadUrl: signedUrlData.signedUrl,
-        totalOrders: orders.length,
-        successfulDownloads: pdfBuffers.length,
-        failedOrders: failedOrders.length > 0 ? failedOrders : undefined
+        totalOrders: orders.length
       }
     }
   } catch (error: unknown) {
