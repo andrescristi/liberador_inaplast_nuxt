@@ -145,12 +145,19 @@ Admin: ['manage:users', 'manage:system', 'access:admin-panel', 'view:global-metr
 
 ### Descarga Masiva
 - **Selección múltiple**: Checkboxes para seleccionar órdenes individuales o todas en la página
-- **Fusión automática**: Combina múltiples PDFs con códigos QR en un solo documento
+- **Generación optimizada**: Crea un solo PDF con múltiples códigos QR (una página por orden)
+- **Formato consistente**: Todos los QR codes siguen el mismo diseño y tamaño
 - **Barra de acciones flotante**: Interfaz intuitiva con contador de selección
 - **Barra de progreso**: Feedback visual durante la generación del PDF
 - **Límite de 100 órdenes**: Control de rendimiento y timeouts
 - **Validación por rol**: Inspectores solo pueden descargar sus propias órdenes
 - **Limpieza automática**: Archivos temporales se eliminan después de 2 horas
+
+### Implementación Técnica
+- **bulk-qr-pdf-generator.ts**: Generador de PDFs con múltiples QR codes usando jsPDF
+- **Optimización de rendimiento**: Genera directamente en lugar de fusionar PDFs individuales
+- **Menor uso de almacenamiento**: No requiere descargar PDFs individuales desde Supabase
+- **Procesamiento en servidor**: Edge functions de Vercel para máximo rendimiento
 
 ## 🧪 Testing
 
@@ -251,5 +258,5 @@ Código propietario - Todos los derechos reservados.
 
 Para soporte técnico o preguntas sobre el sistema, contactar al equipo de desarrollo interno.
 
-**Versión**: 2.8.0
+**Versión**: 2.9.0
 **Última actualización**: Noviembre 2025
