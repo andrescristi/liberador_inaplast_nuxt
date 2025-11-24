@@ -1,5 +1,5 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
-import { generateBulkOrderQRPDF } from '../../../server/utils/bulk-qr-pdf-generator'
+import { generateBulkOrderQRPDF } from '../../utils/unified-pdf-generator'
 import { orderLogger } from '../../utils/logger'
 
 export default defineEventHandler(async (event) => {

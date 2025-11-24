@@ -2,7 +2,7 @@
  * API endpoint para crear nueva orden con tests automáticos
  */
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
-import { generateOrderQRPDF } from '../../utils/qr-pdf-generator'
+import { generateOrderQRPDF } from '../../utils/unified-pdf-generator'
 import { orderLogger } from '../../utils/logger'
 
 interface OrderTestData {
